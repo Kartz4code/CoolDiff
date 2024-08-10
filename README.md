@@ -7,9 +7,9 @@
 By default, the numerical type for computation is *complex numbers* and this allows the tool to perform complex analysis as well.   
 
 ---
-## Classes :white_check_mark:
+## Classes & Types :white_check_mark:
 
-The main classes involved in **CoolDiff** library are 
+The main classes/types involved in **CoolDiff** library are:
 1. **Expression** - Expression objects are used to model  mathematical expressions.
 2. **Variable** - Variable objects are the optimization/decision/control variables that are of interest for computing the derivatives. 
 3. **Parameter** - Parameter objects are used to model scalar variables that are either constant or vary over run-time (e.g. parameter varying system).   
@@ -18,7 +18,11 @@ The main classes involved in **CoolDiff** library are
 ---
 ## Mathematical Operators :white_check_mark:
 
-| Function | LHS type | RHS type |
+### 1. Binary operators
+
+The list of implemented binary operators are listed in the following table 
+
+| Function (Operator) | LHS type | RHS type |
 | ----------- | ----------- | ----------- |  
 | **Addition** (+) | Variable/Parameter/Expression | Variable/Parameter/Expression
 | **Addition** (+) | Type | Variable/Parameter/Expression
@@ -32,7 +36,29 @@ The main classes involved in **CoolDiff** library are
 | **Division** (/) | Variable/Parameter/Expression | Variable/Parameter/Expression
 | **Division** (/) | Type | Variable/Parameter/Expression
 | **Division** (/) | Variable/Parameter/Expression | Type
+| **Exponentiation** (pow) | Variable/Parameter/Expression | Variable/Parameter/Expression
+| **Exponentiation** (pow) | Type | Variable/Parameter/Expression
+| **Exponentiation** (pow) | Variable/Parameter/Expression | Type
 
 
+### 2. Unary operators
 
+The list of implemented unary operators are listed in the following table 
 
+| Function (Operator) | Operand type |
+| ----------- | ----------- |
+| **Sin** (sin) | Variable/Parameter/Expression
+| **Cos** (cos) | Variable/Parameter/Expression
+| **Tan** (tan) | Variable/Parameter/Expression
+| **Asin** (asin) | Variable/Parameter/Expression
+| **Acos** (acos) | Variable/Parameter/Expression
+| **Atan** (atan) | Variable/Parameter/Expression
+| **Sinh** (sinh) | Variable/Parameter/Expression
+| **Cosh** (cosh) | Variable/Parameter/Expression
+| **Tanh** (tanh) | Variable/Parameter/Expression
+| **Asinh** (asinh) | Variable/Parameter/Expression
+| **Acosh** (acosh) | Variable/Parameter/Expression
+| **Atanh** (atanh) | Variable/Parameter/Expression
+| **Exp** (exp) | Variable/Parameter/Expression
+| **Log** (log) | Variable/Parameter/Expression
+| **Sqrt** (sqrt) | Variable/Parameter/Expression
