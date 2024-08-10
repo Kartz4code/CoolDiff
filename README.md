@@ -16,6 +16,8 @@ Firstly, the **CoolDiff** library needs to be build. The following steps will bu
 2. Build the library using following steps - 
 - `cmake -S . -B build`
 - `cmake --build build -j16 `
+3. Run the Gaussian example to verify the success of the build - 
+- `./build/example/Gaussian`
 
 Link the generated **CoolDiff** library with your project and include the header `CommonFunctions.hpp` to utilize the **CoolDiff** APIs. The example folder has few examples to exhibit the use case of the library.  
 
@@ -79,6 +81,8 @@ The list of implemented unary operators in **CoolDiff** library are listed in th
 ---
 ## Important APIs :white_check_mark:
 
+The list of 8 important APIs and along with its description are listed in the following table.  
+
 | API | Description | 1st Argument type | 2nd Argument type | Output type |
 | ----------- | ----------- | ----------- | ----------- | ----------- | 
 | **Eval** | Evaluates the given expression | Expression& | - | Type |
@@ -89,3 +93,9 @@ The list of implemented unary operators in **CoolDiff** library are listed in th
 | **CreateExpr** | Factory method to create Expression on heap | const Type& | - | Expression& |
 | **CreateVar** | Factory method to create Variable on heap | const Type& | - | Expression& |
 | **CreateParam** | Factory method to create Parameter on heap | const Type& | - | Expression& |
+
+---
+
+# About CoolDiff 
+
+**CoolDiff** is currently in its nascent stage. I will constantly make contributions to make this library a better one. Kindly, feel free to try it and in case if you encounter any bugs, issues or errors let me know :smile:. Your feedback would constanly motivate me to make this software a better one.
