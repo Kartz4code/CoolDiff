@@ -18,6 +18,21 @@ The main classes involved in **CoolDiff** library are
 ---
 ## Mathematical Operators :white_check_mark:
 
+| Function | LHS type | RHS type |
+| ----------- | ----------- | ----------- |  
+| **Addition** (+) | Variable/Parameter/Expression | Variable/Parameter/Expression
+| **Addition** (+) | Type | Variable/Parameter/Expression
+| **Addition** (+) | Variable/Parameter/Expression | Type
+| **Subtraction** (-) | Variable/Parameter/Expression | Variable/Parameter/Expression
+| **Subtraction** (-) | Variable/Parameter/Expression | Type
+| **Subtraction** (-) | Type | Variable/Parameter/Expression
+| **Multiplication** (*) | Variable/Parameter/Expression | Variable/Parameter/Expression
+| **Multiplication** (*) | Type | Variable/Parameter/Expression
+| **Multiplication** (*) | Variable/Parameter/Expression | Type
+| **Division** (/) | Variable/Parameter/Expression | Variable/Parameter/Expression
+| **Division** (/) | Type | Variable/Parameter/Expression
+| **Division** (/) | Variable/Parameter/Expression | Type
+
 
 
 
