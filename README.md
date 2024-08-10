@@ -20,9 +20,9 @@ The main classes/types involved in **CoolDiff** library are:
 
 ### 1. Binary operators
 
-The list of implemented binary operators are listed in the following table 
+The list of implemented binary operators in **CoolDiff** library are listed in the following table 
 
-| Function (Operator) | LHS type | RHS type |
+| Function (Operator) | LHS operand type | RHS operand type |
 | ----------- | ----------- | ----------- |  
 | **Addition** (+) | Variable/Parameter/Expression | Variable/Parameter/Expression
 | **Addition** (+) | Type | Variable/Parameter/Expression
@@ -43,7 +43,7 @@ The list of implemented binary operators are listed in the following table
 
 ### 2. Unary operators
 
-The list of implemented unary operators are listed in the following table 
+The list of implemented unary operators in **CoolDiff** library are listed in the following table 
 
 | Function (Operator) | Operand type |
 | ----------- | ----------- |
