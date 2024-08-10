@@ -7,6 +7,19 @@
 By default, the numerical type for computation is *complex numbers* and this allows the tool to perform complex analysis as well.   
 
 ---
+## Building the CoolDiff library :white_check_mark:
+
+Firstly, the **CoolDiff** library needs to be build. The following steps will build the library  
+
+1. Clone the git repository -
+ `git clone https://github.com/Kartz4code/CoolDiff.git`
+2. Build the library using following steps - 
+`cmake -S . -B build `
+`cmake --build build -j16 `
+
+Link the generated **CoolDiff** library with your project and include the header `CommonFunctions.hpp` to utilize the **CoolDiff** APIs.    
+
+---
 ## Classes & Types :white_check_mark:
 
 The main classes/types involved in **CoolDiff** library are:
@@ -62,3 +75,6 @@ The list of implemented unary operators in **CoolDiff** library are listed in th
 | **Exp** (exp) | Variable/Parameter/Expression
 | **Log** (log) | Variable/Parameter/Expression
 | **Sqrt** (sqrt) | Variable/Parameter/Expression
+
+---
+## Important APIs :white_check_mark:
