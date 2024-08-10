@@ -74,7 +74,6 @@ set(INCLUDES ${CMAKE_SOURCE_DIR}/include
 			 ${CMAKE_BINARY_DIR}/_deps/robin-hood-hashing-src/src/include)
 
 # [Add executable (target executable)]
-#add_executable(${PROJECT_NAME} main.cpp ${SOURCES})
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
 # [Set target include directories]
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})	
