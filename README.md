@@ -12,10 +12,10 @@ By default, the numerical type for computation is *complex numbers* and this all
 Firstly, the **CoolDiff** library needs to be build. The following steps will build the library  
 
 1. Clone the git repository -
- `git clone https://github.com/Kartz4code/CoolDiff.git`
+ - `git clone https://github.com/Kartz4code/CoolDiff.git`
 2. Build the library using following steps - 
-`cmake -S . -B build `
-`cmake --build build -j16 `
+- `cmake -S . -B build`
+- `cmake --build build -j16 `
 
 Link the generated **CoolDiff** library with your project and include the header `CommonFunctions.hpp` to utilize the **CoolDiff** APIs.    
 
