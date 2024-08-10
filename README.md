@@ -17,7 +17,7 @@ Firstly, the **CoolDiff** library needs to be build. The following steps will bu
 - `cmake -S . -B build`
 - `cmake --build build -j16 `
 
-Link the generated **CoolDiff** library with your project and include the header `CommonFunctions.hpp` to utilize the **CoolDiff** APIs.    
+Link the generated **CoolDiff** library with your project and include the header `CommonFunctions.hpp` to utilize the **CoolDiff** APIs. The example folder has few examples to exhibit the use case of the library.  
 
 ---
 ## Classes & Types :white_check_mark:
@@ -78,3 +78,14 @@ The list of implemented unary operators in **CoolDiff** library are listed in th
 
 ---
 ## Important APIs :white_check_mark:
+
+| API | Description | 1st Argument type | 2nd Argument type | Output type |
+| ----------- | ----------- | ----------- | ----------- | ----------- | 
+| **Eval** | Evaluates the given expression | Expression& | - | Type |
+| **DevalF** | Computes the forward AD derivative for the given expression and variable | Expression& | const Variable& | Type |
+| **PreComp** | Precomputes all the reverse AD (adjoint) derivatives for the given expression | Expression& | - | - |
+| **DevalR** | Returns the reverse AD derivative for the given expression and variable | Expression& | const Variable& | Type |
+| **SymDiff** | Computes the symbolic derivative for the given expression and variable | Expression& | const Variable& | Expression& |
+| **CreateExpr** | Factory method to create Expression on heap | const Type& | - | Expression& |
+| **CreateVar** | Factory method to create Variable on heap | const Type& | - | Expression& |
+| **CreateParam** | Factory method to create Parameter on heap | const Type& | - | Expression& |
