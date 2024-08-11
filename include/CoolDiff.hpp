@@ -1,5 +1,5 @@
 /**
- * @file include/CoolDiff.cpp
+ * @file include/CoolDiff.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
