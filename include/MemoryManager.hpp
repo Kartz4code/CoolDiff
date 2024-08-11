@@ -37,6 +37,15 @@ class MemoryManager {
         static size_t size();
 };
 
+// Delete resource
+template<typename T>
+void DelPtr(T* ptr) {
+    if (ptr != nullptr) {
+        delete ptr;
+        ptr = nullptr;
+    }
+}
+
 // Allocator
 template<typename T, typename... Args>
 SharedPtr<T> Allocate(Args&&... args) {
