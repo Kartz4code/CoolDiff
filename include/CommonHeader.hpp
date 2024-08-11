@@ -211,15 +211,6 @@ using Tuples = std::tuple<Args...>;
 template<typename T>
 using SharedPtr = std::shared_ptr<T>;
 
-// Delete resource
-template<typename T>
-void DelPtr(T* ptr) {
-    if (ptr != nullptr) {
-        delete ptr;
-        ptr = nullptr;
-    }
-}
-
 #if defined(USE_CUSTOM_FUNCTIONS)
     // Operations enum (Order matters!)
     enum Op : size_t {
