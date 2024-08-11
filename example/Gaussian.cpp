@@ -19,7 +19,7 @@
  * associated repository.
  */
 
-#include "CommonFunctions.hpp"
+#include "CoolDiff.hpp"
 
 #define PI 3.14159
 
