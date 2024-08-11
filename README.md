@@ -19,7 +19,7 @@ Firstly, the **CoolDiff** library needs to be build. The following steps will bu
 3. Run the Gaussian example to verify the success of the build - 
 - `./build/example/Gaussian`
 
-Link the generated **CoolDiff** library with your project and include the header `CommonFunctions.hpp` to utilize the **CoolDiff** APIs. The example folder has few examples to exhibit the use case of the library.  
+Link the generated **CoolDiff** library with your project and include the header `CoolDiff.hpp` to utilize the **CoolDiff** APIs. The example folder has few examples to exhibit the use case of the library.  
 
 ---
 ## Classes & Types :white_check_mark:
