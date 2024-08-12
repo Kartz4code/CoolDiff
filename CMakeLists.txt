@@ -32,8 +32,8 @@ project(CoolDiff VERSION 1.0.0.0
 ## [Custom flags]
 # Build type: Debug or Release
 set(BUILD_TYPE Release)
-set(BUILD_TEST TRUE)
-set(BUILD_EXAMPLE TRUE)
+option(BUILD_TEST "Building unit test executables" TRUE)
+option(BUILD_EXAMPLE "Building example executables" TRUE)
 
 ## [CMAKE internal flags]
 # Set C++ standard
@@ -45,10 +45,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 if(${BUILD_TYPE} STREQUAL Debug)
 	set(CMAKE_BUILD_TYPE Debug)
 	add_definitions(-DBUILD_TYPE)
-	message("[Debug code] Generating debug code")
+	message("[${BUILD_TYPE}] Generating debug code")
 else()
 	set(CMAKE_BUILD_TYPE Release)
-	message("[Production code] Generating production code")
+	message("[${BUILD_TYPE}] Generating production code")
 endif()
 
 #LTO
@@ -62,15 +62,17 @@ FetchContent_Declare(
 	GIT_REPOSITORY https://github.com/martinus/robin-hood-hashing.git
 	GIT_TAG 3.11.5
 	GIT_SHALLOW TRUE)
-
-FetchContent_Declare(
-	googletest
-	GIT_REPOSITORY https://github.com/google/googletest.git
-	GIT_TAG v1.15.2
-	GIT_SHALLOW TRUE)
-
 FetchContent_MakeAvailable(robin-hood-hashing)
-FetchContent_MakeAvailable(googletest)
+
+if(${BUILD_TEST})
+	FetchContent_Declare(
+		googletest
+		GIT_REPOSITORY https://github.com/google/googletest.git
+		GIT_TAG v1.15.2
+		GIT_SHALLOW TRUE)
+	FetchContent_MakeAvailable(googletest)
+	list(APPEND CMAKE_MODULE_PATH ${gtest_SOURCE_DIR}/cmake)
+endif()
 
 ## [Set compilation flags]
 if (${BUILD_TYPE} STREQUAL Debug)
@@ -104,14 +106,23 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
 target_compile_options(${PROJECT_NAME} PRIVATE -fpermissive)
 
 if(${BUILD_TYPE} STREQUAL Debug)
-	target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address)
-	target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address)
+	message("[${BUILD_TYPE}] Attaching address sanitizer")
+	target_compile_options(${PROJECT_NAME} PRIVATE -fno-omit-frame-pointer -fsanitize=address)
+	target_link_options(${PROJECT_NAME} PRIVATE -fno-omit-frame-pointer -fsanitize=address)
+else()
+	message("[${BUILD_TYPE}] Address sanitizer disabled")
 endif()
 
 if(${BUILD_TEST})
+	include(CTest)
+	enable_testing()
 	add_subdirectory(${CMAKE_SOURCE_DIR}/test)
+else()
+	message("[${BUILD_TYPE}] Unit test build is skipped")
 endif()
 
 if(${BUILD_EXAMPLE})
 	add_subdirectory(${CMAKE_SOURCE_DIR}/example)
+else()
+	message("[${BUILD_TYPE}] Example build is skipped")
 endif()

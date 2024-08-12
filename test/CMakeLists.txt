@@ -21,14 +21,21 @@
 */
 ]]
 
-# Add executable (target testing)
-add_executable(OpsTest ${CMAKE_SOURCE_DIR}/test/OpsTest.cpp)
-# Set target include directories
-target_include_directories(OpsTest PUBLIC ${INCLUDES})	
-# Set compile options
-target_compile_options(OpsTest PRIVATE -fpermissive)
-if(${BUILD_TYPE} STREQUAL Debug)
-	target_compile_options(OpsTest PRIVATE -fsanitize=address)
-	target_link_options(OpsTest PRIVATE -fsanitize=address)
+include(GoogleTest)
+
+set(TEST_EXECUTABLE OpsTest)
+if(${BUILD_TEST})
+	# Add executable (target testing)
+	add_executable(${TEST_EXECUTABLE} ${CMAKE_SOURCE_DIR}/test/OpsTest.cpp)
+	# Set target include directories
+	target_include_directories(${TEST_EXECUTABLE} PUBLIC ${INCLUDES})	
+	# Set compile options
+	target_compile_options(${TEST_EXECUTABLE} PRIVATE -fpermissive)
+	if(${BUILD_TYPE} STREQUAL Debug)
+		target_compile_options(${TEST_EXECUTABLE} PRIVATE -fno-omit-frame-pointer -fsanitize=address)
+		target_link_options(${TEST_EXECUTABLE} PRIVATE -fno-omit-frame-pointer -fsanitize=address)
+	endif()
+	target_link_libraries(${TEST_EXECUTABLE} PRIVATE gtest_main CoolDiff)
 endif()
-target_link_libraries(OpsTest PRIVATE gtest_main CoolDiff)
+
+gtest_discover_tests(${TEST_EXECUTABLE})
