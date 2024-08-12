@@ -21,7 +21,7 @@
 */
 ]]
 
-if(${BUILD_TEST})
+if(${BUILD_EXAMPLE})
 	# Add executable (target testing)
 	add_executable(Gaussian ${CMAKE_SOURCE_DIR}/example/Gaussian.cpp)
 	# Set target include directories
@@ -29,8 +29,8 @@ if(${BUILD_TEST})
 	# Set compile options
 	target_compile_options(Gaussian PRIVATE -fpermissive)
 	if(${BUILD_TYPE} STREQUAL Debug)
-		target_compile_options(Gaussian PRIVATE -fsanitize=address)
-		target_link_options(Gaussian PRIVATE -fsanitize=address)
+		target_compile_options(Gaussian PRIVATE -fno-omit-frame-pointer -fsanitize=address)
+		target_link_options(Gaussian PRIVATE -fno-omit-frame-pointer -fsanitize=address)
 	endif()
 	target_link_libraries(Gaussian PRIVATE CoolDiff)
 endif()
