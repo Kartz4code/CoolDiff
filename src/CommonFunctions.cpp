@@ -22,14 +22,16 @@
 #include "CommonFunctions.hpp"
 
 // Evaluate function
-Type Eval(Expression& exp) {
+Type Eval(Expression &exp)
+{
     // Reset graph/tree
     exp.resetImpl();
     // Return evaluation value
     return exp.eval();
 }
 // Forward mode algorithmic differentiation
-Type DevalF(Expression& exp, const Variable& x) {
+Type DevalF(Expression &exp, const Variable &x)
+{
     // Reset visited flags in the tree
     exp.resetImpl();
     // Return forward differentiation value
@@ -37,7 +39,8 @@ Type DevalF(Expression& exp, const Variable& x) {
 }
 
 // Main precomputation of reverse mode AD computation 1st
-void PreComp(Expression& exp) {
+void PreComp(Expression &exp)
+{
     // Reset visited flags in the tree
     exp.resetImpl();
     // Traverse tree
@@ -45,13 +48,15 @@ void PreComp(Expression& exp) {
 }
 
 // Main reverse mode AD computation 1st
-Type DevalR(Expression& exp, const Variable& x) {
+Type DevalR(Expression &exp, const Variable &x)
+{
     // Return reverse differentiation value
     return exp.devalR(x);
 }
 
 // Main reverse mode AD table 1st
-OMPair& PreCompCache(Expression& exp) {
+OMPair &PreCompCache(Expression &exp)
+{
     // Reset flags
     exp.resetImpl();
     // Traverse evaluation graph/tree
@@ -60,14 +65,16 @@ OMPair& PreCompCache(Expression& exp) {
     return exp.getCache();
 }
 
-// Symbolic Expression 
-Expression& SymDiff(Expression& exp, const Variable& var) {
+// Symbolic Expression
+Expression &SymDiff(Expression &exp, const Variable &var)
+{
     // Reset graph/tree
     return exp.SymDiff(var);
 }
 
 // Free function for creating new expression
-Expression& CreateExpr(const Type& val) {
+Expression &CreateExpr(const Type &val)
+{
     // Allocate a temporary parameter
     auto param = Allocate<Parameter>(val);
     // Create expression
@@ -76,14 +83,15 @@ Expression& CreateExpr(const Type& val) {
 }
 
 // Create new variable
-Variable& CreateVar(const Type& val) {
+Variable &CreateVar(const Type &val)
+{
     auto tmp = Allocate<Variable>(val);
     return *tmp;
 }
 
 // Create new parameter
-Parameter& CreateParam(const Type& val) {
+Parameter &CreateParam(const Type &val)
+{
     auto tmp = Allocate<Parameter>(val);
     return *tmp;
 }
-
