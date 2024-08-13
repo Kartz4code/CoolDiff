@@ -24,7 +24,8 @@
 #include "IVariable.hpp"
 
 // Parameter class for l-value data variables
-class Parameter : public IVariable<Parameter> {
+class Parameter : public IVariable<Parameter>
+{
 private:
     Type m_value{};
 
@@ -38,19 +39,19 @@ public:
     Parameter();
 
     // Constructors for Type values
-    Parameter(const Type&);
+    Parameter(const Type &);
 
     // Copy constructor
-    Parameter(const Parameter&);
+    Parameter(const Parameter &);
 
-    // Copy assignment 
-    Parameter& operator=(const Parameter&);
+    // Copy assignment
+    Parameter &operator=(const Parameter &);
 
     // Assignment to Type
-    Parameter& operator=(const Type&);
+    Parameter &operator=(const Type &);
 
     // Deval in run-time for reverse derivative
-    Type devalR(const Variable&);
+    Type devalR(const Variable &);
 
     /*
     * ======================================================================================================
@@ -69,30 +70,30 @@ public:
     */
 
     // Evaluate variable and its derivative value in run-time
-    V_OVERRIDE( Variable* symEval() );
-    V_OVERRIDE( Variable* symDeval(const Variable&) );
+    V_OVERRIDE(Variable *symEval());
+    V_OVERRIDE(Variable *symDeval(const Variable &));
 
     // Evaluate value and derivative value in run-time
-    V_OVERRIDE( Type eval() );
+    V_OVERRIDE(Type eval());
 
     // Reset all visited flag
-    V_OVERRIDE( void reset() );
+    V_OVERRIDE(void reset());
 
     // Evaluate derivative in forward mode
-    V_OVERRIDE( Type devalF(const Variable&) );
+    V_OVERRIDE(Type devalF(const Variable &));
 
-    // Traverse tree 
-    V_OVERRIDE( void traverse(OMPair* = nullptr) );
+    // Traverse tree
+    V_OVERRIDE(void traverse(OMPair * = nullptr));
 
     // Get the map of derivatives
-    V_OVERRIDE( OMPair& getCache() );
+    V_OVERRIDE(OMPair &getCache());
 
     // Get type
-    V_OVERRIDE( std::string_view getType() const );
+    V_OVERRIDE(std::string_view getType() const);
 
-    // Find me 
-    V_OVERRIDE( bool findMe(void*) const );
+    // Find me
+    V_OVERRIDE(bool findMe(void *) const);
 
     // Destructor
-    V_DTR( ~Parameter() );
+    V_DTR(~Parameter());
 };

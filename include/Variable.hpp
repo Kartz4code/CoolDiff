@@ -27,25 +27,28 @@
 class Expression;
 
 // Variable Expression is a wrapper around the variable class
-class Variable : public IVariable<Variable> {
+class Variable : public IVariable<Variable>
+{
 private:
     friend class Expression;
     /* Constructor for expression evaluation - e.g.Variable x = x1 + x2 + x3;
        Dummy variable is created and it is counted negatively
     */
     template <typename T>
-    Variable(const IVariable<T>& expr) : m_nidx{ this->m_idx_count++ } {
+    Variable(const IVariable<T> &expr) : m_nidx{this->m_idx_count++}
+    {
         // Reserve a buffer of expressions
         m_gh_vec.reserve(g_vec_init);
         // Emplace the expression in a generic holder
-        m_gh_vec.emplace_back(&static_cast<const T&>(expr));
+        m_gh_vec.emplace_back(&static_cast<const T &>(expr));
     }
 
     /* Copy assignment for expression evaluation - e.g.Variable x = x1 + x2 + x3; */
     template <typename T>
-    Variable& operator=(const IVariable<T>& expr) {
+    Variable &operator=(const IVariable<T> &expr)
+    {
         // Emplace the expression in a generic holder
-        m_gh_vec.emplace_back(&static_cast<const T&>(expr));
+        m_gh_vec.emplace_back(&static_cast<const T &>(expr));
         return *this;
     }
 
@@ -59,8 +62,8 @@ private:
     Type getdValue() const;
 
     // Set string sets the expression (which can also be a variable name)
-    void setExpression(const std::string&);
-    const std::string& getExpression() const;
+    void setExpression(const std::string &);
+    const std::string &getExpression() const;
 
 protected:
     // Underlying symbolic variable
@@ -69,10 +72,10 @@ protected:
     Type m_value_var{};
 
     // Collection of meta variable expressions
-    Vector<MetaVariable*> m_gh_vec{};
+    Vector<MetaVariable *> m_gh_vec{};
 
     // Exposed to user to compute symbolic differentiation
-    Expression SymDiff(const Variable&);
+    Expression SymDiff(const Variable &);
 
 
 public:
@@ -89,27 +92,27 @@ public:
     // Constructors
     Variable();
     // Copy constructor
-    Variable(const Variable&);
+    Variable(const Variable &);
     // Move constructor
-    Variable(Variable&&) noexcept;
+    Variable(Variable &&) noexcept;
     // Copy assignment from one variable to another
-    Variable& operator=(const Variable&);
+    Variable &operator=(const Variable &);
     // Move assignment from one variable to another
-    Variable& operator=(Variable&&) noexcept;
+    Variable &operator=(Variable &&) noexcept;
 
     // Constructors for Type values
-    Variable(const Type&);
+    Variable(const Type &);
     // Assignment to Type
-    Variable& operator=(const Type&);
+    Variable &operator=(const Type &);
 
     // To output stream (TODO)
-    friend std::ostream& operator<<(std::ostream&, Variable&);
+    friend std::ostream &operator<<(std::ostream &, Variable &);
 
     // Reset impl
     void resetImpl();
 
     // Deval in run-time for reverse derivative
-    Type devalR(const Variable&);
+    Type devalR(const Variable &);
 
     /*
     * ======================================================================================================
@@ -128,29 +131,28 @@ public:
     */
 
     // Evaluate value and derivative value in run-time
-    V_OVERRIDE( Type eval() );
+    V_OVERRIDE(Type eval());
     // Evaluate 1st derivative in forward mode
-    V_OVERRIDE( Type devalF(const Variable&) );  
+    V_OVERRIDE(Type devalF(const Variable &));
 
-    // Traverse tree 
-    V_OVERRIDE( void traverse(OMPair* = nullptr) );
+    // Traverse tree
+    V_OVERRIDE(void traverse(OMPair * = nullptr));
     // Get the map of derivatives
-    V_OVERRIDE( OMPair& getCache() );
+    V_OVERRIDE(OMPair &getCache());
 
     // Evaluate variable and its derivative value in run-time
-    V_OVERRIDE( Variable* symEval() );
-    V_OVERRIDE( Variable* symDeval(const Variable&) );
+    V_OVERRIDE(Variable *symEval());
+    V_OVERRIDE(Variable *symDeval(const Variable &));
 
     // Reset all visited flags
-    V_OVERRIDE( void reset() );
+    V_OVERRIDE(void reset());
 
     // Get type
-    V_OVERRIDE( std::string_view getType() const );
- 
-    // Find me 
-    V_OVERRIDE( bool findMe(void*) const );
+    V_OVERRIDE(std::string_view getType() const);
+
+    // Find me
+    V_OVERRIDE(bool findMe(void *) const);
 
     // Destructor
-    V_DTR( ~Variable() );
+    V_DTR(~Variable());
 };
-

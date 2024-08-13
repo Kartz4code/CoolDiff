@@ -25,17 +25,23 @@ include(GoogleTest)
 
 set(TEST_EXECUTABLE OpsTest)
 if(${BUILD_TEST})
-	# Add executable (target testing)
-	add_executable(${TEST_EXECUTABLE} ${CMAKE_SOURCE_DIR}/test/OpsTest.cpp)
-	# Set target include directories
-	target_include_directories(${TEST_EXECUTABLE} PUBLIC ${INCLUDES})	
-	# Set compile options
-	target_compile_options(${TEST_EXECUTABLE} PRIVATE -fpermissive)
-	if(${BUILD_TYPE} STREQUAL Debug)
-		target_compile_options(${TEST_EXECUTABLE} PRIVATE -fno-omit-frame-pointer -fsanitize=address)
-		target_link_options(${TEST_EXECUTABLE} PRIVATE -fno-omit-frame-pointer -fsanitize=address)
-	endif()
-	target_link_libraries(${TEST_EXECUTABLE} PRIVATE gtest_main CoolDiff)
+    # Add executable (target testing)
+    add_executable(${TEST_EXECUTABLE} ${CMAKE_SOURCE_DIR}/test/OpsTest.cpp)
+    # Set target include directories
+    target_include_directories(${TEST_EXECUTABLE} PUBLIC ${INCLUDES})
+    # Set compile options
+    target_compile_options(${TEST_EXECUTABLE} PRIVATE -fpermissive)
+    if(${BUILD_TYPE} STREQUAL Debug)
+        target_compile_options(
+            ${TEST_EXECUTABLE} PRIVATE -fno-omit-frame-pointer
+                                       -fsanitize=address)
+        target_link_options(
+            ${TEST_EXECUTABLE}
+            PRIVATE
+            -fno-omit-frame-pointer
+            -fsanitize=address)
+    endif()
+    target_link_libraries(${TEST_EXECUTABLE} PRIVATE gtest_main CoolDiff)
 endif()
 
 gtest_discover_tests(${TEST_EXECUTABLE})
