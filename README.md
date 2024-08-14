@@ -90,9 +90,9 @@ The list of 8 important APIs and along with its description are listed in the fo
 | **PreComp** | Precomputes all the reverse AD (adjoint) derivatives for the given expression | Expression& | - | - |
 | **DevalR** | Returns the reverse AD derivative for the given expression and variable | Expression& | const Variable& | Type |
 | **SymDiff** | Computes the symbolic derivative for the given expression and variable | Expression& | const Variable& | Expression& |
-| **CreateExpr** | Factory method to create Expression on heap | const Type& | - | Expression& |
-| **CreateVar** | Factory method to create Variable on heap | const Type& | - | Expression& |
-| **CreateParam** | Factory method to create Parameter on heap | const Type& | - | Expression& |
+| **CreateExpr** | Factory method to create Expression object on heap | const Type& | - | Expression& |
+| **CreateVar** | Factory method to create Variable object  on heap | const Type& | - | Expression& |
+| **CreateParam** | Factory method to create Parameter object on heap | const Type& | - | Expression& |
 
 ---
 

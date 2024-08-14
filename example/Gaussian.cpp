@@ -28,7 +28,7 @@ Expression &Gaussian(const Variable &x, Type mu, Type sig)
 {
     auto &gauss = CreateExpr(0);
     gauss = (1 / sqrt(2 * PI * pow(sig, 2))) *
-            exp(-1 * (x - mu) / (2 * pow(sig, 2)));
+            exp(-pow((x - mu), 2) / (2 * pow(sig, 2)));
     return gauss;
 }
 
