@@ -43,6 +43,7 @@
 #include "GenericCosh.hpp"
 #include "GenericExp.hpp"
 #include "GenericLog.hpp"
+#include "GenericNeg.hpp"
 #include "GenericSin.hpp"
 #include "GenericSinh.hpp"
 #include "GenericSqrt.hpp"

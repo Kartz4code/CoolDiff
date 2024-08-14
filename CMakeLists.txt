@@ -55,10 +55,10 @@ include(Tools)
 if(${BUILD_TYPE} STREQUAL Debug)
     set(CMAKE_BUILD_TYPE Debug)
     add_definitions(-DBUILD_TYPE)
-    message("[${BUILD_TYPE}] Generating debug code")
+    message("[${BUILD_TYPE}][${PROJECT_NAME}] Generating debug code")
 else()
     set(CMAKE_BUILD_TYPE Release)
-    message("[${BUILD_TYPE}] Generating production code")
+    message("[${BUILD_TYPE}][${PROJECT_NAME}] Generating production code")
 endif()
 
 #LTO
@@ -118,7 +118,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
 target_compile_options(${PROJECT_NAME} PRIVATE -fpermissive)
 
 if(${BUILD_TYPE} STREQUAL Debug)
-    message("[${BUILD_TYPE}] Attaching address sanitizer")
+    message("[${BUILD_TYPE}][${PROJECT_NAME}] Attaching address sanitizer")
     target_compile_options(${PROJECT_NAME} PRIVATE -fno-omit-frame-pointer
                                                    -fsanitize=address)
     target_link_options(
@@ -127,7 +127,7 @@ if(${BUILD_TYPE} STREQUAL Debug)
         -fno-omit-frame-pointer
         -fsanitize=address)
 else()
-    message("[${BUILD_TYPE}] Address sanitizer disabled")
+    message("[${BUILD_TYPE}][${PROJECT_NAME}] Address sanitizer disabled")
 endif()
 
 #[[--------------------------------------------------------------------------
