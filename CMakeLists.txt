@@ -33,7 +33,7 @@ project(
 
 # [Custom flags]
 # Build type: Debug or Release
-set(BUILD_TYPE Release)
+set(BUILD_TYPE Debug)
 option(BUILD_TEST "Building unit test executables" ON)
 option(BUILD_EXAMPLE "Building example executables" ON)
 option(ENABLE_CLANG_TIDY "Enable clang-tidy static linter" ON)
