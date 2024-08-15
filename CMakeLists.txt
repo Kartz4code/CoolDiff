@@ -94,20 +94,22 @@ endif()
 
 # [Set target sources]
 set(SRC
-    ${CMAKE_SOURCE_DIR}/src/CommonHeader.cpp
-    ${CMAKE_SOURCE_DIR}/src/VarWrap.cpp
-    ${CMAKE_SOURCE_DIR}/src/Variable.cpp
-    ${CMAKE_SOURCE_DIR}/src/MetaVariable.cpp
-    ${CMAKE_SOURCE_DIR}/src/Expression.cpp
-    ${CMAKE_SOURCE_DIR}/src/CommonFunctions.cpp
-    ${CMAKE_SOURCE_DIR}/src/MemoryManager.cpp
-    ${CMAKE_SOURCE_DIR}/src/Parameter.cpp)
+    ${CMAKE_SOURCE_DIR}/src/Scalar/CommonHeader.cpp
+    ${CMAKE_SOURCE_DIR}/src/Scalar/VarWrap.cpp
+    ${CMAKE_SOURCE_DIR}/src/Scalar/Variable.cpp
+    ${CMAKE_SOURCE_DIR}/src/Scalar/MetaVariable.cpp
+    ${CMAKE_SOURCE_DIR}/src/Scalar/Expression.cpp
+    ${CMAKE_SOURCE_DIR}/src/Scalar/CommonFunctions.cpp
+    ${CMAKE_SOURCE_DIR}/src/MemoryManager/MemoryManager.cpp
+    ${CMAKE_SOURCE_DIR}/src/Scalar/Parameter.cpp)
 
 # [Set target includes]
 set(INCLUDES
     ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/include/BinaryOps
-    ${CMAKE_SOURCE_DIR}/include/UnaryOps
+    ${CMAKE_SOURCE_DIR}/include/Scalar/BinaryOps
+    ${CMAKE_SOURCE_DIR}/include/Scalar/UnaryOps
+    ${CMAKE_SOURCE_DIR}/include/Scalar
+    ${CMAKE_SOURCE_DIR}/include/MemoryManager
     ${CMAKE_BINARY_DIR}/_deps/robin-hood-hashing-src/src/include)
 
 # [Add executable (target executable)]
