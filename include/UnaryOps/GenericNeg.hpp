@@ -45,10 +45,7 @@ public:
     OMPair m_cache;
 
     // Constructor
-    GenericNeg(T *u, Callables &&...call)
-        : mp_left{u}, m_caller{std::make_tuple(
-                          std::forward<Callables>(call)...)},
-          m_nidx{this->m_idx_count++}
+    GenericNeg(T *u, Callables &&...call) : mp_left{u}, m_caller{std::make_tuple(std::forward<Callables>(call)...)}, m_nidx{this->m_idx_count++}
     {
     }
 
