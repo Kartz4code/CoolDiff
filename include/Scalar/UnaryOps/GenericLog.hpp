@@ -1,5 +1,5 @@
 /**
- * @file include/UnaryOps/GenericLog.hpp
+ * @file include/Scalar/UnaryOps/GenericLog.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

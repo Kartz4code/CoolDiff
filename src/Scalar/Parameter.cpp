@@ -1,5 +1,5 @@
 /**
- * @file src/Parameter.cpp
+ * @file src/Scalar/Parameter.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

@@ -1,5 +1,5 @@
 /**
- * @file include/BinaryOps/GenericDiv.hpp
+ * @file include/Scalar/BinaryOps/GenericDiv.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

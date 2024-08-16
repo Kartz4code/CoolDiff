@@ -1,5 +1,5 @@
 /**
- * @file src/Scalar/MetaVariable.cpp
+ * @file include/Matrix/MetaMatrix.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,22 +19,34 @@
  * associated repository.
  */
 
-#include "MetaVariable.hpp"
-#include "Variable.hpp"
+#pragma once
+#include "CommonHeader.hpp"
 
-// Reset temporaries
-void MetaVariable::resetTemp()
-{
-    if (this->mp_tmp != nullptr)
-    {
-        this->mp_tmp->reset();
-    }
-    for (auto &[k, v] : this->mp_dtmp)
-    {
-        if (v != nullptr)
-        {
-            v->reset();
-        }
-    }
-    this->m_visited = false;
-}
+class MetaMatrix {
+protected:
+    // Index counter (A counter to count the number of matrix operations)
+    inline static size_t m_idx_count{0};
+
+public:
+    // Visited flag
+    bool m_visited{false};
+
+    // Default constructor
+    MetaMatrix() = default;
+
+    /* Type implementations */
+    // Evaluate run-time
+    V_PURE(void eval(MetaMatrix&));
+
+    // Reset all visited flags
+    V_PURE(void reset());
+
+    // Find me
+    V_PURE(bool findMe(void *) const);
+
+    // Get type
+    V_PURE(std::string_view getType() const);
+
+    // Destructor
+    V_DTR(~MetaMatrix()) = default;
+};

@@ -23,6 +23,7 @@
 
 #include "Operators.hpp"
 #include <algorithm>
+#include <string_view>
 #include <chrono>
 #include <cmath>
 #include <functional>
@@ -32,13 +33,13 @@
 #include <tuple>
 #include <type_traits>
 #include <vector>
-
+#include <cassert>
 
 #ifndef BUILD_TYPE
-#define SCALAR_TYPE double
-#define USE_COMPLEX_MATH
-#define USE_ROBIN_HOOD_MAP
-#define USE_VIRTUAL_FUNCTIONS
+    #define SCALAR_TYPE double
+    #define USE_COMPLEX_MATH
+    #define USE_ROBIN_HOOD_MAP
+    #define USE_VIRTUAL_FUNCTIONS
 #endif
 
 // Enable/disable copy/move operators
@@ -51,8 +52,8 @@
     X(X &&) noexcept = delete;                                                 \
     X &operator=(X &&) noexcept = delete;
 #else
-#define DISABLE_COPY(X)
-#define DISABLE_MOVE(X)
+    #define DISABLE_COPY(X)
+    #define DISABLE_MOVE(X)
 #endif
 
 // Eval/Deval left operator
@@ -62,19 +63,6 @@
 // Eval/Deval right operator
 #define EVAL_R() (*mp_right->symEval())
 #define DEVAL_R(X) (*mp_right->symDeval(X))
-
-// Unary reset
-#define UNARY_RESET()                                                          \
-    this->m_visited = false;                                                   \
-    if (false == m_cache.empty())                                              \
-    {                                                                          \
-        m_cache.clear();                                                       \
-    }                                                                          \
-    MetaVariable::resetTemp();                                                 \
-    if (nullptr != mp_left)                                                    \
-    {                                                                          \
-        mp_left->reset();                                                      \
-    }
 
 // Unary find me
 #define UNARY_FIND_ME()                                                        \
@@ -87,17 +75,6 @@
         return true;                                                           \
     }                                                                          \
     return false;
-
-// Binary reset
-#define BINARY_RESET()                                                         \
-    this->m_visited = false;                                                   \
-    if (false == m_cache.empty())                                              \
-    {                                                                          \
-        m_cache.clear();                                                       \
-    }                                                                          \
-    MetaVariable::resetTemp();                                                 \
-    mp_left->reset();                                                          \
-    mp_right->reset();
 
 // Binary find me
 #define BINARY_FIND_ME()                                                       \
@@ -122,16 +99,6 @@
     }                                                                          \
     return false;
 
-// Binary right reset
-#define BINARY_RIGHT_RESET()                                                   \
-    this->m_visited = false;                                                   \
-    if (false == m_cache.empty())                                              \
-    {                                                                          \
-        m_cache.clear();                                                       \
-    }                                                                          \
-    MetaVariable::resetTemp();                                                 \
-    mp_right->reset();
-
 // Binary right find me
 #define BINARY_RIGHT_FIND_ME()                                                 \
     if (static_cast<void *>(mp_right) == v)                                    \
@@ -146,16 +113,6 @@
         }                                                                      \
     }                                                                          \
     return false;
-
-// Binary left reset
-#define BINARY_LEFT_RESET()                                                    \
-    this->m_visited = false;                                                   \
-    if (false == m_cache.empty())                                              \
-    {                                                                          \
-        m_cache.clear();                                                       \
-    }                                                                          \
-    MetaVariable::resetTemp();                                                 \
-    mp_left->reset();
 
 // Binary left find me
 #define BINARY_LEFT_FIND_ME()                                                  \
@@ -177,52 +134,54 @@ constexpr const inline size_t g_map_reserve{32};
 // Constant size for vector of generic holder
 constexpr const inline size_t g_vec_init{32};
 
-// Predeclare a few classes
+// Typedef double as Type (TODO: Replace Type with a class/struct based on variants to support multiple types)
+using Real = SCALAR_TYPE;
+
+#if defined(USE_COMPLEX_MATH)
+    #include <complex>
+    using Type = std::complex<Real>;
+
+    Type operator+(Real, const Type &);
+    Type operator+(const Type &, Real);
+
+    Type operator-(Real, const Type &);
+    Type operator-(const Type &, Real);
+
+    Type operator*(Real, const Type &);
+    Type operator*(const Type &, Real);
+
+    Type operator/(Real, const Type &);
+    Type operator/(const Type &, Real);
+
+    bool operator!=(const Type &, Real);
+    bool operator!=(Real, const Type &);
+
+    bool operator==(const Type &, Real);
+    bool operator==(Real, const Type &);
+#else
+    using Type = Real;
+#endif
+
+
+// Predeclare a few classes (Scalar)
 class VarWrap;
 class Variable;
 class Parameter;
 class Expression;
 
-// Typedef double as Type (TODO: Replace Type with a class/struct based on variants to support multiple types)
-using Real = SCALAR_TYPE;
-#if defined(USE_COMPLEX_MATH)
-#include <complex>
-using Type = std::complex<Real>;
-
-Type operator+(Real, const Type &);
-Type operator+(const Type &, Real);
-
-Type operator-(Real, const Type &);
-Type operator-(const Type &, Real);
-
-Type operator*(Real, const Type &);
-Type operator*(const Type &, Real);
-
-Type operator/(Real, const Type &);
-Type operator/(const Type &, Real);
-
-bool operator!=(const Type &, Real);
-bool operator!=(Real, const Type &);
-
-bool operator==(const Type &, Real);
-bool operator==(Real, const Type &);
-#else
-using Type = Real;
-#endif
-
 // Ordered map between size_t and Type
 #if defined(USE_ROBIN_HOOD_MAP)
-#include <robin_hood.h>
-using OMPair = robin_hood::unordered_flat_map<size_t, Type>;
-// A generic unorderedmap
-template <typename T, typename U>
-using UnOrderedMap = robin_hood::unordered_flat_map<T, U>;
+    #include <robin_hood.h>
+    using OMPair = robin_hood::unordered_flat_map<size_t, Type>;
+    // A generic unorderedmap
+    template <typename T, typename U>
+    using UnOrderedMap = robin_hood::unordered_flat_map<T, U>;
 #else
-#include <unordered_map>
-using OMPair = std::unordered_map<size_t, Type>;
-// A generic unorderedmap
-template <typename T, typename U>
-using UnOrderedMap = std::unordered_map<T, U>;
+    #include <unordered_map>
+    using OMPair = std::unordered_map<size_t, Type>;
+    // A generic unorderedmap
+    template <typename T, typename U>
+    using UnOrderedMap = std::unordered_map<T, U>;
 #endif
 
 // A generic vector type
@@ -237,60 +196,10 @@ using Tuples = std::tuple<Args...>;
 template <typename T>
 using SharedPtr = std::shared_ptr<T>;
 
-#if defined(USE_CUSTOM_FUNCTIONS)
-// Operations enum (Order matters!)
-enum Op : size_t
-{
-    ADD = 0,
-    SUB,
-    MUL,
-    DIV,
-    SIN,
-    COS,
-    TAN,
-    SINH,
-    COSH,
-    TANH,
-    ASIN,
-    ACOS,
-    ATAN,
-    ASINH,
-    ACOSH,
-    ATANH,
-    ABS,
-    SQRT,
-    EXP,
-    LOG,
-    POW,
-    RELU,
-    COUNT
-};
-
-// Operation type (Order matters!)
-#define OpType                                                                 \
-    std::plus<Type>, std::minus<Type>, std::multiplies<Type>,                  \
-        std::divides<Type>, Sin<Type>, Cos<Type>, Tan<Type>, Sinh<Type>,       \
-        Cosh<Type>, Tanh<Type>, ASin<Type>, ACos<Type>, ATan<Type>,            \
-        ASinh<Type>, ACosh<Type>, ATanh<Type>
-
-// Operation objects (Order matters!)
-#define OpObj                                                                  \
-    std::plus<Type>(), std::minus<Type>(), std::multiplies<Type>(),            \
-        std::divides<Type>(), Sin<Type>(), Cos<Type>(), Tan<Type>(),           \
-        Sinh<Type>(), Cosh<Type>(), Tanh<Type>(), ASin<Type>(), ACos<Type>(),  \
-        ATan<Type>(), ASinh<Type>(), ACosh<Type>(), ATanh<Type>()
-#else
-struct X007
-{
-};
-#define OpType X007
-#define OpObj OpType()
-#endif
-
 #if defined(USE_VIRTUAL_FUNCTIONS)
-#define V_OVERRIDE(X) X override
-#define V_DTR(X) virtual X
-#define V_PURE(X) virtual X = 0
+    #define V_OVERRIDE(X) X override
+    #define V_DTR(X) virtual X
+    #define V_PURE(X) virtual X = 0
 #endif
 
 // Convert to string

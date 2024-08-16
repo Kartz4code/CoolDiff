@@ -1,5 +1,5 @@
 /**
- * @file include/BinaryOps/GenericPow.hpp
+ * @file include/Scalar/BinaryOps/GenericPow.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

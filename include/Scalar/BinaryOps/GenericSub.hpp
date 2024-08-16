@@ -1,5 +1,5 @@
 /**
- * @file include/BinaryOps/GenericSub.hpp
+ * @file include/Scalar/BinaryOps/GenericSub.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
