@@ -1,5 +1,5 @@
 /**
- * @file include/UnaryOps/GenericExp.hpp
+ * @file include/Scalar/UnaryOps/GenericExp.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

@@ -109,6 +109,8 @@ set(INCLUDES
     ${CMAKE_SOURCE_DIR}/include/Scalar/BinaryOps
     ${CMAKE_SOURCE_DIR}/include/Scalar/UnaryOps
     ${CMAKE_SOURCE_DIR}/include/Scalar
+    ${CMAKE_SOURCE_DIR}/include/Matrix
+    ${CMAKE_SOURCE_DIR}/include/Matrix/BinaryOps
     ${CMAKE_SOURCE_DIR}/include/MemoryManager
     ${CMAKE_BINARY_DIR}/_deps/robin-hood-hashing-src/src/include)
 

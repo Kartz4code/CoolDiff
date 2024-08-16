@@ -1,5 +1,5 @@
 /**
- * @file include/UnaryOps/GenericCos.hpp
+ * @file include/Scalar/UnaryOps/GenericCos.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

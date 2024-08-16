@@ -1,5 +1,5 @@
 /**
- * @file include/MemoryManager.hpp
+ * @file include/MemoryManager/MemoryManager.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -22,6 +22,7 @@
 #pragma once
 
 #include "MetaVariable.hpp"
+#include "MetaMatrix.hpp"
 
 class MemoryManager
 {

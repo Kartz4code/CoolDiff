@@ -1,5 +1,5 @@
 /**
- * @file include/UnaryOps/GenericSqrt.hpp
+ * @file include/Scalar/UnaryOps/GenericSqrt.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

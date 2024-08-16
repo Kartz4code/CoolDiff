@@ -1,5 +1,5 @@
 /**
- * @file include/UnaryOps/GenericCosh.hpp
+ * @file include/Scalar/UnaryOps/GenericCosh.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

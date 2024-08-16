@@ -1,5 +1,5 @@
 /**
- * @file include/UnaryOps/GenericATanh.hpp
+ * @file include/Scalar/UnaryOps/GenericATanh.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

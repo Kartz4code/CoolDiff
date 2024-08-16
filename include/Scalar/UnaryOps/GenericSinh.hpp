@@ -1,5 +1,5 @@
 /**
- * @file include/UnaryOps/GenericSinh.hpp
+ * @file include/Scalar/UnaryOps/GenericSinh.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

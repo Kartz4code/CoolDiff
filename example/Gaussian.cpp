@@ -20,6 +20,7 @@
  */
 
 #include "CoolDiff.hpp"
+#include "Matrix.hpp"
 
 #define PI 3.14159
 
@@ -32,8 +33,28 @@ Expression &Gaussian(const Variable &x, Type mu, Type sig)
     return gauss;
 }
 
+void func() {
+    
+    Matrix<Type> m{2,2};
+    m(0,0) = 1; m(0,1) = 2; m(1,0) = 3; m(1,1) = 4;
+
+    Matrix<Type> m4{2,2};
+    m(0,0) = 1; m(0,1) = 2; m(1,0) = 3; m(1,1) = 4;
+
+    m.eval(m4);
+
+    Matrix<Type> m1 = m;
+    m1(1,1) = 12.34;
+
+    m1.resize(4,1);
+
+    std::cout << m1 << "\n";
+}
+
 int main(int argc, char **argv)
 {
+    func();
+
     Variable x{10.34};
     Expression gauss = Gaussian(x, 1, 0.9);
 

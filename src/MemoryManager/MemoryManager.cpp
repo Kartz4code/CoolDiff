@@ -1,5 +1,5 @@
 /**
- * @file src/MemoryManager.cpp
+ * @file src/MemoryManager/MemoryManager.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

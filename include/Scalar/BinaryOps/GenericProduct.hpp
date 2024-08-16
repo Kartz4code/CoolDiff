@@ -1,5 +1,5 @@
 /**
- * @file include/BinaryOps/GenericProduct.hpp
+ * @file include/Scalar/BinaryOps/GenericProduct.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
