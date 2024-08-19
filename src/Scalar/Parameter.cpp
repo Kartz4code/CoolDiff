@@ -98,6 +98,18 @@ Type Parameter::devalR(const Variable &)
     return (Type)0;
 }
 
+// Getters and setters
+Type Parameter::getValue() const
+{
+    return m_value;
+}
+
+// Get/Set dvalue
+Type Parameter::getdValue() const
+{
+    return 0;
+}
+
 // Traverse tree
 void Parameter::traverse(OMPair *)
 {

@@ -22,7 +22,8 @@
 #pragma once
 #include "CommonHeader.hpp"
 
-class MetaMatrix {
+class MetaMatrix
+{
 protected:
     // Index counter (A counter to count the number of matrix operations)
     inline static size_t m_idx_count{0};
@@ -35,8 +36,12 @@ public:
     MetaMatrix() = default;
 
     /* Type implementations */
+    // Get number of rows and columns
+    V_PURE(size_t getNumRows() const);
+    V_PURE(size_t getNumColumns() const);
+
     // Evaluate run-time
-    V_PURE(void eval(MetaMatrix&));
+    V_PURE(Matrix<Type> *eval());
 
     // Reset all visited flags
     V_PURE(void reset());

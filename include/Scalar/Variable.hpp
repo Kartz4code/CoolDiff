@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <string_view>
+
 #include "IVariable.hpp"
 #include "VarWrap.hpp"
 
@@ -51,15 +53,6 @@ private:
         m_gh_vec.emplace_back(&static_cast<const T &>(expr));
         return *this;
     }
-
-    // Getters and setters
-    // Get/Set value
-    void setValue(Type);
-    Type getValue() const;
-
-    // Get/Set dvalue
-    void setdValue(Type);
-    Type getdValue() const;
 
     // Set string sets the expression (which can also be a variable name)
     void setExpression(const std::string &);
@@ -113,6 +106,16 @@ public:
 
     // Deval in run-time for reverse derivative
     Type devalR(const Variable &);
+
+    // Getters and setters
+    // Get/Set value
+    void setValue(Type);
+    Type getValue() const;
+
+    // Get/Set dvalue
+    void setdValue(Type);
+    Type getdValue() const;
+
 
     /*
     * ======================================================================================================

@@ -53,6 +53,10 @@ public:
     // Deval in run-time for reverse derivative
     Type devalR(const Variable &);
 
+    // Getters
+    Type getValue() const;
+    Type getdValue() const;
+
     /*
     * ======================================================================================================
     * ======================================================================================================
