@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include "MetaVariable.hpp"
 #include "MetaMatrix.hpp"
+#include "MetaVariable.hpp"
 
 class MemoryManager
 {
@@ -33,6 +33,7 @@ private:
 
     // Vector of deleted or to be deleted variables
     inline static Vector<SharedPtr<MetaVariable>> m_del_ptr;
+    inline static Vector<SharedPtr<MetaMatrix>> m_del_mat_ptr;
 
 public:
     // Get size of memory allocated
@@ -50,7 +51,7 @@ void DelPtr(T *ptr)
     }
 }
 
-// Allocator
+// Scalar allocator
 template <typename T, typename... Args>
 SharedPtr<T> Allocate(Args &&...args)
 {
@@ -61,6 +62,13 @@ SharedPtr<T> Allocate(Args &&...args)
     SharedPtr<T> tmp{new T(std::forward<Args>(args)...), DelPtr<T>};
 
     // Push the allocated object into stack to clear it later
-    MemoryManager::m_del_ptr.push_back(tmp);
+    if constexpr (std::is_base_of_v<MetaVariable, T>)
+    {
+        MemoryManager::m_del_ptr.push_back(tmp);
+    }
+    else if constexpr (std::is_base_of_v<MetaMatrix, T>)
+    {
+        MemoryManager::m_del_mat_ptr.push_back(tmp);
+    }
     return tmp;
 }

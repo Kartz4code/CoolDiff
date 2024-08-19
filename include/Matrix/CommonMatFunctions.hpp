@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/IMatrix.hpp
+ * @file include/Matrix/CommonMatFunctions.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -21,15 +21,5 @@
 
 #pragma once
 
-#include "MemoryManager.hpp"
-
-// IVariable class to enforce expression templates for lazy evaluation
-template <typename T>
-class IMatrix : public MetaMatrix
-{
-protected:
-    // Protected constructor
-    IMatrix() = default;
-    // Protected destructor
-    V_DTR(~IMatrix()) = default;
-};
+#include "GenericMatSum.hpp"
+#include "Matrix.hpp"

@@ -94,7 +94,7 @@ endif()
 
 # [Set target sources]
 set(SRC
-    ${CMAKE_SOURCE_DIR}/src/Scalar/CommonHeader.cpp
+    ${CMAKE_SOURCE_DIR}/src/CommonHeader.cpp
     ${CMAKE_SOURCE_DIR}/src/Scalar/VarWrap.cpp
     ${CMAKE_SOURCE_DIR}/src/Scalar/Variable.cpp
     ${CMAKE_SOURCE_DIR}/src/Scalar/MetaVariable.cpp

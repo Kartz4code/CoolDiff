@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include "MetaVariable.hpp"
 #include "MemoryManager.hpp"
+#include "MetaVariable.hpp"
 
 // IVariable class to enforce expression templates for lazy evaluation
 template <typename T>
@@ -79,52 +79,3 @@ protected:
     {                                                                          \
         mp_left->reset();                                                      \
     }
-
-
-#if defined(USE_CUSTOM_FUNCTIONS)
-// Operations enum (Order matters!)
-enum Op : size_t
-{
-    ADD = 0,
-    SUB,
-    MUL,
-    DIV,
-    SIN,
-    COS,
-    TAN,
-    SINH,
-    COSH,
-    TANH,
-    ASIN,
-    ACOS,
-    ATAN,
-    ASINH,
-    ACOSH,
-    ATANH,
-    ABS,
-    SQRT,
-    EXP,
-    LOG,
-    POW,
-    RELU,
-    COUNT
-};
-
-// Operation type (Order matters!)
-#define OpType                                                                 \
-    std::plus<Type>, std::minus<Type>, std::multiplies<Type>,                  \
-        std::divides<Type>, Sin<Type>, Cos<Type>, Tan<Type>, Sinh<Type>,       \
-        Cosh<Type>, Tanh<Type>, ASin<Type>, ACos<Type>, ATan<Type>,            \
-        ASinh<Type>, ACosh<Type>, ATanh<Type>
-
-// Operation objects (Order matters!)
-#define OpObj                                                                  \
-    std::plus<Type>(), std::minus<Type>(), std::multiplies<Type>(),            \
-        std::divides<Type>(), Sin<Type>(), Cos<Type>(), Tan<Type>(),           \
-        Sinh<Type>(), Cosh<Type>(), Tanh<Type>(), ASin<Type>(), ACos<Type>(),  \
-        ATan<Type>(), ASinh<Type>(), ACosh<Type>(), ATanh<Type>()
-#else
-    struct X007{};
-    #define OpType X007
-    #define OpObj OpType()
-#endif

@@ -50,8 +50,9 @@
 #include "GenericTan.hpp"
 #include "GenericTanh.hpp"
 
-// Main evaluate function
+// Main evaluate expression function
 Type Eval(Expression &);
+
 // Main forward mode AD computation
 Type DevalF(Expression &, const Variable &);
 
