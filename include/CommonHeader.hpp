@@ -249,17 +249,20 @@ enum Op : size_t
         Sinh<Type>(), Cosh<Type>(), Tanh<Type>(), ASin<Type>(), ACos<Type>(),  \
         ATan<Type>(), ASinh<Type>(), ACosh<Type>(), ATanh<Type>()
 #else
-struct X007
-{
-};
-#define OpType X007
+struct _XOXO_{};
+#define OpType _XOXO_
 #define OpObj OpType()
 #endif
 
+// Enum classes
+// Automatic differentiation modes
+enum ADMode {
+    FORWARD, REVERSE
+};
+
 // Convert to string
 template <typename T>
-std::string ToString(const T &value)
-{
+std::string ToString(const T &value) {
     // If complex number
     if constexpr (std::is_same_v<T, std::complex<Real>>)
     {

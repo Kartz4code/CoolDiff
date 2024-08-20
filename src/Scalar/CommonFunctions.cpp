@@ -20,6 +20,7 @@
  */
 
 #include "CommonFunctions.hpp"
+#include "Matrix.hpp"
 
 // Evaluate function
 Type Eval(Expression &exp)
@@ -64,6 +65,170 @@ OMPair &PreCompCache(Expression &exp)
     //Return cache
     return exp.getCache();
 }
+
+// Derivative of expression
+Type Deval(Expression &exp, const Variable &x, ADMode ad)
+{
+    if (ad == ADMode::FORWARD)
+    {
+        return DevalF(exp, x);
+    }
+    else
+    {
+        PreComp(exp);
+        return DevalR(exp, x);
+    }
+}
+
+// Jacobian forward mode
+Matrix<Type> &JacobF(Expression &exp, const Vector<Variable> &vec)
+{
+    const size_t rows = vec.size();
+    auto &result = CreateMatrix<Type>(rows, 1);
+    for (size_t i{}; i < rows; ++i)
+    {
+        result(i, 1) = DevalF(exp, vec[i]);
+    }
+    return result;
+}
+
+// Jacobian reverse mode
+Matrix<Type> &JacobR(Expression &exp, const Vector<Variable> &vec)
+{
+    const size_t rows = vec.size();
+    auto &result = CreateMatrix<Type>(rows, 1);
+
+    // Precompute
+    PreComp(exp);
+    for (size_t i{}; i < rows; ++i)
+    {
+        result(i, 1) = DevalR(exp, vec[i]);
+    }
+    return result;
+}
+
+// Jacobian of expression
+Matrix<Type> &Jacobian(Expression &exp, const Vector<Variable> &vec, ADMode ad)
+{
+    if (ad == ADMode::FORWARD)
+    {
+        return JacobF(exp, vec);
+    }
+    else
+    {
+        return JacobR(exp, vec);
+    }
+}
+
+// Symbolic Jacobian of expression
+Matrix<Expression> &JacobianSym(Expression &exp, const Vector<Variable> &vec)
+{
+    const size_t rows = vec.size();
+    auto &result = CreateMatrix<Expression>(rows, 1);
+    for (size_t i{}; i < rows; ++i)
+    {
+        result(i, 1) = SymDiff(exp, vec[i]);
+    }
+    return result;
+}
+
+// Hessian forward mode
+Matrix<Type> &HessF(Expression &exp, const Vector<Variable> &vec)
+{
+    const size_t dim = vec.size();
+    auto &result = CreateMatrix<Type>(dim, dim);
+    Matrix<Expression> firstSym(dim, 1);
+
+    // Exploit Hessian symmetry
+    for (size_t i{}; i < dim; ++i)
+    {
+        firstSym[i] = SymDiff(exp, vec[i]);
+        for (size_t j{}; j < dim; ++j)
+        {
+            if (i < j)
+            {
+                result(i, j) = DevalF(firstSym[i], vec[j]);
+                result(j, i) = result(i, j);
+            }
+            else if (i == j)
+            {
+                result(i, j) = DevalF(firstSym[i], vec[j]);
+            }
+        }
+    }
+
+    return result;
+}
+
+// Hessian reverse mode
+Matrix<Type> &HessR(Expression &exp, const Vector<Variable> &vec)
+{
+    const size_t dim = vec.size();
+    auto &result = CreateMatrix<Type>(dim, dim);
+    Matrix<Expression> firstSym(dim, 1);
+
+    // Exploit Hessian symmetry
+    for (size_t i{}; i < dim; ++i)
+    {
+        firstSym[i] = SymDiff(exp, vec[i]);
+        // Precompute
+        PreComp(firstSym[i]);
+        for (size_t j{}; j < dim; ++j)
+        {
+            if (i < j)
+            {
+                result(i, j) = DevalR(firstSym[i], vec[j]);
+                result(j, i) = result(i, j);
+            }
+            else if (i == j)
+            {
+                result(i, j) = DevalR(firstSym[i], vec[j]);
+            }
+        }
+    }
+
+    return result;
+}
+
+// Hessian of expression
+Matrix<Type> &Hessian(Expression &exp, const Vector<Variable> &vec, ADMode ad)
+{
+    if (ad == ADMode::FORWARD)
+    {
+        return HessF(exp, vec);
+    }
+    else
+    {
+        return HessR(exp, vec);
+    }
+}
+
+// Symbolic Hessian of expression
+Matrix<Expression> &HessianSym(Expression &exp, const Vector<Variable> &vec)
+{
+    const size_t dim = vec.size();
+    auto &result = CreateMatrix<Expression>(dim, dim);
+
+    // Exploit Hessian symmetry
+    for (size_t i{}; i < dim; ++i)
+    {
+        for (size_t j{}; j < dim; ++j)
+        {
+            if (i < j)
+            {
+                result(i, j) = SymDiff(SymDiff(exp, vec[i]), vec[j]);
+                result(j, i) = result(i, j);
+            }
+            else if (i == j)
+            {
+                result(i, j) = SymDiff(SymDiff(exp, vec[i]), vec[j]);
+            }
+        }
+    }
+
+    return result;
+}
+
 
 // Symbolic Expression
 Expression &SymDiff(Expression &exp, const Variable &var)

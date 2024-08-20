@@ -35,19 +35,11 @@ public:
     // Default constructor
     MetaMatrix() = default;
 
-    /* Type implementations */
-    // Get number of rows and columns
-    V_PURE(size_t getNumRows() const);
-    V_PURE(size_t getNumColumns() const);
-
     // Evaluate run-time
     V_PURE(Matrix<Type> *eval());
 
     // Reset all visited flags
     V_PURE(void reset());
-
-    // Find me
-    V_PURE(bool findMe(void *) const);
 
     // Get type
     V_PURE(std::string_view getType() const);

@@ -87,15 +87,18 @@ public:
     */
 
     // Get number of rows
-    V_OVERRIDE(size_t getNumRows() const)
-    {
+    size_t getNumRows() const {
         return mp_left->getNumRows();
     }
 
     // Get number of columns
-    V_OVERRIDE(size_t getNumColumns() const)
-    {
+    size_t getNumColumns() const {
         return mp_right->getNumColumns();
+    }
+
+    // Find me
+    bool findMe(void *v) const {
+        BINARY_FIND_ME();
     }
 
     // Eval in run-time
@@ -139,12 +142,6 @@ public:
     V_OVERRIDE(std::string_view getType() const)
     {
         return "GenericMatSum";
-    }
-
-    // Find me
-    V_OVERRIDE(bool findMe(void *v) const)
-    {
-        BINARY_FIND_ME();
     }
 
     // Destructor
