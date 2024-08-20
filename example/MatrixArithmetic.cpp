@@ -42,5 +42,7 @@ int main(int argc, char **argv)
 
     auto *res = sum.eval();
 
-    std::cout << *res << "\n";
+    Matrix<Type> ms(19,19);
+    ms(2,3) = 1;
+    std::cout << IsZeroMatrix(ms) << " " << *res << "\n";
 }

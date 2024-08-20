@@ -23,3 +23,23 @@
 
 #include "GenericMatSum.hpp"
 #include "Matrix.hpp"
+
+// Is the matrix zero?
+bool IsZeroMatrix(const Matrix<Type>&);
+
+// Is the matrix identity?
+bool IsEyeMatrix(const Matrix<Type>&);
+
+// Is the matrix ones?
+bool IsOnesMatrix(const Matrix<Type>&);
+
+// Is the matrix square?
+bool IsSquareMatrix(const Matrix<Type>&);
+
+// Is the matrix diagonal?
+bool IsDiagMatrix(const Matrix<Type>&);
+
+// Find type of matrix
+size_t FindMatType(const Matrix<Type>&);
+
+

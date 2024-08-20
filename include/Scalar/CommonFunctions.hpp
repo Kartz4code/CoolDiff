@@ -61,6 +61,37 @@ void PreComp(Expression &);
 // Main reverse mode AD computation
 Type DevalR(Expression &, const Variable &);
 
+// Derivative of expression
+Type Deval(Expression &, const Variable &, ADMode = ADMode::REVERSE);
+
+// Jacobian forward mode
+Matrix<Type> &JacobF(Expression &, const Vector<Variable> &);
+
+// Jacobian reverse mode
+Matrix<Type> &JacobR(Expression &, const Vector<Variable> &);
+
+// Jacobian of expression
+Matrix<Type> &Jacobian(Expression &,
+                       const Vector<Variable> &,
+                       ADMode = ADMode::REVERSE);
+
+// Symbolic Jacobian of expression
+Matrix<Expression> &JacobianSym(Expression &, const Vector<Variable> &);
+
+// Hessian forward mode
+Matrix<Type> &HessF(Expression &, const Vector<Variable> &);
+
+// Hessian reverse mode
+Matrix<Type> &HessR(Expression &, const Vector<Variable> &);
+
+// Hessian of expression
+Matrix<Type> &Hessian(Expression &,
+                      const Vector<Variable> &,
+                      ADMode = ADMode::REVERSE);
+
+// Symbolic Hessian of expression
+Matrix<Expression> &HessianSym(Expression &, const Vector<Variable> &);
+
 // Main reverse mode AD table
 OMPair &PreCompCache(const Expression &);
 

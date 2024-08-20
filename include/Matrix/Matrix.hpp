@@ -108,7 +108,7 @@ public:
     template <typename Z>
     Matrix &operator=(const IMatrix<Z> &expr)
     {
-        if (static_cast<const Z &>(expr).findMe(this) == false)
+        if (static_cast<const Z&>(expr).findMe(this) == false)
         {
             m_gh_vec.clear();
         }
@@ -293,16 +293,29 @@ public:
         return tmp;
     }
 
+    // Get total elements
+    size_t getNumElem() const {
+        return m_rows*m_cols;
+    }
+
     // Get number of rows
-    V_OVERRIDE(size_t getNumRows() const)
-    {
+    size_t getNumRows() const {
         return m_rows;
     }
 
     // Get number of columns
-    V_OVERRIDE(size_t getNumColumns() const)
-    {
+    size_t getNumColumns() const {
         return m_cols;
+    }
+
+    // Find me
+    bool findMe(void *v) const {
+        if (static_cast<const void *>(this) == v) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     V_OVERRIDE(Matrix<Type> *eval())
@@ -312,6 +325,7 @@ public:
         {
             if (m_result == nullptr)
             {
+                // [Optimization - Scope for Type type]
                 m_result = CreateMatrixPtr<Type>(m_rows, m_cols);
                 for (size_t i{0}; i < m_rows * m_cols; ++i)
                 {
@@ -334,8 +348,7 @@ public:
     }
 
     // Reset all visited flags
-    V_OVERRIDE(void reset())
-    {
+    V_OVERRIDE(void reset() ) {
         if (true == this->m_visited)
         {
             this->m_visited = false;
@@ -349,19 +362,6 @@ public:
         }
         // Reset flag
         this->m_visited = false;
-    }
-
-    // Find me
-    V_OVERRIDE(bool findMe(void *v) const)
-    {
-        if (static_cast<const void *>(this) == v)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
     }
 
     // Get type
@@ -386,7 +386,7 @@ public:
     }
 
     // To output stream
-    friend std::ostream &operator<<(std::ostream &os, const Matrix &mat)
+    friend std::ostream &operator<<(std::ostream &os, Matrix &mat)
     {
         for (size_t i{0}; i < mat.m_rows * mat.m_cols; ++i)
         {
@@ -396,6 +396,7 @@ public:
         return os;
     }
 
+    // Destructor
     V_DTR(~Matrix())
     {
         // If m_mat is not nullptr, delete it
