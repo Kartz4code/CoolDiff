@@ -56,6 +56,12 @@ Type Eval(Expression &);
 // Main forward mode AD computation
 Type DevalF(Expression &, const Variable &);
 
+// Forward mode algorithmic differentiation (Matrix)
+Matrix<Type> &DevalMatF(Expression &, const Matrix<Variable> &);
+
+// Reverse mode algorithmic differentiation (Matrix)
+Matrix<Type> &DevalMatR(Expression &, const Matrix<Variable> &);
+
 // Main precomputation of reverse mode AD computation
 void PreComp(Expression &);
 // Main reverse mode AD computation
@@ -64,19 +70,22 @@ Type DevalR(Expression &, const Variable &);
 // Derivative of expression
 Type Deval(Expression &, const Variable &, ADMode = ADMode::REVERSE);
 
-// Jacobian forward mode
+// Derivative of expression (Matrix)
+Matrix<Type> &DevalMat(Expression &, const Matrix<Variable> &,
+                       ADMode = ADMode::REVERSE);
+
+// Jacobian forward mode (Vector)
 Matrix<Type> &JacobF(Expression &, const Vector<Variable> &);
 
 // Jacobian reverse mode
 Matrix<Type> &JacobR(Expression &, const Vector<Variable> &);
 
 // Jacobian of expression
-Matrix<Type> &Jacobian(Expression &,
-                       const Vector<Variable> &,
-                       ADMode = ADMode::REVERSE);
+Matrix<Type> &Jacob(Expression &, const Vector<Variable> &,
+                    ADMode = ADMode::REVERSE);
 
 // Symbolic Jacobian of expression
-Matrix<Expression> &JacobianSym(Expression &, const Vector<Variable> &);
+Matrix<Expression> &JacobSym(Expression &, const Vector<Variable> &);
 
 // Hessian forward mode
 Matrix<Type> &HessF(Expression &, const Vector<Variable> &);
@@ -85,12 +94,11 @@ Matrix<Type> &HessF(Expression &, const Vector<Variable> &);
 Matrix<Type> &HessR(Expression &, const Vector<Variable> &);
 
 // Hessian of expression
-Matrix<Type> &Hessian(Expression &,
-                      const Vector<Variable> &,
-                      ADMode = ADMode::REVERSE);
+Matrix<Type> &Hess(Expression &, const Vector<Variable> &,
+                   ADMode = ADMode::REVERSE);
 
 // Symbolic Hessian of expression
-Matrix<Expression> &HessianSym(Expression &, const Vector<Variable> &);
+Matrix<Expression> &HessSym(Expression &, const Vector<Variable> &);
 
 // Main reverse mode AD table
 OMPair &PreCompCache(const Expression &);
@@ -98,13 +106,15 @@ OMPair &PreCompCache(const Expression &);
 // Symbolic Expression
 Expression &SymDiff(Expression &, const Variable &);
 
+// Symbolic Expression (Matrix)
+Matrix<Expression> &SymMatDiff(Expression &, const Matrix<Variable> &);
+
 // Create new expression
 template <typename T,
           typename = std::enable_if_t<std::is_base_of_v<MetaVariable, T>>>
-Expression &CreateExpr(const T &exp)
-{
-    auto tmp = Allocate<Expression>(exp);
-    return *tmp;
+Expression &CreateExpr(const T &exp) {
+  auto tmp = Allocate<Expression>(exp);
+  return *tmp;
 }
 
 // Free function for creating new expression

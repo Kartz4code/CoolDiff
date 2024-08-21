@@ -46,16 +46,17 @@ if(${BUILD_EXAMPLE})
     #[[
         MatrixArithmetic example
     ]]
-    
+
     # Add executable (target testing)
-    add_executable(MatrixArithmetic ${CMAKE_SOURCE_DIR}/example/MatrixArithmetic.cpp)
+    add_executable(MatrixArithmetic
+                   ${CMAKE_SOURCE_DIR}/example/MatrixArithmetic.cpp)
     # Set target include directories
     target_include_directories(MatrixArithmetic PUBLIC ${INCLUDES})
     # Set compile options
     target_compile_options(MatrixArithmetic PRIVATE -fpermissive)
     if(${BUILD_TYPE} STREQUAL Debug)
         target_compile_options(MatrixArithmetic PRIVATE -fno-omit-frame-pointer
-                                                -fsanitize=address)
+                                                        -fsanitize=address)
         target_link_options(
             MatrixArithmetic
             PRIVATE

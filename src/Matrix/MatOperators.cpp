@@ -1,5 +1,5 @@
 /**
- * @file src/Scalar/MetaVariable.cpp
+ * @file src/Matrix/MatOperators.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,19 +19,12 @@
  * associated repository.
  */
 
-#include "MetaVariable.hpp"
+#include "MatOperators.hpp"
 
-#include "Variable.hpp"
-
-// Reset temporaries
-void MetaVariable::resetTemp() {
-  if (this->mp_tmp != nullptr) {
-    this->mp_tmp->reset();
+// Matrix-Matrix addition - Left, Right, Result matrix pointer, nrows, ncols
+void MatrixAddition(Type *left, Type *right, Type *res, size_t nrows,
+                    size_t ncols) {
+  for (size_t i{}; i < nrows * ncols; ++i) {
+    res[i] = left[i] + right[i];
   }
-  for (auto &[k, v] : this->mp_dtmp) {
-    if (v != nullptr) {
-      v->reset();
-    }
-  }
-  this->m_visited = false;
 }

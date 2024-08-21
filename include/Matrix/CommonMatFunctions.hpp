@@ -25,21 +25,31 @@
 #include "Matrix.hpp"
 
 // Is the matrix zero?
-bool IsZeroMatrix(const Matrix<Type>&);
+bool IsZeroMatrix(const Matrix<Type> &);
 
 // Is the matrix identity?
-bool IsEyeMatrix(const Matrix<Type>&);
+bool IsEyeMatrix(const Matrix<Type> &);
 
 // Is the matrix ones?
-bool IsOnesMatrix(const Matrix<Type>&);
+bool IsOnesMatrix(const Matrix<Type> &);
 
 // Is the matrix square?
-bool IsSquareMatrix(const Matrix<Type>&);
+bool IsSquareMatrix(const Matrix<Type> &);
 
 // Is the matrix diagonal?
-bool IsDiagMatrix(const Matrix<Type>&);
+bool IsDiagMatrix(const Matrix<Type> &);
+
+// Is the row matrix ?
+bool IsRowMatrix(const Matrix<Type> &);
+
+// Is the column matrix ?
+bool IsColMatrix(const Matrix<Type> &);
 
 // Find type of matrix
-size_t FindMatType(const Matrix<Type>&);
+size_t FindMatType(const Matrix<Type> &);
 
+// Matrix evaluation
+Matrix<Type> &Eval(Matrix<Expression> &);
 
+// Matrix derivative evaluation
+Matrix<Type> &DevalF(Matrix<Expression> &, const Variable &);

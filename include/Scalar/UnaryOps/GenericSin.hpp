@@ -25,180 +25,150 @@
 #include "Variable.hpp"
 
 template <typename T, typename... Callables>
-class GenericSin : public IVariable<GenericSin<T, Callables...>>
-{
-private:
-    // Resources
-    T *mp_left{nullptr};
+class GenericSin : public IVariable<GenericSin<T, Callables...>> {
+ private:
+  // Resources
+  T *mp_left{nullptr};
 
-    // Callables
-    Tuples<Callables...> m_caller;
+  // Callables
+  Tuples<Callables...> m_caller;
 
-    // Disable copy and move constructors/assignments
-    DISABLE_COPY(GenericSin)
-    DISABLE_MOVE(GenericSin)
+  // Disable copy and move constructors/assignments
+  DISABLE_COPY(GenericSin)
+  DISABLE_MOVE(GenericSin)
 
-public:
-    // Block index
-    const size_t m_nidx{};
-    // Cache for reverse AD
-    OMPair m_cache;
+ public:
+  // Block index
+  const size_t m_nidx{};
+  // Cache for reverse AD
+  OMPair m_cache;
 
-    // Constructor
-    GenericSin(T *u, Callables &&...call)
-        : mp_left{u}, m_caller{std::make_tuple(
-                          std::forward<Callables>(call)...)},
-          m_nidx{this->m_idx_count++}
-    {
+  // Constructor
+  GenericSin(T *u, Callables &&...call)
+      : mp_left{u},
+        m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+        m_nidx{this->m_idx_count++} {}
+
+  /*
+  * ======================================================================================================
+  * ======================================================================================================
+  * ======================================================================================================
+   _   _ ___________ _____ _   _  ___   _       _____  _   _ ___________ _ _____
+  ___ ______  _____ | | | |_   _| ___ \_   _| | | |/ _ \ | |     |  _  || | | |
+  ___| ___ \ |   |  _  |/ _ \|  _  \/  ___| | | | | | | | |_/ / | | | | | /
+  /_\ \| |     | | | || | | | |__ | |_/ / |   | | | / /_\ \ | | |\ `--.
+  | | | | | | |    /  | | | | | |  _  || |     | | | || | | |  __||    /| |   |
+  | | |  _  | | | | `--. \ \ \_/ /_| |_| |\ \  | | | |_| | | | || |____ \ \_/
+  /\ \_/ / |___| |\ \| |___\ \_/ / | | | |/ / /\__/ /
+   \___/ \___/\_| \_| \_/  \___/\_| |_/\_____/  \___/  \___/\____/\_|
+  \_\_____/\___/\_| |_/___/  \____/
+
+  *======================================================================================================
+  *======================================================================================================
+  *======================================================================================================
+  */
+
+  // Symbolic evaluation
+  V_OVERRIDE(Variable *symEval()) {
+    if (nullptr == this->mp_tmp) {
+      auto tmp = Allocate<Expression>(sin(EVAL_L()));
+      this->mp_tmp = tmp.get();
     }
+    return this->mp_tmp;
+  }
 
-    /*
-    * ======================================================================================================
-    * ======================================================================================================
-    * ======================================================================================================
-     _   _ ___________ _____ _   _  ___   _       _____  _   _ ___________ _     _____  ___ ______  _____
-    | | | |_   _| ___ \_   _| | | |/ _ \ | |     |  _  || | | |  ___| ___ \ |   |  _  |/ _ \|  _  \/  ___|
-    | | | | | | | |_/ / | | | | | / /_\ \| |     | | | || | | | |__ | |_/ / |   | | | / /_\ \ | | |\ `--.
-    | | | | | | |    /  | | | | | |  _  || |     | | | || | | |  __||    /| |   | | | |  _  | | | | `--. \
-    \ \_/ /_| |_| |\ \  | | | |_| | | | || |____ \ \_/ /\ \_/ / |___| |\ \| |___\ \_/ / | | | |/ / /\__/ /
-     \___/ \___/\_| \_| \_/  \___/\_| |_/\_____/  \___/  \___/\____/\_| \_\_____/\___/\_| |_/___/  \____/
+  // Symbolic Differentiation
+  V_OVERRIDE(Variable *symDeval(const Variable &var)) {
+    // Static derivative computation
+    if (auto it = this->mp_dtmp.find(var.m_nidx); it == this->mp_dtmp.end()) {
+      auto tmp = Allocate<Expression>(cos(EVAL_L()) * (DEVAL_L(var)));
+      this->mp_dtmp[var.m_nidx] = tmp.get();
+    }
+    return this->mp_dtmp[var.m_nidx];
+  }
 
-    *======================================================================================================
-    *======================================================================================================
-    *======================================================================================================
-    */
+  // Eval in run-time
+  V_OVERRIDE(Type eval()) {
+    // Returned evaluation
+    const Type u = mp_left->eval();
+    return (std::sin(u));
+  }
 
-    // Symbolic evaluation
-    V_OVERRIDE(Variable *symEval())
-    {
-        if (nullptr == this->mp_tmp)
-        {
-            auto tmp = Allocate<Expression>(sin(EVAL_L()));
-            this->mp_tmp = tmp.get();
+  // Deval in run-time for forward derivative
+  V_OVERRIDE(Type devalF(const Variable &var)) {
+    // Return derivative of sin: (cos(u))*ud
+    const Type du = mp_left->devalF(var);
+    const Type u = mp_left->eval();
+    return (std::cos(u) * du);
+  }
+
+  // Traverse run-time
+  V_OVERRIDE(void traverse(OMPair *cache = nullptr)) {
+    // If cache is nullptr, i.e. for the first step
+    if (cache == nullptr) {
+      // cache is m_cache
+      cache = &m_cache;
+      cache->reserve(g_map_reserve);
+      // Clear cache in the first entry
+      if (false == (*cache).empty()) {
+        (*cache).clear();
+      }
+
+      // Traverse left node
+      if (false == mp_left->m_visited) {
+        mp_left->traverse(cache);
+      }
+
+      /* IMPORTANT: The derivative is computed here */
+      const Type u = std::cos(mp_left->eval());
+      (*cache)[mp_left->m_nidx] += (u);
+
+      // Modify cache for left node
+      if (u != 0) {
+        for (const auto &[idx, val] : mp_left->m_cache) {
+          (*cache)[idx] += (val * u);
         }
-        return this->mp_tmp;
-    }
+      }
+    } else {
+      // Cached value
+      const Type cCache = (*cache)[m_nidx];
 
-    // Symbolic Differentiation
-    V_OVERRIDE(Variable *symDeval(const Variable &var))
-    {
-        // Static derivative computation
-        if (auto it = this->mp_dtmp.find(var.m_nidx); it == this->mp_dtmp.end())
-        {
-            auto tmp = Allocate<Expression>(cos(EVAL_L()) * (DEVAL_L(var)));
-            this->mp_dtmp[var.m_nidx] = tmp.get();
+      // Traverse left node
+      if (false == mp_left->m_visited) {
+        mp_left->traverse(cache);
+      }
+
+      /* IMPORTANT: The derivative is computed here */
+      const Type ustar = (std::cos(mp_left->eval()) * cCache);
+      (*cache)[mp_left->m_nidx] += (ustar);
+
+      // Modify cache for left node
+      if (ustar != 0) {
+        for (const auto &[idx, val] : mp_left->m_cache) {
+          (*cache)[idx] += (val * ustar);
         }
-        return this->mp_dtmp[var.m_nidx];
+      }
     }
-
-    // Eval in run-time
-    V_OVERRIDE(Type eval())
-    {
-        // Returned evaluation
-        const Type u = mp_left->eval();
-        return (std::sin(u));
+    // Traverse left/right nodes
+    if (false == mp_left->m_visited) {
+      mp_left->traverse(cache);
     }
+  }
 
-    // Deval in run-time for forward derivative
-    V_OVERRIDE(Type devalF(const Variable &var))
-    {
-        // Return derivative of sin: (cos(u))*ud
-        const Type du = mp_left->devalF(var);
-        const Type u = mp_left->eval();
-        return (std::cos(u) * du);
-    }
+  // Get m_cache
+  V_OVERRIDE(OMPair &getCache()) { return m_cache; }
 
-    // Traverse run-time
-    V_OVERRIDE(void traverse(OMPair *cache = nullptr))
-    {
-        // If cache is nullptr, i.e. for the first step
-        if (cache == nullptr)
-        {
-            // cache is m_cache
-            cache = &m_cache;
-            cache->reserve(g_map_reserve);
-            // Clear cache in the first entry
-            if (false == (*cache).empty())
-            {
-                (*cache).clear();
-            }
+  // Reset visit run-time
+  V_OVERRIDE(void reset()) { UNARY_RESET(); }
 
-            // Traverse left node
-            if (false == mp_left->m_visited)
-            {
-                mp_left->traverse(cache);
-            }
+  // Get type
+  V_OVERRIDE(std::string_view getType() const) { return "GenericSin"; }
 
-            /* IMPORTANT: The derivative is computed here */
-            const Type u = std::cos(mp_left->eval());
-            (*cache)[mp_left->m_nidx] += (u);
+  // Find me
+  V_OVERRIDE(bool findMe(void *v) const) { UNARY_FIND_ME(); }
 
-            // Modify cache for left node
-            if (u != 0)
-            {
-                for (const auto &[idx, val] : mp_left->m_cache)
-                {
-                    (*cache)[idx] += (val * u);
-                }
-            }
-        }
-        else
-        {
-            // Cached value
-            const Type cCache = (*cache)[m_nidx];
-
-            // Traverse left node
-            if (false == mp_left->m_visited)
-            {
-                mp_left->traverse(cache);
-            }
-
-            /* IMPORTANT: The derivative is computed here */
-            const Type ustar = (std::cos(mp_left->eval()) * cCache);
-            (*cache)[mp_left->m_nidx] += (ustar);
-
-            // Modify cache for left node
-            if (ustar != 0)
-            {
-                for (const auto &[idx, val] : mp_left->m_cache)
-                {
-                    (*cache)[idx] += (val * ustar);
-                }
-            }
-        }
-        // Traverse left/right nodes
-        if (false == mp_left->m_visited)
-        {
-            mp_left->traverse(cache);
-        }
-    }
-
-    // Get m_cache
-    V_OVERRIDE(OMPair &getCache())
-    {
-        return m_cache;
-    }
-
-    // Reset visit run-time
-    V_OVERRIDE(void reset())
-    {
-        UNARY_RESET();
-    }
-
-    // Get type
-    V_OVERRIDE(std::string_view getType() const)
-    {
-        return "GenericSin";
-    }
-
-    // Find me
-    V_OVERRIDE(bool findMe(void *v) const)
-    {
-        UNARY_FIND_ME();
-    }
-
-    // Destructor
-    V_DTR(~GenericSin()) = default;
+  // Destructor
+  V_DTR(~GenericSin()) = default;
 };
 
 // Generic sin with 1 typename callables
@@ -207,10 +177,8 @@ using GenericSinT = GenericSin<T, OpType>;
 
 // Function for sin computation
 template <typename T>
-const GenericSinT<T> &sin(const IVariable<T> &u)
-{
-    auto tmp =
-        Allocate<GenericSinT<T>>(const_cast<T *>(static_cast<const T *>(&u)),
-                                 OpObj);
-    return *tmp;
+const GenericSinT<T> &sin(const IVariable<T> &u) {
+  auto tmp = Allocate<GenericSinT<T>>(
+      const_cast<T *>(static_cast<const T *>(&u)), OpObj);
+  return *tmp;
 }

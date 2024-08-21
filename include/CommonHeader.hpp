@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include "Operators.hpp"
 #include <algorithm>
 #include <cassert>
 #include <chrono>
@@ -44,13 +43,13 @@
 
 // Enable/disable copy/move operators
 #ifndef ENABLE_COPY_MOVE
-#define DISABLE_COPY(X)                                                        \
-    X(const X &) = delete;                                                     \
-    X &operator=(const X &) = delete;
+#define DISABLE_COPY(X)  \
+  X(const X &) = delete; \
+  X &operator=(const X &) = delete;
 
-#define DISABLE_MOVE(X)                                                        \
-    X(X &&) noexcept = delete;                                                 \
-    X &operator=(X &&) noexcept = delete;
+#define DISABLE_MOVE(X)      \
+  X(X &&) noexcept = delete; \
+  X &operator=(X &&) noexcept = delete;
 #else
 #define DISABLE_COPY(X)
 #define DISABLE_MOVE(X)
@@ -65,76 +64,58 @@
 #define DEVAL_R(X) (*mp_right->symDeval(X))
 
 // Unary find me
-#define UNARY_FIND_ME()                                                        \
-    if (static_cast<void *>(mp_left) == v)                                     \
-    {                                                                          \
-        return true;                                                           \
-    }                                                                          \
-    else if (mp_left->findMe(v) == true)                                       \
-    {                                                                          \
-        return true;                                                           \
-    }                                                                          \
-    return false;
+#define UNARY_FIND_ME()                    \
+  if (static_cast<void *>(mp_left) == v) { \
+    return true;                           \
+  } else if (mp_left->findMe(v) == true) { \
+    return true;                           \
+  }                                        \
+  return false;
 
 // Binary find me
-#define BINARY_FIND_ME()                                                       \
-    if (static_cast<void *>(mp_left) == v)                                     \
-    {                                                                          \
-        return true;                                                           \
-    }                                                                          \
-    else if (static_cast<void *>(mp_right) == v)                               \
-    {                                                                          \
-        return true;                                                           \
-    }                                                                          \
-    else                                                                       \
-    {                                                                          \
-        if (mp_left->findMe(v) == true)                                        \
-        {                                                                      \
-            return true;                                                       \
-        }                                                                      \
-        else if (mp_right->findMe(v) == true)                                  \
-        {                                                                      \
-            return true;                                                       \
-        }                                                                      \
-    }                                                                          \
-    return false;
+#define BINARY_FIND_ME()                           \
+  if (static_cast<void *>(mp_left) == v) {         \
+    return true;                                   \
+  } else if (static_cast<void *>(mp_right) == v) { \
+    return true;                                   \
+  } else {                                         \
+    if (mp_left->findMe(v) == true) {              \
+      return true;                                 \
+    } else if (mp_right->findMe(v) == true) {      \
+      return true;                                 \
+    }                                              \
+  }                                                \
+  return false;
 
 // Binary right find me
-#define BINARY_RIGHT_FIND_ME()                                                 \
-    if (static_cast<void *>(mp_right) == v)                                    \
-    {                                                                          \
-        return true;                                                           \
-    }                                                                          \
-    else                                                                       \
-    {                                                                          \
-        if (mp_right->findMe(v) == true)                                       \
-        {                                                                      \
-            return true;                                                       \
-        }                                                                      \
-    }                                                                          \
-    return false;
+#define BINARY_RIGHT_FIND_ME()              \
+  if (static_cast<void *>(mp_right) == v) { \
+    return true;                            \
+  } else {                                  \
+    if (mp_right->findMe(v) == true) {      \
+      return true;                          \
+    }                                       \
+  }                                         \
+  return false;
 
 // Binary left find me
-#define BINARY_LEFT_FIND_ME()                                                  \
-    if (static_cast<void *>(mp_left) == v)                                     \
-    {                                                                          \
-        return true;                                                           \
-    }                                                                          \
-    else                                                                       \
-    {                                                                          \
-        if (mp_left->findMe(v) == true)                                        \
-        {                                                                      \
-            return true;                                                       \
-        }                                                                      \
-    }                                                                          \
-    return false;
+#define BINARY_LEFT_FIND_ME()              \
+  if (static_cast<void *>(mp_left) == v) { \
+    return true;                           \
+  } else {                                 \
+    if (mp_left->findMe(v) == true) {      \
+      return true;                         \
+    }                                      \
+  }                                        \
+  return false;
 
 // Map reserve size
 constexpr const inline size_t g_map_reserve{32};
 // Constant size for vector of generic holder
 constexpr const inline size_t g_vec_init{32};
 
-// Typedef double as Type (TODO: Replace Type with a class/struct based on variants to support multiple types)
+// Typedef double as Type (TODO: Replace Type with a class/struct based on
+// variants to support multiple types)
 using Real = SCALAR_TYPE;
 
 #if defined(USE_COMPLEX_MATH)
@@ -161,7 +142,6 @@ bool operator==(Real, const Type &);
 #else
 using Type = Real;
 #endif
-
 
 // Predeclare a few classes (Scalar)
 class VarWrap;
@@ -206,71 +186,43 @@ using SharedPtr = std::shared_ptr<T>;
 #define V_PURE(X) virtual X = 0
 #endif
 
-#if defined(USE_CUSTOM_FUNCTIONS)
-// Operations enum (Order matters!)
-enum Op : size_t
-{
-    ADD = 0,
-    SUB,
-    MUL,
-    DIV,
-    SIN,
-    COS,
-    TAN,
-    SINH,
-    COSH,
-    TANH,
-    ASIN,
-    ACOS,
-    ATAN,
-    ASINH,
-    ACOSH,
-    ATANH,
-    ABS,
-    SQRT,
-    EXP,
-    LOG,
-    POW,
-    RELU,
-    COUNT
+// Operations enum [Order matters!]
+enum Op : size_t {
+  ADD = 0,
+  SUB,
+  MUL,
+  DIV,
+  POW,
+  SIN,
+  COS,
+  TAN,
+  SINH,
+  COSH,
+  TANH,
+  ASIN,
+  ACOS,
+  ATAN,
+  ASINH,
+  ACOSH,
+  ATANH,
+  SQRT,
+  EXP,
+  LOG,
+  COUNT
 };
-
-// Operation type (Order matters!)
-#define OpType                                                                 \
-    std::plus<Type>, std::minus<Type>, std::multiplies<Type>,                  \
-        std::divides<Type>, Sin<Type>, Cos<Type>, Tan<Type>, Sinh<Type>,       \
-        Cosh<Type>, Tanh<Type>, ASin<Type>, ACos<Type>, ATan<Type>,            \
-        ASinh<Type>, ACosh<Type>, ATanh<Type>
-
-// Operation objects (Order matters!)
-#define OpObj                                                                  \
-    std::plus<Type>(), std::minus<Type>(), std::multiplies<Type>(),            \
-        std::divides<Type>(), Sin<Type>(), Cos<Type>(), Tan<Type>(),           \
-        Sinh<Type>(), Cosh<Type>(), Tanh<Type>(), ASin<Type>(), ACos<Type>(),  \
-        ATan<Type>(), ASinh<Type>(), ACosh<Type>(), ATanh<Type>()
-#else
-struct _XOXO_{};
-#define OpType _XOXO_
-#define OpObj OpType()
-#endif
 
 // Enum classes
 // Automatic differentiation modes
-enum ADMode {
-    FORWARD, REVERSE
-};
+enum ADMode { FORWARD, REVERSE };
 
 // Convert to string
 template <typename T>
 std::string ToString(const T &value) {
-    // If complex number
-    if constexpr (std::is_same_v<T, std::complex<Real>>)
-    {
-        return std::move("(" + std::to_string(value.real()) + "," +
-                         std::to_string(value.imag()) + ")");
-    }
-    else
-    {
-        return std::move(std::to_string(value));
-    }
+  // If complex number
+  if constexpr (std::is_same_v<T, std::complex<Real>>) {
+    return std::move("(" + std::to_string(value.real()) + "," +
+                     std::to_string(value.imag()) + ")");
+  } else {
+    return std::move(std::to_string(value));
+  }
 }

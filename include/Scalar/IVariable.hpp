@@ -26,56 +26,54 @@
 
 // IVariable class to enforce expression templates for lazy evaluation
 template <typename T>
-class IVariable : public MetaVariable
-{
-protected:
-    // Protected constructor
-    IVariable() = default;
-    // Protected destructor
-    V_DTR(~IVariable()) = default;
+class IVariable : public MetaVariable {
+ protected:
+  // Protected constructor
+  IVariable() = default;
+  // Protected destructor
+  V_DTR(~IVariable()) = default;
 };
 
 // Binary left reset
-#define BINARY_LEFT_RESET()                                                    \
-    this->m_visited = false;                                                   \
-    if (false == m_cache.empty())                                              \
-    {                                                                          \
-        m_cache.clear();                                                       \
-    }                                                                          \
-    MetaVariable::resetTemp();                                                 \
-    mp_left->reset();
-
+#define BINARY_LEFT_RESET()       \
+  this->m_visited = false;        \
+  if (false == m_cache.empty()) { \
+    m_cache.clear();              \
+  }                               \
+  MetaVariable::resetTemp();      \
+  mp_left->reset();
 
 // Binary right reset
-#define BINARY_RIGHT_RESET()                                                   \
-    this->m_visited = false;                                                   \
-    if (false == m_cache.empty())                                              \
-    {                                                                          \
-        m_cache.clear();                                                       \
-    }                                                                          \
-    MetaVariable::resetTemp();                                                 \
-    mp_right->reset();
+#define BINARY_RIGHT_RESET()      \
+  this->m_visited = false;        \
+  if (false == m_cache.empty()) { \
+    m_cache.clear();              \
+  }                               \
+  MetaVariable::resetTemp();      \
+  mp_right->reset();
 
 // Binary reset
-#define BINARY_RESET()                                                         \
-    this->m_visited = false;                                                   \
-    if (false == m_cache.empty())                                              \
-    {                                                                          \
-        m_cache.clear();                                                       \
-    }                                                                          \
-    MetaVariable::resetTemp();                                                 \
-    mp_left->reset();                                                          \
-    mp_right->reset();
+#define BINARY_RESET()            \
+  this->m_visited = false;        \
+  if (false == m_cache.empty()) { \
+    m_cache.clear();              \
+  }                               \
+  MetaVariable::resetTemp();      \
+  mp_left->reset();               \
+  mp_right->reset();
 
 // Unary reset
-#define UNARY_RESET()                                                          \
-    this->m_visited = false;                                                   \
-    if (false == m_cache.empty())                                              \
-    {                                                                          \
-        m_cache.clear();                                                       \
-    }                                                                          \
-    MetaVariable::resetTemp();                                                 \
-    if (nullptr != mp_left)                                                    \
-    {                                                                          \
-        mp_left->reset();                                                      \
-    }
+#define UNARY_RESET()             \
+  this->m_visited = false;        \
+  if (false == m_cache.empty()) { \
+    m_cache.clear();              \
+  }                               \
+  MetaVariable::resetTemp();      \
+  if (nullptr != mp_left) {       \
+    mp_left->reset();             \
+  }
+
+// Policy based design
+struct __XOXO__ {};
+#define OpType __XOXO__
+#define OpObj OpType()

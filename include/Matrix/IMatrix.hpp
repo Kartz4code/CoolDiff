@@ -21,49 +21,48 @@
 
 #pragma once
 
+#include "MatOperators.hpp"
 #include "MemoryManager.hpp"
 
 // IVariable class to enforce expression templates for lazy evaluation
 template <typename T>
-class IMatrix : public MetaMatrix
-{
-private:
-    inline constexpr const T& derived() const {
-        return static_cast<const T&>(*this);
-    }
+class IMatrix : public MetaMatrix {
+ private:
+  inline constexpr const T &derived() const {
+    return static_cast<const T &>(*this);
+  }
 
-    inline constexpr T& derived() {
-        return static_cast<T&>(*this);
-    }
+  inline constexpr T &derived() { return static_cast<T &>(*this); }
 
-protected:
-    // Protected constructor
-    IMatrix() = default;
+ protected:
+  // Protected constructor
+  IMatrix() = default;
 
-public:
-    /* Type implementations */
-    // Get number of rows and columns
-    size_t getNumRows() const {
-        return derived().getNumRows();
-    }
+ public:
+  /* Type implementations */
+  // Get number of rows and columns
+  size_t getNumRows() const { return derived().getNumRows(); }
 
-    size_t getNumColumns() const {
-        return derived().getNumColumns();
-    }
+  size_t getNumColumns() const { return derived().getNumColumns(); }
 
-    // Find me
-    bool findMe(void* v) const {
-        return derived().findMe(v);
-    }
+  // Find me
+  bool findMe(void *v) const { return derived().findMe(v); }
 
-    // Protected destructor
-    V_DTR(~IMatrix()) = default;
+  // Protected destructor
+  V_DTR(~IMatrix()) = default;
 };
 
-// Special matrices 
+// Special matrices
 enum MatrixSpl : size_t {
-    ZEROS = 1 << 1,
-    EYE   = 1 << 2,
-    ONES  = 1 << 3,
-    DIAG  = 1 << 4
+  ZEROS = 1 << 1,
+  EYE = 1 << 2,
+  ONES = 1 << 3,
+  DIAG = 1 << 4,
+  ROW_MAT = 1 << 5,
+  COL_MAT = 1 << 6
 };
+
+// Operation type (Order matters!)
+#define OpMatType void (*)(Type *, Type *, Type *, size_t, size_t)
+// Operation objects (Order matters!)
+#define OpMatObj MatrixAddition
