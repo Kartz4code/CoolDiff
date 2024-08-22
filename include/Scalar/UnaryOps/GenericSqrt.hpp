@@ -26,7 +26,7 @@
 
 template <typename T, typename... Callables>
 class GenericSqrt : public IVariable<GenericSqrt<T, Callables...>> {
- private:
+private:
   // Resources
   T *mp_left{nullptr};
 
@@ -37,7 +37,7 @@ class GenericSqrt : public IVariable<GenericSqrt<T, Callables...>> {
   DISABLE_COPY(GenericSqrt)
   DISABLE_MOVE(GenericSqrt)
 
- public:
+public:
   // Block index
   const size_t m_nidx{};
   // Cache for reverse AD
@@ -45,8 +45,7 @@ class GenericSqrt : public IVariable<GenericSqrt<T, Callables...>> {
 
   // Constructor
   GenericSqrt(T *u, Callables &&...call)
-      : mp_left{u},
-        m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+      : mp_left{u}, m_caller{std::make_tuple(std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
   /*
@@ -126,10 +125,14 @@ class GenericSqrt : public IVariable<GenericSqrt<T, Callables...>> {
       (*cache)[mp_left->m_nidx] += (u);
 
       // Modify cache for left node
-      if (u != 0) {
-        for (const auto &[idx, val] : mp_left->m_cache) {
-          (*cache)[idx] += (val * u);
-        }
+      if (u != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_left->m_cache.begin(), mp_left->m_cache.end(), 
+                      [u,&cache](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val * u);
+                      });
       }
     } else {
       // Cached value
@@ -146,10 +149,14 @@ class GenericSqrt : public IVariable<GenericSqrt<T, Callables...>> {
       (*cache)[mp_left->m_nidx] += (ustar);
 
       // Modify cache for left node
-      if (ustar != 0) {
-        for (const auto &[idx, val] : mp_left->m_cache) {
-          (*cache)[idx] += (val * ustar);
-        }
+      if (ustar != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_left->m_cache.begin(), mp_left->m_cache.end(), 
+                      [ustar,&cache](auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val * ustar); 
+                      });
       }
     }
     // Traverse left/right nodes
@@ -175,12 +182,10 @@ class GenericSqrt : public IVariable<GenericSqrt<T, Callables...>> {
 };
 
 // Variable sqrt with 1 typename callables
-template <typename T>
-using GenericSqrtT = GenericSqrt<T, OpType>;
+template <typename T> using GenericSqrtT = GenericSqrt<T, OpType>;
 
 // Function for sqrt computation
-template <typename T>
-const GenericSqrtT<T> &sqrt(const IVariable<T> &u) {
+template <typename T> const GenericSqrtT<T> &sqrt(const IVariable<T> &u) {
   auto tmp = Allocate<GenericSqrtT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

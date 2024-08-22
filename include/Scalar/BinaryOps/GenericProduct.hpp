@@ -26,7 +26,7 @@
 
 template <typename T1, typename T2, typename... Callables>
 class GenericProduct : public IVariable<GenericProduct<T1, T2, Callables...>> {
- private:
+private:
   // Resources
   T1 *mp_left{nullptr};
   T2 *mp_right{nullptr};
@@ -38,7 +38,7 @@ class GenericProduct : public IVariable<GenericProduct<T1, T2, Callables...>> {
   DISABLE_COPY(GenericProduct)
   DISABLE_MOVE(GenericProduct)
 
- public:
+public:
   // Block index
   const size_t m_nidx{};
   // Cache for reverse AD 1st
@@ -46,9 +46,8 @@ class GenericProduct : public IVariable<GenericProduct<T1, T2, Callables...>> {
 
   // Constructor
   GenericProduct(T1 *u, T2 *v, Callables &&...call)
-      : mp_left{u},
-        mp_right{v},
-        m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
+                                     std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
   /*
@@ -136,16 +135,24 @@ class GenericProduct : public IVariable<GenericProduct<T1, T2, Callables...>> {
       (*cache)[mp_right->m_nidx] += u;
 
       // Modify cache for left node
-      if (v != 0) {
-        for (const auto &[idx, val] : mp_left->m_cache) {
-          (*cache)[idx] += (val * v);
-        }
+      if (v != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_left->m_cache.begin(), mp_left->m_cache.end(), 
+                      [&cache,v](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val*v);
+                });
       }
       // Modify cache for right node
-      if (u != 0) {
-        for (const auto &[idx, val] : mp_right->m_cache) {
-          (*cache)[idx] += (val * u);
-        }
+      if (u != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                      [&cache,u](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val*u);
+                });
       }
     } else {
       // Cached value
@@ -167,16 +174,24 @@ class GenericProduct : public IVariable<GenericProduct<T1, T2, Callables...>> {
       (*cache)[mp_right->m_nidx] += (ustar);
 
       // Modify cache for left node
-      if (vstar != 0) {
-        for (const auto &[idx, val] : mp_left->m_cache) {
-          (*cache)[idx] += (val * vstar);
-        }
+      if (vstar != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_left->m_cache.begin(), mp_left->m_cache.end(), 
+                      [&cache,vstar](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val*vstar);
+                });
       }
       // Modify cache for right node
-      if (ustar != 0) {
-        for (const auto &[idx, val] : mp_right->m_cache) {
-          (*cache)[idx] += (val * ustar);
-        }
+      if (ustar != (Type)(0)) {
+          std::for_each(EXECUTION_PAR 
+                        mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                        [&cache,ustar](const auto& item) {
+                          const auto idx = item.first;
+                          const auto val = item.second;
+                          (*cache)[idx] += (val*ustar);
+                  });
       }
     }
 
@@ -209,7 +224,7 @@ class GenericProduct : public IVariable<GenericProduct<T1, T2, Callables...>> {
 template <typename T, typename... Callables>
 class GenericProduct<Type, T, Callables...>
     : public IVariable<GenericProduct<Type, T, Callables...>> {
- private:
+private:
   // Resources
   Type mp_left{0};
   T *mp_right{nullptr};
@@ -221,7 +236,7 @@ class GenericProduct<Type, T, Callables...>
   DISABLE_COPY(GenericProduct)
   DISABLE_MOVE(GenericProduct)
 
- public:
+public:
   // Block index
   const size_t m_nidx{};
   // Cache for reverse AD 1st
@@ -229,9 +244,8 @@ class GenericProduct<Type, T, Callables...>
 
   // Constructor
   GenericProduct(const Type &u, T *v, Callables &&...call)
-      : mp_left{u},
-        mp_right{v},
-        m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
+                                     std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
   /*
@@ -306,10 +320,14 @@ class GenericProduct<Type, T, Callables...>
       (*cache)[mp_right->m_nidx] += mp_left;
 
       // Modify cache for right node
-      if (mp_left != 0) {
-        for (const auto &[idx, val] : mp_right->m_cache) {
-          (*cache)[idx] += (val * mp_left);
-        }
+      if (mp_left != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                      [&cache, mp_left = this->mp_left](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val*mp_left);
+                });
       }
     } else {
       // Cached value
@@ -325,10 +343,14 @@ class GenericProduct<Type, T, Callables...>
       (*cache)[mp_right->m_nidx] += (ustar);
 
       // Modify cache for right node
-      if (ustar != 0) {
-        for (const auto &[idx, val] : mp_right->m_cache) {
-          (*cache)[idx] += (val * ustar);
-        }
+      if (ustar != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                      [&cache,ustar](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val*ustar);
+                });
       }
     }
     // Traverse left/right nodes
@@ -358,8 +380,7 @@ template <typename T1, typename T2>
 using GenericProductT1 = GenericProduct<T1, T2, OpType>;
 
 // GenericProduct with 1 typename callables
-template <typename T>
-using GenericProductT2 = GenericProduct<Type, T, OpType>;
+template <typename T> using GenericProductT2 = GenericProduct<Type, T, OpType>;
 
 // Function for product computation
 template <typename T1, typename T2>

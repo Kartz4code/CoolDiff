@@ -24,7 +24,7 @@
 #include "CommonHeader.hpp"
 
 class MetaVariable {
- protected:
+protected:
   // Value and derivative temporaries
   Variable *mp_tmp{nullptr};
   UnOrderedMap<size_t, Variable *> mp_dtmp;
@@ -35,7 +35,7 @@ class MetaVariable {
   // Index counter (A counter to count the number of operations)
   inline static size_t m_idx_count{0};
 
- public:
+public:
   // Visited flag
   bool m_visited{false};
 

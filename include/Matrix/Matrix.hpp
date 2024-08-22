@@ -25,17 +25,14 @@
 #include "IMatrix.hpp"
 
 // Factory function for matrix reference creation
-template <typename T>
-Matrix<T> &CreateMatrix(size_t, size_t);
+template <typename T> Matrix<T> &CreateMatrix(size_t, size_t);
 
 // Factory function for matrix pointer creation
-template <typename T>
-Matrix<T> *CreateMatrixPtr(size_t, size_t);
+template <typename T> Matrix<T> *CreateMatrixPtr(size_t, size_t);
 
 // Matrix class
-template <typename T>
-class Matrix : public IMatrix<Matrix<T>> {
- private:
+template <typename T> class Matrix : public IMatrix<Matrix<T>> {
+private:
   // Matrix row and column size
   size_t m_rows{0};
   size_t m_cols{0};
@@ -79,7 +76,7 @@ class Matrix : public IMatrix<Matrix<T>> {
     }
   }
 
- public:
+public:
   // Matrix raw pointer of underlying type (Expression, Variable, Parameter,
   // Type)
   T *mp_mat{nullptr};
@@ -93,31 +90,20 @@ class Matrix : public IMatrix<Matrix<T>> {
 
   // Default constructor
   Matrix()
-      : m_rows{0},
-        m_cols{0},
-        mp_mat{new T{}},
-        mp_result{nullptr},
-        mp_dresult{nullptr},
-        m_nidx{this->m_idx_count++} {}
+      : m_rows{0}, m_cols{0}, mp_mat{new T{}}, mp_result{nullptr},
+        mp_dresult{nullptr}, m_nidx{this->m_idx_count++} {}
 
   // Initalize the matrix with rows and columns
   Matrix(size_t rows, size_t cols)
-      : m_rows{rows},
-        m_cols{cols},
-        mp_mat{new T[getNumElem()]{}},
-        mp_result{nullptr},
-        mp_dresult{nullptr},
-        m_nidx{this->m_idx_count++} {}
+      : m_rows{rows}, m_cols{cols}, mp_mat{new T[getNumElem()]{}},
+        mp_result{nullptr}, mp_dresult{nullptr}, m_nidx{this->m_idx_count++} {}
 
   // Matrix expressions constructor
   template <typename Z>
   Matrix(const IMatrix<Z> &expr)
-      : m_rows{expr.getNumRows()},
-        m_cols{expr.getNumColumns()},
-        mp_mat{new T[getNumElem()]{}},
-        mp_result{nullptr},
-        mp_dresult{nullptr},
-        m_nidx{this->m_idx_count++} {
+      : m_rows{expr.getNumRows()}, m_cols{expr.getNumColumns()},
+        mp_mat{new T[getNumElem()]{}}, mp_result{nullptr},
+        mp_dresult{nullptr}, m_nidx{this->m_idx_count++} {
     // Reserve a buffer of Matrix expressions
     m_gh_vec.reserve(g_vec_init);
     // Emplace the expression in a generic holder
@@ -125,8 +111,7 @@ class Matrix : public IMatrix<Matrix<T>> {
   }
 
   /* Copy assignment for expression evaluation */
-  template <typename Z>
-  Matrix &operator=(const IMatrix<Z> &expr) {
+  template <typename Z> Matrix &operator=(const IMatrix<Z> &expr) {
     if (static_cast<const Z &>(expr).findMe(this) == false) {
       m_gh_vec.clear();
     }
@@ -137,13 +122,13 @@ class Matrix : public IMatrix<Matrix<T>> {
 
   // Move constructor
   Matrix(Matrix &&m) noexcept
-      : m_rows{std::exchange(m.m_rows, -1)},
-        m_cols{std::exchange(m.m_cols, -1)},
-        mp_mat{std::exchange(m.mp_mat, nullptr)},
-        mp_result{std::exchange(m.mp_result, nullptr)},
+      : m_rows{std::exchange(m.m_rows, -1)}, m_cols{std::exchange(m.m_cols,
+                                                                  -1)},
+        mp_mat{std::exchange(m.mp_mat, nullptr)}, mp_result{std::exchange(
+                                                      m.mp_result, nullptr)},
         mp_dresult{std::exchange(m.mp_dresult, nullptr)},
-        m_gh_vec{std::exchange(m.m_gh_vec, {})},
-        m_nidx{std::exchange(m.m_nidx, -1)} {}
+        m_gh_vec{std::exchange(m.m_gh_vec, {})}, m_nidx{std::exchange(m.m_nidx,
+                                                                      -1)} {}
 
   // Move assignment operator
   Matrix &operator=(Matrix &&m) noexcept {
@@ -166,13 +151,10 @@ class Matrix : public IMatrix<Matrix<T>> {
 
   // Copy constructor
   Matrix(const Matrix &m)
-      : m_rows{m.m_rows},
-        m_cols{m.m_cols},
-        mp_mat{new T[getNumElem()]{}},
-        m_nidx{m.m_nidx},
-        m_gh_vec{m.m_gh_vec} {
+      : m_rows{m.m_rows}, m_cols{m.m_cols}, mp_mat{new T[getNumElem()]{}},
+        m_nidx{m.m_nidx}, m_gh_vec{m.m_gh_vec} {
     // Copy values
-    std::copy(m.mp_mat, m.mp_mat + getNumElem(), mp_mat);
+    std::copy(EXECUTION_PAR m.mp_mat, m.mp_mat + getNumElem(), mp_mat);
 
     // Clone mp_result
     if (nullptr != m.mp_result) {
@@ -198,7 +180,7 @@ class Matrix : public IMatrix<Matrix<T>> {
         delete[] mp_mat;
       }
       mp_mat = new T[getNumElem()]{};
-      std::copy(m.mp_mat, m.mp_mat + getNumElem(), mp_mat);
+      std::copy(EXECUTION_PAR m.mp_mat, m.mp_mat + getNumElem(), mp_mat);
 
       // Copy and clone mp_result
       if (nullptr != mp_result) {
@@ -225,7 +207,7 @@ class Matrix : public IMatrix<Matrix<T>> {
   inline Matrix<Type> *clone() const {
     Matrix<Type> *result = CreateMatrixPtr<Type>(m_rows, m_cols);
     if (nullptr != result->mp_mat) {
-      std::copy(mp_mat, mp_mat + getNumElem(), result->mp_mat);
+      std::copy(EXECUTION_PAR mp_mat, mp_mat + getNumElem(), result->mp_mat);
     }
     return result;
   }
@@ -275,8 +257,8 @@ class Matrix : public IMatrix<Matrix<T>> {
   Matrix getRow(const size_t &i) && {
     assert((i >= 0 && i < m_rows) && "[ERROR] Row index out of bound");
     Matrix tmp(m_cols, 1);
-    std::copy(mp_mat + (i * m_cols), mp_mat + ((i + 1) * m_cols),
-              tmp.getMatrixPtr());
+    std::copy(EXECUTION_PAR mp_mat + (i * m_cols),
+              mp_mat + ((i + 1) * m_cols), tmp.getMatrixPtr());
     return std::move(tmp);
   }
 
@@ -284,8 +266,8 @@ class Matrix : public IMatrix<Matrix<T>> {
   Matrix getRow(const size_t &i) const & {
     assert((i >= 0 && i < m_rows) && "[ERROR] Row index out of bound");
     Matrix tmp(m_cols, 1);
-    std::copy(mp_mat + (i * m_cols), mp_mat + ((i + 1) * m_cols),
-              tmp.getMatrixPtr());
+    std::copy(EXECUTION_PAR mp_mat + (i * m_cols),
+              mp_mat + ((i + 1) * m_cols), tmp.getMatrixPtr());
     return tmp;
   }
 
@@ -336,7 +318,8 @@ class Matrix : public IMatrix<Matrix<T>> {
       }
 
       // Set result matrix
-      std::transform(mp_mat, mp_mat + getNumElem(), mp_result->mp_mat,
+      std::transform(EXECUTION_PAR mp_mat, mp_mat + getNumElem(),
+                     mp_result->mp_mat,
                      [this](auto &v) { return getValue(v); });
 
       // Set visit flag to true
@@ -362,7 +345,8 @@ class Matrix : public IMatrix<Matrix<T>> {
       }
 
       // Set derivative result matrix
-      std::transform(mp_mat, mp_mat + getNumElem(), mp_dresult->mp_mat,
+      std::transform(EXECUTION_PAR mp_mat, mp_mat + getNumElem(),
+                     mp_dresult->mp_mat,
                      [&var, this](auto &v) { return getdValue(v, var); });
 
       // Set visit flag to true
@@ -429,14 +413,12 @@ class Matrix : public IMatrix<Matrix<T>> {
 };
 
 // Factory function for matrix creation
-template <typename T>
-Matrix<T> &CreateMatrix(size_t rows, size_t cols) {
+template <typename T> Matrix<T> &CreateMatrix(size_t rows, size_t cols) {
   auto tmp = Allocate<Matrix<T>>(rows, cols);
   return *tmp;
 }
 
-template <typename T>
-Matrix<T> *CreateMatrixPtr(size_t rows, size_t cols) {
+template <typename T> Matrix<T> *CreateMatrixPtr(size_t rows, size_t cols) {
   auto tmp = Allocate<Matrix<T>>(rows, cols);
   return tmp.get();
 }

@@ -25,10 +25,10 @@
 
 // Parameter class for l-value data variables
 class Parameter : public IVariable<Parameter> {
- private:
+private:
   Type m_value{};
 
- public:
+public:
   // Block index
   size_t m_nidx{};
   // Cache for reverse AD

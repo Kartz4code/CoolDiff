@@ -27,7 +27,7 @@
 // Left/right side is an expression
 template <typename T1, typename T2, typename... Callables>
 class GenericSub : public IVariable<GenericSub<T1, T2, Callables...>> {
- private:
+private:
   // Resources
   T1 *mp_left{nullptr};
   T2 *mp_right{nullptr};
@@ -39,7 +39,7 @@ class GenericSub : public IVariable<GenericSub<T1, T2, Callables...>> {
   DISABLE_COPY(GenericSub)
   DISABLE_MOVE(GenericSub)
 
- public:
+public:
   // Block index
   const size_t m_nidx{};
   // Cache for reverse AD
@@ -47,9 +47,8 @@ class GenericSub : public IVariable<GenericSub<T1, T2, Callables...>> {
 
   // Constructor
   GenericSub(T1 *u, T2 *v, Callables &&...call)
-      : mp_left{u},
-        mp_right{v},
-        m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
+                                     std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
   /*
@@ -132,13 +131,22 @@ class GenericSub : public IVariable<GenericSub<T1, T2, Callables...>> {
       (*cache)[mp_right->m_nidx] += (Type)(-1);
 
       // Modify cache for left node
-      for (const auto &[idx, val] : mp_left->m_cache) {
-        (*cache)[idx] += val;
-      }
+      std::for_each(EXECUTION_PAR 
+                    mp_left->m_cache.begin(), mp_left->m_cache.end(), 
+                    [&cache](const auto& item) {
+                      const auto idx = item.first;
+                      const auto val = item.second;
+                      (*cache)[idx] += (val);
+              });
+
       // Modify cache for right node
-      for (const auto &[idx, val] : mp_right->m_cache) {
-        (*cache)[idx] += ((Type)(-1) * val);
-      }
+      std::for_each(EXECUTION_PAR 
+                    mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                    [&cache](const auto& item) {
+                      const auto idx = item.first;
+                      const auto val = item.second;
+                      (*cache)[idx] += ((Type)(-1)*val);
+              });
     } else {
       // Cached value
       const Type cCache = (*cache)[m_nidx];
@@ -157,14 +165,23 @@ class GenericSub : public IVariable<GenericSub<T1, T2, Callables...>> {
       (*cache)[mp_right->m_nidx] += ((Type)(-1) * cCache);
 
       // Modify cache for left node
-      if (cCache != 0) {
-        for (const auto &[idx, val] : mp_left->m_cache) {
-          (*cache)[idx] += (val * cCache);
-        }
+      if (cCache != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_left->m_cache.begin(), mp_left->m_cache.end(), 
+                      [&cache, cCache](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val * cCache);
+              });
+              
         // Modify cache for right node
-        for (const auto &[idx, val] : mp_right->m_cache) {
-          (*cache)[idx] += ((Type)(-1) * val * cCache);
-        }
+        std::for_each(EXECUTION_PAR 
+                      mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                      [&cache, cCache](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += ((Type)(-1) * val * cCache);
+              });
       }
     }
     // Traverse left/right nodes
@@ -196,7 +213,7 @@ class GenericSub : public IVariable<GenericSub<T1, T2, Callables...>> {
 template <typename T, typename... Callables>
 class GenericSub<Type, T, Callables...>
     : public IVariable<GenericSub<Type, T, Callables...>> {
- private:
+private:
   // Resources
   Type mp_left{0};
   T *mp_right{nullptr};
@@ -208,7 +225,7 @@ class GenericSub<Type, T, Callables...>
   DISABLE_COPY(GenericSub)
   DISABLE_MOVE(GenericSub)
 
- public:
+public:
   // Block index
   const size_t m_nidx{};
   // Cache for reverse AD
@@ -216,9 +233,8 @@ class GenericSub<Type, T, Callables...>
 
   // Constructor
   GenericSub(const Type &u, T *v, Callables &&...call)
-      : mp_left{u},
-        mp_right{v},
-        m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
+                                     std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
   /*
@@ -294,9 +310,13 @@ class GenericSub<Type, T, Callables...>
       (*cache)[mp_right->m_nidx] += (Type)(-1);
 
       // Modify cache for right node
-      for (const auto &[idx, val] : mp_right->m_cache) {
-        (*cache)[idx] += ((Type)(-1) * val);
-      }
+      std::for_each(EXECUTION_PAR 
+                    mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                    [&cache](const auto& item) {
+                      const auto idx = item.first;
+                      const auto val = item.second;
+                      (*cache)[idx] += ((Type)(-1) * val);
+              });
     } else {
       // Cached value
       const Type cCache = (*cache)[m_nidx];
@@ -310,10 +330,15 @@ class GenericSub<Type, T, Callables...>
       (*cache)[mp_right->m_nidx] += ((Type)(-1) * cCache);
 
       // Modify cache for right node
-      if (cCache != 0) {
-        for (const auto &[idx, val] : mp_right->m_cache) {
-          (*cache)[idx] += ((Type)(-1) * val * cCache);
-        }
+      if (cCache != (Type)(0)) {
+        // Modify cache for right node
+        std::for_each(EXECUTION_PAR 
+                      mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                      [&cache, cCache](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += ((Type)(-1) * val * cCache);
+              });
       }
     }
     // Traverse left/right nodes
@@ -342,7 +367,7 @@ class GenericSub<Type, T, Callables...>
 template <typename T, typename... Callables>
 class GenericSub<T, Type, Callables...>
     : public IVariable<GenericSub<T, Type, Callables...>> {
- private:
+private:
   // Resources
   T *mp_left{nullptr};
   Type mp_right{0};
@@ -354,7 +379,7 @@ class GenericSub<T, Type, Callables...>
   DISABLE_COPY(GenericSub)
   DISABLE_MOVE(GenericSub)
 
- public:
+public:
   // Block index
   const size_t m_nidx{};
   // Cache for reverse AD
@@ -362,9 +387,8 @@ class GenericSub<T, Type, Callables...>
 
   // Constructor
   GenericSub(T *u, const Type &v, Callables &&...call)
-      : mp_left{u},
-        mp_right{v},
-        m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
+                                     std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
   /*
@@ -440,9 +464,13 @@ class GenericSub<T, Type, Callables...>
       (*cache)[mp_left->m_nidx] += (Type)1;
 
       // Modify cache for left node
-      for (const auto &[idx, val] : mp_left->m_cache) {
-        (*cache)[idx] += val;
-      }
+      std::for_each(EXECUTION_PAR 
+                    mp_left->m_cache.begin(), mp_left->m_cache.end(), 
+                    [&cache](const auto& item) {
+                      const auto idx = item.first;
+                      const auto val = item.second;
+                      (*cache)[idx] += (val);
+              });
     } else {
       // Cached value
       const Type cCache = (*cache)[m_nidx];
@@ -456,10 +484,14 @@ class GenericSub<T, Type, Callables...>
       (*cache)[mp_left->m_nidx] += cCache;
 
       // Modify cache for left node
-      if (cCache != 0) {
-        for (const auto &[idx, val] : mp_left->m_cache) {
-          (*cache)[idx] += (val * cCache);
-        }
+      if (cCache != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_left->m_cache.begin(), mp_left->m_cache.end(), 
+                      [&cache, cCache](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val * cCache);
+              });
       }
     }
     // Traverse left/right nodes
@@ -489,11 +521,9 @@ template <typename T1, typename T2>
 using GenericSubT1 = GenericSub<T1, T2, OpType>;
 
 // GenericSub with 1 typename callables
-template <typename T>
-using GenericSubT2 = GenericSub<Type, T, OpType>;
+template <typename T> using GenericSubT2 = GenericSub<Type, T, OpType>;
 
-template <typename T>
-using GenericSubT3 = GenericSub<T, Type, OpType>;
+template <typename T> using GenericSubT3 = GenericSub<T, Type, OpType>;
 
 // Function for subtraction computation
 template <typename T1, typename T2>

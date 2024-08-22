@@ -20,7 +20,6 @@
  */
 
 #include "CommonFunctions.hpp"
-
 #include "Matrix.hpp"
 
 // Evaluate function
@@ -107,8 +106,26 @@ Matrix<Type> &JacobMat(Expression &exp, const Matrix<Variable> &m, ADMode ad) {
 Matrix<Type> &JacobF(Expression &exp, const Vector<Variable> &vec) {
   const size_t rows = vec.size();
   auto &result = CreateMatrix<Type>(rows, 1);
-  for (size_t i{}; i < rows; ++i) {
-    result(i, 1) = DevalF(exp, vec[i]);
+
+  if (exp.isRecursive() == true) {
+    std::transform(vec.begin(), vec.end(), result.getMatrixPtr(),
+                   [&exp](const auto &v) { return DevalF(exp, v); });
+  } else {
+    // Copy expression and fill it up with exp
+    Vector<Expression> exp_coll(rows);
+    std::fill(EXECUTION_PAR exp_coll.begin(), exp_coll.end(), exp);
+
+    // Sync future objects and launch async functions
+    Vector<Future<Type>> vec_tasks(rows);
+    std::transform(
+        EXECUTION_PAR exp_coll.begin(), exp_coll.end(), vec.begin(),
+        vec_tasks.begin(), [&](auto &v1, const auto &v2) {
+          return std::async(std::launch::async, DevalF, std::ref(v1), v2);
+        });
+
+    // Collect results
+    std::transform(EXECUTION_PAR vec_tasks.begin(), vec_tasks.end(),
+                   result.getMatrixPtr(), [](auto &i) { return i.get(); });
   }
   return result;
 }

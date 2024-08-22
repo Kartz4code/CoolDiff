@@ -23,11 +23,11 @@
 #include "CommonHeader.hpp"
 
 class MetaMatrix {
- protected:
+protected:
   // Index counter (A counter to count the number of matrix operations)
   inline static size_t m_idx_count{0};
 
- public:
+public:
   // Visited flag
   bool m_visited{false};
 

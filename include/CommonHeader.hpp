@@ -26,6 +26,7 @@
 #include <chrono>
 #include <cmath>
 #include <functional>
+#include <future>
 #include <iostream>
 #include <memory>
 #include <string_view>
@@ -39,16 +40,26 @@
 #define USE_COMPLEX_MATH
 #define USE_ROBIN_HOOD_MAP
 #define USE_VIRTUAL_FUNCTIONS
+#define USE_PARALLEL_POLICY
+#endif
+
+// Use parallel policy
+#if defined(USE_PARALLEL_POLICY)
+#include <execution>
+#define EXECUTION_PAR std::execution::par,
+#define EXECUTION_SEQ std::execution::seq,
+constexpr const std::string_view g_execution_par = "Parallel";
+constexpr const std::string_view g_execution_seq = "Sequential";
 #endif
 
 // Enable/disable copy/move operators
 #ifndef ENABLE_COPY_MOVE
-#define DISABLE_COPY(X)  \
-  X(const X &) = delete; \
+#define DISABLE_COPY(X)                                                        \
+  X(const X &) = delete;                                                       \
   X &operator=(const X &) = delete;
 
-#define DISABLE_MOVE(X)      \
-  X(X &&) noexcept = delete; \
+#define DISABLE_MOVE(X)                                                        \
+  X(X &&) noexcept = delete;                                                   \
   X &operator=(X &&) noexcept = delete;
 #else
 #define DISABLE_COPY(X)
@@ -64,49 +75,49 @@
 #define DEVAL_R(X) (*mp_right->symDeval(X))
 
 // Unary find me
-#define UNARY_FIND_ME()                    \
-  if (static_cast<void *>(mp_left) == v) { \
-    return true;                           \
-  } else if (mp_left->findMe(v) == true) { \
-    return true;                           \
-  }                                        \
+#define UNARY_FIND_ME()                                                        \
+  if (static_cast<void *>(mp_left) == v) {                                     \
+    return true;                                                               \
+  } else if (mp_left->findMe(v) == true) {                                     \
+    return true;                                                               \
+  }                                                                            \
   return false;
 
 // Binary find me
-#define BINARY_FIND_ME()                           \
-  if (static_cast<void *>(mp_left) == v) {         \
-    return true;                                   \
-  } else if (static_cast<void *>(mp_right) == v) { \
-    return true;                                   \
-  } else {                                         \
-    if (mp_left->findMe(v) == true) {              \
-      return true;                                 \
-    } else if (mp_right->findMe(v) == true) {      \
-      return true;                                 \
-    }                                              \
-  }                                                \
+#define BINARY_FIND_ME()                                                       \
+  if (static_cast<void *>(mp_left) == v) {                                     \
+    return true;                                                               \
+  } else if (static_cast<void *>(mp_right) == v) {                             \
+    return true;                                                               \
+  } else {                                                                     \
+    if (mp_left->findMe(v) == true) {                                          \
+      return true;                                                             \
+    } else if (mp_right->findMe(v) == true) {                                  \
+      return true;                                                             \
+    }                                                                          \
+  }                                                                            \
   return false;
 
 // Binary right find me
-#define BINARY_RIGHT_FIND_ME()              \
-  if (static_cast<void *>(mp_right) == v) { \
-    return true;                            \
-  } else {                                  \
-    if (mp_right->findMe(v) == true) {      \
-      return true;                          \
-    }                                       \
-  }                                         \
+#define BINARY_RIGHT_FIND_ME()                                                 \
+  if (static_cast<void *>(mp_right) == v) {                                    \
+    return true;                                                               \
+  } else {                                                                     \
+    if (mp_right->findMe(v) == true) {                                         \
+      return true;                                                             \
+    }                                                                          \
+  }                                                                            \
   return false;
 
 // Binary left find me
-#define BINARY_LEFT_FIND_ME()              \
-  if (static_cast<void *>(mp_left) == v) { \
-    return true;                           \
-  } else {                                 \
-    if (mp_left->findMe(v) == true) {      \
-      return true;                         \
-    }                                      \
-  }                                        \
+#define BINARY_LEFT_FIND_ME()                                                  \
+  if (static_cast<void *>(mp_left) == v) {                                     \
+    return true;                                                               \
+  } else {                                                                     \
+    if (mp_left->findMe(v) == true) {                                          \
+      return true;                                                             \
+    }                                                                          \
+  }                                                                            \
   return false;
 
 // Map reserve size
@@ -150,8 +161,7 @@ class Parameter;
 class Expression;
 
 // Predeclare Matrix class
-template <typename>
-class Matrix;
+template <typename> class Matrix;
 
 // Ordered map between size_t and Type
 #if defined(USE_ROBIN_HOOD_MAP)
@@ -164,21 +174,20 @@ using UnOrderedMap = robin_hood::unordered_flat_map<T, U>;
 #include <unordered_map>
 using OMPair = std::unordered_map<size_t, Type>;
 // A generic unorderedmap
-template <typename T, typename U>
-using UnOrderedMap = std::unordered_map<T, U>;
+template <typename T, typename U> using UnOrderedMap = std::unordered_map<T, U>;
 #endif
 
 // A generic vector type
-template <typename T>
-using Vector = std::vector<T>;
+template <typename T> using Vector = std::vector<T>;
 
 // A generic variadic tuple type
-template <typename... Args>
-using Tuples = std::tuple<Args...>;
+template <typename... Args> using Tuples = std::tuple<Args...>;
 
 // A generic shared pointer
-template <typename T>
-using SharedPtr = std::shared_ptr<T>;
+template <typename T> using SharedPtr = std::shared_ptr<T>;
+
+// A generic future
+template <typename T> using Future = std::future<T>;
 
 #if defined(USE_VIRTUAL_FUNCTIONS)
 #define V_OVERRIDE(X) X override
@@ -216,8 +225,7 @@ enum Op : size_t {
 enum ADMode { FORWARD, REVERSE };
 
 // Convert to string
-template <typename T>
-std::string ToString(const T &value) {
+template <typename T> std::string ToString(const T &value) {
   // If complex number
   if constexpr (std::is_same_v<T, std::complex<Real>>) {
     return std::move("(" + std::to_string(value.real()) + "," +

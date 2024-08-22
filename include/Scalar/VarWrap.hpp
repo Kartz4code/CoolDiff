@@ -24,7 +24,7 @@
 #include "CommonHeader.hpp"
 
 class VarWrap {
- private:
+private:
   // Count the number of VarWrap
   inline static size_t m_count{};
 
@@ -33,7 +33,7 @@ class VarWrap {
   Type m_value{}, m_dvalue{};
   std::string m_var_name{};
 
- public:
+public:
   // Constructors
   VarWrap();
   VarWrap(Type);

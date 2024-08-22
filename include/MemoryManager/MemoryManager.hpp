@@ -25,7 +25,7 @@
 #include "MetaVariable.hpp"
 
 class MemoryManager {
- private:
+private:
   // Allocate friend function
   template <typename T, typename... Args>
   friend SharedPtr<T> Allocate(Args &&...args);
@@ -34,14 +34,13 @@ class MemoryManager {
   inline static Vector<SharedPtr<MetaVariable>> m_del_ptr;
   inline static Vector<SharedPtr<MetaMatrix>> m_del_mat_ptr;
 
- public:
+public:
   // Get size of memory allocated
   static size_t size();
 };
 
 // Delete resource
-template <typename T>
-void DelPtr(T *ptr) {
+template <typename T> void DelPtr(T *ptr) {
   if (ptr != nullptr) {
     delete ptr;
     ptr = nullptr;
@@ -49,8 +48,7 @@ void DelPtr(T *ptr) {
 }
 
 // Scalar allocator
-template <typename T, typename... Args>
-SharedPtr<T> Allocate(Args &&...args) {
+template <typename T, typename... Args> SharedPtr<T> Allocate(Args &&...args) {
   const size_t size = sizeof(T);
   const size_t align = 0;
 

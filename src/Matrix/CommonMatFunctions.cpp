@@ -24,14 +24,15 @@
 #include "CommonFunctions.hpp"
 
 // Is the matrix zero
-bool IsZeroMatrix(const Matrix<Type>& m) {
-  auto* it = m.getMatrixPtr();
+bool IsZeroMatrix(const Matrix<Type> &m) {
+  auto *it = m.getMatrixPtr();
   const size_t n = m.getNumElem();
-  return std::all_of(it, it + n, [](Type i) { return (i == (Type)(0)); });
+  return std::all_of(EXECUTION_PAR it, it + n,
+                     [](Type i) { return (i == (Type)(0)); });
 }
 
 // Is the matrix identity
-bool IsEyeMatrix(const Matrix<Type>& m) {
+bool IsEyeMatrix(const Matrix<Type> &m) {
   // If matrix is rectangular, return false
   if (false == IsSquareMatrix(m)) {
     return false;
@@ -46,19 +47,20 @@ bool IsEyeMatrix(const Matrix<Type>& m) {
 }
 
 // Is the matrix ones
-bool IsOnesMatrix(const Matrix<Type>& m) {
-  auto* it = m.getMatrixPtr();
+bool IsOnesMatrix(const Matrix<Type> &m) {
+  auto *it = m.getMatrixPtr();
   const size_t n = m.getNumElem();
-  return std::all_of(it, it + n, [](Type i) { return (i == (Type)(1)); });
+  return std::all_of(EXECUTION_PAR it, it + n,
+                     [](Type i) { return (i == (Type)(1)); });
 }
 
 // Is the matrix square
-bool IsSquareMatrix(const Matrix<Type>& m) {
+bool IsSquareMatrix(const Matrix<Type> &m) {
   return (m.getNumColumns() == m.getNumRows());
 }
 
 // Is the matrix diagonal?
-bool IsDiagMatrix(const Matrix<Type>& m) {
+bool IsDiagMatrix(const Matrix<Type> &m) {
   // If matrix is rectangular, return false
   if (false == IsSquareMatrix(m)) {
     return false;
@@ -76,13 +78,13 @@ bool IsDiagMatrix(const Matrix<Type>& m) {
 }
 
 // Is the row matrix ?
-bool IsRowMatrix(const Matrix<Type>& m) { return (m.getNumRows() == 1); }
+bool IsRowMatrix(const Matrix<Type> &m) { return (m.getNumRows() == 1); }
 
 // Is the column matrix ?
-bool IsColMatrix(const Matrix<Type>& m) { return (m.getNumColumns() == 1); }
+bool IsColMatrix(const Matrix<Type> &m) { return (m.getNumColumns() == 1); }
 
 // Find type of matrix
-size_t FindMatType(const Matrix<Type>& m) {
+size_t FindMatType(const Matrix<Type> &m) {
   size_t result{};
   // Zero matrix check
   if (true == IsZeroMatrix(m)) {
@@ -112,9 +114,9 @@ size_t FindMatType(const Matrix<Type>& m) {
 }
 
 // Matrix evaluation
-Matrix<Type>& Eval(Matrix<Expression>& mexp) {
+Matrix<Type> &Eval(Matrix<Expression> &mexp) {
   // Create new matrix
-  Matrix<Type>& res =
+  Matrix<Type> &res =
       CreateMatrix<Type>(mexp.getNumRows(), mexp.getNumColumns());
   // Reset graph/tree
   mexp.resetImpl();
@@ -124,9 +126,9 @@ Matrix<Type>& Eval(Matrix<Expression>& mexp) {
 }
 
 // Matrix derivative evaluation
-Matrix<Type>& DevalF(Matrix<Expression>& mexp, const Variable& x) {
+Matrix<Type> &DevalF(Matrix<Expression> &mexp, const Variable &x) {
   // Create new matrix
-  Matrix<Type>& dres =
+  Matrix<Type> &dres =
       CreateMatrix<Type>(mexp.getNumRows(), mexp.getNumColumns());
   // Reset graph/tree
   mexp.resetImpl();

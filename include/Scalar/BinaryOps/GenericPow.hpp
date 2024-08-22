@@ -27,7 +27,7 @@
 // Left/right side is an expression
 template <typename T1, typename T2, typename... Callables>
 class GenericPow : public IVariable<GenericPow<T1, T2, Callables...>> {
- private:
+private:
   // Resources
   T1 *mp_left{nullptr};
   T2 *mp_right{nullptr};
@@ -39,7 +39,7 @@ class GenericPow : public IVariable<GenericPow<T1, T2, Callables...>> {
   DISABLE_COPY(GenericPow)
   DISABLE_MOVE(GenericPow)
 
- public:
+public:
   // Block index
   const size_t m_nidx{};
   // Cache for reverse AD
@@ -47,9 +47,8 @@ class GenericPow : public IVariable<GenericPow<T1, T2, Callables...>> {
 
   // Constructor
   GenericPow(T1 *u, T2 *v, Callables &&...call)
-      : mp_left{u},
-        mp_right{v},
-        m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
+                                     std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
   /*
@@ -141,16 +140,24 @@ class GenericPow : public IVariable<GenericPow<T1, T2, Callables...>> {
       (*cache)[mp_right->m_nidx] += dv;
 
       // Modify cache for left node
-      if (du != 0) {
-        for (const auto &[idx, val] : mp_left->m_cache) {
-          (*cache)[idx] += (val * du);
-        }
+      if (du != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_left->m_cache.begin(), mp_left->m_cache.end(), 
+                      [&cache,du](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val*du);
+                });
       }
       // Modify cache for right node
-      if (dv != 0) {
-        for (const auto &[idx, val] : mp_right->m_cache) {
-          (*cache)[idx] += (val * dv);
-        }
+      if (dv != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                      [&cache,dv](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val*dv);
+                });
       }
     } else {
       // Cached value
@@ -175,16 +182,24 @@ class GenericPow : public IVariable<GenericPow<T1, T2, Callables...>> {
       (*cache)[mp_right->m_nidx] += (ustar);
 
       // Modify cache for left node
-      if (vstar != 0) {
-        for (const auto &[idx, val] : mp_left->m_cache) {
-          (*cache)[idx] += (val * vstar);
-        }
+      if (vstar != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_left->m_cache.begin(), mp_left->m_cache.end(), 
+                      [&cache, vstar](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val * vstar);
+              });
       }
       // Modify cache for right node
-      if (ustar != 0) {
-        for (const auto &[idx, val] : mp_right->m_cache) {
-          (*cache)[idx] += (val * ustar);
-        }
+      if (ustar != (Type)(0)) {
+          std::for_each(EXECUTION_PAR 
+                        mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                        [&cache, ustar](const auto& item) {
+                          const auto idx = item.first;
+                          const auto val = item.second;
+                          (*cache)[idx] += (val * ustar);
+              });
       }
     }
 
@@ -217,7 +232,7 @@ class GenericPow : public IVariable<GenericPow<T1, T2, Callables...>> {
 template <typename T, typename... Callables>
 class GenericPow<Type, T, Callables...>
     : public IVariable<GenericPow<Type, T, Callables...>> {
- private:
+private:
   // Resources
   Type mp_left{0};
   T *mp_right{nullptr};
@@ -229,7 +244,7 @@ class GenericPow<Type, T, Callables...>
   DISABLE_COPY(GenericPow)
   DISABLE_MOVE(GenericPow)
 
- public:
+public:
   // Block index
   const size_t m_nidx{};
   // Cache for reverse AD
@@ -237,9 +252,8 @@ class GenericPow<Type, T, Callables...>
 
   // Constructor
   GenericPow(const Type &u, T *v, Callables &&...call)
-      : mp_left{u},
-        mp_right{v},
-        m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
+                                     std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
   /*
@@ -318,10 +332,14 @@ class GenericPow<Type, T, Callables...>
       (*cache)[mp_right->m_nidx] += dv;
 
       // Modify cache for right node
-      if (dv != 0) {
-        for (const auto &[idx, val] : mp_right->m_cache) {
-          (*cache)[idx] += (val * dv);
-        }
+      if (dv != (Type)(0)) {
+      std::for_each(EXECUTION_PAR 
+                    mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                    [&cache,dv](const auto& item) {
+                      const auto idx = item.first;
+                      const auto val = item.second;
+                      (*cache)[idx] += (val*dv);
+              });
       }
     } else {
       // Cached value
@@ -338,10 +356,14 @@ class GenericPow<Type, T, Callables...>
       (*cache)[mp_right->m_nidx] += (ustar);
 
       // Modify cache for right node
-      if (ustar != 0) {
-        for (const auto &[idx, val] : mp_right->m_cache) {
-          (*cache)[idx] += (val * ustar);
-        }
+      if (ustar != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                      [&cache, ustar](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val * ustar);
+              });
       }
     }
     // Traverse left/right nodes
@@ -370,7 +392,7 @@ class GenericPow<Type, T, Callables...>
 template <typename T, typename... Callables>
 class GenericPow<T, Type, Callables...>
     : public IVariable<GenericPow<T, Type, Callables...>> {
- private:
+private:
   // Resources
   T *mp_left{nullptr};
   Type mp_right{0};
@@ -382,7 +404,7 @@ class GenericPow<T, Type, Callables...>
   DISABLE_COPY(GenericPow)
   DISABLE_MOVE(GenericPow)
 
- public:
+public:
   // Block index
   const size_t m_nidx{};
   // Cache for reverse AD
@@ -390,9 +412,8 @@ class GenericPow<T, Type, Callables...>
 
   // Constructor
   GenericPow(T *u, const Type &v, Callables &&...call)
-      : mp_left{u},
-        mp_right{v},
-        m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
+                                     std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
   /*
@@ -472,10 +493,14 @@ class GenericPow<T, Type, Callables...>
       (*cache)[mp_left->m_nidx] += du;
 
       // Modify cache for left node
-      if (du != 0) {
-        for (const auto &[idx, val] : mp_left->m_cache) {
-          (*cache)[idx] += (val * du);
-        }
+      if (du != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_left->m_cache.begin(), mp_left->m_cache.end(), 
+                      [&cache,du](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val*du);
+                });
       }
     } else {
       // Cached value
@@ -493,10 +518,14 @@ class GenericPow<T, Type, Callables...>
       (*cache)[mp_left->m_nidx] += (ustar);
 
       // Modify cache for left node
-      if (ustar != 0) {
-        for (const auto &[idx, val] : mp_left->m_cache) {
-          (*cache)[idx] += (val * ustar);
-        }
+      if (ustar != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_left->m_cache.begin(), mp_left->m_cache.end(), 
+                      [&cache,ustar](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val*ustar);
+                });
       }
     }
     // Traverse left/right nodes
@@ -526,11 +555,9 @@ template <typename T1, typename T2>
 using GenericPowT1 = GenericPow<T1, T2, OpType>;
 
 // Variable sum with 1 typename callables
-template <typename T>
-using GenericPowT2 = GenericPow<Type, T, OpType>;
+template <typename T> using GenericPowT2 = GenericPow<Type, T, OpType>;
 
-template <typename T>
-using GenericPowT3 = GenericPow<T, Type, OpType>;
+template <typename T> using GenericPowT3 = GenericPow<T, Type, OpType>;
 
 // Function for power computation
 template <typename T1, typename T2>

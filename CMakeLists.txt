@@ -31,9 +31,14 @@ project(
     DESCRIPTION "CoolDiff - Symbolic/Auto differentiation C++ tool"
     LANGUAGES C CXX)
 
+find_package(TBB REQUIRED)
+find_package(Threads REQUIRED)
+
 # [Custom flags]
 # Build type: Debug or Release
 set(BUILD_TYPE Debug)
+
+
 option(BUILD_TEST "Building unit test executables" ON)
 option(BUILD_EXAMPLE "Building example executables" ON)
 option(ENABLE_CLANG_TIDY "Enable clang-tidy static linter" ON)
@@ -90,6 +95,7 @@ if(${BUILD_TYPE} STREQUAL Debug)
     add_definitions(-DUSE_COMPLEX_MATH)
     add_definitions(-DUSE_ROBIN_HOOD_MAP)
     add_definitions(-DUSE_VIRTUAL_FUNCTIONS)
+    add_definitions(-DUSE_PARALLEL_POLICY)
 endif()
 
 # [Set target sources]
@@ -122,6 +128,7 @@ add_library(${PROJECT_NAME} STATIC ${SRC})
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
 # [Set compile options]
 target_compile_options(${PROJECT_NAME} PRIVATE -fpermissive)
+target_link_libraries(${PROJECT_NAME} PUBLIC Threads::Threads TBB::tbb)
 
 if(${BUILD_TYPE} STREQUAL Debug)
     message("[${BUILD_TYPE}][${PROJECT_NAME}] Attaching address sanitizer")

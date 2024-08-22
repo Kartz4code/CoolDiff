@@ -30,7 +30,7 @@ class Expression;
 
 // Variable Expression is a wrapper around the variable class
 class Variable : public IVariable<Variable> {
- private:
+private:
   friend class Expression;
   /* Constructor for expression evaluation - e.g.Variable x = x1 + x2 + x3;
      Dummy variable is created and it is counted negatively
@@ -45,8 +45,7 @@ class Variable : public IVariable<Variable> {
 
   /* Copy assignment for expression evaluation - e.g.Variable x = x1 + x2 + x3;
    */
-  template <typename T>
-  Variable &operator=(const IVariable<T> &expr) {
+  template <typename T> Variable &operator=(const IVariable<T> &expr) {
     // Emplace the expression in a generic holder
     m_gh_vec.emplace_back(&static_cast<const T &>(expr));
     return *this;
@@ -56,7 +55,7 @@ class Variable : public IVariable<Variable> {
   void setExpression(const std::string &);
   const std::string &getExpression() const;
 
- protected:
+protected:
   // Underlying symbolic variable
   VarWrap m_var{};
   // Type-time value
@@ -68,7 +67,7 @@ class Variable : public IVariable<Variable> {
   // Exposed to user to compute symbolic differentiation
   Expression SymDiff(const Variable &);
 
- public:
+public:
   // Static variable for one seed
   static Variable t1;
   // Static variable for zero seed

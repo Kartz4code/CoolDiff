@@ -27,7 +27,7 @@
 // Left/right side is an expression
 template <typename T1, typename T2, typename... Callables>
 class GenericMatSum : public IMatrix<GenericMatSum<T1, T2, Callables...>> {
- private:
+private:
   // Resources
   T1 *mp_left{nullptr};
   T2 *mp_right{nullptr};
@@ -53,7 +53,7 @@ class GenericMatSum : public IMatrix<GenericMatSum<T1, T2, Callables...>> {
     return ((lr == rr) && (lc == rc));
   }
 
- public:
+public:
   // Result
   Matrix<Type> *mp_result{nullptr};
   // Derivative result
@@ -64,10 +64,7 @@ class GenericMatSum : public IMatrix<GenericMatSum<T1, T2, Callables...>> {
 
   // Constructor
   GenericMatSum(T1 *u, T2 *v, Callables &&...call)
-      : mp_left{u},
-        mp_right{v},
-        mp_result{nullptr},
-        mp_dresult{nullptr},
+      : mp_left{u}, mp_right{v}, mp_result{nullptr}, mp_dresult{nullptr},
         m_caller{std::make_tuple(std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
