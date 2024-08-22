@@ -27,7 +27,7 @@
 // Left/right side is an expression
 template <typename T1, typename T2, typename... Callables>
 class GenericSum : public IVariable<GenericSum<T1, T2, Callables...>> {
- private:
+private:
   // Resources
   T1 *mp_left{nullptr};
   T2 *mp_right{nullptr};
@@ -39,7 +39,7 @@ class GenericSum : public IVariable<GenericSum<T1, T2, Callables...>> {
   DISABLE_COPY(GenericSum)
   DISABLE_MOVE(GenericSum)
 
- public:
+public:
   // Block index
   const size_t m_nidx{};
   // Cache for reverse AD 1st
@@ -47,9 +47,8 @@ class GenericSum : public IVariable<GenericSum<T1, T2, Callables...>> {
 
   // Constructor
   GenericSum(T1 *u, T2 *v, Callables &&...call)
-      : mp_left{u},
-        mp_right{v},
-        m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
+                                     std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
   /*
@@ -132,14 +131,23 @@ class GenericSum : public IVariable<GenericSum<T1, T2, Callables...>> {
       (*cache)[mp_right->m_nidx] += (Type)1;
 
       // Modify cache for left node
-      for (const auto &[idx, val] : mp_left->m_cache) {
-        (*cache)[idx] += val;
-      }
-
+      std::for_each(EXECUTION_PAR 
+                    mp_left->m_cache.begin(), mp_left->m_cache.end(), 
+                    [&cache](const auto& item) {
+                      const auto idx = item.first;
+                      const auto val = item.second;
+                      (*cache)[idx] += (val);
+              });
+              
       // Modify cache for right node
-      for (const auto &[idx, val] : mp_right->m_cache) {
-        (*cache)[idx] += val;
-      }
+      std::for_each(EXECUTION_PAR 
+                    mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                    [&cache](const auto& item) {
+                      const auto idx = item.first;
+                      const auto val = item.second;
+                      (*cache)[idx] += (val);
+              });
+
     } else {
       // Cached value
       const Type cCache = (*cache)[m_nidx];
@@ -157,15 +165,24 @@ class GenericSum : public IVariable<GenericSum<T1, T2, Callables...>> {
       (*cache)[mp_left->m_nidx] += cCache;
       (*cache)[mp_right->m_nidx] += cCache;
 
-      if (cCache != 0) {
+      if (cCache != (Type)(0)) {
         // Modify cache for left node
-        for (const auto &[idx, val] : mp_left->m_cache) {
-          (*cache)[idx] += (val * cCache);
-        }
+        std::for_each(EXECUTION_PAR 
+                      mp_left->m_cache.begin(), mp_left->m_cache.end(), 
+                      [&cache, cCache](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val * cCache);
+              });
+
         // Modify cache for right node
-        for (const auto &[idx, val] : mp_right->m_cache) {
-          (*cache)[idx] += (val * cCache);
-        }
+        std::for_each(EXECUTION_PAR 
+                      mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                      [&cache, cCache](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val * cCache);
+              });
       }
     }
 
@@ -198,7 +215,7 @@ class GenericSum : public IVariable<GenericSum<T1, T2, Callables...>> {
 template <typename T, typename... Callables>
 class GenericSum<Type, T, Callables...>
     : public IVariable<GenericSum<Type, T, Callables...>> {
- private:
+private:
   // Resources
   Type mp_left{0};
   T *mp_right{nullptr};
@@ -210,7 +227,7 @@ class GenericSum<Type, T, Callables...>
   DISABLE_COPY(GenericSum)
   DISABLE_MOVE(GenericSum)
 
- public:
+public:
   // Block index
   const size_t m_nidx{};
   // Cache for reverse AD 1st
@@ -218,9 +235,8 @@ class GenericSum<Type, T, Callables...>
 
   // Constructor
   GenericSum(const Type &u, T *v, Callables &&...call)
-      : mp_left{u},
-        mp_right{v},
-        m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
+                                     std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
   /*
@@ -297,9 +313,14 @@ class GenericSum<Type, T, Callables...>
       (*cache)[mp_right->m_nidx] += (Type)1;
 
       // Modify cache for right node
-      for (const auto &[idx, val] : mp_right->m_cache) {
-        (*cache)[idx] += val;
-      }
+      std::for_each(EXECUTION_PAR 
+                    mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                    [&cache](const auto& item) {
+                      const auto idx = item.first;
+                      const auto val = item.second;
+                      (*cache)[idx] += (val);
+              });
+
     } else {
       // Cached value
       const Type cCache = (*cache)[m_nidx];
@@ -313,10 +334,14 @@ class GenericSum<Type, T, Callables...>
       (*cache)[mp_right->m_nidx] += cCache;
 
       // Modify cache for right node
-      if (cCache != 0) {
-        for (const auto &[idx, val] : mp_right->m_cache) {
-          (*cache)[idx] += (val * cCache);
-        }
+      if (cCache != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                      [&cache, cCache](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val * cCache);
+              });
       }
     }
 
@@ -349,8 +374,7 @@ template <typename T1, typename T2>
 using GenericSumT1 = GenericSum<T1, T2, OpType>;
 
 // GenericSum with 1 typename callables
-template <typename T>
-using GenericSumT2 = GenericSum<Type, T, OpType>;
+template <typename T> using GenericSumT2 = GenericSum<Type, T, OpType>;
 
 // Function for sum computation
 template <typename T1, typename T2>

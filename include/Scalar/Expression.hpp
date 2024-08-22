@@ -25,12 +25,13 @@
 #include "Variable.hpp"
 
 class Expression : public Variable {
- public:
+private:
+  bool m_recursive_exp{false};
+
+public:
   Expression();
 
-  Expression(const Expression &);
-
-  template <typename T>
+  template <typename T> 
   Expression(const IVariable<T> &expr) {
     Variable::m_nidx = this->m_idx_count++;
     // Reserve a buffer of expressions
@@ -41,15 +42,20 @@ class Expression : public Variable {
 
   /* Copy assignment for expression evaluation - e.g.Variable x = x1 + x2 + x3;
    */
-  template <typename T>
+  template <typename T> 
   Expression &operator=(const IVariable<T> &expr) {
-    if (static_cast<const T &>(expr).findMe(this) == false) {
+    if (auto rec = static_cast<const T &>(expr).findMe(this); rec == false) {
       m_gh_vec.clear();
+    } else {
+      m_recursive_exp = rec;
     }
     // Emplace the expression in a generic holder
     Variable::m_gh_vec.emplace_back(&static_cast<const T &>(expr));
     return *this;
   }
+
+  // Is recursive expression
+  bool isRecursive() const;
 
   // Symbolic differentiation of expression
   Expression &SymDiff(const Variable &);

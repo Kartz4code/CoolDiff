@@ -22,7 +22,18 @@
 #include "CommonMatFunctions.hpp"
 #include "CoolDiff.hpp"
 
+void func() {
+  Variable x1{1}, x2{2};
+  Expression y = x1 * x1 * x2 + x2 * x1;
+
+  Expression y1 = y;
+
+  std::cout << JacobF(y1, {x1, x2}) << "\n";
+}
+
 int main(int argc, char **argv) {
+  func();
+
   Matrix<Variable> x(2, 1);
   x(0, 0) = 2;
   x(1, 0) = 3;

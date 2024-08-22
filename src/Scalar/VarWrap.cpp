@@ -23,26 +23,22 @@
 
 VarWrap::VarWrap(Type val)
     : m_var_name{"x" + std::to_string(m_count++)},
-      m_expression{m_var_name},
-      m_value{val},
-      m_dvalue{(Type)0} {}
+      m_expression{m_var_name}, m_value{val}, m_dvalue{(Type)0} {}
 
 VarWrap::VarWrap()
     : m_var_name{"0"}, m_expression{"0"}, m_value{(Type)0}, m_dvalue{(Type)0} {}
 
 // Copy constructor
 VarWrap::VarWrap(const VarWrap &vw)
-    : m_expression{vw.m_expression},
-      m_value{vw.m_value},
-      m_dvalue{vw.m_dvalue},
+    : m_expression{vw.m_expression}, m_value{vw.m_value}, m_dvalue{vw.m_dvalue},
       m_var_name{vw.m_var_name} {}
 
 // Move constructor
 VarWrap::VarWrap(VarWrap &&vw) noexcept
-    : m_expression{std::move(vw.m_expression)},
-      m_value{std::exchange(vw.m_value, {})},
-      m_dvalue{std::exchange(vw.m_dvalue, {})},
-      m_var_name{std::move(vw.m_var_name)} {}
+    : m_expression{std::move(vw.m_expression)}, m_value{std::exchange(
+                                                    vw.m_value, {})},
+      m_dvalue{std::exchange(vw.m_dvalue, {})}, m_var_name{
+                                                    std::move(vw.m_var_name)} {}
 
 // Copy assignment
 VarWrap &VarWrap::operator=(const VarWrap &vw) {

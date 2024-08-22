@@ -25,20 +25,19 @@
 #include "MemoryManager.hpp"
 
 // IVariable class to enforce expression templates for lazy evaluation
-template <typename T>
-class IMatrix : public MetaMatrix {
- private:
+template <typename T> class IMatrix : public MetaMatrix {
+private:
   inline constexpr const T &derived() const {
     return static_cast<const T &>(*this);
   }
 
   inline constexpr T &derived() { return static_cast<T &>(*this); }
 
- protected:
+protected:
   // Protected constructor
   IMatrix() = default;
 
- public:
+public:
   /* Type implementations */
   // Get number of rows and columns
   size_t getNumRows() const { return derived().getNumRows(); }

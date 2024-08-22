@@ -26,7 +26,7 @@
 
 template <typename T1, typename T2, typename... Callables>
 class GenericDiv : public IVariable<GenericDiv<T1, T2, Callables...>> {
- private:
+private:
   // Resources
   T1 *mp_left{nullptr};
   T2 *mp_right{nullptr};
@@ -38,7 +38,7 @@ class GenericDiv : public IVariable<GenericDiv<T1, T2, Callables...>> {
   DISABLE_COPY(GenericDiv)
   DISABLE_MOVE(GenericDiv)
 
- public:
+public:
   // Block index
   const size_t m_nidx{};
   // Cache for reverse AD
@@ -46,9 +46,8 @@ class GenericDiv : public IVariable<GenericDiv<T1, T2, Callables...>> {
 
   // Constructor
   GenericDiv(T1 *u, T2 *v, Callables &&...call)
-      : mp_left{u},
-        mp_right{v},
-        m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
+                                     std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
   /*
@@ -142,16 +141,24 @@ class GenericDiv : public IVariable<GenericDiv<T1, T2, Callables...>> {
       (*cache)[mp_right->m_nidx] += ustar;
 
       // Modify cache for left node
-      if (inv_v != 0) {
-        for (const auto &[idx, val] : mp_left->m_cache) {
-          (*cache)[idx] += (val * inv_v);
-        }
+      if (inv_v != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_left->m_cache.begin(), mp_left->m_cache.end(), 
+                      [&cache,inv_v](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val*inv_v);
+                });
       }
       // Modify cache for right node
-      if (ustar != 0) {
-        for (const auto &[idx, val] : mp_right->m_cache) {
-          (*cache)[idx] += (val * ustar);
-        }
+      if (ustar != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                      [&cache,ustar](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val*ustar);
+                });
       }
     } else {
       // Cached value
@@ -176,16 +183,24 @@ class GenericDiv : public IVariable<GenericDiv<T1, T2, Callables...>> {
       (*cache)[mp_right->m_nidx] += (ustar);
 
       // Modify cache for left node
-      if (vstar != 0) {
-        for (const auto &[idx, val] : mp_left->m_cache) {
-          (*cache)[idx] += (val * vstar);
-        }
+      if (vstar != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_left->m_cache.begin(), mp_left->m_cache.end(), 
+                      [&cache,vstar](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val*vstar);
+                });
       }
       // Modify cache for right node
-      if (ustar != 0) {
-        for (const auto &[idx, val] : mp_right->m_cache) {
-          (*cache)[idx] += (val * ustar);
-        }
+      if (ustar != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                      [&cache,ustar](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val*ustar);
+                });
       }
     }
     // Traverse left/right nodes
@@ -217,7 +232,7 @@ class GenericDiv : public IVariable<GenericDiv<T1, T2, Callables...>> {
 template <typename T, typename... Callables>
 class GenericDiv<Type, T, Callables...>
     : public IVariable<GenericDiv<Type, T, Callables...>> {
- private:
+private:
   // Resources
   Type mp_left{0};
   T *mp_right{nullptr};
@@ -229,7 +244,7 @@ class GenericDiv<Type, T, Callables...>
   DISABLE_COPY(GenericDiv)
   DISABLE_MOVE(GenericDiv)
 
- public:
+public:
   // Block index
   const size_t m_nidx{};
   // Cache for reverse AD
@@ -237,9 +252,8 @@ class GenericDiv<Type, T, Callables...>
 
   // Constructor
   GenericDiv(const Type &u, T *v, Callables &&...call)
-      : mp_left{u},
-        mp_right{v},
-        m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
+                                     std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
   /*
@@ -323,10 +337,14 @@ class GenericDiv<Type, T, Callables...>
       (*cache)[mp_right->m_nidx] += ustar;
 
       // Modify cache for right node
-      if (ustar != 0) {
-        for (const auto &[idx, val] : mp_right->m_cache) {
-          (*cache)[idx] += (val * ustar);
-        }
+      if (ustar != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                      [&cache,ustar](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val*ustar);
+                });
       }
     } else {
       // Cached value
@@ -344,10 +362,14 @@ class GenericDiv<Type, T, Callables...>
       (*cache)[mp_right->m_nidx] += ustar;
 
       // Modify cache for right node
-      if (ustar != 0) {
-        for (const auto &[idx, val] : mp_right->m_cache) {
-          (*cache)[idx] += (val * ustar);
-        }
+      if (ustar != (Type)(0)) {
+        std::for_each(EXECUTION_PAR 
+                      mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                      [&cache,ustar](const auto& item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val*ustar);
+                });
       }
     }
     // Traverse left/right nodes
@@ -377,8 +399,7 @@ template <typename T1, typename T2>
 using GenericDivT1 = GenericDiv<T1, T2, OpType>;
 
 // GenericDiv with 1 typename callables
-template <typename T>
-using GenericDivT2 = GenericDiv<Type, T, OpType>;
+template <typename T> using GenericDivT2 = GenericDiv<Type, T, OpType>;
 
 // Function for division computation
 template <typename T1, typename T2>

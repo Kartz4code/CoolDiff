@@ -60,22 +60,18 @@ Variable &Variable::operator=(const Type &value) {
 
 // Variable copy constructor
 Variable::Variable(const Variable &exp)
-    : m_nidx{exp.m_nidx},
-      m_cache{exp.m_cache},
-      m_var{exp.m_var},
-      m_value_var{exp.m_value_var},
-      m_gh_vec{exp.m_gh_vec} {
+    : m_nidx{exp.m_nidx}, m_cache{exp.m_cache}, m_var{exp.m_var},
+      m_value_var{exp.m_value_var}, m_gh_vec{exp.m_gh_vec} {
   // Copy visited flag
   m_visited = exp.m_visited;
 }
 
 // Variable copy constructor
 Variable::Variable(Variable &&exp) noexcept
-    : m_nidx{std::exchange(exp.m_nidx, -1)},
-      m_cache{std::move(exp.m_cache)},
+    : m_nidx{std::exchange(exp.m_nidx, -1)}, m_cache{std::move(exp.m_cache)},
       m_var{std::move(exp.m_var)},
-      m_value_var{std::exchange(exp.m_value_var, (Type)0)},
-      m_gh_vec{std::move(exp.m_gh_vec)} {
+      m_value_var{std::exchange(exp.m_value_var, (Type)0)}, m_gh_vec{std::move(
+                                                                exp.m_gh_vec)} {
   // Copy visited flag
   m_visited = std::exchange(exp.m_visited, false);
 }
@@ -124,11 +120,12 @@ const std::string &Variable::getExpression() const {
 void Variable::resetImpl() {
   this->m_visited = true;
   // Reset states
-  for (auto &i : m_gh_vec) {
-    if (i != nullptr) {
-      i->reset();
-    }
-  }
+  std::for_each(EXECUTION_PAR 
+                m_gh_vec.begin(), m_gh_vec.end(), [](auto* item) {    
+                  if (item != nullptr) { 
+                    item->reset(); 
+                  } 
+                });
   this->m_visited = false;
 }
 
@@ -192,7 +189,7 @@ Type Variable::devalF(const Variable &var) {
 
   // Return result
   if (m_nidx == var.m_nidx) {
-    return (Type)1;
+    return (Type)(1);
   } else {
     return getdValue();
   }
@@ -266,11 +263,13 @@ OMPair &Variable::getCache() { return m_cache; }
 void Variable::reset() {
   if (true == this->m_visited) {
     this->m_visited = false;
-    for (auto &i : m_gh_vec) {
-      if (nullptr != i) {
-        i->reset();
-      }
-    }
+    // Reset states
+    std::for_each(EXECUTION_PAR 
+                  m_gh_vec.begin(), m_gh_vec.end(), [](auto* item) {    
+                    if (item != nullptr) { 
+                      item->reset(); 
+                    } 
+                  });
   }
   // Reset flag
   this->m_visited = false;
@@ -289,7 +288,9 @@ void Variable::reset() {
 }
 
 // Get type
-std::string_view Variable::getType() const { return "Variable"; }
+std::string_view Variable::getType() const { 
+  return "Variable"; 
+}
 
 // Find me
 bool Variable::findMe(void *v) const {
