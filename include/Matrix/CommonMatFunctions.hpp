@@ -40,16 +40,20 @@ bool IsSquareMatrix(const Matrix<Type> &);
 bool IsDiagMatrix(const Matrix<Type> &);
 
 // Is the row matrix ?
-bool IsRowMatrix(const Matrix<Type> &);
+bool IsRowMatrix(const Matrix<Type>&);
 
 // Is the column matrix ?
-bool IsColMatrix(const Matrix<Type> &);
+bool IsColMatrix(const Matrix<Type>&);
 
 // Find type of matrix
-size_t FindMatType(const Matrix<Type> &);
+size_t FindMatType(const Matrix<Type>&);
 
 // Matrix evaluation
-Matrix<Type> &Eval(Matrix<Expression> &);
+Matrix<Type> &Eval(Matrix<Expression>&);
 
 // Matrix derivative evaluation
-Matrix<Type> &DevalF(Matrix<Expression> &, const Variable &);
+Matrix<Type> &DevalF(Matrix<Expression>&, const Variable &);
+
+// Matrix-Matrix derivative evaluation
+Matrix<Type>& DevalF(Matrix<Expression>&, const Matrix<Variable>&);
+

@@ -24,7 +24,13 @@
 // Matrix-Matrix addition - Left, Right, Result matrix pointer, nrows, ncols
 void MatrixAddition(Type *left, Type *right, Type *res, size_t nrows,
                     size_t ncols) {
-  for (size_t i{}; i < nrows * ncols; ++i) {
-    res[i] = left[i] + right[i];
-  }
+  
+  const size_t size{nrows*ncols};
+  std::transform(EXECUTION_PAR 
+                 left, left + size,
+                 right, res, 
+                 [](const Type a, const Type b) { 
+                  return a + b; 
+                 }
+                );
 }

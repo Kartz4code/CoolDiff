@@ -165,16 +165,19 @@ template <typename> class Matrix;
 
 // Ordered map between size_t and Type
 #if defined(USE_ROBIN_HOOD_MAP)
-#include <robin_hood.h>
-using OMPair = robin_hood::unordered_flat_map<size_t, Type>;
-// A generic unorderedmap
-template <typename T, typename U>
-using UnOrderedMap = robin_hood::unordered_flat_map<T, U>;
+  #include <robin_hood.h>
+  using OMPair = robin_hood::unordered_flat_map<size_t, Type>;
+  using OMMatPair = robin_hood::unordered_flat_map<size_t, Matrix<Type>*>;
+  // A generic unorderedmap
+  template <typename T, typename U>
+  using UnOrderedMap = robin_hood::unordered_flat_map<T, U>;
 #else
-#include <unordered_map>
-using OMPair = std::unordered_map<size_t, Type>;
-// A generic unorderedmap
-template <typename T, typename U> using UnOrderedMap = std::unordered_map<T, U>;
+  #include <unordered_map>
+  using OMPair = std::unordered_map<size_t, Type>;
+  using OMMatPair = std::unordered_map<size_t, Matrix<Type>*>;
+  // A generic unorderedmap
+  template <typename T, typename U> 
+  using UnOrderedMap = std::unordered_map<T, U>;
 #endif
 
 // A generic vector type

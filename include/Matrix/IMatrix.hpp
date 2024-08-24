@@ -51,6 +51,14 @@ public:
   V_DTR(~IMatrix()) = default;
 };
 
+
+// Binary Matrixreset
+#define BINARY_MAT_RESET()                                                     \
+  this->m_visited = false;                                                     \
+  mp_left->reset();                                                            \
+  mp_right->reset();
+
+
 // Special matrices
 enum MatrixSpl : size_t {
   ZEROS = 1 << 1,
