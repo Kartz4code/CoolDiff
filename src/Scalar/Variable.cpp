@@ -101,13 +101,21 @@ Variable &Variable::operator=(Variable &&exp) noexcept {
   return *this;
 }
 
-void Variable::setValue(Type val) { m_var.setValue(val); }
+void Variable::setValue(Type val) { 
+  m_var.setValue(val); 
+}
 
-Type Variable::getValue() const { return m_var.getValue(); }
+Type Variable::getValue() const { 
+  return m_var.getValue(); 
+}
 
-void Variable::setdValue(Type val) { m_var.setdValue(val); }
+void Variable::setdValue(Type val) { 
+  m_var.setdValue(val); 
+}
 
-Type Variable::getdValue() const { return m_var.getdValue(); }
+Type Variable::getdValue() const { 
+  return m_var.getdValue(); 
+}
 
 void Variable::setExpression(const std::string &str) {
   m_var.setExpression(str);
@@ -157,11 +165,13 @@ Type Variable::eval() {
     // Set visit flag to true
     this->m_visited = true;
     // Loop on internal equations
-    for (auto &i : m_gh_vec) {
-      if (nullptr != i) {
-        setValue(i->eval());
-      }
-    }
+    std::for_each(EXECUTION_SEQ 
+                  m_gh_vec.begin(), m_gh_vec.end(), 
+                  [this](auto* i) {
+                    if(nullptr != i) {
+                      setValue(i->eval());
+                    }
+                  });
     // Return result
     return getValue();
   }
@@ -178,12 +188,14 @@ Type Variable::devalF(const Variable &var) {
     // Set visit flag to true
     this->m_visited = true;
     // Loop on internal equations
-    for (auto &i : m_gh_vec) {
-      if (nullptr != i) {
-        setdValue(i->devalF(var));
-        setValue(i->eval());
-      }
-    }
+    std::for_each(EXECUTION_SEQ 
+              m_gh_vec.begin(), m_gh_vec.end(), 
+              [this,&var](auto* i) {
+                if(nullptr != i) {
+                  setdValue(i->devalF(var));
+                  setValue(i->eval());
+                }
+              });
   }
   /* devalF END */
 
@@ -196,7 +208,9 @@ Type Variable::devalF(const Variable &var) {
 }
 
 // Deval in run-time for reverse derivative 1st
-Type Variable::devalR(const Variable &var) { return m_cache[var.m_nidx]; }
+Type Variable::devalR(const Variable &var) { 
+  return m_cache[var.m_nidx]; 
+}
 
 // Evaluate variable
 Variable *Variable::symEval() {
@@ -215,12 +229,15 @@ Variable *Variable::symDeval(const Variable &var) {
     // Set visit flag to true
     this->m_visited = true;
     // Loop on internal equations
-    for (auto &i : m_gh_vec) {
-      if (nullptr != i) {
-        mp_dtmp[m_nidx] = i->symDeval(var);
-        mp_tmp = i->symEval();
-      }
-    }
+    std::for_each(EXECUTION_SEQ 
+                  m_gh_vec.begin(), m_gh_vec.end(), 
+                  [this,&var](auto* item) {
+                    if (nullptr != item) {
+                      mp_dtmp[m_nidx] = item->symDeval(var);
+                      mp_tmp = item->symEval();
+                    }
+                  });
+
     // Set visit flag to false
     this->m_visited = false;
   }
@@ -243,21 +260,26 @@ Expression Variable::SymDiff(const Variable &v) {
 void Variable::traverse(OMPair *cache) {
   if (false == this->m_visited) {
     this->m_visited = true;
-    for (auto &i : m_gh_vec) {
-      if (nullptr != i) {
-        // Traverse the tree
-        i->traverse();
-        // Set value
-        setValue(i->eval());
-        // Save cache
-        m_cache = std::move(i->getCache());
-      }
-    }
+    // Reset states
+    std::for_each(EXECUTION_SEQ 
+                  m_gh_vec.begin(), m_gh_vec.end(), 
+                  [this](auto* item) {    
+                    if (item != nullptr) { 
+                      // Traverse the tree
+                      item->traverse();
+                      // Set value
+                      setValue(item->eval());
+                      // Save cache
+                      m_cache = std::move(item->getCache());
+                    } 
+                  });
   }
 }
 
 // Get cache
-OMPair &Variable::getCache() { return m_cache; }
+OMPair &Variable::getCache() { 
+  return m_cache; 
+}
 
 // Reset
 void Variable::reset() {

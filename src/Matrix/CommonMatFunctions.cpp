@@ -38,9 +38,18 @@ bool IsEyeMatrix(const Matrix<Type> &m) {
     return false;
   }
   const size_t rows = m.getNumRows();
-  for (size_t i{}; i < rows; ++i) {
-    if (m(i, i) != (Type)(1)) {
-      return false;
+  const size_t cols = m.getNumColumns();
+  for(size_t i{}; i < rows; ++i) {
+    for (size_t j{}; j < cols; ++j) {
+      if(i == j) {
+        if (m(i, i) != (Type)(1)) {
+          return false;
+        }
+      } else {
+        if(m(i,j) != (Type)(0)) {
+          return false;
+        }
+      }
     }
   }
   return true;
@@ -78,10 +87,14 @@ bool IsDiagMatrix(const Matrix<Type> &m) {
 }
 
 // Is the row matrix ?
-bool IsRowMatrix(const Matrix<Type> &m) { return (m.getNumRows() == 1); }
+bool IsRowMatrix(const Matrix<Type> &m) { 
+  return (m.getNumRows() == 1); 
+}
 
 // Is the column matrix ?
-bool IsColMatrix(const Matrix<Type> &m) { return (m.getNumColumns() == 1); }
+bool IsColMatrix(const Matrix<Type> &m) { 
+  return (m.getNumColumns() == 1); 
+}
 
 // Find type of matrix
 size_t FindMatType(const Matrix<Type> &m) {
@@ -114,25 +127,49 @@ size_t FindMatType(const Matrix<Type> &m) {
 }
 
 // Matrix evaluation
-Matrix<Type> &Eval(Matrix<Expression> &mexp) {
-  // Create new matrix
-  Matrix<Type> &res =
-      CreateMatrix<Type>(mexp.getNumRows(), mexp.getNumColumns());
+Matrix<Type> &Eval(Matrix<Expression> &Mexp) {
   // Reset graph/tree
-  mexp.resetImpl();
-  res = *(mexp.eval());
+  Mexp.resetImpl();
   // Return evaluation value
-  return res;
+  return *(Mexp.eval());
 }
 
 // Matrix derivative evaluation
-Matrix<Type> &DevalF(Matrix<Expression> &mexp, const Variable &x) {
-  // Create new matrix
-  Matrix<Type> &dres =
-      CreateMatrix<Type>(mexp.getNumRows(), mexp.getNumColumns());
+Matrix<Type> &DevalF(Matrix<Expression> &Mexp, const Variable &x) {
   // Reset graph/tree
-  mexp.resetImpl();
-  dres = *(mexp.devalF(x));
+  Mexp.resetImpl();
   // Return evaluation value
+  return *(Mexp.devalF(x));
+}
+
+// Matrix-Matrix derivative evaluation
+Matrix<Type>& DevalF(Matrix<Expression>& Mexp, const Matrix<Variable>& X) {
+  // Size of X matrix  
+  const size_t xrows = X.getNumRows();
+  const size_t xcols = X.getNumColumns();
+
+  // Size of Mexp matrix
+  const size_t mrows = Mexp.getNumRows();
+  const size_t mcols = Mexp.getNumColumns();
+
+  // Create new matrix
+  const size_t rows = mrows*xrows;
+  const size_t cols = mcols*xcols;
+  Matrix<Type> &dres = CreateMatrix<Type>(rows, cols);
+
+  // Tensor product 
+  for(size_t i{}; i < xrows; ++i) {
+    for(size_t j{}; j < xcols; ++j) {
+      // Obtain derivative w.r.t X(i,j)
+      auto& Df = DevalF(Mexp, X(i,j));    
+      for(size_t l{}; l < mrows; ++l) {
+        for(size_t m{}; m < mcols; ++m) {
+          dres(l*xrows + i, m*xcols + j) = Df(l,m);
+        }
+      }
+    }
+  }
+  
+  // Return result
   return dres;
 }

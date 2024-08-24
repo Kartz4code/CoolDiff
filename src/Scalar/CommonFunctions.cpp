@@ -22,43 +22,13 @@
 #include "CommonFunctions.hpp"
 #include "Matrix.hpp"
 
-// Evaluate function
+// Evaluate function (Scalar)
 Type Eval(Expression &exp) {
   // Reset graph/tree
   exp.resetImpl();
   // Return evaluation value
   return exp.eval();
 }
-// Forward mode algorithmic differentiation
-Type DevalF(Expression &exp, const Variable &x) {
-  // Reset visited flags in the tree
-  exp.resetImpl();
-  // Return forward differentiation value
-  return exp.devalF(x);
-}
-
-// Forward mode algorithmic differentiation (Matrix)
-Matrix<Type> &DevalMatF(Expression &exp, const Matrix<Variable> &m) {
-  const size_t n = m.getNumElem();
-  auto &result = CreateMatrix<Type>(m.getNumRows(), m.getNumColumns());
-  for (size_t i{}; i < n; ++i) {
-    result[i] = DevalF(exp, m[i]);
-  }
-  return result;
-}
-
-// Reverse mode algorithmic differentiation (Matrix)
-Matrix<Type> &DevalMatR(Expression &exp, const Matrix<Variable> &m) {
-  const size_t n = m.getNumElem();
-  auto &result = CreateMatrix<Type>(m.getNumRows(), m.getNumColumns());
-  // Precompute
-  PreComp(exp);
-  for (size_t i{}; i < n; ++i) {
-    result[i] = DevalR(exp, m[i]);
-  }
-  return result;
-}
-
 // Main precomputation of reverse mode AD computation 1st
 void PreComp(Expression &exp) {
   // Reset visited flags in the tree
@@ -66,13 +36,6 @@ void PreComp(Expression &exp) {
   // Traverse tree
   exp.traverse();
 }
-
-// Main reverse mode AD computation 1st
-Type DevalR(Expression &exp, const Variable &x) {
-  // Return reverse differentiation value
-  return exp.devalR(x);
-}
-
 // Main reverse mode AD table 1st
 OMPair &PreCompCache(Expression &exp) {
   // Reset flags
@@ -83,7 +46,27 @@ OMPair &PreCompCache(Expression &exp) {
   return exp.getCache();
 }
 
-// Derivative of expression
+
+// Symbolic Expression
+Expression &SymDiff(Expression &exp, const Variable &var) {
+  // Reset graph/tree
+  return exp.SymDiff(var);
+}
+
+
+// Forward mode algorithmic differentiation (Scalar)
+Type DevalF(Expression &exp, const Variable &x) {
+  // Reset visited flags in the tree
+  exp.resetImpl();
+  // Return forward differentiation value
+  return exp.devalF(x);
+}
+// Reverse mode algorithmic differentiation (Scalar) 
+Type DevalR(Expression &exp, const Variable &x) {
+  // Return reverse differentiation value
+  return exp.devalR(x);
+}
+// Forward/Reverse derivative of expression (Scalar)
 Type Deval(Expression &exp, const Variable &x, ADMode ad) {
   if (ad == ADMode::FORWARD) {
     return DevalF(exp, x);
@@ -93,55 +76,108 @@ Type Deval(Expression &exp, const Variable &x, ADMode ad) {
   }
 }
 
-// Derivative of expression (Matrix)
-Matrix<Type> &JacobMat(Expression &exp, const Matrix<Variable> &m, ADMode ad) {
-  if (ad == ADMode::FORWARD) {
-    return DevalMatF(exp, m);
+
+// Forward mode algorithmic differentiation (Matrix)
+Matrix<Type> &DevalF(Expression &exp, const Matrix<Variable> &m, bool serial_exec) {
+  const size_t n = m.getNumElem();
+  auto &result = CreateMatrix<Type>(m.getNumRows(), m.getNumColumns());
+
+  if (true == exp.isRecursive() || true == serial_exec) {
+    std::transform(EXECUTION_SEQ 
+                    m.getMatrixPtr(), m.getMatrixPtr() + n, 
+                    result.getMatrixPtr(),
+                    [&exp](const auto &v) { 
+                      return DevalF(exp, v); 
+                    });
   } else {
-    return DevalMatR(exp, m);
+    // Copy expression and fill it up with exp
+    Vector<Expression> exp_coll(n);
+    std::fill(EXECUTION_PAR 
+              exp_coll.begin(), exp_coll.end(), exp);
+
+    // Tranform and get results
+    std::transform(EXECUTION_PAR 
+                   exp_coll.begin(), exp_coll.end(), 
+                   m.getMatrixPtr(),
+                   result.getMatrixPtr(), 
+                   [](auto &v1, const auto &v2) {
+                     return DevalF(v1, v2);
+                   });
+  }
+
+  return result;
+}
+// Reverse mode algorithmic differentiation (Matrix)
+Matrix<Type> &DevalR(Expression &exp, const Matrix<Variable> &m) {
+  const size_t n = m.getNumElem();
+  auto &result = CreateMatrix<Type>(m.getNumRows(), m.getNumColumns());
+
+  // Precompute (By design, the operation is serial)
+  PreComp(exp);
+
+  std::transform(EXECUTION_SEQ 
+                 m.getMatrixPtr(), m.getMatrixPtr() + n, 
+                 result.getMatrixPtr(),
+                 [&exp](const auto& v) {
+                    return DevalR(exp, v);
+                 });
+                
+  return result;
+}
+// Derivative of expression (Matrix)
+Matrix<Type> &Deval(Expression &exp, const Matrix<Variable> &m, ADMode ad) {
+  if (ad == ADMode::FORWARD) {
+    return DevalF(exp, m);
+  } else {
+    return DevalR(exp, m);
   }
 }
 
+
 // Jacobian forward mode
-Matrix<Type> &JacobF(Expression &exp, const Vector<Variable> &vec) {
+Matrix<Type> &JacobF(Expression &exp, const Vector<Variable> &vec, bool serial_exec) {
   const size_t rows = vec.size();
   auto &result = CreateMatrix<Type>(rows, 1);
 
-  if (exp.isRecursive() == true) {
-    std::transform(vec.begin(), vec.end(), result.getMatrixPtr(),
-                   [&exp](const auto &v) { return DevalF(exp, v); });
+  if (true == exp.isRecursive() || true == serial_exec) {
+    std::transform(EXECUTION_SEQ 
+                   vec.begin(), vec.end(), result.getMatrixPtr(),
+                   [&exp](const auto &v) { 
+                      return DevalF(exp, v); 
+                   });
   } else {
     // Copy expression and fill it up with exp
     Vector<Expression> exp_coll(rows);
-    std::fill(EXECUTION_PAR exp_coll.begin(), exp_coll.end(), exp);
+    std::fill(EXECUTION_PAR 
+              exp_coll.begin(), exp_coll.end(), exp);
 
-    // Sync future objects and launch async functions
-    Vector<Future<Type>> vec_tasks(rows);
-    std::transform(
-        EXECUTION_PAR exp_coll.begin(), exp_coll.end(), vec.begin(),
-        vec_tasks.begin(), [&](auto &v1, const auto &v2) {
-          return std::async(std::launch::async, DevalF, std::ref(v1), v2);
-        });
-
-    // Collect results
-    std::transform(EXECUTION_PAR vec_tasks.begin(), vec_tasks.end(),
-                   result.getMatrixPtr(), [](auto &i) { return i.get(); });
+    // Tranform and get results
+    std::transform(EXECUTION_PAR 
+                   exp_coll.begin(), exp_coll.end(), vec.begin(),
+                   result.getMatrixPtr(), 
+                   [](auto &v1, const auto &v2) {
+                     return DevalF(v1, v2);
+                   });
   }
+  
   return result;
 }
-
-// Jacobian reverse mode
+// Jacobian reverse mode 
 Matrix<Type> &JacobR(Expression &exp, const Vector<Variable> &vec) {
   const size_t rows = vec.size();
   auto &result = CreateMatrix<Type>(rows, 1);
-  // Precompute
+  
+  // Precompute (By design, the operation is serial)
   PreComp(exp);
-  for (size_t i{}; i < rows; ++i) {
-    result(i, 1) = DevalR(exp, vec[i]);
-  }
+
+  std::transform(EXECUTION_SEQ 
+                 vec.cbegin(), vec.cend(), result.getMatrixPtr(),
+                 [&exp](const auto& v) {
+                    return DevalR(exp, v);
+                 });
+
   return result;
 }
-
 // Jacobian of expression
 Matrix<Type> &Jacob(Expression &exp, const Vector<Variable> &vec, ADMode ad) {
   if (ad == ADMode::FORWARD) {
@@ -151,7 +187,8 @@ Matrix<Type> &Jacob(Expression &exp, const Vector<Variable> &vec, ADMode ad) {
   }
 }
 
-// Symbolic Jacobian of expression
+
+// Symbolic Jacobian of expression (Vector)
 Matrix<Expression> &JacobSym(Expression &exp, const Vector<Variable> &vec) {
   const size_t rows = vec.size();
   auto &result = CreateMatrix<Expression>(rows, 1);
@@ -160,6 +197,7 @@ Matrix<Expression> &JacobSym(Expression &exp, const Vector<Variable> &vec) {
   }
   return result;
 }
+
 
 // Hessian forward mode
 Matrix<Type> &HessF(Expression &exp, const Vector<Variable> &vec) {
@@ -236,11 +274,7 @@ Matrix<Expression> &HessSym(Expression &exp, const Vector<Variable> &vec) {
   return result;
 }
 
-// Symbolic Expression
-Expression &SymDiff(Expression &exp, const Variable &var) {
-  // Reset graph/tree
-  return exp.SymDiff(var);
-}
+
 
 // Symbolic Expression (Matrix)
 Matrix<Expression> &SymMatDiff(Expression &exp, const Matrix<Variable> &m) {

@@ -53,6 +53,22 @@ private:
     return ((lr == rr) && (lc == rc));
   }
 
+  // Zero matrix addition checks
+  inline constexpr Matrix<Type>* ZeroMat(Matrix<Type>* lhs, Matrix<Type>* rhs) const {
+    // If both lhs and rhs matrices are zero matrices
+    if(lhs->getMatType() == MatrixSpl::ZEROS && 
+       rhs->getMatType() == MatrixSpl::ZEROS) {
+        return lhs;
+    }
+    else if(lhs->getMatType() == MatrixSpl::ZEROS) {
+      return rhs;
+    } else if(rhs->getMatType() == MatrixSpl::ZEROS) {
+      return lhs;
+    } else {
+      return nullptr;
+    }
+  }
+
 public:
   // Result
   Matrix<Type> *mp_result{nullptr};
@@ -94,7 +110,9 @@ public:
   size_t getNumColumns() const { return mp_right->getNumColumns(); }
 
   // Find me
-  bool findMe(void *v) const { BINARY_FIND_ME(); }
+  bool findMe(void *v) const { 
+    BINARY_FIND_ME(); 
+  }
 
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type> *eval()) {
@@ -127,34 +145,43 @@ public:
     const size_t nrows{getNumRows()};
     const size_t ncols{getNumColumns()};
 
-    // If mp_result is nullptr, then create a new resource
-    if (nullptr == mp_dresult) {
-      assert(verifyDim() &&
-             "[ERROR] Matrix-Matrix addition dimensions mismatch");
-      mp_dresult = CreateMatrixPtr<Type>(nrows, ncols);
+    // Left and right matrices
+    Matrix<Type>* left_mat = mp_left->devalF(x);
+    Matrix<Type>* right_mat = mp_right->devalF(x);
+
+    // Zero matrix check
+    if(auto* it = ZeroMat(left_mat, right_mat); it != nullptr) {
+      return it;
+    } else {
+      // Usual Matrix-Matrix addition implementation
+      if (nullptr == mp_dresult) {
+        assert(verifyDim() && "[ERROR] Matrix-Matrix addition dimensions mismatch");
+        // If mp_result is nullptr, then create a new resource
+        mp_dresult = CreateMatrixPtr<Type>(nrows, ncols);
+      }
+
+      // Get raw pointers to result, left and right matrices
+      Type *dres = mp_dresult->getMatrixPtr();
+      Type *dleft = left_mat->getMatrixPtr();
+      Type *dright = right_mat->getMatrixPtr();
+
+      // Matrix-Matrix derivative addition computation (Policy design)
+      std::get<Op::ADD>(m_caller)(dleft, dright, dres, nrows, ncols);
+
+      // Return result pointer
+      return mp_dresult;
     }
-
-    // Get raw pointers to result, left and right matrices
-    Type *dres = mp_dresult->getMatrixPtr();
-    Type *dleft = mp_left->devalF(x)->getMatrixPtr();
-    Type *dright = mp_right->devalF(x)->getMatrixPtr();
-
-    // Matrix-Matrix derivative addition computation (Policy design)
-    std::get<Op::ADD>(m_caller)(dleft, dright, dres, nrows, ncols);
-
-    // Return result pointer
-    return mp_dresult;
   }
 
   // Reset visit run-time
   V_OVERRIDE(void reset()) {
-    this->m_visited = false;
-    mp_left->reset();
-    mp_right->reset();
+    BINARY_MAT_RESET()
   }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { return "GenericMatSum"; }
+  V_OVERRIDE(std::string_view getType() const) { 
+    return "GenericMatSum"; 
+  }
 
   // Destructor
   V_DTR(~GenericMatSum()) = default;

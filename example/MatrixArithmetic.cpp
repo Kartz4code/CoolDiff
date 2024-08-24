@@ -23,28 +23,44 @@
 #include "CoolDiff.hpp"
 
 void func() {
-  Variable x1{1}, x2{2};
-  Expression y = x1 * x1 * x2 + x2 * x1;
-
+  std::vector<Variable> X(10);
+  std::fill(X.begin(), X.end(), 1.3);
+  Expression y = sin(X[1])*X[0]/cos(X[2]*X[3])*X[4]*pow(X[5],2) + pow(2,X[6])/(X[7]*X[8]*X[9]);
+  //y = y + 1;
   Expression y1 = y;
 
-  std::cout << JacobF(y1, {x1, x2}) << "\n";
+  std::cout <<  JacobR(y1, X) << "\n";
+  std::cout <<  JacobF(y1, X) << "\n";
+
+  std::chrono::steady_clock::time_point begin1 = std::chrono::steady_clock::now();
+  for(size_t i{}; i < 10000; ++i) {
+    JacobF(y1, X, true);
+  }
+  std::chrono::steady_clock::time_point end1 = std::chrono::steady_clock::now();
+  std::cout << "Time difference (Serial) = " << std::chrono::duration_cast<std::chrono::milliseconds>(end1 - begin1).count() << "[ms]\n";
+
+  std::chrono::steady_clock::time_point begin2 = std::chrono::steady_clock::now();
+  for(size_t i{}; i < 10000; ++i) {
+    JacobF(y1, X);
+  }
+  std::chrono::steady_clock::time_point end2 = std::chrono::steady_clock::now();
+  std::cout << "Time difference (Parallel) = " << std::chrono::duration_cast<std::chrono::milliseconds>(end2 - begin2).count() << "[ms]\n";
 }
 
 int main(int argc, char **argv) {
-  func();
+  //func();
 
   Matrix<Variable> x(2, 1);
   x(0, 0) = 2;
   x(1, 0) = 3;
 
-  Matrix<Type> m = CreateMatrix<Type>(3, 2);
+  Matrix<Type> m = CreateMatrix<Type>(2, 2);
   m(0, 0) = 1;
   m(0, 1) = 2;
   m(1, 0) = 3;
   m(1, 1) = 4;
 
-  Matrix<Expression> m1{3, 2};
+  Matrix<Expression> m1{2, 2};
   m1(0, 0) = x(0, 0) + x(1, 0);
   m1(0, 1) = x(0, 0) * x(1, 0);
   m1(1, 0) = x(0, 0) / x(1, 0);
@@ -54,13 +70,18 @@ int main(int argc, char **argv) {
   sum = sum + m;
   sum = m1 + sum;
 
-  std::cout << Eval(sum) << "\n";
-  std::cout << DevalF(sum, x(0, 0)) << "\n";
+  //std::cout << Eval(sum) << "\n";
+  //std::cout << DevalF(sum, x(0, 0)) << "\n";
 
   x(0, 0) = 20;
+  m1(1,1) = x(0,0) + x(0,0);
 
-  std::cout << Eval(sum) << "\n";
-  std::cout << DevalF(sum, x(0, 0)) << "\n";
+  //Eval(sum);
+  std::cout << DevalF(sum,x) << "\n";
+
+  x(0,0) = 5;
+
+  std::cout << DevalF(sum,x) << "\n";
 
   return 0;
 }
