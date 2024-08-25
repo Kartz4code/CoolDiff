@@ -31,22 +31,18 @@ private:
     return static_cast<const T &>(*this);
   }
 
-  inline constexpr T &derived() { return static_cast<T &>(*this); }
+  inline constexpr T &derived() { 
+    return static_cast<T &>(*this); 
+  }
 
 protected:
   // Protected constructor
   IMatrix() = default;
 
 public:
-  /* Type implementations */
-  // Get number of rows and columns
-  size_t getNumRows() const { return derived().getNumRows(); }
-
-  size_t getNumColumns() const { return derived().getNumColumns(); }
-
   // Find me
   bool findMe(void *v) const { return derived().findMe(v); }
-
+  
   // Protected destructor
   V_DTR(~IMatrix()) = default;
 };
@@ -70,6 +66,7 @@ enum MatrixSpl : size_t {
 };
 
 // Operation type (Order matters!)
-#define OpMatType void (*)(Type *, Type *, Type *, size_t, size_t)
+#define OpMatType void (*)(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*),\
+                  void (*)(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*)
 // Operation objects (Order matters!)
-#define OpMatObj MatrixAddition
+#define OpMatObj MatrixAdd, MatrixMul

@@ -22,7 +22,10 @@
 #pragma once
 
 #include "GenericMatSum.hpp"
+#include "GenericMatProduct.hpp"
+
 #include "Matrix.hpp"
+
 
 // Is the matrix zero?
 bool IsZeroMatrix(const Matrix<Type> &);

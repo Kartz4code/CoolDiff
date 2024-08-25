@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/MatOperators.hpp
+ * @file include/Matrix/BinaryOps/BinarySplOps.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,15 +19,11 @@
  * associated repository.
  */
 
-#pragma once
+#pragma once 
+#include "Matrix.hpp"
 
-#include "CommonHeader.hpp"
+// Zero matrix addition checks
+Matrix<Type>* ZeroMatAdd(Matrix<Type>*, Matrix<Type>*);
 
-// Non nullptr correctness
-void CheckNull(void* = nullptr, void* = nullptr, void* = nullptr);
-
-// Matrix-Matrix addition - Left, Right, Result matrix pointer
-void MatrixAdd(Matrix<Type>* = nullptr, Matrix<Type>* = nullptr, Matrix<Type>* = nullptr);
-
-// Matrix-Matrix multiplication - Left, Right, Result matrix pointer
-void MatrixMul(Matrix<Type>* = nullptr, Matrix<Type>* = nullptr, Matrix<Type>* = nullptr);
+// Zero matrix multiplication checks
+Matrix<Type>* ZeroMatMul(Matrix<Type>*, Matrix<Type>*);
