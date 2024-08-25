@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/BinaryOps/GenericMatSum.hpp
+ * @file include/Matrix/BinaryOps/GenericMatProduct.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -28,7 +28,7 @@
 
 // Left/right side is an expression
 template <typename T1, typename T2, typename... Callables>
-class GenericMatSum : public IMatrix<GenericMatSum<T1, T2, Callables...>> {
+class GenericMatProduct : public IMatrix<GenericMatProduct<T1, T2, Callables...>> {
 private:
   // Resources
   T1 *mp_left{nullptr};
@@ -38,10 +38,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericMatSum)
-  DISABLE_MOVE(GenericMatSum)
+  DISABLE_COPY(GenericMatProduct)
+  DISABLE_MOVE(GenericMatProduct)
 
-  // Verify dimensions of result matrix for addition operation
+  // Verify dimensions of result matrix for multiplication operation
   inline constexpr bool verifyDim() const {
     // Left matrix rows
     const int lr = mp_left->getNumRows();
@@ -51,26 +51,31 @@ private:
     const int lc = mp_left->getNumColumns();
     // Right matrix columns
     const int rc = mp_right->getNumColumns();
-    // Condition for Matrix-Matrix addition
-    return ((lr == rr) && (lc == rc));
+    // Condition for Matrix-Matrix multiplication
+    return ((lc == rr));
   }
 
 public:
   // Result
-  Matrix<Type> *mp_result{nullptr};
+  Matrix<Type>* mp_result{nullptr};
+ 
   // Derivative result
-  Matrix<Type> *mp_dresult{nullptr};
+  Matrix<Type>* mp_dresult{nullptr};
+  Matrix<Type>* mp_dresult_l{nullptr};
+  Matrix<Type>* mp_dresult_r{nullptr};
 
   // Block index
   const size_t m_nidx{};
 
   // Constructor
-  GenericMatSum(T1 *u, T2 *v, Callables &&...call) : mp_left{u}, 
-                                                     mp_right{v}, 
-                                                     mp_result{nullptr}, 
-                                                     mp_dresult{nullptr},
-                                                     m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                     m_nidx{this->m_idx_count++} 
+  GenericMatProduct(T1 *u, T2 *v, Callables &&...call) : mp_left{u}, 
+                                                         mp_right{v}, 
+                                                         mp_result{nullptr}, 
+                                                         mp_dresult{nullptr},
+                                                         mp_dresult_l{nullptr},
+                                                         mp_dresult_r{nullptr},
+                                                         m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                         m_nidx{this->m_idx_count++} 
   {}
 
   /*
@@ -110,7 +115,7 @@ public:
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type> *eval()) {
     // Check whether dimensions are correct
-    assert(verifyDim() && "[ERROR] Matrix-Matrix addition dimensions mismatch");
+    assert(verifyDim() && "[ERROR] Matrix-Matrix multiplication dimensions mismatch");
 
     // Rows and columns of result matrix
     const size_t nrows{getNumRows()};
@@ -121,50 +126,82 @@ public:
     Matrix<Type>* right_mat = mp_right->eval();
 
     // Zero matrix check
-    if(auto* it = ZeroMatAdd(left_mat, right_mat); it != nullptr) {
-      return it;
+    if(auto* it = ZeroMatMul(left_mat, right_mat); it != nullptr) {
+        return it;
     } else {
-      // If mp_result is nullptr, then create a new resource
-      if (nullptr == mp_result) {
-        mp_result = CreateMatrixPtr<Type>(nrows, ncols);
-      }
+        // If mp_result is nullptr, then create a new resource
+        if (nullptr == mp_result) {
+            mp_result = CreateMatrixPtr<Type>(nrows, ncols);
+        }
 
-      // Matrix-Matrix addition computation (Policy design)
-      std::get<Op::ADD>(m_caller)(left_mat, right_mat, mp_result);
+        // Matrix-Matrix multiplication computation (Policy design)
+        std::get<Op::MUL>(m_caller)(left_mat, right_mat, mp_result);
 
-      // Return result pointer
-      return mp_result;
+        // Return result pointer
+        return mp_result;
     }
   }
 
   // Matrix devalF computation
   V_OVERRIDE(Matrix<Type> *devalF(const Variable &x)) {
-    // Check whether dimensions are correct
-    assert(verifyDim() && "[ERROR] Matrix-Matrix addition dimensions mismatch");
-    
+    // Check whether dimensions are correct 
+    assert(verifyDim() && "[ERROR] Matrix-Matrix multiplication dimensions mismatch");
+
     // Rows and columns of result matrix
     const size_t nrows{getNumRows()};
     const size_t ncols{getNumColumns()};
 
-    // Left and right matrices
+    // Left and right matrices derivatives
     Matrix<Type>* dleft_mat = mp_left->devalF(x);
     Matrix<Type>* dright_mat = mp_right->devalF(x);
 
+    // Left and right matrices evaluation
+    Matrix<Type>* left_mat = mp_left->eval();
+    Matrix<Type>* right_mat = mp_right->eval();
+    
     // Zero matrix check
-    if(auto* it = ZeroMatAdd(dleft_mat, dright_mat); it != nullptr) {
-      return it;
+    if(auto* it = ZeroMatMul(dleft_mat, right_mat); it != nullptr) {
+        if(auto* it2 = ZeroMatMul(left_mat, dright_mat); it2 != nullptr) {
+            return it2;
+        } else {
+            // If mp_dresult is nullptr, then create a new resource
+            if(nullptr == mp_dresult) {
+                mp_dresult = CreateMatrixPtr<Type>(nrows, ncols);
+            }
+            std::get<Op::MUL>(m_caller)(left_mat, dright_mat, mp_dresult);
+            return mp_dresult;
+        }
+    } else if(auto* it3 = ZeroMatMul(left_mat, dright_mat); it3 != nullptr) {
+        if(auto* it4 = ZeroMatMul(dleft_mat, right_mat); it4 != nullptr) {
+            return it4;
+        } else {
+            // If mp_dresult is nullptr, then create a new resource
+            if(nullptr == mp_dresult) {
+                mp_dresult = CreateMatrixPtr<Type>(nrows, ncols);
+            }
+            std::get<Op::MUL>(m_caller)(dleft_mat, right_mat, mp_dresult);
+            return mp_dresult;
+        }
     } else {
-      // Usual Matrix-Matrix addition implementation
-      if (nullptr == mp_dresult) {
-        // If mp_result is nullptr, then create a new resource
-        mp_dresult = CreateMatrixPtr<Type>(nrows, ncols);
-      }
+        // If mp_dresult is nullptr, then create a new resource
+        if(nullptr == mp_dresult) {
+            mp_dresult = CreateMatrixPtr<Type>(nrows, ncols);
+        }
+        // If mp_dresult_l is nullptr, then create a new resource
+        if (nullptr == mp_dresult_l) {
+            mp_dresult_l = CreateMatrixPtr<Type>(nrows, ncols);
+        }
+        // If mp_dresult_r is nullptr, then create a new resource
+        if (nullptr == mp_dresult_r) {
+            mp_dresult_r = CreateMatrixPtr<Type>(nrows, ncols);
+        }
 
-      // Matrix-Matrix derivative addition computation (Policy design)
-      std::get<Op::ADD>(m_caller)(dleft_mat, dright_mat, mp_dresult);
+        std::get<Op::MUL>(m_caller)(dleft_mat, right_mat, mp_dresult_l);
+        std::get<Op::MUL>(m_caller)(left_mat, dright_mat, mp_dresult_r);
+        std::get<Op::ADD>(m_caller)(mp_dresult_l, mp_dresult_r, mp_dresult);
 
-      // Return result pointer
-      return mp_dresult;
+        // Return result pointer
+        return mp_dresult;
     }
   }
 
@@ -175,22 +212,22 @@ public:
 
   // Get type
   V_OVERRIDE(std::string_view getType() const) { 
-    return "GenericMatSum"; 
+    return "GenericMatProduct"; 
   }
 
   // Destructor
-  V_DTR(~GenericMatSum()) = default;
+  V_DTR(~GenericMatProduct()) = default;
 };
 
-// GenericMatSum with 2 typename callables
+// GenericMatProduct with 2 typename callables
 template <typename T1, typename T2>
-using GenericMatSumT = GenericMatSum<T1, T2, OpMatType>;
+using GenericMatProductT = GenericMatProduct<T1, T2, OpMatType>;
 
-// Function for sum computation
+// Function for product computation
 template <typename T1, typename T2>
-const GenericMatSumT<T1, T2> &operator+(const IMatrix<T1> &u,
-                                         const IMatrix<T2> &v) {
-  auto tmp = Allocate<GenericMatSumT<T1, T2>>(
+const GenericMatProductT<T1, T2> &operator*(const IMatrix<T1> &u,
+                                             const IMatrix<T2> &v) {
+  auto tmp = Allocate<GenericMatProductT<T1, T2>>(
       const_cast<T1 *>(static_cast<const T1 *>(&u)),
       const_cast<T2 *>(static_cast<const T2 *>(&v)), OpMatObj);
   return *tmp;

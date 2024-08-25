@@ -60,27 +60,25 @@ int main(int argc, char **argv) {
   m(1, 0) = 3;
   m(1, 1) = 4;
 
+  Matrix<Type> m2(2,1);
+  m2(0,0) = 1;
+  m2(1,0) = 3; 
+
   Matrix<Expression> m1{2, 2};
-  m1(0, 0) = x(0, 0) + x(1, 0);
-  m1(0, 1) = x(0, 0) * x(1, 0);
-  m1(1, 0) = x(0, 0) / x(1, 0);
-  m1(1, 1) = x(0, 0) - x(1, 0);
+  m1(0, 0) = x(0, 0);
+  m1(0, 1) = x(0, 0);
+  m1(1, 0) = x(0, 0);
+  m1(1, 1) = x(0, 0);
 
-  Matrix<Expression> sum = m1 + m;
-  sum = sum + m;
-  sum = m1 + sum;
+  Matrix<Expression> sum = m1*m;
+  sum = sum*x + x;
 
-  //std::cout << Eval(sum) << "\n";
-  //std::cout << DevalF(sum, x(0, 0)) << "\n";
-
-  x(0, 0) = 20;
-  m1(1,1) = x(0,0) + x(0,0);
-
-  //Eval(sum);
+  std::cout << Eval(sum) << "\n";
   std::cout << DevalF(sum,x) << "\n";
-
+  
   x(0,0) = 5;
 
+  std::cout << Eval(sum) << "\n";
   std::cout << DevalF(sum,x) << "\n";
 
   return 0;

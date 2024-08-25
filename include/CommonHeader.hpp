@@ -201,8 +201,8 @@ template <typename T> using Future = std::future<T>;
 // Operations enum [Order matters!]
 enum Op : size_t {
   ADD = 0,
-  SUB,
   MUL,
+  SUB,
   DIV,
   POW,
   SIN,

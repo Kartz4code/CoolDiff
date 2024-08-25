@@ -20,7 +20,6 @@
  */
 
 #include "CommonMatFunctions.hpp"
-
 #include "CommonFunctions.hpp"
 
 // Is the matrix zero
@@ -149,8 +148,8 @@ Matrix<Type>& DevalF(Matrix<Expression>& Mexp, const Matrix<Variable>& X) {
   const size_t xcols = X.getNumColumns();
 
   // Size of Mexp matrix
-  const size_t mrows = Mexp.getNumRows();
-  const size_t mcols = Mexp.getNumColumns();
+  const size_t mrows = Mexp.getFinalNumRows();
+  const size_t mcols = Mexp.getFinalNumColumns();
 
   // Create new matrix
   const size_t rows = mrows*xrows;
