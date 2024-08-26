@@ -22,60 +22,79 @@
 #include "MatOperators.hpp"
 #include "Matrix.hpp"
 
+#include "MatrixSplOps.hpp"
 
 // Non nullptr correctness
-void CheckNull(void* lhs, void* rhs, void* result) {
+void CheckNull(void* lhs, void* rhs) {
     assert(lhs != nullptr && "[ERROR] Left matrix is a nullptr");
     assert(rhs != nullptr && "[ERROR] Right matrix is a nullptr");
-    assert(result != nullptr && "[ERROR] Result matrix is a nullptr");
 }
 
 // Matrix-Matrix addition - Left, Right, Result matrix pointer
-void MatrixAdd(Matrix<Type>* lhs, Matrix<Type>* rhs, Matrix<Type>* result) {
+void MatrixAdd(Matrix<Type>* lhs, Matrix<Type>* rhs, Matrix<Type>*& result) {
     // Assert for non-null pointers 
-    CheckNull(lhs, rhs, result);
+    CheckNull(lhs, rhs);
+    // Zero matrix addition check
+    if(auto* it = ZeroMatAdd(lhs, rhs); nullptr != it) {
+        result = it;
+    } else {
+        // Rows and columns of result matrix
+        const size_t nrows{lhs->getNumRows()};
+        const size_t ncols{rhs->getNumColumns()};    
 
-    // Get raw pointers to result, left and right matrices
-    Type *res = result->getMatrixPtr();
-    Type *left = lhs->getMatrixPtr();
-    Type *right = rhs->getMatrixPtr();   
+        // If mp_result is nullptr, then create a new resource
+        if (nullptr == result) {
+            result = CreateMatrixPtr<Type>(nrows, ncols);
+        }
 
-    const size_t nrows = result->getNumRows();
-    const size_t ncols = result->getNumColumns();
+        // Get raw pointers to result, left and right matrices
+        Type *res = result->getMatrixPtr();
+        Type *left = lhs->getMatrixPtr();
+        Type *right = rhs->getMatrixPtr();   
 
-    const size_t size{nrows*ncols};
-    std::transform(EXECUTION_PAR 
-                    left, left + size,
-                    right, res, 
-                    [](const Type a, const Type b) { 
-                    return a + b; 
-                    }
-                );
+        const size_t size{nrows*ncols};
+        std::transform(EXECUTION_PAR 
+                       left, left + size,
+                       right, res, 
+                       [](const Type a, const Type b) { 
+                            return a + b; 
+                      });
+        }
 }
 
 // Matrix-Matrix multiplication - Left, Right, Result matrix pointer
-void MatrixMul(Matrix<Type>* lhs, Matrix<Type>* rhs, Matrix<Type>* result) {
+void MatrixMul(Matrix<Type>* lhs, Matrix<Type>* rhs, Matrix<Type>*& result) {
     // Assert for non-null pointers 
-    CheckNull(lhs, rhs, result);
-    
-    // Get raw pointers to result, left and right matrices
-    Matrix<Type>& res = *result;
-    Matrix<Type>& left = *lhs;
-    Matrix<Type>& right = *rhs;   
+    CheckNull(lhs, rhs);
+    // Zero matrix multiplication check
+    if(auto* it = ZeroMatMul(lhs, rhs); nullptr != it) {
+        result = it; 
+    } else {
 
-    const size_t lrows = lhs->getNumRows();
-    const size_t rcols = rhs->getNumColumns();
-    const size_t rrows = rhs->getNumRows();
+        const size_t lrows = lhs->getNumRows();
+        const size_t rcols = rhs->getNumColumns();
+        const size_t rrows = rhs->getNumRows();
 
-    // Naive matrix-matrix multiplication
-    Type tmp{};
-    for(size_t i{}; i < lrows; ++i) {
-        for(size_t j{}; j < rcols; ++j) {
-            for(size_t k{}; k < rrows; ++k) {
-                tmp += left(i,k)*right(k,j);
-            }
-            res(i,j) = tmp;
-            tmp = (Type)(0);
+        // If mp_result is nullptr, then create a new resource
+        if (nullptr == result) {
+            result = CreateMatrixPtr<Type>(lrows, rcols);
         }
-    }    
+
+        // Get raw pointers to result, left and right matrices
+        Matrix<Type>& res = *result;
+        Matrix<Type>& left = *lhs;
+        Matrix<Type>& right = *rhs;   
+
+        // Naive matrix-matrix multiplication
+        Type tmp{};
+        for(size_t i{}; i < lrows; ++i) {
+            for(size_t j{}; j < rcols; ++j) {
+                for(size_t k{}; k < rrows; ++k) {
+                    tmp += left(i,k)*right(k,j);
+                }
+                res(i,j) = tmp;
+                tmp = (Type)(0);
+            }
+        }    
+    }
 }

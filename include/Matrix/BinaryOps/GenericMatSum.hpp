@@ -24,8 +24,6 @@
 #include "IMatrix.hpp"
 #include "Matrix.hpp"
 
-#include "BinarySplOps.hpp"
-
 // Left/right side is an expression
 template <typename T1, typename T2, typename... Callables>
 class GenericMatSum : public IMatrix<GenericMatSum<T1, T2, Callables...>> {
@@ -109,63 +107,34 @@ public:
 
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type> *eval()) {
-    // Check whether dimensions are correct
-    assert(verifyDim() && "[ERROR] Matrix-Matrix addition dimensions mismatch");
+      // Check whether dimensions are correct
+      assert(verifyDim() && "[ERROR] Matrix-Matrix addition dimensions mismatch");
 
-    // Rows and columns of result matrix
-    const size_t nrows{getNumRows()};
-    const size_t ncols{getNumColumns()};
-
-    // Get raw pointers to result, left and right matrices
-    Matrix<Type>* left_mat = mp_left->eval();
-    Matrix<Type>* right_mat = mp_right->eval();
-
-    // Zero matrix check
-    if(auto* it = ZeroMatAdd(left_mat, right_mat); it != nullptr) {
-      return it;
-    } else {
-      // If mp_result is nullptr, then create a new resource
-      if (nullptr == mp_result) {
-        mp_result = CreateMatrixPtr<Type>(nrows, ncols);
-      }
+      // Get raw pointers to result, left and right matrices
+      Matrix<Type>* left_mat = mp_left->eval();
+      Matrix<Type>* right_mat = mp_right->eval();
 
       // Matrix-Matrix addition computation (Policy design)
       std::get<Op::ADD>(m_caller)(left_mat, right_mat, mp_result);
 
       // Return result pointer
       return mp_result;
-    }
   }
 
   // Matrix devalF computation
   V_OVERRIDE(Matrix<Type> *devalF(const Variable &x)) {
-    // Check whether dimensions are correct
-    assert(verifyDim() && "[ERROR] Matrix-Matrix addition dimensions mismatch");
-    
-    // Rows and columns of result matrix
-    const size_t nrows{getNumRows()};
-    const size_t ncols{getNumColumns()};
+      // Check whether dimensions are correct
+      assert(verifyDim() && "[ERROR] Matrix-Matrix addition dimensions mismatch");
 
-    // Left and right matrices
-    Matrix<Type>* dleft_mat = mp_left->devalF(x);
-    Matrix<Type>* dright_mat = mp_right->devalF(x);
-
-    // Zero matrix check
-    if(auto* it = ZeroMatAdd(dleft_mat, dright_mat); it != nullptr) {
-      return it;
-    } else {
-      // Usual Matrix-Matrix addition implementation
-      if (nullptr == mp_dresult) {
-        // If mp_result is nullptr, then create a new resource
-        mp_dresult = CreateMatrixPtr<Type>(nrows, ncols);
-      }
+      // Left and right matrices
+      Matrix<Type>* dleft_mat = mp_left->devalF(x);
+      Matrix<Type>* dright_mat = mp_right->devalF(x);
 
       // Matrix-Matrix derivative addition computation (Policy design)
       std::get<Op::ADD>(m_caller)(dleft_mat, dright_mat, mp_dresult);
 
       // Return result pointer
       return mp_dresult;
-    }
   }
 
   // Reset visit run-time

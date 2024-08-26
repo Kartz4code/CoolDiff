@@ -107,7 +107,7 @@ set(SRC
     ${CMAKE_SOURCE_DIR}/src/Scalar/CommonFunctions.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/CommonMatFunctions.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatOperators.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/BinaryOps/BinarySplOps.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixSplOps.cpp
     ${CMAKE_SOURCE_DIR}/src/MemoryManager/MemoryManager.cpp
     ${CMAKE_SOURCE_DIR}/src/Scalar/Parameter.cpp)
 

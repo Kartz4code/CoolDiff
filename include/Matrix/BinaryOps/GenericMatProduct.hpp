@@ -24,8 +24,6 @@
 #include "IMatrix.hpp"
 #include "Matrix.hpp"
 
-#include "BinarySplOps.hpp"
-
 // Left/right side is an expression
 template <typename T1, typename T2, typename... Callables>
 class GenericMatProduct : public IMatrix<GenericMatProduct<T1, T2, Callables...>> {
@@ -117,39 +115,20 @@ public:
     // Check whether dimensions are correct
     assert(verifyDim() && "[ERROR] Matrix-Matrix multiplication dimensions mismatch");
 
-    // Rows and columns of result matrix
-    const size_t nrows{getNumRows()};
-    const size_t ncols{getNumColumns()};
-
     // Get raw pointers to result, left and right matrices
     Matrix<Type>* left_mat = mp_left->eval();
     Matrix<Type>* right_mat = mp_right->eval();
 
-    // Zero matrix check
-    if(auto* it = ZeroMatMul(left_mat, right_mat); it != nullptr) {
-        return it;
-    } else {
-        // If mp_result is nullptr, then create a new resource
-        if (nullptr == mp_result) {
-            mp_result = CreateMatrixPtr<Type>(nrows, ncols);
-        }
-
-        // Matrix-Matrix multiplication computation (Policy design)
-        std::get<Op::MUL>(m_caller)(left_mat, right_mat, mp_result);
-
-        // Return result pointer
-        return mp_result;
-    }
+    // Matrix multiplication evaluation (Policy design)
+    std::get<Op::MUL>(m_caller)(left_mat, right_mat, mp_result);
+    
+    return mp_result; 
   }
 
   // Matrix devalF computation
   V_OVERRIDE(Matrix<Type> *devalF(const Variable &x)) {
     // Check whether dimensions are correct 
     assert(verifyDim() && "[ERROR] Matrix-Matrix multiplication dimensions mismatch");
-
-    // Rows and columns of result matrix
-    const size_t nrows{getNumRows()};
-    const size_t ncols{getNumColumns()};
 
     // Left and right matrices derivatives
     Matrix<Type>* dleft_mat = mp_left->devalF(x);
@@ -158,51 +137,14 @@ public:
     // Left and right matrices evaluation
     Matrix<Type>* left_mat = mp_left->eval();
     Matrix<Type>* right_mat = mp_right->eval();
-    
-    // Zero matrix check
-    if(auto* it = ZeroMatMul(dleft_mat, right_mat); it != nullptr) {
-        if(auto* it2 = ZeroMatMul(left_mat, dright_mat); it2 != nullptr) {
-            return it2;
-        } else {
-            // If mp_dresult is nullptr, then create a new resource
-            if(nullptr == mp_dresult) {
-                mp_dresult = CreateMatrixPtr<Type>(nrows, ncols);
-            }
-            std::get<Op::MUL>(m_caller)(left_mat, dright_mat, mp_dresult);
-            return mp_dresult;
-        }
-    } else if(auto* it3 = ZeroMatMul(left_mat, dright_mat); it3 != nullptr) {
-        if(auto* it4 = ZeroMatMul(dleft_mat, right_mat); it4 != nullptr) {
-            return it4;
-        } else {
-            // If mp_dresult is nullptr, then create a new resource
-            if(nullptr == mp_dresult) {
-                mp_dresult = CreateMatrixPtr<Type>(nrows, ncols);
-            }
-            std::get<Op::MUL>(m_caller)(dleft_mat, right_mat, mp_dresult);
-            return mp_dresult;
-        }
-    } else {
-        // If mp_dresult is nullptr, then create a new resource
-        if(nullptr == mp_dresult) {
-            mp_dresult = CreateMatrixPtr<Type>(nrows, ncols);
-        }
-        // If mp_dresult_l is nullptr, then create a new resource
-        if (nullptr == mp_dresult_l) {
-            mp_dresult_l = CreateMatrixPtr<Type>(nrows, ncols);
-        }
-        // If mp_dresult_r is nullptr, then create a new resource
-        if (nullptr == mp_dresult_r) {
-            mp_dresult_r = CreateMatrixPtr<Type>(nrows, ncols);
-        }
 
-        std::get<Op::MUL>(m_caller)(dleft_mat, right_mat, mp_dresult_l);
-        std::get<Op::MUL>(m_caller)(left_mat, dright_mat, mp_dresult_r);
-        std::get<Op::ADD>(m_caller)(mp_dresult_l, mp_dresult_r, mp_dresult);
+    // Matrix derivative evaluation (Policy design)
+    std::get<Op::MUL>(m_caller)(dleft_mat, right_mat, mp_dresult_l);
+    std::get<Op::MUL>(m_caller)(left_mat, dright_mat, mp_dresult_r);  
+    std::get<Op::ADD>(m_caller)(mp_dresult_l, mp_dresult_r, mp_dresult);
 
-        // Return result pointer
-        return mp_dresult;
-    }
+    // Return result pointer
+    return mp_dresult;
   }
 
   // Reset visit run-time

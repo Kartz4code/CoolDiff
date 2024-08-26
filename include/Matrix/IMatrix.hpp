@@ -66,7 +66,7 @@ enum MatrixSpl : size_t {
 };
 
 // Operation type (Order matters!)
-#define OpMatType void (*)(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*),\
-                  void (*)(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*)
+#define OpMatType void (*)(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&),\
+                  void (*)(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&)
 // Operation objects (Order matters!)
 #define OpMatObj MatrixAdd, MatrixMul

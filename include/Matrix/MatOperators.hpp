@@ -24,10 +24,10 @@
 #include "CommonHeader.hpp"
 
 // Non nullptr correctness
-void CheckNull(void* = nullptr, void* = nullptr, void* = nullptr);
+void CheckNull(void* = nullptr, void* = nullptr);
 
 // Matrix-Matrix addition - Left, Right, Result matrix pointer
-void MatrixAdd(Matrix<Type>* = nullptr, Matrix<Type>* = nullptr, Matrix<Type>* = nullptr);
+void MatrixAdd(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&);
 
 // Matrix-Matrix multiplication - Left, Right, Result matrix pointer
-void MatrixMul(Matrix<Type>* = nullptr, Matrix<Type>* = nullptr, Matrix<Type>* = nullptr);
+void MatrixMul(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&);

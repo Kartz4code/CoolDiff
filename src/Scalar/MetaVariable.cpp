@@ -29,7 +29,7 @@ void MetaVariable::resetTemp() {
     this->mp_tmp->reset();
   }
 
-  std::for_each(EXECUTION_PAR 
+  std::for_each(EXECUTION_SEQ 
                 this->mp_dtmp.begin(), this->mp_dtmp.end(), 
                 [](auto& item) {    
                   if (auto* v = item.second; v != nullptr) { 

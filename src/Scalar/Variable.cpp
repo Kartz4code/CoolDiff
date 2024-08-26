@@ -128,7 +128,7 @@ const std::string &Variable::getExpression() const {
 void Variable::resetImpl() {
   this->m_visited = true;
   // Reset states
-  std::for_each(EXECUTION_PAR 
+  std::for_each(EXECUTION_SEQ 
                 m_gh_vec.begin(), m_gh_vec.end(), [](auto* item) {    
                   if (item != nullptr) { 
                     item->reset(); 
@@ -286,7 +286,7 @@ void Variable::reset() {
   if (true == this->m_visited) {
     this->m_visited = false;
     // Reset states
-    std::for_each(EXECUTION_PAR 
+    std::for_each(EXECUTION_SEQ  
                   m_gh_vec.begin(), m_gh_vec.end(), [](auto* item) {    
                     if (item != nullptr) { 
                       item->reset(); 

@@ -153,7 +153,8 @@ Matrix<Type> &JacobF(Expression &exp, const Vector<Variable> &vec, bool serial_e
 
     // Tranform and get results
     std::transform(EXECUTION_PAR 
-                   exp_coll.begin(), exp_coll.end(), vec.begin(),
+                   exp_coll.begin(), exp_coll.end(), 
+                   vec.begin(),
                    result.getMatrixPtr(), 
                    [](auto &v1, const auto &v2) {
                      return DevalF(v1, v2);

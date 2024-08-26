@@ -80,10 +80,10 @@ private:
   inline void setEval() {
     // Set result matrix
     if constexpr (false == std::is_same_v<T, Type>) {
-      if((mp_mat != nullptr) && 
-         (mp_result != nullptr) && 
-         (mp_result->mp_mat != nullptr)) {
-        std::transform(EXECUTION_PAR 
+      if((nullptr != mp_mat) && 
+         (nullptr != mp_result) && 
+         (nullptr != mp_result->mp_mat)) {
+        std::transform(EXECUTION_SEQ 
                        mp_mat, mp_mat + getNumElem(),
                        mp_result->mp_mat,
                        [this](auto &v) { 
@@ -97,10 +97,10 @@ private:
     // Set derivative result matrix
     if constexpr (!(true == std::is_same_v<T, Type> || 
                     true == std::is_same_v<T, Parameter>)) {
-      if((mp_mat != nullptr) && 
-         (mp_dresult != nullptr) && 
-         (mp_dresult->mp_mat != nullptr)) {
-        std::transform(EXECUTION_PAR 
+      if((nullptr != mp_mat) && 
+         (nullptr != mp_dresult) && 
+         (nullptr != mp_dresult->mp_mat)) {
+        std::transform(EXECUTION_SEQ 
                        mp_mat, mp_mat + getNumElem(),
                        mp_dresult->mp_mat,
                        [&var,this](auto &v) { 
@@ -118,8 +118,9 @@ public:
   Matrix<Type> *mp_result{nullptr};
   // Matrix pointer for forward derivative (Type)
   Matrix<Type> *mp_dresult{nullptr};
-  // Boolean to verify evaluation
-  bool m_eval{false}, m_devalf{false};
+  // Boolean to verify evaluation/forward derivative values
+  bool m_eval{false};
+  bool m_devalf{false};
   // Block index
   size_t m_nidx{};
 
@@ -196,7 +197,7 @@ public:
 
   // Move assignment operator
   Matrix &operator=(Matrix &&m) noexcept {
-    if (mp_mat != nullptr) {
+    if (nullptr != mp_mat) {
       delete[] mp_mat;
     }
 
@@ -226,14 +227,15 @@ public:
                             m_nidx{m.m_nidx}, 
                             m_gh_vec{m.m_gh_vec} {
     // Copy values
-    std::copy(EXECUTION_PAR m.mp_mat, m.mp_mat + getNumElem(), mp_mat);
+    std::copy(EXECUTION_PAR 
+              m.mp_mat, m.mp_mat + getNumElem(), mp_mat);
 
     // Clone mp_result
-    if (m.mp_result != nullptr) {
+    if (nullptr != m.mp_result) {
       mp_result = m.mp_result->clone();
     }
     // Clone mp_dresult
-    if (m.mp_dresult != nullptr) {
+    if (nullptr != m.mp_dresult) {
       mp_dresult = m.mp_dresult->clone();
     }
   }
@@ -251,7 +253,7 @@ public:
       m_devalf = m.m_devalf;
 
       // Copy mp_mat
-      if (mp_mat != nullptr) {
+      if (nullptr != mp_mat) {
         delete[] mp_mat;
       }
       mp_mat = new T[getNumElem()]{};
@@ -259,18 +261,18 @@ public:
                 m.mp_mat, m.mp_mat + getNumElem(), mp_mat);
 
       // Copy and clone mp_result
-      if (mp_result != nullptr) {
+      if (nullptr != mp_result) {
         delete[] mp_result;
       }
-      if (m.mp_result != nullptr) {
+      if (nullptr != m.mp_result) {
         mp_result = m.mp_result->clone();
       }
 
       // Copy and clone mp_dresult
-      if (mp_dresult != nullptr) {
+      if (nullptr != mp_dresult) {
         delete[] mp_dresult;
       }
-      if (m.mp_dresult != nullptr) {
+      if (nullptr != m.mp_dresult) {
         mp_dresult = m.mp_dresult->clone();
       }
     }
@@ -282,7 +284,7 @@ public:
   // For cloning numerical values for copy constructors
   inline Matrix<Type> *clone() const {
     Matrix<Type> *result = CreateMatrixPtr<Type>(m_rows, m_cols);
-    if (result->mp_mat != nullptr) {
+    if (nullptr != result->mp_mat) {
       std::copy(EXECUTION_PAR 
                 mp_mat, mp_mat + getNumElem(), result->mp_mat);
     }
@@ -453,13 +455,13 @@ public:
       this->m_visited = true;
       // Loop on internal equations
       std::for_each(EXECUTION_SEQ 
-                m_gh_vec.begin(), m_gh_vec.end(), 
-                [this](auto* i) {
-                  if(nullptr != i) {
-                    mp_result = i->eval();
-                    m_eval = true;
-                  }
-                });
+                    m_gh_vec.begin(), m_gh_vec.end(), 
+                    [this](auto* i) {
+                      if(nullptr != i) {
+                        mp_result = i->eval();
+                        m_eval = true;
+                      }
+                    });
     }
 
     // Return evaulation result
@@ -489,15 +491,15 @@ public:
       this->m_visited = true;
       // Loop on internal equations
       std::for_each(EXECUTION_SEQ 
-                m_gh_vec.begin(), m_gh_vec.end(), 
-                [this,&var](auto* i) {
-                  if(nullptr != i) {
-                    mp_dresult = i->devalF(var); 
-                    m_devalf = true;
-                    mp_result = i->eval(); 
-                    m_eval = true;
-                  }
-                });  
+                    m_gh_vec.begin(), m_gh_vec.end(), 
+                    [this,&var](auto* i) {
+                      if(nullptr != i) {
+                        mp_dresult = i->devalF(var); 
+                        m_devalf = true;
+                        mp_result = i->eval(); 
+                        m_eval = true;
+                      }
+                    });  
     }
 
     // Return derivative result
@@ -511,10 +513,10 @@ public:
       // Reset states
       m_eval = false; 
       m_devalf = false;
-      std::for_each(EXECUTION_PAR 
+      std::for_each(EXECUTION_SEQ 
                     m_gh_vec.begin(), m_gh_vec.end(), 
                     [](auto* item) {    
-                      if (item != nullptr) { 
+                      if (nullptr != item) { 
                         item->reset(); 
                       } 
                     });
@@ -523,26 +525,26 @@ public:
     this->m_visited = false;
   }
 
-  // Get type
-  V_OVERRIDE(std::string_view getType() const) { 
-    return "Matrix"; 
-  }
-
   // Reset impl
   inline void resetImpl() {
     this->m_visited = true;
     // Reset states
     m_eval = false; 
     m_devalf = false;
-    std::for_each(EXECUTION_PAR 
+    std::for_each(EXECUTION_SEQ 
                   m_gh_vec.begin(), m_gh_vec.end(), 
                   [](auto* item) {    
-                    if (item != nullptr) { 
+                    if (nullptr != item) { 
                       item->reset(); 
                     } 
                   });
                   
     this->m_visited = false;
+  }
+  
+  // Get type
+  V_OVERRIDE(std::string_view getType() const) { 
+    return "Matrix"; 
   }
 
   // To output stream

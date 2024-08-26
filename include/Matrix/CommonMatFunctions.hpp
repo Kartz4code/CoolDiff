@@ -23,7 +23,6 @@
 
 #include "GenericMatSum.hpp"
 #include "GenericMatProduct.hpp"
-
 #include "Matrix.hpp"
 
 
