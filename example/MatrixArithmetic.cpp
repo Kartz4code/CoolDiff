@@ -65,10 +65,14 @@ int main(int argc, char **argv) {
   m2(1,0) = 3; 
 
   Matrix<Expression> m1{2, 2};
-  m1(0, 0) = x(0, 0);
-  m1(0, 1) = x(0, 0);
-  m1(1, 0) = x(0, 0);
-  m1(1, 1) = x(0, 0);
+
+  Expression y = x(0, 0) + x(1,0);
+
+
+  m1(0, 0) = y + x(1,0);
+  m1(0, 1) = y * x(1,0);
+  m1(1, 0) = y / x(1,0);
+  m1(1, 1) = y - x(1,0);
 
   Matrix<Expression> sum = m1*m;
   sum = sum*x + x;

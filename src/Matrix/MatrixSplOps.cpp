@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/BinaryOps/BinarySplOps.cpp
+ * @file src/Matrix/MatrixSplOps.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,7 +19,7 @@
  * associated repository.
  */
 
-#include "BinarySplOps.hpp"
+#include "MatrixSplOps.hpp"
 
 // Zero matrix addition checks
 Matrix<Type>* ZeroMatAdd(Matrix<Type>* lhs, Matrix<Type>* rhs) {
@@ -59,3 +59,4 @@ Matrix<Type>* ZeroMatMul(Matrix<Type>* lhs, Matrix<Type>* rhs) {
         return nullptr;
     }
 }
+

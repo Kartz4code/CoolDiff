@@ -26,7 +26,8 @@
 bool IsZeroMatrix(const Matrix<Type> &m) {
   auto *it = m.getMatrixPtr();
   const size_t n = m.getNumElem();
-  return std::all_of(EXECUTION_PAR it, it + n,
+  return std::all_of(EXECUTION_PAR 
+                     it, it + n,
                      [](Type i) { return (i == (Type)(0)); });
 }
 
@@ -58,7 +59,8 @@ bool IsEyeMatrix(const Matrix<Type> &m) {
 bool IsOnesMatrix(const Matrix<Type> &m) {
   auto *it = m.getMatrixPtr();
   const size_t n = m.getNumElem();
-  return std::all_of(EXECUTION_PAR it, it + n,
+  return std::all_of(EXECUTION_PAR 
+                     it, it + n,
                      [](Type i) { return (i == (Type)(1)); });
 }
 

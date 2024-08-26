@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/BinaryOps/BinarySplOps.hpp
+ * @file include/Matrix/MatrixSplOps.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
