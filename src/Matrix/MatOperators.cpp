@@ -47,6 +47,10 @@ void MatrixAdd(Matrix<Type>* lhs, Matrix<Type>* rhs, Matrix<Type>*& result) {
             result = CreateMatrixPtr<Type>(nrows, ncols);
         }
 
+       // Check numerically for lhs-rhs product is zero
+        if(auto* it = ZeroMatAddNum(lhs, rhs); nullptr != it) {
+            *result = *it;
+        } else { 
         // Get raw pointers to result, left and right matrices
         Type *res = result->getMatrixPtr();
         Type *left = lhs->getMatrixPtr();
@@ -60,6 +64,7 @@ void MatrixAdd(Matrix<Type>* lhs, Matrix<Type>* rhs, Matrix<Type>*& result) {
                             return a + b; 
                       });
         }
+    }
 }
 
 // Matrix-Matrix multiplication - Left, Right, Result matrix pointer
@@ -69,8 +74,10 @@ void MatrixMul(Matrix<Type>* lhs, Matrix<Type>* rhs, Matrix<Type>*& result) {
     // Zero matrix multiplication check
     if(auto* it = ZeroMatMul(lhs, rhs); nullptr != it) {
         result = it; 
-    } else {
-
+    } else if(auto* it = EyeMatMul(lhs,rhs); nullptr != it) {
+        result = it;
+    }
+    else {
         const size_t lrows = lhs->getNumRows();
         const size_t rcols = rhs->getNumColumns();
         const size_t rrows = rhs->getNumRows();
@@ -80,21 +87,30 @@ void MatrixMul(Matrix<Type>* lhs, Matrix<Type>* rhs, Matrix<Type>*& result) {
             result = CreateMatrixPtr<Type>(lrows, rcols);
         }
 
-        // Get raw pointers to result, left and right matrices
-        Matrix<Type>& res = *result;
-        Matrix<Type>& left = *lhs;
-        Matrix<Type>& right = *rhs;   
-
-        // Naive matrix-matrix multiplication
-        Type tmp{};
-        for(size_t i{}; i < lrows; ++i) {
-            for(size_t j{}; j < rcols; ++j) {
-                for(size_t k{}; k < rrows; ++k) {
-                    tmp += left(i,k)*right(k,j);
+        // Check numerically for lhs-rhs product is identity
+        if(auto* it = EyeMatMulNum(lhs, rhs); nullptr != it) {
+            *result = *it;
+            return;
+        } else if (auto* it = ZeroMatMulNum(lhs, rhs); nullptr != it) { 
+            return;
+        }
+        else {
+            // Get raw pointers to result, left and right matrices
+            Matrix<Type>& res = *result;
+            Matrix<Type>& left = *lhs;
+            Matrix<Type>& right = *rhs;   
+            
+            // Naive matrix-matrix multiplication
+            Type tmp{};
+            for(size_t i{}; i < lrows; ++i) {
+                for(size_t j{}; j < rcols; ++j) {
+                    for(size_t k{}; k < rrows; ++k) {
+                        tmp += left(i,k)*right(k,j);
+                    }
+                    res(i,j) = tmp;
+                    tmp = (Type)(0);
                 }
-                res(i,j) = tmp;
-                tmp = (Type)(0);
-            }
-        }    
+            }    
+        }
     }
 }

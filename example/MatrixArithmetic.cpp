@@ -19,8 +19,9 @@
  * associated repository.
  */
 
-#include "CommonMatFunctions.hpp"
 #include "CoolDiff.hpp"
+#include "CommonMatFunctions.hpp"
+
 
 void func() {
   std::vector<Variable> X(10);
@@ -68,14 +69,13 @@ int main(int argc, char **argv) {
 
   Expression y = x(0, 0) + x(1,0);
 
+  m1(0, 0) = x(0,0) + x(1,0);
+  m1(0, 1) = x(1,0);
+  m1(1, 0) = x(1,0);
+  m1(1, 1) = x(0,0) + x(1,0);
 
-  m1(0, 0) = y + x(1,0);
-  m1(0, 1) = y * x(1,0);
-  m1(1, 0) = y / x(1,0);
-  m1(1, 1) = y - x(1,0);
-
-  Matrix<Expression> sum = m1*m;
-  sum = sum*x + x;
+  Matrix<Expression> sum = m*x;
+  sum = m*sum + x + x;
 
   std::cout << Eval(sum) << "\n";
   std::cout << DevalF(sum,x) << "\n";
@@ -83,6 +83,7 @@ int main(int argc, char **argv) {
   x(0,0) = 5;
 
   std::cout << Eval(sum) << "\n";
+  std::cout << DevalF(sum,x) << "\n";
   std::cout << DevalF(sum,x) << "\n";
 
   return 0;

@@ -21,34 +21,27 @@
 
 #pragma once
 
+#include "Matrix.hpp"
 #include "GenericMatSum.hpp"
 #include "GenericMatProduct.hpp"
-#include "Matrix.hpp"
 
 
-// Is the matrix zero?
-bool IsZeroMatrix(const Matrix<Type> &);
-
-// Is the matrix identity?
-bool IsEyeMatrix(const Matrix<Type> &);
-
+/*
 // Is the matrix ones?
-bool IsOnesMatrix(const Matrix<Type> &);
-
-// Is the matrix square?
-bool IsSquareMatrix(const Matrix<Type> &);
+bool IsOnesMatrix(Matrix<Type>*);
 
 // Is the matrix diagonal?
-bool IsDiagMatrix(const Matrix<Type> &);
+bool IsDiagMatrix(Matrix<Type>*);
 
 // Is the row matrix ?
-bool IsRowMatrix(const Matrix<Type>&);
+bool IsRowMatrix(Matrix<Type>*);
 
 // Is the column matrix ?
-bool IsColMatrix(const Matrix<Type>&);
+bool IsColMatrix(Matrix<Type>*);
 
 // Find type of matrix
 size_t FindMatType(const Matrix<Type>&);
+*/
 
 // Matrix evaluation
 Matrix<Type> &Eval(Matrix<Expression>&);

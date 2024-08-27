@@ -20,10 +20,27 @@
  */
 
 #pragma once 
-#include "Matrix.hpp"
+
+#include "CommonHeader.hpp"
+
+// Is the matrix zero?
+bool IsZeroMatrix(Matrix<Type>*);
+// Is the matrix identity?
+bool IsEyeMatrix(Matrix<Type>*);
+
 
 // Zero matrix addition checks
 Matrix<Type>* ZeroMatAdd(Matrix<Type>*, Matrix<Type>*);
-
 // Zero matrix multiplication checks
 Matrix<Type>* ZeroMatMul(Matrix<Type>*, Matrix<Type>*);
+// Eye matrix multiplication checks
+Matrix<Type>* EyeMatMul(Matrix<Type>*, Matrix<Type>*);
+
+
+// Zero matrix addition numerical checks
+Matrix<Type>* ZeroMatAddNum(Matrix<Type>*, Matrix<Type>*);
+// Zero matrix multiplication numerical checks
+Matrix<Type>* ZeroMatMulNum(Matrix<Type>*, Matrix<Type>*);
+// Eye matrix multiplication numerical checks
+Matrix<Type>* EyeMatMulNum(Matrix<Type>*, Matrix<Type>*);
+

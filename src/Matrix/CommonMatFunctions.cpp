@@ -20,61 +20,43 @@
  */
 
 #include "CommonMatFunctions.hpp"
-#include "CommonFunctions.hpp"
+#include "Matrix.hpp"
 
-// Is the matrix zero
-bool IsZeroMatrix(const Matrix<Type> &m) {
-  auto *it = m.getMatrixPtr();
-  const size_t n = m.getNumElem();
-  return std::all_of(EXECUTION_PAR 
-                     it, it + n,
-                     [](Type i) { return (i == (Type)(0)); });
-}
-
-// Is the matrix identity
-bool IsEyeMatrix(const Matrix<Type> &m) {
-  // If matrix is rectangular, return false
-  if (false == IsSquareMatrix(m)) {
-    return false;
-  }
-  const size_t rows = m.getNumRows();
-  const size_t cols = m.getNumColumns();
-  for(size_t i{}; i < rows; ++i) {
-    for (size_t j{}; j < cols; ++j) {
-      if(i == j) {
-        if (m(i, i) != (Type)(1)) {
-          return false;
-        }
-      } else {
-        if(m(i,j) != (Type)(0)) {
-          return false;
-        }
-      }
-    }
-  }
-  return true;
-}
-
+/*
 // Is the matrix ones
 bool IsOnesMatrix(const Matrix<Type> &m) {
+  // If special matrix and of corresponding type, return
+  if(m.getMatType() == MatrixSpl::ONES) {
+    return true;
+  }
+
+  // Get Matrix pointer and number of elements
   auto *it = m.getMatrixPtr();
   const size_t n = m.getNumElem();
+
+  // Check all elements for one
   return std::all_of(EXECUTION_PAR 
                      it, it + n,
                      [](Type i) { return (i == (Type)(1)); });
 }
 
-// Is the matrix square
-bool IsSquareMatrix(const Matrix<Type> &m) {
-  return (m.getNumColumns() == m.getNumRows());
-}
 
 // Is the matrix diagonal?
 bool IsDiagMatrix(const Matrix<Type> &m) {
+  // If special matrix and of corresponding type, return
+  if(m.getMatType() == MatrixSpl::DIAG) {
+    return true;
+  }
+
   // If matrix is rectangular, return false
   if (false == IsSquareMatrix(m)) {
     return false;
   }
+
+  if(true == IsZeroMatrix(m)) {
+    return false;
+  }
+
   const size_t rows = m.getNumRows();
   const size_t cols = m.getNumColumns();
   for (size_t i{}; i < rows; ++i) {
@@ -89,43 +71,62 @@ bool IsDiagMatrix(const Matrix<Type> &m) {
 
 // Is the row matrix ?
 bool IsRowMatrix(const Matrix<Type> &m) { 
+  // If special matrix and of corresponding type, return
+  if(m.getMatType() == MatrixSpl::ROW_MAT) {
+    return true;
+  }
+
+  // If special matrix and of corresponding type, return
+  if(m.getMatType() == MatrixSpl::ZEROS) {
+    return true;
+  }
   return (m.getNumRows() == 1); 
 }
 
 // Is the column matrix ?
 bool IsColMatrix(const Matrix<Type> &m) { 
+  // If special matrix and of corresponding type, return
+  if(m.getMatType() == MatrixSpl::COL_MAT) {
+    return true;
+  }
+
   return (m.getNumColumns() == 1); 
 }
 
 // Find type of matrix
 size_t FindMatType(const Matrix<Type> &m) {
-  size_t result{};
+  size_t result{0};
   // Zero matrix check
   if (true == IsZeroMatrix(m)) {
     result |= MatrixSpl::ZEROS;
   }
   // One matrix check
-  if (true == IsOnesMatrix(m)) {
+  else if (true == IsOnesMatrix(m)) {
     result |= MatrixSpl::ONES;
   }
   // Identity matrix check
-  if (true == IsEyeMatrix(m)) {
+  else if (true == IsEyeMatrix(m)) {
     result |= MatrixSpl::EYE;
   }
   // Diagonal matrix check
-  if (true == IsDiagMatrix(m)) {
+  else if (true == IsDiagMatrix(m)) {
     result |= MatrixSpl::DIAG;
   }
   // Row matrix check
-  if (true == IsRowMatrix(m)) {
+  else if (true == IsRowMatrix(m)) {
     result |= MatrixSpl::ROW_MAT;
   }
   // Column matrix check
-  if (true == IsRowMatrix(m)) {
+  else if (true == IsColMatrix(m)) {
     result |= MatrixSpl::COL_MAT;
-  }
+  } 
+  // If none of special type
+  else {
+  result = -1;
+  }  
   return result;
 }
+*/
 
 // Matrix evaluation
 Matrix<Type> &Eval(Matrix<Expression> &Mexp) {
@@ -162,10 +163,12 @@ Matrix<Type>& DevalF(Matrix<Expression>& Mexp, const Matrix<Variable>& X) {
   for(size_t i{}; i < xrows; ++i) {
     for(size_t j{}; j < xcols; ++j) {
       // Obtain derivative w.r.t X(i,j)
-      auto& Df = DevalF(Mexp, X(i,j));    
-      for(size_t l{}; l < mrows; ++l) {
-        for(size_t m{}; m < mcols; ++m) {
-          dres(l*xrows + i, m*xcols + j) = Df(l,m);
+      auto& Df = DevalF(Mexp, X(i,j)); 
+      if(!((Df.getMatType() == MatrixSpl::ZEROS) || (Df.getMatType() == MatrixSpl::EYE))) {
+        for(size_t l{}; l < mrows; ++l) {
+          for(size_t m{}; m < mcols; ++m) {
+            dres(l*xrows + i, m*xcols + j) = Df(l,m);
+          }
         }
       }
     }

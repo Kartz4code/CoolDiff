@@ -62,7 +62,7 @@ private:
       return (Type)(val);
     }
   }
-
+  
   // Get derivative value
   inline constexpr Type getdValue(T &val, const Variable &var) const {
     // If T is of type Variable
@@ -76,7 +76,8 @@ private:
       return (Type)(0);
     }
   }
-
+  
+  // Set values for the result matrix
   inline void setEval() {
     // Set result matrix
     if constexpr (false == std::is_same_v<T, Type>) {
@@ -92,7 +93,8 @@ private:
       }
     } 
   }
-
+  
+  // Set value for the derivative result matrix
   inline void setDevalF(const Variable& var) {
     // Set derivative result matrix
     if constexpr (!(true == std::is_same_v<T, Type> || 
@@ -119,8 +121,7 @@ public:
   // Matrix pointer for forward derivative (Type)
   Matrix<Type> *mp_dresult{nullptr};
   // Boolean to verify evaluation/forward derivative values
-  bool m_eval{false};
-  bool m_devalf{false};
+  bool m_eval{false}, m_devalf{false};
   // Block index
   size_t m_nidx{};
 
@@ -229,15 +230,6 @@ public:
     // Copy values
     std::copy(EXECUTION_PAR 
               m.mp_mat, m.mp_mat + getNumElem(), mp_mat);
-
-    // Clone mp_result
-    if (nullptr != m.mp_result) {
-      mp_result = m.mp_result->clone();
-    }
-    // Clone mp_dresult
-    if (nullptr != m.mp_dresult) {
-      mp_dresult = m.mp_dresult->clone();
-    }
   }
 
   // Copy assignment operator
@@ -264,39 +256,15 @@ public:
       if (nullptr != mp_result) {
         delete[] mp_result;
       }
-      if (nullptr != m.mp_result) {
-        mp_result = m.mp_result->clone();
-      }
-
       // Copy and clone mp_dresult
       if (nullptr != mp_dresult) {
         delete[] mp_dresult;
       }
-      if (nullptr != m.mp_dresult) {
-        mp_dresult = m.mp_dresult->clone();
-      }
+
     }
 
     // Return this reference
     return *this;
-  }
-
-  // For cloning numerical values for copy constructors
-  inline Matrix<Type> *clone() const {
-    Matrix<Type> *result = CreateMatrixPtr<Type>(m_rows, m_cols);
-    if (nullptr != result->mp_mat) {
-      std::copy(EXECUTION_PAR 
-                mp_mat, mp_mat + getNumElem(), result->mp_mat);
-    }
-    return result;
-  }
-
-  // Reshape matrix (rows and columns)
-  void reshape(size_t rows, size_t cols) {
-    assert((rows * cols == getNumElem()) && "[ERROR] Matrix resize operation invalid");
-    // Assign new rows and cols
-    m_rows = rows;
-    m_cols = cols;
   }
 
   // Get matrix pointer const
@@ -511,8 +479,7 @@ public:
     if (true == this->m_visited) {
       this->m_visited = false;
       // Reset states
-      m_eval = false; 
-      m_devalf = false;
+      m_eval = false; m_devalf = false;
       std::for_each(EXECUTION_SEQ 
                     m_gh_vec.begin(), m_gh_vec.end(), 
                     [](auto* item) {    
@@ -529,8 +496,7 @@ public:
   inline void resetImpl() {
     this->m_visited = true;
     // Reset states
-    m_eval = false; 
-    m_devalf = false;
+    m_eval = false; m_devalf = false;
     std::for_each(EXECUTION_SEQ 
                   m_gh_vec.begin(), m_gh_vec.end(), 
                   [](auto* item) {    
@@ -549,10 +515,16 @@ public:
 
   // To output stream
   friend std::ostream &operator<<(std::ostream &os, Matrix &mat) {
-    for (size_t i{}; i < mat.getNumElem(); ++i) {
-      os << mat.getValue(mat.mp_mat[i]) << " ";
+    if(mat.getMatType() == MatrixSpl::ZEROS) {
+      os << "Zero matrix of dimension: " << "(" << mat.getFinalNumRows() << "," << mat.getFinalNumColumns() << ")\n";
+    } else if(mat.getMatType() == MatrixSpl::EYE) {
+      os << "Identity matrix of dimension: " << "(" << mat.getFinalNumRows() << "," << mat.getFinalNumColumns() << ")\n";
+    } else {
+      for (size_t i{}; i < mat.getNumElem(); ++i) {
+        os << mat.getValue(mat.mp_mat[i]) << " ";
+      }
+      os << "\n";
     }
-    os << "\n";
     return os;
   }
 
