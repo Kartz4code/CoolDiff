@@ -22,9 +22,8 @@
 #include "CoolDiff.hpp"
 #include "CommonMatFunctions.hpp"
 
-
 void func() {
-  std::vector<Variable> X(10);
+  Vector<Variable> X(10);
   std::fill(X.begin(), X.end(), 1.3);
   Expression y = sin(X[1])*X[0]/cos(X[2]*X[3])*X[4]*pow(X[5],2) + pow(2,X[6])/(X[7]*X[8]*X[9]);
   //y = y + 1;
@@ -48,8 +47,72 @@ void func() {
   std::cout << "Time difference (Parallel) = " << std::chrono::duration_cast<std::chrono::milliseconds>(end2 - begin2).count() << "[ms]\n";
 }
 
+
+void func2() {
+  Matrix<Variable> x(2, 2);
+  x(0,0) = 1;  x(0,1) = 5;
+  x(1,0) = 3;  x(1,1) = 20;
+
+  Matrix<Type> m = CreateMatrix<Type>(2, 2);
+  m(0, 0) = 1; m(0, 1) = 0;
+  m(1, 0) = 0; m(1, 1) = 1;
+
+  Matrix<Expression> x2(2,2);
+  x2(0,0) = x(0,0) + x(1,1);   x2(0,1) = x(0,0) - x(1,1);
+  x2(1,0) = x(1,0) + x(1,0);   x2(1,1) = x(0,0) + x(1,1) + x(0,1) + x(1,0);
+
+  Matrix<Expression> sum = m*x2;
+  sum = sum*x + x; 
+
+  std::cout << Eval(sum) << "\n";
+  std::cout << DevalF(sum,x) << "\n";
+  std::cout << DevalF(sum,x) << "\n";
+
+
+  /*x(1,1) = 15;
+
+  std::cout << Eval(sum) << "\n";
+  std::cout << DevalF(sum,x) << "\n";*/
+}
+
+void func3() {
+  Matrix<Variable> x(2, 2);
+  x(0,0) = 0;  x(0,1) = 0;
+  x(1,0) = 0;  x(1,1) = 0;
+
+  Matrix<Type> m = CreateMatrix<Type>(2, 2);
+  m(0, 0) = 1; m(0, 1) = 2;
+  m(1, 0) = 3; m(1, 1) = 4;
+
+  Matrix<Expression> x2(2,2);
+  x2(0,0) = x(0,0) + x(1,1);   x2(0,1) = x(0,0) - x(1,1);
+  x2(1,0) = x(1,0) + x(1,0);   x2(1,1) = x(0,0) + x(1,1) + x(0,1) + x(1,0);
+
+  Matrix<Expression> sum = m + m;
+  sum = sum + x; 
+
+  std::cout << *(sum.devalMatF(x)) << "\n\n";
+}
+
+void func4() {
+    Matrix<Type> m = CreateMatrix<Type>(2, 2);
+    m(0, 0) = 1; m(0, 1) = 0;
+    m(1, 0) = 0; m(1, 1) = 1;
+
+    Matrix<Type> res(2,2);
+    Matrix<Type>* res2 = &res; 
+
+    MatrixScalarMul(&m, 2, res2);
+
+    std::cout << res << "\n";
+
+}
+
 int main(int argc, char **argv) {
   //func();
+  func2();
+  func3();
+  func4();
 
   Matrix<Variable> x(2, 1);
   x(0, 0) = 2;
@@ -85,6 +148,6 @@ int main(int argc, char **argv) {
   std::cout << Eval(sum) << "\n";
   std::cout << DevalF(sum,x) << "\n";
   std::cout << DevalF(sum,x) << "\n";
-
+  
   return 0;
 }

@@ -39,7 +39,7 @@ private:
   mutable size_t m_rows{0};
   mutable size_t m_cols{0};
 
-  // Type of matrix
+  // Type of matrix (Special matrices)
   size_t m_type{(size_t)(-1)};
 
   // Collection of meta variable expressions
@@ -94,7 +94,7 @@ private:
     } 
   }
   
-  // Set value for the derivative result matrix
+  // Set value for the derivative result matrix (Scalar)
   inline void setDevalF(const Variable& var) {
     // Set derivative result matrix
     if constexpr (!(true == std::is_same_v<T, Type> || 
@@ -107,14 +107,83 @@ private:
                        mp_dresult->mp_mat,
                        [&var,this](auto &v) { 
                           return getdValue(v, var); 
-                      });
+        });
       }
     }
   }
 
+  // Set value for the derivative result matrix (Matrix)
+  inline void setDevalF(const Matrix<Variable>& X) {
+    // If the matrix type is Expression
+    if constexpr(true == std::is_same_v<T, Expression>) {
+      if((nullptr != mp_mat) && 
+         (nullptr != mp_dresult) && 
+         (nullptr != mp_dresult->mp_mat)) {
+          // Precompute the reverse derivatives
+          std::for_each(EXECUTION_SEQ 
+                        mp_mat, mp_mat + getNumElem(), 
+                        [](auto& i) { 
+                          PreComp(i); 
+          });
+
+          // Vector of indices in current matrix
+          Vector<size_t> elemM(getNumElem());
+          std::iota(elemM.begin(), elemM.end(), 0); 
+
+          // Vector of indices in X matrix
+          Vector<size_t> elemX(X.getNumElem());
+          std::iota(elemX.begin(), elemX.end(), 0);
+
+          // Get dimensions of X variable matrix 
+          const size_t xrows = X.getNumRows();
+          const size_t xcols = X.getNumColumns();
+
+          // Logic for Kronecker product
+          std::for_each(EXECUTION_PAR 
+                        elemM.begin(), elemM.end(), 
+                        [this, &X, &elemX, xrows, xcols](const size_t i) {
+                          const size_t k = i%m_cols;
+                          const size_t l = (i - k)/m_cols;
+
+                          // Inner loop
+                          std::for_each(EXECUTION_PAR 
+                                        elemX.begin(), elemX.end(),
+                                        [&](const size_t n) {
+                                          const size_t j = n%xcols;  
+                                          const size_t i = (n-j)/xcols;
+                                          (*mp_dresult)(l*xrows + i, k*xcols + j) = DevalR((*this)(l,k), X(i,j));
+                          });
+          });
+      }
+    } else if constexpr (true == std::is_same_v<T, Variable>) {
+      if((nullptr != mp_mat) && 
+         (nullptr != mp_dresult) && 
+         (nullptr != mp_dresult->mp_mat) && 
+         (m_nidx == X.m_nidx)) {
+          // Get dimensions of X variable matrix 
+          const size_t xrows = X.getNumRows();
+          const size_t xcols = X.getNumColumns();
+
+          // Vector of indices in X matrix
+          Vector<size_t> elemX(X.getNumElem());
+          std::iota(elemX.begin(), elemX.end(), 0);
+
+          // Logic for Kronecker product (With ones)
+          std::for_each(EXECUTION_PAR 
+                elemX.begin(), elemX.end(), 
+                [this, xrows, xcols](const size_t n) {
+                  const size_t j = n%xcols;
+                  const size_t i = (n-j)/xcols;
+                  // Inner loop
+                  (*mp_dresult)(i*xrows + i, j*xcols + j) = (Type)(1);
+          });
+      }
+    }
+  }
+
+
 public:
-  // Matrix raw pointer of underlying type (Expression, Variable, Parameter,
-  // Type)
+  // Matrix raw pointer of underlying type (Expression, Variable, Parameter, Type)
   T *mp_mat{nullptr};
   // Matrix pointer for evaluation result (Type)
   Matrix<Type> *mp_result{nullptr};
@@ -279,33 +348,33 @@ public:
 
   // Matrix 2D access using operator()()
   T &operator()(const size_t i, const size_t j) {
-    assert((i >= 0 && i < m_rows) && "[ERROR] Row index out of bound");
-    assert((j >= 0 && j < m_cols) && "[ERROR] Column index out of bound");
+    ASSERT((i >= 0 && i < m_rows), "Row index out of bound");
+    ASSERT((j >= 0 && j < m_cols), "Column index out of bound");
     return mp_mat[i * m_cols + j];
   }
 
   // Matrix 2D access using operator()() const
   const T &operator()(const size_t i, const size_t j) const {
-    assert((i >= 0 && i < m_rows) && "[ERROR] Row index out of bound");
-    assert((j >= 0 && j < m_cols) && "[ERROR] Column index out of bound");
+    ASSERT((i >= 0 && i < m_rows), "Row index out of bound");
+    ASSERT((j >= 0 && j < m_cols), "Column index out of bound");
     return mp_mat[i * m_cols + j];
   }
 
   // Matrix 1D access using operator[]
   T &operator[](const size_t l) {
-    assert((l >= 0 && l < getNumElem()) && "[ERROR] Index out of bound");
+    ASSERT((l >= 0 && l < getNumElem()), "Index out of bound");
     return mp_mat[l];
   }
 
   // Matrix 1D access using operator[] const
   const T &operator[](const size_t l) const {
-    assert((l >= 0 && l < getNumElem()) && "[ERROR] Index out of bound");
+    ASSERT((l >= 0 && l < getNumElem()), "Index out of bound");
     return mp_mat[l];
   }
 
   // Get a row (Move)
   Matrix getRow(const size_t &i) && {
-    assert((i >= 0 && i < m_rows) && "[ERROR] Row index out of bound");
+    ASSERT((i >= 0 && i < m_rows), "Row index out of bound");
     Matrix tmp(m_cols, 1);
     std::copy(EXECUTION_PAR 
               mp_mat + (i * m_cols),
@@ -315,7 +384,7 @@ public:
 
   // Get a row (Copy)
   Matrix getRow(const size_t &i) const & {
-    assert((i >= 0 && i < m_rows) && "[ERROR] Row index out of bound");
+    ASSERT((i >= 0 && i < m_rows), "Row index out of bound");
     Matrix tmp(m_cols, 1);
     std::copy(EXECUTION_PAR 
               mp_mat + (i * m_cols),
@@ -325,28 +394,46 @@ public:
 
   // Get a column (Move)
   Matrix getColumn(const size_t &i) && {
-    assert((i >= 0 && i < m_cols) && "[ERROR] Column index out of bound");
+    ASSERT((i >= 0 && i < m_cols), "Column index out of bound");
     Matrix tmp(m_rows, 1);
-    for (size_t j{}; j < m_rows; ++j) {
-      tmp.mp_mat[j] = mp_mat[j * m_rows + i];
-    }
+    
+    // Iteration elements
+    Vector<size_t> elemM(m_rows); 
+    std::iota(elemM.begin(), elemM.end(), 0);
+    
+    // For each execution
+    std::for_each(EXECUTION_PAR 
+                  elemM.begin(), elemM.end(), 
+                  [this, &tmp](const size_t n) {
+                    const size_t j = n%m_cols;     
+                    const size_t i = (n-j)/m_cols;
+                    tmp.mp_mat[j] = mp_mat[j * m_rows + i];
+                });
+    
     return std::move(tmp);
   }
 
   // Get a column (copy)
   Matrix getColumn(const size_t &i) const & {
-    assert((i >= 0 && i < m_cols) && "[ERROR] Column index out of bound");
+    ASSERT((i >= 0 && i < m_cols), "Column index out of bound");
     Matrix tmp(m_rows, 1);
-    for (size_t j{}; j < m_rows; ++j) {
-      tmp.mp_mat[j] = mp_mat[j * m_rows + i];
-    }
+
+    // Iteration elements
+    Vector<size_t> elemM(m_rows); 
+    std::iota(elemM.begin(), elemM.end(), 0);
+    
+    // For each execution
+    std::for_each(EXECUTION_PAR 
+                  elemM.begin(), elemM.end(), 
+                  [this, &tmp](const size_t n) {
+                    const size_t j = n%m_cols;
+                    const size_t i = (n-j)/m_cols;
+                    tmp.mp_mat[j] = mp_mat[j * m_rows + i];
+                });
+
     return tmp;
   }
 
-  // Get total elements
-  size_t getNumElem() const { 
-    return (m_rows * m_cols); 
-  }
 
   // Get number of rows
   V_OVERRIDE( size_t getNumRows() const ) { 
@@ -358,7 +445,12 @@ public:
     return m_cols; 
   }
 
-  // Get final number of rows
+  // Get total elements
+  size_t getNumElem() const { 
+    return (m_rows * m_cols); 
+  }
+
+  // Get final number of rows (Expression)
   size_t getFinalNumRows() const {
     size_t rows{};
     if constexpr(std::is_same_v<T, Expression>) {
@@ -373,6 +465,7 @@ public:
     return rows;
   }
 
+  // Get final number of columns (Expression)
   size_t getFinalNumColumns() const {
     size_t cols{}; 
     if constexpr(std::is_same_v<T, Expression>) {
@@ -385,6 +478,11 @@ public:
       cols = getNumColumns();
     }
     return cols;
+  }
+
+  // Get total final number of elements
+  size_t getFinalNumElem() const {
+    return  getFinalNumRows()*getFinalNumColumns();
   }
 
   // Get type of matrix
@@ -474,12 +572,55 @@ public:
     return mp_dresult;
   }
 
+  V_OVERRIDE( Matrix<Type>* devalMatF(Matrix<Variable>& X) ) {
+    // Derivative result computation
+    if (nullptr == mp_dresult) {
+      const size_t xrows = X.getNumRows();
+      const size_t xcols = X.getNumColumns();
+      if constexpr (true == std::is_same_v<T, Type> || 
+                    true == std::is_same_v<T, Parameter>) {
+        mp_dresult = CreateMatrixPtr<Type>(m_rows*xrows, m_cols*xcols, MatrixSpl::ZEROS);
+      } else {
+        mp_dresult = CreateMatrixPtr<Type>(m_rows*xrows, m_cols*xcols);     
+      }
+    }
+
+    // If derivative not evaluated, compute it again
+    if(false == m_devalf) {
+      setDevalF(X); 
+      m_devalf = true;
+    }
+
+    // If visited already
+    if (false == this->m_visited) {  
+      // Set visit flag to true
+      this->m_visited = true;
+      // Loop on internal equations
+      std::for_each(EXECUTION_SEQ 
+                    m_gh_vec.begin(), m_gh_vec.end(), 
+                    [this,&X](auto* i) {
+                      if(nullptr != i) {
+                        mp_dresult = i->devalMatF(X); 
+                        m_devalf = true;
+                        mp_result = i->eval(); 
+                        m_eval = true;
+                      }
+                    });  
+    }
+
+    // Return derivative result
+    return mp_dresult;
+  }
+
   // Reset all visited flags
   V_OVERRIDE(void reset()) {
     if (true == this->m_visited) {
       this->m_visited = false;
       // Reset states
-      m_eval = false; m_devalf = false;
+      m_eval = false; 
+      m_devalf = false;
+      
+      // For each element
       std::for_each(EXECUTION_SEQ 
                     m_gh_vec.begin(), m_gh_vec.end(), 
                     [](auto* item) {    
@@ -496,7 +637,10 @@ public:
   inline void resetImpl() {
     this->m_visited = true;
     // Reset states
-    m_eval = false; m_devalf = false;
+    m_eval = false; 
+    m_devalf = false;
+
+    // For each element
     std::for_each(EXECUTION_SEQ 
                   m_gh_vec.begin(), m_gh_vec.end(), 
                   [](auto* item) {    
@@ -507,12 +651,10 @@ public:
                   
     this->m_visited = false;
   }
-  
   // Get type
   V_OVERRIDE(std::string_view getType() const) { 
     return "Matrix"; 
   }
-
   // To output stream
   friend std::ostream &operator<<(std::ostream &os, Matrix &mat) {
     if(mat.getMatType() == MatrixSpl::ZEROS) {
@@ -520,14 +662,15 @@ public:
     } else if(mat.getMatType() == MatrixSpl::EYE) {
       os << "Identity matrix of dimension: " << "(" << mat.getFinalNumRows() << "," << mat.getFinalNumColumns() << ")\n";
     } else {
-      for (size_t i{}; i < mat.getNumElem(); ++i) {
-        os << mat.getValue(mat.mp_mat[i]) << " ";
-      }
+      std::for_each(EXECUTION_SEQ 
+                    mat.mp_mat, mat.mp_mat + mat.getNumElem(), 
+                    [&](auto& item) {
+                      os << mat.getValue(item) << " ";
+                    });
       os << "\n";
     }
     return os;
   }
-
   // Destructor
   V_DTR(~Matrix()) {
     // If mp_mat is not nullptr, delete it

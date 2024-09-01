@@ -54,6 +54,7 @@ private:
   }
 
 public:
+
   // Result
   Matrix<Type> *mp_result{nullptr};
   // Derivative result
@@ -108,14 +109,14 @@ public:
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type> *eval()) {
       // Check whether dimensions are correct
-      assert(verifyDim() && "[ERROR] Matrix-Matrix addition dimensions mismatch");
+      ASSERT(verifyDim(), "Matrix-Matrix addition dimensions mismatch");
 
       // Get raw pointers to result, left and right matrices
       Matrix<Type>* left_mat = mp_left->eval();
       Matrix<Type>* right_mat = mp_right->eval();
 
       // Matrix-Matrix addition computation (Policy design)
-      std::get<Op::ADD>(m_caller)(left_mat, right_mat, mp_result);
+      std::get<OpMat::ADD_MAT>(m_caller)(left_mat, right_mat, mp_result);
 
       // Return result pointer
       return mp_result;
@@ -124,14 +125,30 @@ public:
   // Matrix devalF computation
   V_OVERRIDE(Matrix<Type> *devalF(const Variable &x)) {
       // Check whether dimensions are correct
-      assert(verifyDim() && "[ERROR] Matrix-Matrix addition dimensions mismatch");
+      ASSERT(verifyDim(), "Matrix-Matrix addition dimensions mismatch");
 
       // Left and right matrices
       Matrix<Type>* dleft_mat = mp_left->devalF(x);
       Matrix<Type>* dright_mat = mp_right->devalF(x);
 
       // Matrix-Matrix derivative addition computation (Policy design)
-      std::get<Op::ADD>(m_caller)(dleft_mat, dright_mat, mp_dresult);
+      std::get<OpMat::ADD_MAT>(m_caller)(dleft_mat, dright_mat, mp_dresult);
+
+      // Return result pointer
+      return mp_dresult;
+  }
+
+    // Matrix devalF computation
+  V_OVERRIDE(Matrix<Type> *devalMatF(Matrix<Variable> &X)) {
+      // Check whether dimensions are correct
+      ASSERT(verifyDim(), "Matrix-Matrix addition dimensions mismatch");
+
+      // Left and right matrices
+      Matrix<Type>* dleft_mat = mp_left->devalMatF(X);
+      Matrix<Type>* dright_mat = mp_right->devalMatF(X);
+
+      // Matrix-Matrix derivative addition computation (Policy design)
+      std::get<OpMat::ADD_MAT>(m_caller)(dleft_mat, dright_mat, mp_dresult);
 
       // Return result pointer
       return mp_dresult;

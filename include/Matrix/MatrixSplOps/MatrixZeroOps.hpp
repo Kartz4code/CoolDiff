@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/MatOperators.hpp
+ * @file include/Matrix/MatrixSplOps/MatrixZeroOps.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,15 +19,19 @@
  * associated repository.
  */
 
-#pragma once
+#pragma once 
 
 #include "CommonHeader.hpp"
 
-// Matrix-Matrix addition - Left, Right, Result matrix pointer
-void MatrixAdd(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&);
+// Is the matrix zero?
+bool IsZeroMatrix(Matrix<Type>*);
 
-// Matrix-Matrix multiplication - Left, Right, Result matrix pointer
-void MatrixMul(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&);
+// Zero matrix addition checks
+Matrix<Type>* ZeroMatAdd(Matrix<Type>*, Matrix<Type>*);
+// Zero matrix multiplication checks
+Matrix<Type>* ZeroMatMul(Matrix<Type>*, Matrix<Type>*);
 
-// Matrix-scalar multiplication 
-void MatrixScalarMul(Matrix<Type>*, Type, Matrix<Type>*&);
+// Zero matrix addition numerical checks
+Matrix<Type>* ZeroMatAddNum(Matrix<Type>*, Matrix<Type>*);
+// Zero matrix multiplication numerical checks
+Matrix<Type>* ZeroMatMulNum(Matrix<Type>*, Matrix<Type>*);

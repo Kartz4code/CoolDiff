@@ -23,6 +23,7 @@
 
 #include "Parameter.hpp"
 #include "Variable.hpp"
+#include "GenericProduct.hpp"
 
 class Expression : public Variable {
 private:
@@ -37,7 +38,11 @@ public:
     // Reserve a buffer of expressions
     Variable::m_gh_vec.reserve(g_vec_init);
     // Emplace the expression in a generic holder
-    Variable::m_gh_vec.emplace_back(&static_cast<const T &>(expr));
+    if constexpr(true == std::is_same_v<T,Expression>) {
+      Variable::m_gh_vec.emplace_back(&expr);
+    } else {
+      Variable::m_gh_vec.emplace_back(&(expr*1));
+    }
   }
 
   /* Copy assignment for expression evaluation - e.g.Variable x = x1 + x2 + x3;
@@ -50,7 +55,11 @@ public:
       m_recursive_exp = rec;
     }
     // Emplace the expression in a generic holder
-    Variable::m_gh_vec.emplace_back(&static_cast<const T &>(expr));
+    if constexpr(true == std::is_same_v<T,Expression>) {
+      Variable::m_gh_vec.emplace_back(&expr);
+    } else {
+      Variable::m_gh_vec.emplace_back(&(expr*1));
+    }
     return *this;
   }
 

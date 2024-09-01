@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/MatrixSplOps.hpp
+ * @file src/Matrix/MatrixHandler/MatrixHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -23,24 +23,21 @@
 
 #include "CommonHeader.hpp"
 
-// Is the matrix zero?
-bool IsZeroMatrix(Matrix<Type>*);
-// Is the matrix identity?
-bool IsEyeMatrix(Matrix<Type>*);
+// Matrix handler for different types
+class MatrixHandler {
+    private:
+        MatrixHandler* mp_handler{nullptr};
 
+    public:
+        // Constructors
+        constexpr MatrixHandler() = default;
+        constexpr MatrixHandler(MatrixHandler* h) : mp_handler{h} {}
 
-// Zero matrix addition checks
-Matrix<Type>* ZeroMatAdd(Matrix<Type>*, Matrix<Type>*);
-// Zero matrix multiplication checks
-Matrix<Type>* ZeroMatMul(Matrix<Type>*, Matrix<Type>*);
-// Eye matrix multiplication checks
-Matrix<Type>* EyeMatMul(Matrix<Type>*, Matrix<Type>*);
+        V_PURE(void handle(Matrix<Type>*, 
+                           Matrix<Type>*, 
+                           Matrix<Type>*&));
 
-
-// Zero matrix addition numerical checks
-Matrix<Type>* ZeroMatAddNum(Matrix<Type>*, Matrix<Type>*);
-// Zero matrix multiplication numerical checks
-Matrix<Type>* ZeroMatMulNum(Matrix<Type>*, Matrix<Type>*);
-// Eye matrix multiplication numerical checks
-Matrix<Type>* EyeMatMulNum(Matrix<Type>*, Matrix<Type>*);
+        // Destructor
+        V_DTR(~MatrixHandler() = default);
+};
 

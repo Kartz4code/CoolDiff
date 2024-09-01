@@ -22,95 +22,98 @@
 #include "MatOperators.hpp"
 #include "Matrix.hpp"
 
-#include "MatrixSplOps.hpp"
+#include "MatrixZeroOps.hpp"
+#include "MatrixEyeOps.hpp"
 
-// Non nullptr correctness
-void CheckNull(void* lhs, void* rhs) {
-    assert(lhs != nullptr && "[ERROR] Left matrix is a nullptr");
-    assert(rhs != nullptr && "[ERROR] Right matrix is a nullptr");
-}
+#include "ZeroMatAddHandler.hpp"
+#include "EyeMatAddHandler.hpp"
+#include "ZeroMatMulHandler.hpp"
+#include "EyeMatMulHandler.hpp"
+
+#include "MatAddNaiveHandler.hpp"
+#include "MatMulNaiveHandler.hpp"
 
 // Matrix-Matrix addition - Left, Right, Result matrix pointer
 void MatrixAdd(Matrix<Type>* lhs, Matrix<Type>* rhs, Matrix<Type>*& result) {
-    // Assert for non-null pointers 
-    CheckNull(lhs, rhs);
-    // Zero matrix addition check
-    if(auto* it = ZeroMatAdd(lhs, rhs); nullptr != it) {
-        result = it;
+  // Null pointer check
+  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+
+  /* Chain of responsibility (Order matters)
+      1) Zero matrix check
+      2) Eye matrix check 
+      3) Matrix-Matrix addition
+  */
+
+  MatAddNaiveHandler h1; 
+  ZeroMatAddHandler h2{&h1};
+  EyeMatAddHandler h3{&h2};
+
+  // Handle matrix addition
+  h3.handle(lhs, rhs, result);
+}
+
+// Matrix-Matrix multiplication - Left, Right, Result matrix pointer
+void MatrixMul(Matrix<Type>* lhs, Matrix<Type>* rhs, Matrix<Type>*& result) {
+    // Null pointer check
+    NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
+    NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+   
+    /* Chain of responsibility (Order matters)
+        1) Zero matrix check
+        2) Eye matrix check 
+        3) Matrix-Matrix multiplication
+    */
+    MatMulNaiveHandler h1;
+    ZeroMatMulHandler h2{&h1};
+    EyeMatMulHandler h3{&h2};
+
+    // Handle matrix addition
+    h3.handle(lhs, rhs, result);
+}
+
+// Matrix-scalar multiplication 
+void MatrixScalarMul(Matrix<Type>* mat, Type val, Matrix<Type>*& result) {
+    // Null pointer check
+    NULL_CHECK(mat, "Matrix (mat) is a nullptr");
+
+    // Is the matrix zero
+    if(mat->getMatType() == MatrixSpl::ZEROS) {
+        result = mat;
     } else {
         // Rows and columns of result matrix
-        const size_t nrows{lhs->getNumRows()};
-        const size_t ncols{rhs->getNumColumns()};    
+        const size_t nrows{mat->getNumRows()};
+        const size_t ncols{mat->getNumColumns()};    
 
         // If mp_result is nullptr, then create a new resource
         if (nullptr == result) {
             result = CreateMatrixPtr<Type>(nrows, ncols);
         }
 
-       // Check numerically for lhs-rhs product is zero
-        if(auto* it = ZeroMatAddNum(lhs, rhs); nullptr != it) {
-            *result = *it;
-        } else { 
-        // Get raw pointers to result, left and right matrices
-        Type *res = result->getMatrixPtr();
-        Type *left = lhs->getMatrixPtr();
-        Type *right = rhs->getMatrixPtr();   
-
-        const size_t size{nrows*ncols};
-        std::transform(EXECUTION_PAR 
-                       left, left + size,
-                       right, res, 
-                       [](const Type a, const Type b) { 
-                            return a + b; 
-                      });
-        }
-    }
-}
-
-// Matrix-Matrix multiplication - Left, Right, Result matrix pointer
-void MatrixMul(Matrix<Type>* lhs, Matrix<Type>* rhs, Matrix<Type>*& result) {
-    // Assert for non-null pointers 
-    CheckNull(lhs, rhs);
-    // Zero matrix multiplication check
-    if(auto* it = ZeroMatMul(lhs, rhs); nullptr != it) {
-        result = it; 
-    } else if(auto* it = EyeMatMul(lhs,rhs); nullptr != it) {
-        result = it;
-    }
-    else {
-        const size_t lrows = lhs->getNumRows();
-        const size_t rcols = rhs->getNumColumns();
-        const size_t rrows = rhs->getNumRows();
-
-        // If mp_result is nullptr, then create a new resource
-        if (nullptr == result) {
-            result = CreateMatrixPtr<Type>(lrows, rcols);
-        }
-
-        // Check numerically for lhs-rhs product is identity
-        if(auto* it = EyeMatMulNum(lhs, rhs); nullptr != it) {
-            *result = *it;
-            return;
-        } else if (auto* it = ZeroMatMulNum(lhs, rhs); nullptr != it) { 
+        // Check for zero matrix
+        if(true == IsZeroMatrix(mat)) {
             return;
         }
-        else {
-            // Get raw pointers to result, left and right matrices
-            Matrix<Type>& res = *result;
-            Matrix<Type>& left = *lhs;
-            Matrix<Type>& right = *rhs;   
-            
-            // Naive matrix-matrix multiplication
-            Type tmp{};
-            for(size_t i{}; i < lrows; ++i) {
-                for(size_t j{}; j < rcols; ++j) {
-                    for(size_t k{}; k < rrows; ++k) {
-                        tmp += left(i,k)*right(k,j);
-                    }
-                    res(i,j) = tmp;
-                    tmp = (Type)(0);
-                }
-            }    
-        }
+        // Check for identity matrix 
+        else if(true == IsEyeMatrix(mat)) {
+            // Element list
+            Vector<size_t> elem(nrows); 
+            std::iota(elem.begin(), elem.end(), 0); 
+            // For each element
+            std::for_each(EXECUTION_PAR 
+                            elem.begin(), elem.end(), 
+                            [&mat, &result, val](const size_t i) {
+                            (*result)(i,i) = (*mat)(i,i)*val;
+                        });
+        } else {
+            const size_t size{nrows*ncols};
+            Type* matptr = mat->getMatrixPtr();
+            Type* resptr = result->getMatrixPtr();
+            std::transform(EXECUTION_PAR 
+                            matptr, matptr + size, resptr, 
+                            [val](const Type a) { 
+                                return a*val; 
+                            });
+        }   
     }
 }

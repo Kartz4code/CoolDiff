@@ -93,25 +93,19 @@ Matrix<Expression> &JacobSym(Expression &, const Vector<Variable> &);
 
 // Hessian forward mode
 Matrix<Type> &HessF(Expression &, const Vector<Variable> &);
-
 // Hessian reverse mode
 Matrix<Type> &HessR(Expression &, const Vector<Variable> &);
-
 // Hessian of expression
-Matrix<Type> &Hess(Expression &, const Vector<Variable> &,
-                   ADMode = ADMode::REVERSE);
+Matrix<Type> &Hess(Expression &, const Vector<Variable> &, ADMode = ADMode::REVERSE);
 
 // Symbolic Hessian of expression
 Matrix<Expression> &HessSym(Expression &, const Vector<Variable> &);
-
-
 
 // Symbolic Expression (Matrix)
 Matrix<Expression> &SymMatDiff(Expression &, const Matrix<Variable> &);
 
 // Create new expression
-template <typename T,
-          typename = std::enable_if_t<std::is_base_of_v<MetaVariable, T>>>
+template <typename T, typename = std::enable_if_t<std::is_base_of_v<MetaVariable, T>>>
 Expression &CreateExpr(const T &exp) {
   auto tmp = Allocate<Expression>(exp);
   return *tmp;

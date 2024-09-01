@@ -72,7 +72,32 @@ protected:
     mp_left->reset();                                                          \
   }
 
-// Policy based design
+// Operations enum [Order matters!]
+enum Op : size_t {
+  ADD = 0,
+  MUL,
+  SUB,
+  DIV,
+  POW,
+  SIN,
+  COS,
+  TAN,
+  SINH,
+  COSH,
+  TANH,
+  ASIN,
+  ACOS,
+  ATAN,
+  ASINH,
+  ACOSH,
+  ATANH,
+  SQRT,
+  EXP,
+  LOG,
+  COUNT
+};
+
+// Policy based design (Scalar doesn't need one, yet!)
 struct __XOXO__ {};
 #define OpType __XOXO__
 #define OpObj OpType()
