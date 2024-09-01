@@ -27,6 +27,7 @@
 #include <cmath>
 #include <functional>
 #include <future>
+#include <sstream>
 #include <iostream>
 #include <memory>
 #include <string_view>
@@ -198,31 +199,6 @@ template <typename T> using Future = std::future<T>;
 #define V_PURE(X) virtual X = 0
 #endif
 
-// Operations enum [Order matters!]
-enum Op : size_t {
-  ADD = 0,
-  MUL,
-  SUB,
-  DIV,
-  POW,
-  SIN,
-  COS,
-  TAN,
-  SINH,
-  COSH,
-  TANH,
-  ASIN,
-  ACOS,
-  ATAN,
-  ASINH,
-  ACOSH,
-  ATANH,
-  SQRT,
-  EXP,
-  LOG,
-  COUNT
-};
-
 // Enum classes
 // Automatic differentiation modes
 enum ADMode { FORWARD, REVERSE };
@@ -237,3 +213,12 @@ template <typename T> std::string ToString(const T &value) {
     return std::move(std::to_string(value));
   }
 }
+
+// Null pointer check
+#define NULL_CHECK(PTR, MSG) CheckNullPtr(PTR, MSG)
+// Check boolean 
+#define ASSERT(X, MSG) CheckAssertions(X,MSG);
+
+// Non nullptr correctness (Unary)
+void CheckNullPtr(void*, std::string_view = "");
+void CheckAssertions(bool, std::string_view = "");

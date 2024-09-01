@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/MatOperators.hpp
+ * @file include/Matrix/MatrixSplOps/MatrixEyeOps.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,15 +19,23 @@
  * associated repository.
  */
 
-#pragma once
+
+#pragma once 
 
 #include "CommonHeader.hpp"
 
-// Matrix-Matrix addition - Left, Right, Result matrix pointer
-void MatrixAdd(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&);
+// Is the matrix identity?
+bool IsEyeMatrix(Matrix<Type>*);
 
-// Matrix-Matrix multiplication - Left, Right, Result matrix pointer
-void MatrixMul(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&);
 
-// Matrix-scalar multiplication 
-void MatrixScalarMul(Matrix<Type>*, Type, Matrix<Type>*&);
+// Eye matrix addition checks
+Matrix<Type>* EyeMatAdd(Matrix<Type>*, Matrix<Type>*);
+// Eye matrix multiplication checks
+Matrix<Type>* EyeMatMul(Matrix<Type>*, Matrix<Type>*);
+
+// Eye matrix addition numerical checks
+Matrix<Type>* EyeMatAddNum(Matrix<Type>*, Matrix<Type>*);
+// Eye matrix multiplication numerical checks
+Matrix<Type>* EyeMatMulNum(Matrix<Type>*, Matrix<Type>*);
+
+

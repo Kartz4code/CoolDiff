@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/MatOperators.hpp
+ * @file src/Matrix/MatrixHandler/MatrixHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,15 +19,13 @@
  * associated repository.
  */
 
-#pragma once
+#include "MatrixHandler.hpp"
 
-#include "CommonHeader.hpp"
 
-// Matrix-Matrix addition - Left, Right, Result matrix pointer
-void MatrixAdd(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&);
-
-// Matrix-Matrix multiplication - Left, Right, Result matrix pointer
-void MatrixMul(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&);
-
-// Matrix-scalar multiplication 
-void MatrixScalarMul(Matrix<Type>*, Type, Matrix<Type>*&);
+void MatrixHandler::handle(Matrix<Type>* lhs, 
+                           Matrix<Type>* rhs, 
+                           Matrix<Type>*& result) {
+    if(nullptr != mp_handler) {
+        mp_handler->handle(lhs, rhs, result);
+    }
+}

@@ -113,14 +113,14 @@ public:
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type> *eval()) {
     // Check whether dimensions are correct
-    assert(verifyDim() && "[ERROR] Matrix-Matrix multiplication dimensions mismatch");
+    ASSERT(verifyDim(), "Matrix-Matrix multiplication dimensions mismatch");
 
     // Get raw pointers to result, left and right matrices
     Matrix<Type>* left_mat = mp_left->eval();
     Matrix<Type>* right_mat = mp_right->eval();
 
     // Matrix multiplication evaluation (Policy design)
-    std::get<Op::MUL>(m_caller)(left_mat, right_mat, mp_result);
+    std::get<OpMat::MUL_MAT>(m_caller)(left_mat, right_mat, mp_result);
     
     return mp_result; 
   }
@@ -128,7 +128,7 @@ public:
   // Matrix devalF computation
   V_OVERRIDE(Matrix<Type> *devalF(const Variable &x)) {
     // Check whether dimensions are correct 
-    assert(verifyDim() && "[ERROR] Matrix-Matrix multiplication dimensions mismatch");
+    ASSERT(verifyDim(), "Matrix-Matrix multiplication dimensions mismatch");
 
     // Left and right matrices derivatives
     Matrix<Type>* dleft_mat = mp_left->devalF(x);
@@ -139,9 +139,9 @@ public:
     Matrix<Type>* right_mat = mp_right->eval();
 
     // Matrix derivative evaluation (Policy design)
-    std::get<Op::MUL>(m_caller)(dleft_mat, right_mat, mp_dresult_l);
-    std::get<Op::MUL>(m_caller)(left_mat, dright_mat, mp_dresult_r);  
-    std::get<Op::ADD>(m_caller)(mp_dresult_l, mp_dresult_r, mp_dresult);
+    std::get<OpMat::MUL_MAT>(m_caller)(dleft_mat, right_mat, mp_dresult_l);
+    std::get<OpMat::MUL_MAT>(m_caller)(left_mat, dright_mat, mp_dresult_r);  
+    std::get<OpMat::ADD_MAT>(m_caller)(mp_dresult_l, mp_dresult_r, mp_dresult);
 
     // Return result pointer
     return mp_dresult;

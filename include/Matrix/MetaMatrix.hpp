@@ -40,11 +40,14 @@ public:
   // Forward derivative
   V_PURE(Matrix<Type> *devalF(const Variable &));
 
+  virtual Matrix<Type>* devalMatF(Matrix<Variable>&) {
+    return nullptr;
+  }
+
   // Get number of rows and columns
   V_PURE( size_t getNumRows() const );
 
   V_PURE( size_t getNumColumns() const );
-
 
   // Reset all visited flags
   V_PURE(void reset());

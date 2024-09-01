@@ -270,7 +270,7 @@ void Variable::traverse(OMPair *cache) {
                       // Set value
                       setValue(item->eval());
                       // Save cache
-                      m_cache = std::move(item->getCache());
+                      m_cache = item->getCache();
                     } 
                   });
   }

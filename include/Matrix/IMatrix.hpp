@@ -65,6 +65,13 @@ enum MatrixSpl : size_t {
   COL_MAT = 1 << 6
 };
 
+// Operations enum [Order matters!]
+enum OpMat : size_t {
+  ADD_MAT = 0,
+  MUL_MAT,
+  COUNT_MAT
+};
+
 // Operation type (Order matters!)
 #define OpMatType void (*)(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&),\
                   void (*)(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&)

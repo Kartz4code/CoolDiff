@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/MatOperators.hpp
+ * @file src/Matrix/MatrixHandler/EyeMatAddHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,15 +19,19 @@
  * associated repository.
  */
 
-#pragma once
 
-#include "CommonHeader.hpp"
+#pragma once 
 
-// Matrix-Matrix addition - Left, Right, Result matrix pointer
-void MatrixAdd(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&);
+#include "MatrixHandler.hpp"
 
-// Matrix-Matrix multiplication - Left, Right, Result matrix pointer
-void MatrixMul(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&);
+class EyeMatAddHandler : public MatrixHandler {
+    public:
+        using MatrixHandler::MatrixHandler; 
 
-// Matrix-scalar multiplication 
-void MatrixScalarMul(Matrix<Type>*, Type, Matrix<Type>*&);
+        V_OVERRIDE(void handle(Matrix<Type>*, 
+                               Matrix<Type>*, 
+                               Matrix<Type>*&));
+
+        // Destructor
+        V_DTR(~EyeMatAddHandler() = default);
+};

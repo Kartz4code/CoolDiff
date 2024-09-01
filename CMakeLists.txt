@@ -107,7 +107,15 @@ set(SRC
     ${CMAKE_SOURCE_DIR}/src/Scalar/CommonFunctions.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/CommonMatFunctions.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatOperators.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixSplOps.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixSplOps/MatrixZeroOps.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixSplOps/MatrixEyeOps.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/ZeroMatAddHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/EyeMatAddHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatAddNaiveHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatMulNaiveHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/ZeroMatMulHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/EyeMatMulHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/MemoryManager/MemoryManager.cpp
     ${CMAKE_SOURCE_DIR}/src/Scalar/Parameter.cpp)
 
@@ -119,6 +127,8 @@ set(INCLUDES
     ${CMAKE_SOURCE_DIR}/include/Scalar
     ${CMAKE_SOURCE_DIR}/include/Matrix
     ${CMAKE_SOURCE_DIR}/include/Matrix/BinaryOps
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixSplOps
     ${CMAKE_SOURCE_DIR}/include/MemoryManager
     ${CMAKE_BINARY_DIR}/_deps/robin-hood-hashing-src/src/include)
 
