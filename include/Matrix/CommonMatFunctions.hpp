@@ -46,9 +46,6 @@ size_t FindMatType(const Matrix<Type>&);
 // Matrix evaluation
 Matrix<Type> &Eval(Matrix<Expression>&);
 
-// Matrix derivative evaluation
-Matrix<Type> &DevalF(Matrix<Expression>&, const Variable &);
-
 // Matrix-Matrix derivative evaluation
-Matrix<Type>& DevalF(Matrix<Expression>&, const Matrix<Variable>&);
+Matrix<Type>& DevalF(Matrix<Expression>&, Matrix<Variable>&);
 

@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/ZeroMatAddHandler.hpp
+ * @file src/Matrix/MatrixHandler/MatrixKronHandler/EyeMatKronHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -23,7 +23,7 @@
 
 #include "MatrixHandler.hpp"
 
-class ZeroMatAddHandler : public MatrixHandler {
+class EyeMatKronHandler : public MatrixHandler {
     public:
         using MatrixHandler::MatrixHandler; 
 
@@ -32,5 +32,5 @@ class ZeroMatAddHandler : public MatrixHandler {
                                Matrix<Type>*&));
 
         // Destructor
-        V_DTR(~ZeroMatAddHandler() = default);
+        V_DTR(~EyeMatKronHandler() = default);
 };

@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/EyeMatMulHandler.hpp
+ * @file src/Matrix/MatrixHandler/MatrixMulHandler/ZeroMatMulHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -23,7 +23,7 @@
 
 #include "MatrixHandler.hpp"
 
-class EyeMatMulHandler : public MatrixHandler {
+class ZeroMatMulHandler : public MatrixHandler {
     public:
         using MatrixHandler::MatrixHandler; 
 
@@ -32,5 +32,5 @@ class EyeMatMulHandler : public MatrixHandler {
                                Matrix<Type>*&));
 
         // Destructor
-        V_DTR(~EyeMatMulHandler() = default);
+        V_DTR(~ZeroMatMulHandler() = default);
 };

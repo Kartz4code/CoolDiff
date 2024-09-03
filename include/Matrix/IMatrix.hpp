@@ -27,12 +27,14 @@
 // IVariable class to enforce expression templates for lazy evaluation
 template <typename T> class IMatrix : public MetaMatrix {
 private:
+  // CRTP const
   inline constexpr const T &derived() const {
-    return static_cast<const T &>(*this);
+    return static_cast<const T&>(*this);
   }
 
+  // CRTP mutable
   inline constexpr T &derived() { 
-    return static_cast<T &>(*this); 
+    return static_cast<T&>(*this); 
   }
 
 protected:
@@ -41,14 +43,16 @@ protected:
 
 public:
   // Find me
-  bool findMe(void *v) const { return derived().findMe(v); }
+  bool findMe(void *v) const { 
+    return derived().findMe(v); 
+  }
   
   // Protected destructor
   V_DTR(~IMatrix()) = default;
 };
 
 
-// Binary Matrixreset
+// Binary matrix reset
 #define BINARY_MAT_RESET()                                                     \
   this->m_visited = false;                                                     \
   mp_left->reset();                                                            \
@@ -69,11 +73,13 @@ enum MatrixSpl : size_t {
 enum OpMat : size_t {
   ADD_MAT = 0,
   MUL_MAT,
+  KRON_MAT,
   COUNT_MAT
 };
 
-// Operation type (Order matters!)
+// Operation type [Order matters!]
 #define OpMatType void (*)(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&),\
+                  void (*)(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&),\
                   void (*)(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&)
-// Operation objects (Order matters!)
-#define OpMatObj MatrixAdd, MatrixMul
+// Operation objects [Order matters!]
+#define OpMatObj MatrixAdd, MatrixMul, MatrixKron

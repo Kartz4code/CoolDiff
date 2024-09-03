@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/EyeMatMulHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixMulHandler/EyeMatMulHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

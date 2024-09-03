@@ -131,6 +131,28 @@ Matrix<Type>* EyeMatMul(Matrix<Type>* lhs, Matrix<Type>* rhs) {
   }
 }
 
+// Eye matrix Kronocker 
+Matrix<Type>* EyeMatKron(Matrix<Type>* lhs, Matrix<Type>* rhs) {
+  // Null pointer check
+  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+
+  // Left matrix rows and right matrix columns
+  const size_t lr = lhs->getNumRows();
+  const size_t lc = lhs->getNumColumns();
+  const size_t rr = rhs->getNumRows();
+  const size_t rc = rhs->getNumColumns();
+
+  // If both lhs and rhs matrices are eye matrices
+  if((lhs->getMatType() == MatrixSpl::EYE) && (rhs->getMatType() == MatrixSpl::EYE)) {    
+    return CreateMatrixPtr<Type>(lr*rr, lc*rc, MatrixSpl::EYE);
+  }
+  // If neither, then return nullptr
+  else {
+    return nullptr;
+  }
+}
+
 // Eye matrix addition numerical checks
 Matrix<Type>* EyeMatAddNum(Matrix<Type>* lhs, Matrix<Type>* rhs) {
   // Null pointer check
@@ -167,6 +189,29 @@ Matrix<Type>* EyeMatMulNum(Matrix<Type>* lhs, Matrix<Type>* rhs) {
     return rhs;
   } else if (rhs_bool == true) {
     return lhs;
+  } else {
+    return nullptr;
+  }
+}
+
+// Eye matrix Kronocker product numerics
+Matrix<Type>* EyeMatKronNum(Matrix<Type>* lhs, Matrix<Type>* rhs) {
+  // Null pointer check
+  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+
+  // Left matrix rows and right matrix columns
+  const size_t lr = lhs->getNumRows();
+  const size_t lc = lhs->getNumColumns();
+  const size_t rr = rhs->getNumRows();
+  const size_t rc = rhs->getNumColumns();
+
+  // Boolean check
+  const bool lhs_bool = IsEyeMatrix(lhs);
+  const bool rhs_bool = IsEyeMatrix(rhs);
+
+  if(lhs_bool == true && rhs_bool == true) {
+    return CreateMatrixPtr<Type>(lr*rr, lc*rc, MatrixSpl::EYE); 
   } else {
     return nullptr;
   }

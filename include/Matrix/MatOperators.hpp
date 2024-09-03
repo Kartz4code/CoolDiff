@@ -29,5 +29,5 @@ void MatrixAdd(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&);
 // Matrix-Matrix multiplication - Left, Right, Result matrix pointer
 void MatrixMul(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&);
 
-// Matrix-scalar multiplication 
-void MatrixScalarMul(Matrix<Type>*, Type, Matrix<Type>*&);
+// Matrix-Matrix Kronocker product - Left, Right, Result matrix pointer
+void MatrixKron(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&);

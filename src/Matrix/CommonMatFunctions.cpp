@@ -136,44 +136,10 @@ Matrix<Type> &Eval(Matrix<Expression> &Mexp) {
   return *(Mexp.eval());
 }
 
-// Matrix derivative evaluation
-Matrix<Type> &DevalF(Matrix<Expression> &Mexp, const Variable &x) {
+// Matrix-Matrix derivative evaluation
+Matrix<Type>& DevalF(Matrix<Expression>& Mexp, Matrix<Variable>& X) {
   // Reset graph/tree
   Mexp.resetImpl();
   // Return evaluation value
-  return *(Mexp.devalF(x));
-}
-
-// Matrix-Matrix derivative evaluation
-Matrix<Type>& DevalF(Matrix<Expression>& Mexp, const Matrix<Variable>& X) {
-  // Size of X matrix  
-  const size_t xrows = X.getNumRows();
-  const size_t xcols = X.getNumColumns();
-
-  // Size of Mexp matrix
-  const size_t mrows = Mexp.getFinalNumRows();
-  const size_t mcols = Mexp.getFinalNumColumns();
-
-  // Create new matrix
-  const size_t rows = mrows*xrows;
-  const size_t cols = mcols*xcols;
-  Matrix<Type> &dres = CreateMatrix<Type>(rows, cols);
-
-  // Tensor product 
-  for(size_t i{}; i < xrows; ++i) {
-    for(size_t j{}; j < xcols; ++j) {
-      // Obtain derivative w.r.t X(i,j)
-      auto& Df = DevalF(Mexp, X(i,j)); 
-      if(!((Df.getMatType() == MatrixSpl::ZEROS) || (Df.getMatType() == MatrixSpl::EYE))) {
-        for(size_t l{}; l < mrows; ++l) {
-          for(size_t m{}; m < mcols; ++m) {
-            dres(l*xrows + i, m*xcols + j) = Df(l,m);
-          }
-        }
-      }
-    }
-  }
-  
-  // Return result
-  return dres;
+  return *(Mexp.devalF(X));
 }

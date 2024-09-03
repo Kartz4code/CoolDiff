@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/ZeroMatMulHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixMulHandler/ZeroMatMulHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatAddNaiveHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixAddition/MatAddNaiveHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -34,6 +34,9 @@ void MatAddNaiveHandler::handle(Matrix<Type>* lhs,
     const size_t nrows{lhs->getNumRows()};
     const size_t ncols{rhs->getNumColumns()};
     if (nullptr == result) {
+        result = CreateMatrixPtr<Type>(nrows, ncols);
+    } 
+    else if((nrows != result->getNumRows()) || (ncols != result->getNumColumns())) {
         result = CreateMatrixPtr<Type>(nrows, ncols);
     }
 

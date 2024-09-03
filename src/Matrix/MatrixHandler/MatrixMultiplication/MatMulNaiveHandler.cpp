@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatMulNaiveHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixMultiplication/MatMulNaiveHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -34,6 +34,9 @@ void MatMulNaiveHandler::handle(Matrix<Type>* lhs,
     const size_t rcols = rhs->getNumColumns();
     const size_t rrows = rhs->getNumRows();
     if (nullptr == result) {
+        result = CreateMatrixPtr<Type>(lrows, rcols);
+    }
+    else if((lrows != result->getNumRows()) || (rcols != result->getNumColumns())) {
         result = CreateMatrixPtr<Type>(lrows, rcols);
     }
 

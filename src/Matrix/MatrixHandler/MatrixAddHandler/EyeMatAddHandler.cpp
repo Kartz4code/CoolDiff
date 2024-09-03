@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/EyeMatAddHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixAddHandler/EyeMatAddHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -32,10 +32,14 @@ void EyeMatAddHandler::handle(Matrix<Type>* lhs,
 
     /* Eye matrix special check */ 
     if (auto* it = EyeMatAdd(lhs, rhs); nullptr != it) {     
-        // Rows and columns of result matrix and if result is nullptr, then create a new resource
+        /*Rows and columns of result matrix and if result is nullptr or if dimensions mismatch, 
+          then create a new matrix resource
+        */
         const size_t nrows{lhs->getNumRows()};
         const size_t ncols{rhs->getNumColumns()};
         if (nullptr == result) {
+            result = CreateMatrixPtr<Type>(nrows, ncols);
+        } else if((nrows != result->getNumRows()) || (ncols != result->getNumColumns())) {
             result = CreateMatrixPtr<Type>(nrows, ncols);
         }
 
@@ -63,10 +67,14 @@ void EyeMatAddHandler::handle(Matrix<Type>* lhs,
     } 
     /* Eye matrix numerical check */
     else if (auto* it = EyeMatAddNum(lhs, rhs); nullptr != it) {
-        // Rows and columns of result matrix and if result is nullptr, then create a new resource
+        /*Rows and columns of result matrix and if result is nullptr or if dimensions mismatch, 
+          then create a new matrix resource
+        */
         const size_t nrows{lhs->getNumRows()};
         const size_t ncols{rhs->getNumColumns()};
         if (nullptr == result) {
+            result = CreateMatrixPtr<Type>(nrows, ncols);
+        } else if((nrows != result->getNumRows()) || (ncols != result->getNumColumns())) {
             result = CreateMatrixPtr<Type>(nrows, ncols);
         }
 

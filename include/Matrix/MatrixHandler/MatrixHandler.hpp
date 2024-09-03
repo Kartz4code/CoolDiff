@@ -29,9 +29,8 @@ class MatrixHandler {
         MatrixHandler* mp_handler{nullptr};
 
     public:
-        // Constructors
-        constexpr MatrixHandler() = default;
-        constexpr MatrixHandler(MatrixHandler* h) : mp_handler{h} {}
+        // Constructor
+        constexpr MatrixHandler(MatrixHandler* h = nullptr) : mp_handler{h} {}
 
         V_PURE(void handle(Matrix<Type>*, 
                            Matrix<Type>*, 

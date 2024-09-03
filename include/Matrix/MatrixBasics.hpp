@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/EyeMatAddHandler.hpp
+ * @file include/Matrix/MatrixBasics.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,19 +19,12 @@
  * associated repository.
  */
 
+#pragma once
 
-#pragma once 
+#include "CommonHeader.hpp"
 
-#include "MatrixHandler.hpp"
+// Transpose of matrix
+void Transpose(Matrix<Type>*, Matrix<Type>*&);
 
-class EyeMatAddHandler : public MatrixHandler {
-    public:
-        using MatrixHandler::MatrixHandler; 
-
-        V_OVERRIDE(void handle(Matrix<Type>*, 
-                               Matrix<Type>*, 
-                               Matrix<Type>*&));
-
-        // Destructor
-        V_DTR(~EyeMatAddHandler() = default);
-};
+// Numerical Eye matrix
+Matrix<Type>* Eye(const size_t);

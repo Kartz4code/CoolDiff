@@ -71,26 +71,7 @@ public:
                                                      m_caller{std::make_tuple(std::forward<Callables>(call)...)},
                                                      m_nidx{this->m_idx_count++} 
   {}
-
-  /*
-  * ======================================================================================================
-  * ======================================================================================================
-  * ======================================================================================================
-   _   _ ___________ _____ _   _  ___   _       _____  _   _ ___________ _ _____
-  ___ ______  _____ | | | |_   _| ___ \_   _| | | |/ _ \ | |     |  _  || | | |
-  ___| ___ \ |   |  _  |/ _ \|  _  \/  ___| | | | | | | | |_/ / | | | | | /
-  /_\ \| |     | | | || | | | |__ | |_/ / |   | | | / /_\ \ | | |\ `--.
-  | | | | | | |    /  | | | | | |  _  || |     | | | || | | |  __||    /| |   |
-  | | |  _  | | | | `--. \ \ \_/ /_| |_| |\ \  | | | |_| | | | || |____ \ \_/
-  /\ \_/ / |___| |\ \| |___\ \_/ / | | | |/ / /\__/ /
-   \___/ \___/\_| \_| \_/  \___/\_| |_/\_____/  \___/  \___/\____/\_|
-  \_\_____/\___/\_| |_/___/  \____/
-
-  *======================================================================================================
-  *======================================================================================================
-  *======================================================================================================
-  */
-
+  
   // Get number of rows
   V_OVERRIDE( size_t getNumRows() const ) { 
     return mp_left->getNumRows(); 
@@ -122,30 +103,14 @@ public:
       return mp_result;
   }
 
-  // Matrix devalF computation
-  V_OVERRIDE(Matrix<Type> *devalF(const Variable &x)) {
-      // Check whether dimensions are correct
-      ASSERT(verifyDim(), "Matrix-Matrix addition dimensions mismatch");
-
-      // Left and right matrices
-      Matrix<Type>* dleft_mat = mp_left->devalF(x);
-      Matrix<Type>* dright_mat = mp_right->devalF(x);
-
-      // Matrix-Matrix derivative addition computation (Policy design)
-      std::get<OpMat::ADD_MAT>(m_caller)(dleft_mat, dright_mat, mp_dresult);
-
-      // Return result pointer
-      return mp_dresult;
-  }
-
     // Matrix devalF computation
-  V_OVERRIDE(Matrix<Type> *devalMatF(Matrix<Variable> &X)) {
+  V_OVERRIDE(Matrix<Type> *devalF(Matrix<Variable> &X)) {
       // Check whether dimensions are correct
       ASSERT(verifyDim(), "Matrix-Matrix addition dimensions mismatch");
 
       // Left and right matrices
-      Matrix<Type>* dleft_mat = mp_left->devalMatF(X);
-      Matrix<Type>* dright_mat = mp_right->devalMatF(X);
+      Matrix<Type>* dleft_mat = mp_left->devalF(X);
+      Matrix<Type>* dright_mat = mp_right->devalF(X);
 
       // Matrix-Matrix derivative addition computation (Policy design)
       std::get<OpMat::ADD_MAT>(m_caller)(dleft_mat, dright_mat, mp_dresult);
