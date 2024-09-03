@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/ZeroMatMulHandler.hpp
+ * @file src/Matrix/MatrixHandler/MatrixKronHandler/ZeroMatKronHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -23,7 +23,7 @@
 
 #include "MatrixHandler.hpp"
 
-class ZeroMatMulHandler : public MatrixHandler {
+class ZeroMatKronHandler : public MatrixHandler {
     public:
         using MatrixHandler::MatrixHandler; 
 
@@ -32,5 +32,5 @@ class ZeroMatMulHandler : public MatrixHandler {
                                Matrix<Type>*&));
 
         // Destructor
-        V_DTR(~ZeroMatMulHandler() = default);
+        V_DTR(~ZeroMatKronHandler() = default);
 };

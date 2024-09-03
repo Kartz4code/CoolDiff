@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/MatrixSplOps/MatrixEyeOps.hpp
+ * @file src/Matrix/MatrixHandler/MatrixAddHandler/EyeMatAddHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -22,24 +22,16 @@
 
 #pragma once 
 
-#include "CommonHeader.hpp"
+#include "MatrixHandler.hpp"
 
-// Is the matrix identity?
-bool IsEyeMatrix(Matrix<Type>*);
+class EyeMatAddHandler : public MatrixHandler {
+    public:
+        using MatrixHandler::MatrixHandler; 
 
+        V_OVERRIDE(void handle(Matrix<Type>*, 
+                               Matrix<Type>*, 
+                               Matrix<Type>*&));
 
-// Eye matrix addition
-Matrix<Type>* EyeMatAdd(Matrix<Type>*, Matrix<Type>*);
-// Eye matrix multiplication
-Matrix<Type>* EyeMatMul(Matrix<Type>*, Matrix<Type>*);
-// Eye matrix Kronocker product
-Matrix<Type>* EyeMatKron(Matrix<Type>*, Matrix<Type>*);
-
-// Eye matrix addition numerics
-Matrix<Type>* EyeMatAddNum(Matrix<Type>*, Matrix<Type>*);
-// Eye matrix multiplication numerics
-Matrix<Type>* EyeMatMulNum(Matrix<Type>*, Matrix<Type>*);
-// Eye matrix Kronocker product numerics
-Matrix<Type>* EyeMatKronNum(Matrix<Type>*, Matrix<Type>*);
-
-
+        // Destructor
+        V_DTR(~EyeMatAddHandler() = default);
+};

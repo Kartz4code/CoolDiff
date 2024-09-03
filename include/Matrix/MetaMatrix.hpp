@@ -38,11 +38,7 @@ public:
   V_PURE(Matrix<Type> *eval());
 
   // Forward derivative
-  V_PURE(Matrix<Type> *devalF(const Variable &));
-
-  virtual Matrix<Type>* devalMatF(Matrix<Variable>&) {
-    return nullptr;
-  }
+  V_PURE(Matrix<Type>* devalF(Matrix<Variable>&));
 
   // Get number of rows and columns
   V_PURE( size_t getNumRows() const );

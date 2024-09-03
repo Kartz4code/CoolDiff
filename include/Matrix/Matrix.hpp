@@ -534,45 +534,7 @@ public:
     return mp_result;
   }
 
-  V_OVERRIDE(Matrix<Type> *devalF(const Variable &var)) {
-    // Derivative result computation
-    if (nullptr == mp_dresult) {
-      if constexpr (true == std::is_same_v<T, Type> || 
-                    true == std::is_same_v<T, Parameter>) {
-        mp_dresult = CreateMatrixPtr<Type>(m_rows, m_cols, MatrixSpl::ZEROS);
-      } else {
-        mp_dresult = CreateMatrixPtr<Type>(m_rows, m_cols);     
-      }
-    }
-
-    // If derivative not evaluated, compute it again
-    if(false == m_devalf) {
-      setDevalF(var); 
-      m_devalf = true;
-    }
-
-    // If visited already
-    if (false == this->m_visited) {  
-      // Set visit flag to true
-      this->m_visited = true;
-      // Loop on internal equations
-      std::for_each(EXECUTION_SEQ 
-                    m_gh_vec.begin(), m_gh_vec.end(), 
-                    [this,&var](auto* i) {
-                      if(nullptr != i) {
-                        mp_dresult = i->devalF(var); 
-                        m_devalf = true;
-                        mp_result = i->eval(); 
-                        m_eval = true;
-                      }
-                    });  
-    }
-
-    // Return derivative result
-    return mp_dresult;
-  }
-
-  V_OVERRIDE( Matrix<Type>* devalMatF(Matrix<Variable>& X) ) {
+  V_OVERRIDE( Matrix<Type>* devalF(Matrix<Variable>& X) ) {
     // Derivative result computation
     if (nullptr == mp_dresult) {
       const size_t xrows = X.getNumRows();
@@ -600,7 +562,7 @@ public:
                     m_gh_vec.begin(), m_gh_vec.end(), 
                     [this,&X](auto* i) {
                       if(nullptr != i) {
-                        mp_dresult = i->devalMatF(X); 
+                        mp_dresult = i->devalF(X); 
                         m_devalf = true;
                         mp_result = i->eval(); 
                         m_eval = true;
@@ -651,26 +613,35 @@ public:
                   
     this->m_visited = false;
   }
+  
   // Get type
   V_OVERRIDE(std::string_view getType() const) { 
     return "Matrix"; 
   }
+
   // To output stream
   friend std::ostream &operator<<(std::ostream &os, Matrix &mat) {
-    if(mat.getMatType() == MatrixSpl::ZEROS) {
-      os << "Zero matrix of dimension: " << "(" << mat.getFinalNumRows() << "," << mat.getFinalNumColumns() << ")\n";
-    } else if(mat.getMatType() == MatrixSpl::EYE) {
-      os << "Identity matrix of dimension: " << "(" << mat.getFinalNumRows() << "," << mat.getFinalNumColumns() << ")\n";
+    if constexpr(true == std::is_same_v<T,Type>) {
+      const size_t rows = mat.getFinalNumRows();
+      const size_t cols = mat.getFinalNumColumns();
+      if(mat.getMatType() == MatrixSpl::ZEROS) {
+        os << "Zero matrix of dimension: " << "(" << rows << "," << cols << ")\n";
+      } else if(mat.getMatType() == MatrixSpl::EYE) {
+        os << "Identity matrix of dimension: " << "(" << rows << "," << cols << ")\n";
+      } else {
+        // Serial print
+        for(size_t i{}; i < rows; ++i) {
+          for(size_t j{}; j < cols; ++j) {
+              os << mat(i,j) << " ";
+          }
+          os << "\n";
+        }
+      }
+      return os;
     } else {
-      std::for_each(EXECUTION_SEQ 
-                    mat.mp_mat, mat.mp_mat + mat.getNumElem(), 
-                    [&](auto& item) {
-                      os << mat.getValue(item) << " ";
-                    });
-      os << "\n";
+      static_assert(true, "[ERROR] Not a Type type");
     }
-    return os;
-  }
+  } 
   // Destructor
   V_DTR(~Matrix()) {
     // If mp_mat is not nullptr, delete it

@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatMulNaiveHandler.hpp
+ * @file src/Matrix/MatrixHandler/MatrixKronProduct/MatKronNaiveHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -23,7 +23,7 @@
 
 #include "MatrixHandler.hpp"
 
-class MatMulNaiveHandler : public MatrixHandler {
+class MatKronNaiveHandler : public MatrixHandler {
     public:
         using MatrixHandler::MatrixHandler; 
 
@@ -32,5 +32,5 @@ class MatMulNaiveHandler : public MatrixHandler {
                                Matrix<Type>*&));
 
         // Destructor
-        V_DTR(~MatMulNaiveHandler() = default);
+        V_DTR(~MatKronNaiveHandler() = default);
 };

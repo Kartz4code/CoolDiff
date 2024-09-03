@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatAddNaiveHandler.hpp
+ * @file src/Matrix/MatrixHandler/MatrixMulHandler/EyeMatMulHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -23,7 +23,7 @@
 
 #include "MatrixHandler.hpp"
 
-class MatAddNaiveHandler : public MatrixHandler {
+class EyeMatMulHandler : public MatrixHandler {
     public:
         using MatrixHandler::MatrixHandler; 
 
@@ -32,5 +32,5 @@ class MatAddNaiveHandler : public MatrixHandler {
                                Matrix<Type>*&));
 
         // Destructor
-        V_DTR(~MatAddNaiveHandler() = default);
+        V_DTR(~EyeMatMulHandler() = default);
 };

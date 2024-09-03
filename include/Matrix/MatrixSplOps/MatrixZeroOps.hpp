@@ -26,12 +26,16 @@
 // Is the matrix zero?
 bool IsZeroMatrix(Matrix<Type>*);
 
-// Zero matrix addition checks
+// Zero matrix addition
 Matrix<Type>* ZeroMatAdd(Matrix<Type>*, Matrix<Type>*);
-// Zero matrix multiplication checks
+// Zero matrix multiplication
 Matrix<Type>* ZeroMatMul(Matrix<Type>*, Matrix<Type>*);
+// Zero matrix kronocker product
+Matrix<Type>* ZeroMatKron(Matrix<Type>*, Matrix<Type>*);
 
-// Zero matrix addition numerical checks
+// Zero matrix addition numerics
 Matrix<Type>* ZeroMatAddNum(Matrix<Type>*, Matrix<Type>*);
-// Zero matrix multiplication numerical checks
+// Zero matrix multiplication numerics
 Matrix<Type>* ZeroMatMulNum(Matrix<Type>*, Matrix<Type>*);
+// Zero matrix kronocker product numerics
+Matrix<Type>* ZeroMatKronNum(Matrix<Type>*, Matrix<Type>*);

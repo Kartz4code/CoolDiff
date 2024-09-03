@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/ZeroMatAddHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixKronHandler/EyeMatKronHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,24 +19,24 @@
  * associated repository.
  */
 
-#include "ZeroMatAddHandler.hpp"
-#include "MatrixZeroOps.hpp"
+#include "EyeMatKronHandler.hpp"
+#include "MatrixEyeOps.hpp"
 #include "Matrix.hpp"
 
-void ZeroMatAddHandler::handle(Matrix<Type>* lhs, 
-                              Matrix<Type>* rhs, 
-                              Matrix<Type>*& result) {
+void EyeMatKronHandler::handle(Matrix<Type>* lhs, 
+                               Matrix<Type>* rhs, 
+                               Matrix<Type>*& result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-  /* Zero matrix special check */
-  if(auto* it = ZeroMatAdd(lhs, rhs); nullptr != it) {
+  /* Eye matrix special check */
+  if(auto* it = EyeMatKron(lhs, rhs); nullptr != it) {
       result = it;
       return;
   }  
-  /* Zero matrix numerical check */
-  else if(auto* it = ZeroMatAddNum(lhs, rhs); nullptr != it) {   
+  /* Eye matrix numerical check */
+  else if(auto* it = EyeMatKronNum(lhs, rhs); nullptr != it) {   
       result = it;
       return;
   }

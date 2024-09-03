@@ -24,6 +24,8 @@
 #include "IMatrix.hpp"
 #include "Matrix.hpp"
 
+#include "MatrixBasics.hpp"
+
 // Left/right side is an expression
 template <typename T1, typename T2, typename... Callables>
 class GenericMatProduct : public IMatrix<GenericMatProduct<T1, T2, Callables...>> {
@@ -62,6 +64,11 @@ public:
   Matrix<Type>* mp_dresult_l{nullptr};
   Matrix<Type>* mp_dresult_r{nullptr};
 
+  // Kronocker variables
+  Matrix<Type>* mp_lhs_kron{nullptr};
+  Matrix<Type>* mp_rhs_kron{nullptr};
+
+
   // Block index
   const size_t m_nidx{};
 
@@ -72,28 +79,11 @@ public:
                                                          mp_dresult{nullptr},
                                                          mp_dresult_l{nullptr},
                                                          mp_dresult_r{nullptr},
+                                                         mp_lhs_kron{nullptr},
+                                                         mp_rhs_kron{nullptr},
                                                          m_caller{std::make_tuple(std::forward<Callables>(call)...)},
                                                          m_nidx{this->m_idx_count++} 
   {}
-
-  /*
-  * ======================================================================================================
-  * ======================================================================================================
-  * ======================================================================================================
-   _   _ ___________ _____ _   _  ___   _       _____  _   _ ___________ _ _____
-  ___ ______  _____ | | | |_   _| ___ \_   _| | | |/ _ \ | |     |  _  || | | |
-  ___| ___ \ |   |  _  |/ _ \|  _  \/  ___| | | | | | | | |_/ / | | | | | /
-  /_\ \| |     | | | || | | | |__ | |_/ / |   | | | / /_\ \ | | |\ `--.
-  | | | | | | |    /  | | | | | |  _  || |     | | | || | | |  __||    /| |   |
-  | | |  _  | | | | `--. \ \ \_/ /_| |_| |\ \  | | | |_| | | | || |____ \ \_/
-  /\ \_/ / |___| |\ \| |___\ \_/ / | | | |/ / /\__/ /
-   \___/ \___/\_| \_| \_/  \___/\_| |_/\_____/  \___/  \___/\____/\_|
-  \_\_____/\___/\_| |_/___/  \____/
-
-  *======================================================================================================
-  *======================================================================================================
-  *======================================================================================================
-  */
 
   // Get number of rows
   V_OVERRIDE( size_t getNumRows() const ) { 
@@ -126,26 +116,36 @@ public:
   }
 
   // Matrix devalF computation
-  V_OVERRIDE(Matrix<Type> *devalF(const Variable &x)) {
+  V_OVERRIDE(Matrix<Type> *devalF(Matrix<Variable> &X)) {
     // Check whether dimensions are correct 
     ASSERT(verifyDim(), "Matrix-Matrix multiplication dimensions mismatch");
 
     // Left and right matrices derivatives
-    Matrix<Type>* dleft_mat = mp_left->devalF(x);
-    Matrix<Type>* dright_mat = mp_right->devalF(x);
+    Matrix<Type>* dleft_mat = mp_left->devalF(X);
+    Matrix<Type>* dright_mat = mp_right->devalF(X);
 
     // Left and right matrices evaluation
     Matrix<Type>* left_mat = mp_left->eval();
     Matrix<Type>* right_mat = mp_right->eval();
 
-    // Matrix derivative evaluation (Policy design)
-    std::get<OpMat::MUL_MAT>(m_caller)(dleft_mat, right_mat, mp_dresult_l);
-    std::get<OpMat::MUL_MAT>(m_caller)(left_mat, dright_mat, mp_dresult_r);  
+    // Eye matrix for Kronocker product
+    Matrix<Type>* eye = Eye(X.getNumRows());
+
+    // L (X) I - Left matrix and identity Kronocker product (Policy design)
+    std::get<OpMat::KRON_MAT>(m_caller)(left_mat, eye, mp_lhs_kron);
+    // R (X) I - Right matrix and identity Kronocke product (Policy design)
+    std::get<OpMat::KRON_MAT>(m_caller)(right_mat, eye, mp_rhs_kron);
+
+    // Product with left and right derivatives (Policy design)
+    std::get<OpMat::MUL_MAT>(m_caller)(mp_lhs_kron, dright_mat, mp_dresult_l);
+    std::get<OpMat::MUL_MAT>(m_caller)(dleft_mat, mp_rhs_kron, mp_dresult_r);
+
+    // Addition between left and right derivatives (Policy design)
     std::get<OpMat::ADD_MAT>(m_caller)(mp_dresult_l, mp_dresult_r, mp_dresult);
 
-    // Return result pointer
+    // Return derivative result pointer
     return mp_dresult;
-  }
+  } 
 
   // Reset visit run-time
   V_OVERRIDE(void reset()) {

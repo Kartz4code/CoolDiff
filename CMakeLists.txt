@@ -107,15 +107,25 @@ set(SRC
     ${CMAKE_SOURCE_DIR}/src/Scalar/CommonFunctions.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/CommonMatFunctions.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatOperators.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixBasics.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixSplOps/MatrixZeroOps.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixSplOps/MatrixEyeOps.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/ZeroMatAddHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/EyeMatAddHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatAddNaiveHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatMulNaiveHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/ZeroMatMulHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/EyeMatMulHandler.cpp
+    # MatrixAddHandler folder
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixAddHandler/ZeroMatAddHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixAddHandler/EyeMatAddHandler.cpp
+    # MatrixAddition folder
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixAddition/MatAddNaiveHandler.cpp
+    # MatrixKronHandler
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixKronHandler/ZeroMatKronHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixKronHandler/EyeMatKronHandler.cpp
+    # MatrixKronProduct
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixKronProduct/MatKronNaiveHandler.cpp
+    # MatrixMulHandler
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixMulHandler/ZeroMatMulHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixMulHandler/EyeMatMulHandler.cpp
+    # MatrixMultiplication
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixMultiplication/MatMulNaiveHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/MemoryManager/MemoryManager.cpp
     ${CMAKE_SOURCE_DIR}/src/Scalar/Parameter.cpp)
 
@@ -128,6 +138,12 @@ set(INCLUDES
     ${CMAKE_SOURCE_DIR}/include/Matrix
     ${CMAKE_SOURCE_DIR}/include/Matrix/BinaryOps
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddHandler
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronHandler
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMulHandler
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication 
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixSplOps
     ${CMAKE_SOURCE_DIR}/include/MemoryManager
     ${CMAKE_BINARY_DIR}/_deps/robin-hood-hashing-src/src/include)
