@@ -19,27 +19,27 @@
  * associated repository.
  */
 
-
-#pragma once 
+#pragma once
 
 #include "CommonHeader.hpp"
 
 // Is the matrix identity?
-bool IsEyeMatrix(Matrix<Type>*);
-
+bool IsEyeMatrix(Matrix<Type> *);
 
 // Eye matrix addition
-Matrix<Type>* EyeMatAdd(Matrix<Type>*, Matrix<Type>*);
+Matrix<Type> *EyeMatAdd(Matrix<Type> *, Matrix<Type> *);
+// Eye matrix subtraction
+Matrix<Type> *EyeMatSub(Matrix<Type> *, Matrix<Type> *);
 // Eye matrix multiplication
-Matrix<Type>* EyeMatMul(Matrix<Type>*, Matrix<Type>*);
+Matrix<Type> *EyeMatMul(Matrix<Type> *, Matrix<Type> *);
 // Eye matrix Kronocker product
-Matrix<Type>* EyeMatKron(Matrix<Type>*, Matrix<Type>*);
+Matrix<Type> *EyeMatKron(Matrix<Type> *, Matrix<Type> *);
 
 // Eye matrix addition numerics
-Matrix<Type>* EyeMatAddNum(Matrix<Type>*, Matrix<Type>*);
+Matrix<Type> *EyeMatAddNum(Matrix<Type> *, Matrix<Type> *);
+// Eye matrix subtraction numerics
+Matrix<Type> *EyeMatSubNum(Matrix<Type> *, Matrix<Type> *);
 // Eye matrix multiplication numerics
-Matrix<Type>* EyeMatMulNum(Matrix<Type>*, Matrix<Type>*);
+Matrix<Type> *EyeMatMulNum(Matrix<Type> *, Matrix<Type> *);
 // Eye matrix Kronocker product numerics
-Matrix<Type>* EyeMatKronNum(Matrix<Type>*, Matrix<Type>*);
-
-
+Matrix<Type> *EyeMatKronNum(Matrix<Type> *, Matrix<Type> *);

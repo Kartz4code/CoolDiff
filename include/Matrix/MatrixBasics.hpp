@@ -23,8 +23,5 @@
 
 #include "CommonHeader.hpp"
 
-// Transpose of matrix
-void Transpose(Matrix<Type>*, Matrix<Type>*&);
-
 // Numerical Eye matrix
-Matrix<Type>* Eye(const size_t);
+Matrix<Type> *Eye(const size_t);

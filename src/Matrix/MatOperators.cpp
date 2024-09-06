@@ -23,35 +23,40 @@
 #include "Matrix.hpp"
 
 // Special matrix addition
-#include "ZeroMatAddHandler.hpp"
 #include "EyeMatAddHandler.hpp"
+#include "ZeroMatAddHandler.hpp"
+
+// Special matrix subtraction
+#include "EyeMatSubHandler.hpp"
+#include "ZeroMatSubHandler.hpp"
 
 // Special matrix multiplication
-#include "ZeroMatMulHandler.hpp"
 #include "EyeMatMulHandler.hpp"
+#include "ZeroMatMulHandler.hpp"
 
 // Special matrix Kronocker product
-#include "ZeroMatKronHandler.hpp"
 #include "EyeMatKronHandler.hpp"
+#include "ZeroMatKronHandler.hpp"
 
 // Matrix operations
 #include "MatAddNaiveHandler.hpp"
-#include "MatMulNaiveHandler.hpp"
+#include "MatSubNaiveHandler.hpp"
 #include "MatKronNaiveHandler.hpp"
+#include "MatMulNaiveHandler.hpp"
 
 // Matrix-Matrix addition - Left, Right, Result matrix pointer
-void MatrixAdd(Matrix<Type>* lhs, Matrix<Type>* rhs, Matrix<Type>*& result) {
+void MatrixAdd(Matrix<Type> *lhs, Matrix<Type> *rhs, Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
   /* Chain of responsibility (Order matters)
-      1) Eye matrix check 
+      1) Eye matrix check
       2) Zero matrix check
       3) Matrix-Matrix addition
   */
 
-  MatAddNaiveHandler h1{nullptr}; 
+  MatAddNaiveHandler h1{nullptr};
   ZeroMatAddHandler h2{&h1};
   EyeMatAddHandler h3{&h2};
 
@@ -59,41 +64,63 @@ void MatrixAdd(Matrix<Type>* lhs, Matrix<Type>* rhs, Matrix<Type>*& result) {
   h3.handle(lhs, rhs, result);
 }
 
-// Matrix-Matrix multiplication - Left, Right, Result matrix pointer
-void MatrixMul(Matrix<Type>* lhs, Matrix<Type>* rhs, Matrix<Type>*& result) {
-    // Null pointer check
-    NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-    NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-   
-    /* Chain of responsibility (Order matters)
-        1) Eye matrix check 
-        2) Zero matrix check  
-        3) Matrix-Matrix multiplication
-    */
-    MatMulNaiveHandler h1{nullptr};
-    ZeroMatMulHandler h2{&h1};
-    EyeMatMulHandler h3{&h2};
 
-    // Handle matrix addition
-    h3.handle(lhs, rhs, result);
+// Matrix-Matrix subtraction - Left, Right, Result matrix pointer
+void MatrixSub(Matrix<Type>* lhs, Matrix<Type>* rhs, Matrix<Type>*& result) {
+   // Null pointer check
+  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+
+  /* Chain of responsibility (Order matters)
+      1) Eye matrix check
+      2) Zero matrix check
+      3) Matrix-Matrix addition
+  */
+
+  MatSubNaiveHandler h1{nullptr};
+  ZeroMatSubHandler h2{&h1};
+  EyeMatSubHandler h3{&h2};
+
+  // Handle matrix addition
+  h3.handle(lhs, rhs, result);
+}
+
+// Matrix-Matrix multiplication - Left, Right, Result matrix pointer
+void MatrixMul(Matrix<Type> *lhs, Matrix<Type> *rhs, Matrix<Type> *&result) {
+  // Null pointer check
+  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+
+  /* Chain of responsibility (Order matters)
+      1) Eye matrix check
+      2) Zero matrix check
+      3) Matrix-Matrix multiplication
+  */
+  MatMulNaiveHandler h1{nullptr};
+  ZeroMatMulHandler h2{&h1};
+  EyeMatMulHandler h3{&h2};
+
+  // Handle matrix addition
+  h3.handle(lhs, rhs, result);
 }
 
 // Matrix-Matrix Kronocker product - Left, Right, Result matrix pointer
-void MatrixKron(Matrix<Type>* lhs, Matrix<Type>* rhs, Matrix<Type>*& result) {
-    // Null pointer check
-    NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-    NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+void MatrixKron(Matrix<Type> *lhs, Matrix<Type> *rhs, Matrix<Type> *&result) {
+  // Null pointer check
+  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-    /* Chain of responsibility (Order matters)
-        1) Eye matrix check 
-        2) Zero matrix check  
-        3) Matrix-Matrix multiplication
-    */
+  /* Chain of responsibility (Order matters)
+      1) Eye matrix check
+      2) Zero matrix check
+      3) Matrix-Matrix multiplication
+  */
 
-    MatKronNaiveHandler h1{nullptr};
-    ZeroMatKronHandler h2{&h1};
-    EyeMatKronHandler h3{&h2};
+  MatKronNaiveHandler h1{nullptr};
+  ZeroMatKronHandler h2{&h1};
+  EyeMatKronHandler h3{&h2};
 
-    // Handle matrix addition
-    h3.handle(lhs, rhs, result);
+  // Handle matrix addition
+  h3.handle(lhs, rhs, result);
 }
+

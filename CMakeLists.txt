@@ -116,16 +116,21 @@ set(SRC
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixAddHandler/EyeMatAddHandler.cpp
     # MatrixAddition folder
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixAddition/MatAddNaiveHandler.cpp
-    # MatrixKronHandler
+    # MatrixKronHandler folder
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixKronHandler/ZeroMatKronHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixKronHandler/EyeMatKronHandler.cpp
-    # MatrixKronProduct
+    # MatrixKronProduct folder
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixKronProduct/MatKronNaiveHandler.cpp
-    # MatrixMulHandler
+    # MatrixMulHandler folder
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixMulHandler/ZeroMatMulHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixMulHandler/EyeMatMulHandler.cpp
-    # MatrixMultiplication
+    # MatrixMultiplication folder
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixMultiplication/MatMulNaiveHandler.cpp
+    # MatrixSubHandler folder
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixSubHandler/ZeroMatSubHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixSubHandler/EyeMatSubHandler.cpp
+    # MatrixSubtraction folder
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixSubtraction/MatSubNaiveHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/MemoryManager/MemoryManager.cpp
     ${CMAKE_SOURCE_DIR}/src/Scalar/Parameter.cpp)
 
@@ -143,7 +148,9 @@ set(INCLUDES
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronHandler
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMulHandler
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication 
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubHandler 
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixSplOps
     ${CMAKE_SOURCE_DIR}/include/MemoryManager
     ${CMAKE_BINARY_DIR}/_deps/robin-hood-hashing-src/src/include)

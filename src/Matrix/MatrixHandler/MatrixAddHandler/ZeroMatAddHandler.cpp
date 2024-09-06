@@ -20,27 +20,28 @@
  */
 
 #include "ZeroMatAddHandler.hpp"
-#include "MatrixZeroOps.hpp"
 #include "Matrix.hpp"
+#include "MatrixZeroOps.hpp"
 
-void ZeroMatAddHandler::handle(Matrix<Type>* lhs, 
-                              Matrix<Type>* rhs, 
-                              Matrix<Type>*& result) {
+void ZeroMatAddHandler::handle(Matrix<Type> *lhs, Matrix<Type> *rhs,
+                               Matrix<Type> *&result) {
+#if defined(NAIVE_IMPL)
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
   /* Zero matrix special check */
-  if(auto* it = ZeroMatAdd(lhs, rhs); nullptr != it) {
-      result = it;
-      return;
-  }  
-  /* Zero matrix numerical check */
-  else if(auto* it = ZeroMatAddNum(lhs, rhs); nullptr != it) {   
-      result = it;
-      return;
+  if (auto *it = ZeroMatAdd(lhs, rhs); nullptr != it) {
+    result = it;
+    return;
   }
+  /* Zero matrix numerical check */
+  else if (auto *it = ZeroMatAddNum(lhs, rhs); nullptr != it) {
+    result = it;
+    return;
+  }
+#endif
 
-  // Chain of responsibility 
+  // Chain of responsibility
   MatrixHandler::handle(lhs, rhs, result);
 }

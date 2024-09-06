@@ -21,10 +21,10 @@
 
 #pragma once
 
-#include "Matrix.hpp"
-#include "GenericMatSum.hpp"
 #include "GenericMatProduct.hpp"
-
+#include "GenericMatSum.hpp"
+#include "GenericMatSub.hpp"
+#include "Matrix.hpp"
 
 /*
 // Is the matrix ones?
@@ -44,8 +44,7 @@ size_t FindMatType(const Matrix<Type>&);
 */
 
 // Matrix evaluation
-Matrix<Type> &Eval(Matrix<Expression>&);
+Matrix<Type> &Eval(Matrix<Expression> &);
 
 // Matrix-Matrix derivative evaluation
-Matrix<Type>& DevalF(Matrix<Expression>&, Matrix<Variable>&);
-
+Matrix<Type> &DevalF(Matrix<Expression> &, Matrix<Variable> &);

@@ -117,23 +117,21 @@ public:
 
       // Modify cache for left node
       if (v != (Type)(0)) {
-        std::for_each(EXECUTION_PAR 
-                      mp_left->m_cache.begin(), mp_left->m_cache.end(), 
-                      [&cache,v](const auto& item) {
+        std::for_each(EXECUTION_PAR mp_left->m_cache.begin(),
+                      mp_left->m_cache.end(), [&cache, v](const auto &item) {
                         const auto idx = item.first;
                         const auto val = item.second;
-                        (*cache)[idx] += (val*v);
-                });
+                        (*cache)[idx] += (val * v);
+                      });
       }
       // Modify cache for right node
       if (u != (Type)(0)) {
-        std::for_each(EXECUTION_PAR 
-                      mp_right->m_cache.begin(), mp_right->m_cache.end(), 
-                      [&cache,u](const auto& item) {
+        std::for_each(EXECUTION_PAR mp_right->m_cache.begin(),
+                      mp_right->m_cache.end(), [&cache, u](const auto &item) {
                         const auto idx = item.first;
                         const auto val = item.second;
-                        (*cache)[idx] += (val*u);
-                });
+                        (*cache)[idx] += (val * u);
+                      });
       }
     } else {
       // Cached value
@@ -156,23 +154,23 @@ public:
 
       // Modify cache for left node
       if (vstar != (Type)(0)) {
-        std::for_each(EXECUTION_PAR 
-                      mp_left->m_cache.begin(), mp_left->m_cache.end(), 
-                      [&cache,vstar](const auto& item) {
+        std::for_each(EXECUTION_PAR mp_left->m_cache.begin(),
+                      mp_left->m_cache.end(),
+                      [&cache, vstar](const auto &item) {
                         const auto idx = item.first;
                         const auto val = item.second;
-                        (*cache)[idx] += (val*vstar);
-                });
+                        (*cache)[idx] += (val * vstar);
+                      });
       }
       // Modify cache for right node
       if (ustar != (Type)(0)) {
-          std::for_each(EXECUTION_PAR 
-                        mp_right->m_cache.begin(), mp_right->m_cache.end(), 
-                        [&cache,ustar](const auto& item) {
-                          const auto idx = item.first;
-                          const auto val = item.second;
-                          (*cache)[idx] += (val*ustar);
-                  });
+        std::for_each(EXECUTION_PAR mp_right->m_cache.begin(),
+                      mp_right->m_cache.end(),
+                      [&cache, ustar](const auto &item) {
+                        const auto idx = item.first;
+                        const auto val = item.second;
+                        (*cache)[idx] += (val * ustar);
+                      });
       }
     }
 
@@ -229,7 +227,6 @@ public:
                                      std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
-
   V_OVERRIDE(Variable *symEval()) {
     // Evaluate variable in run-time
     if (nullptr == this->mp_tmp) {
@@ -284,13 +281,13 @@ public:
 
       // Modify cache for right node
       if (mp_left != (Type)(0)) {
-        std::for_each(EXECUTION_PAR 
-                      mp_right->m_cache.begin(), mp_right->m_cache.end(), 
-                      [&cache, mp_left = this->mp_left](const auto& item) {
+        std::for_each(EXECUTION_PAR mp_right->m_cache.begin(),
+                      mp_right->m_cache.end(),
+                      [&cache, mp_left = this->mp_left](const auto &item) {
                         const auto idx = item.first;
                         const auto val = item.second;
-                        (*cache)[idx] += (val*mp_left);
-                });
+                        (*cache)[idx] += (val * mp_left);
+                      });
       }
     } else {
       // Cached value
@@ -307,13 +304,13 @@ public:
 
       // Modify cache for right node
       if (ustar != (Type)(0)) {
-        std::for_each(EXECUTION_PAR 
-                      mp_right->m_cache.begin(), mp_right->m_cache.end(), 
-                      [&cache,ustar](const auto& item) {
+        std::for_each(EXECUTION_PAR mp_right->m_cache.begin(),
+                      mp_right->m_cache.end(),
+                      [&cache, ustar](const auto &item) {
                         const auto idx = item.first;
                         const auto val = item.second;
-                        (*cache)[idx] += (val*ustar);
-                });
+                        (*cache)[idx] += (val * ustar);
+                      });
       }
     }
     // Traverse left/right nodes

@@ -57,10 +57,8 @@ void PreComp(Expression &);
 // Main reverse mode AD table
 OMPair &PreCompCache(const Expression &);
 
-
 // Symbolic Expression
 Expression &SymDiff(Expression &, const Variable &);
-
 
 // Main forward mode AD computation
 Type DevalF(Expression &, const Variable &);
@@ -68,7 +66,6 @@ Type DevalF(Expression &, const Variable &);
 Type DevalR(Expression &, const Variable &);
 // Derivative of expression
 Type Deval(Expression &, const Variable &, ADMode = ADMode::REVERSE);
-
 
 // Forward mode algorithmic differentiation (Matrix)
 Matrix<Type> &DevalF(Expression &, const Matrix<Variable> &, bool = false);
@@ -78,7 +75,6 @@ Matrix<Type> &DevalR(Expression &, const Matrix<Variable> &);
 Matrix<Type> &Deval(Expression &, const Matrix<Variable> &,
                     ADMode = ADMode::REVERSE);
 
-
 // Jacobian forward mode (Vector)
 Matrix<Type> &JacobF(Expression &, const Vector<Variable> &, bool = false);
 // Jacobian reverse mode (Vector)
@@ -86,7 +82,6 @@ Matrix<Type> &JacobR(Expression &, const Vector<Variable> &);
 // Jacobian of expression (Vector)
 Matrix<Type> &Jacob(Expression &, const Vector<Variable> &,
                     ADMode = ADMode::REVERSE);
-
 
 // Symbolic Jacobian of expression (Vector)
 Matrix<Expression> &JacobSym(Expression &, const Vector<Variable> &);
@@ -96,7 +91,8 @@ Matrix<Type> &HessF(Expression &, const Vector<Variable> &);
 // Hessian reverse mode
 Matrix<Type> &HessR(Expression &, const Vector<Variable> &);
 // Hessian of expression
-Matrix<Type> &Hess(Expression &, const Vector<Variable> &, ADMode = ADMode::REVERSE);
+Matrix<Type> &Hess(Expression &, const Vector<Variable> &,
+                   ADMode = ADMode::REVERSE);
 
 // Symbolic Hessian of expression
 Matrix<Expression> &HessSym(Expression &, const Vector<Variable> &);
@@ -105,7 +101,8 @@ Matrix<Expression> &HessSym(Expression &, const Vector<Variable> &);
 Matrix<Expression> &SymMatDiff(Expression &, const Matrix<Variable> &);
 
 // Create new expression
-template <typename T, typename = std::enable_if_t<std::is_base_of_v<MetaVariable, T>>>
+template <typename T,
+          typename = std::enable_if_t<std::is_base_of_v<MetaVariable, T>>>
 Expression &CreateExpr(const T &exp) {
   auto tmp = Allocate<Expression>(exp);
   return *tmp;
