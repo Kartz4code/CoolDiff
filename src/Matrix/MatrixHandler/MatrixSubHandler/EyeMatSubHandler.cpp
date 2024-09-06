@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixAddHandler/EyeMatAddHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixSubHandler/EyeMatSubHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,11 +19,11 @@
  * associated repository.
  */
 
-#include "EyeMatAddHandler.hpp"
+#include "EyeMatSubHandler.hpp"
 #include "Matrix.hpp"
 #include "MatrixEyeOps.hpp"
 
-void AddEye(Matrix<Type> *it, Matrix<Type> *&result) {
+void SubEyeRHS(Matrix<Type> *it, Matrix<Type> *&result) {
   /*
     Rows and columns of result matrix and if result is nullptr or if dimensions
     mismatch, then create a new matrix resource
@@ -37,17 +37,21 @@ void AddEye(Matrix<Type> *it, Matrix<Type> *&result) {
     result = CreateMatrixPtr<Type>(nrows, ncols);
   }
 
-  // Copy all elements from it to result matrix
+  // Copy all LHS matrix value into result
   *result = *it;
+    
+  // Iteration elements (Along the diagonal)
+  auto idx = Range<size_t>(0, nrows);
+  // For each execution
+  std::for_each(EXECUTION_PAR 
+                idx.begin(), idx.end(),
+                [&](const size_t i) {
+                    (*result)(i,i) = (*it)(i,i) - (Type)(1);
+                });
 
-  // Diagonal indices (Modification)
-  auto diag_idx = Range<size_t>(0, nrows);
-  std::for_each(
-      EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
-      [&](const size_t i) { (*result)(i, i) = (*it)(i, i) + (Type)(1); });
 }
 
-void Add2Eye(Matrix<Type> *it, Matrix<Type> *&result) {
+void SubEyeLHS(Matrix<Type> *it, Matrix<Type> *&result) {
   /*
     Rows and columns of result matrix and if result is nullptr or if dimensions
     mismatch, then create a new matrix resource
@@ -61,35 +65,46 @@ void Add2Eye(Matrix<Type> *it, Matrix<Type> *&result) {
     result = CreateMatrixPtr<Type>(nrows, ncols);
   }
 
-  // Diagonal indices
-  auto diag_idx = Range<size_t>(0, nrows);
-  // Case when both left and right matrices are eye
-  std::for_each(EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
-                [&](const size_t i) { (*result)(i, i) = (Type)(2); });
+  // Iteration elements
+  auto idx = Range<size_t>(0, nrows*ncols);
+  // For each execution
+  std::for_each(EXECUTION_PAR 
+                idx.begin(), idx.end(),
+                [&](const size_t n) {
+                    const size_t j = n % ncols;
+                    const size_t i = (n - j) / ncols;
+                    (*result)(i,j) = ((i == j) ? ((Type)(1) - (*it)(i,j)) : ((Type)(-1)*(*it)(i,j)));
+                });
 }
 
-void EyeMatAddHandler::handle(Matrix<Type> *lhs, Matrix<Type> *rhs,
+
+void EyeMatSubHandler::handle(Matrix<Type> *lhs, 
+                              Matrix<Type> *rhs,
                               Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-  /* Eye matrix special check */
-  if (auto *it = EyeMatAdd(lhs, rhs); nullptr != it) {
-    if (it == lhs || it == rhs) {
-      AddEye(it, result);
+
+  /* Zero matrix special check */
+  if (auto *it = EyeMatSub(lhs, rhs); nullptr != it) {
+    if(it == lhs) {
+        SubEyeRHS(it, result);
+    } else if(it == rhs) {
+        SubEyeLHS(it, result);
     } else {
-      Add2Eye(it, result);
+        result = it;
     }
     return;
   }
-
-  /* Eye matrix numerical check */
-  else if (auto *it = EyeMatAddNum(lhs, rhs); nullptr != it) {
-    if (it == lhs || it == rhs) {
-      AddEye(it, result);
+  /* Zero matrix numerical check */
+  else if (auto *it = EyeMatSubNum(lhs, rhs); nullptr != it) {
+    if(it == lhs) {
+        SubEyeRHS(it, result);
+    } else if(it == rhs) {
+        SubEyeLHS(it, result);
     } else {
-      Add2Eye(it, result);
+        result = it;
     }
     return;
   }

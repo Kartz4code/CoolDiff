@@ -21,11 +21,9 @@
 
 #include "MatrixHandler.hpp"
 
-
-void MatrixHandler::handle(Matrix<Type>* lhs, 
-                           Matrix<Type>* rhs, 
-                           Matrix<Type>*& result) {
-    if(nullptr != mp_handler) {
-        mp_handler->handle(lhs, rhs, result);
-    }
+void MatrixHandler::handle(Matrix<Type> *lhs, Matrix<Type> *rhs,
+                           Matrix<Type> *&result) {
+  if (nullptr != mp_handler) {
+    mp_handler->handle(lhs, rhs, result);
+  }
 }

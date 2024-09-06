@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixAddition/MatAddNaiveHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixSubtraction/MatSubNaiveHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,16 +19,16 @@
  * associated repository.
  */
 
-#include "MatAddNaiveHandler.hpp"
+#include "MatSubNaiveHandler.hpp"
 #include "Matrix.hpp"
 
-void MatAddNaiveHandler::handle(Matrix<Type> *lhs, Matrix<Type> *rhs,
+void MatSubNaiveHandler::handle(Matrix<Type> *lhs, Matrix<Type> *rhs,
                                 Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-  /* Matrix-Matrix numerical addition */
+  /* Matrix-Matrix numerical subtraction */
   // Rows and columns of result matrix and if result is nullptr, then create a
   // new resource
   const size_t nrows{lhs->getNumRows()};
@@ -45,10 +45,10 @@ void MatAddNaiveHandler::handle(Matrix<Type> *lhs, Matrix<Type> *rhs,
   Type *left = lhs->getMatrixPtr();
   Type *right = rhs->getMatrixPtr();
 
-  // For each element, perform addition
+  // For each element, perform subtraction
   const size_t size{nrows * ncols};
   std::transform(EXECUTION_PAR left, left + size, right, res,
-                 [](const Type a, const Type b) { return a + b; });
+                 [](const Type a, const Type b) { return a - b; });
 
   return;
 }

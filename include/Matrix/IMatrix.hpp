@@ -29,13 +29,11 @@ template <typename T> class IMatrix : public MetaMatrix {
 private:
   // CRTP const
   inline constexpr const T &derived() const {
-    return static_cast<const T&>(*this);
+    return static_cast<const T &>(*this);
   }
 
   // CRTP mutable
-  inline constexpr T &derived() { 
-    return static_cast<T&>(*this); 
-  }
+  inline constexpr T &derived() { return static_cast<T &>(*this); }
 
 protected:
   // Protected constructor
@@ -43,21 +41,17 @@ protected:
 
 public:
   // Find me
-  bool findMe(void *v) const { 
-    return derived().findMe(v); 
-  }
-  
+  bool findMe(void *v) const { return derived().findMe(v); }
+
   // Protected destructor
   V_DTR(~IMatrix()) = default;
 };
-
 
 // Binary matrix reset
 #define BINARY_MAT_RESET()                                                     \
   this->m_visited = false;                                                     \
   mp_left->reset();                                                            \
   mp_right->reset();
-
 
 // Special matrices
 enum MatrixSpl : size_t {
@@ -70,16 +64,19 @@ enum MatrixSpl : size_t {
 };
 
 // Operations enum [Order matters!]
-enum OpMat : size_t {
-  ADD_MAT = 0,
-  MUL_MAT,
-  KRON_MAT,
-  COUNT_MAT
-};
+enum OpMat : size_t { ADD_MAT = 0, MUL_MAT, KRON_MAT, SUB_MAT, COUNT_MAT };
+
+// Matrix operations Macros
+#define MATRIX_ADD(X, Y, Z) std::get<OpMat::ADD_MAT>(m_caller)(X, Y, Z)
+#define MATRIX_MUL(X, Y, Z) std::get<OpMat::MUL_MAT>(m_caller)(X, Y, Z)
+#define MATRIX_KRON(X, Y, Z) std::get<OpMat::KRON_MAT>(m_caller)(X, Y, Z)
+#define MATRIX_SUB(X, Y, Z) std::get<OpMat::SUB_MAT>(m_caller)(X, Y, Z)
 
 // Operation type [Order matters!]
-#define OpMatType void (*)(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&),\
-                  void (*)(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&),\
-                  void (*)(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&)
+#define OpMatType                                                              \
+  void (*)(Matrix<Type> *, Matrix<Type> *, Matrix<Type> *&),                   \
+      void (*)(Matrix<Type> *, Matrix<Type> *, Matrix<Type> *&),               \
+      void (*)(Matrix<Type> *, Matrix<Type> *, Matrix<Type> *&),               \
+      void (*)(Matrix<Type> *, Matrix<Type> *, Matrix<Type> *&)
 // Operation objects [Order matters!]
-#define OpMatObj MatrixAdd, MatrixMul, MatrixKron
+#define OpMatObj MatrixAdd, MatrixMul, MatrixKron, MatrixSub

@@ -27,14 +27,18 @@
 #include <cmath>
 #include <functional>
 #include <future>
-#include <sstream>
 #include <iostream>
 #include <memory>
+#include <numeric>
+#include <sstream>
 #include <string_view>
 #include <thread>
 #include <tuple>
 #include <type_traits>
 #include <vector>
+
+// Naive implementation of matrix algorithms
+#define NAIVE_IMPL
 
 #ifndef BUILD_TYPE
 #define SCALAR_TYPE double
@@ -49,8 +53,8 @@
 #include <execution>
 #define EXECUTION_PAR std::execution::par,
 #define EXECUTION_SEQ std::execution::seq,
-constexpr const std::string_view g_execution_par = "Parallel";
-constexpr const std::string_view g_execution_seq = "Sequential";
+inline static constexpr const std::string_view g_execution_par = "Parallel";
+inline static constexpr const std::string_view g_execution_seq = "Sequential";
 #endif
 
 // Enable/disable copy/move operators
@@ -166,19 +170,18 @@ template <typename> class Matrix;
 
 // Ordered map between size_t and Type
 #if defined(USE_ROBIN_HOOD_MAP)
-  #include <robin_hood.h>
-  using OMPair = robin_hood::unordered_flat_map<size_t, Type>;
-  using OMMatPair = robin_hood::unordered_flat_map<size_t, Matrix<Type>*>;
-  // A generic unorderedmap
-  template <typename T, typename U>
-  using UnOrderedMap = robin_hood::unordered_flat_map<T, U>;
+#include <robin_hood.h>
+using OMPair = robin_hood::unordered_flat_map<size_t, Type>;
+using OMMatPair = robin_hood::unordered_flat_map<size_t, Matrix<Type> *>;
+// A generic unorderedmap
+template <typename T, typename U>
+using UnOrderedMap = robin_hood::unordered_flat_map<T, U>;
 #else
-  #include <unordered_map>
-  using OMPair = std::unordered_map<size_t, Type>;
-  using OMMatPair = std::unordered_map<size_t, Matrix<Type>*>;
-  // A generic unorderedmap
-  template <typename T, typename U> 
-  using UnOrderedMap = std::unordered_map<T, U>;
+#include <unordered_map>
+using OMPair = std::unordered_map<size_t, Type>;
+using OMMatPair = std::unordered_map<size_t, Matrix<Type> *>;
+// A generic unorderedmap
+template <typename T, typename U> using UnOrderedMap = std::unordered_map<T, U>;
 #endif
 
 // A generic vector type
@@ -216,9 +219,27 @@ template <typename T> std::string ToString(const T &value) {
 
 // Null pointer check
 #define NULL_CHECK(PTR, MSG) CheckNullPtr(PTR, MSG)
-// Check boolean 
-#define ASSERT(X, MSG) CheckAssertions(X,MSG);
+// Check boolean
+#define ASSERT(X, MSG) CheckAssertions(X, MSG);
 
 // Non nullptr correctness (Unary)
-void CheckNullPtr(void*, std::string_view = "");
+void CheckNullPtr(void *, std::string_view = "");
 void CheckAssertions(bool, std::string_view = "");
+
+// Range values from start to end
+template <typename T> class Range {
+private:
+  Vector<T> m_vec;
+
+public:
+  // Range constructor
+  Range(T start, T end) : m_vec(end - start) {
+    std::iota(m_vec.begin(), m_vec.end(), start);
+  }
+
+  typename Vector<T>::const_iterator begin() const { return m_vec.cbegin(); }
+
+  typename Vector<T>::const_iterator end() const { return m_vec.cend(); }
+
+  ~Range() = default;
+};

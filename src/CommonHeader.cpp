@@ -21,8 +21,6 @@
 
 #include "CommonHeader.hpp"
 
-#include <charconv>
-
 #if defined(USE_COMPLEX_MATH)
 // Addition (Type and complex number)
 Type operator+(Real val, const Type &cmx) {
@@ -82,24 +80,24 @@ bool operator==(Real val, const Type &cmx) {
 #endif
 
 // Non nullptr correctness (Unary)
-void CheckNullPtr(void* mat, std::string_view msg) {
-    std::ostringstream oss; 
-    if(nullptr == mat) {
-      oss << "[ERROR]: " << msg.data() << "\n"
-          << "[FILE]: " << std::string{__FILE__} << "\n"
-          << "[LINE]: " << std::to_string(__LINE__) << "\n";
-      std::cout << oss.str()  << "\n";
-      assert(false);
-    }
+void CheckNullPtr(void *mat, std::string_view msg) {
+  std::ostringstream oss;
+  if (nullptr == mat) {
+    oss << "[ERROR]: " << msg.data() << "\n"
+        << "[FILE]: " << std::string{__FILE__} << "\n"
+        << "[LINE]: " << std::to_string(__LINE__) << "\n";
+    std::cout << oss.str() << "\n";
+    assert(false);
+  }
 }
 
 void CheckAssertions(bool b, std::string_view msg) {
-    std::ostringstream oss; 
-    if(false == b) {
-      oss << "[ERROR]: " << msg.data() << "\n"
-          << "[FILE]: " << std::string{__FILE__} << "\n"
-          << "[LINE]: " << std::to_string(__LINE__) << "\n";
-      std::cout << oss.str()  << "\n";
-      assert(false);
-    }
+  std::ostringstream oss;
+  if (false == b) {
+    oss << "[ERROR]: " << msg.data() << "\n"
+        << "[FILE]: " << std::string{__FILE__} << "\n"
+        << "[LINE]: " << std::to_string(__LINE__) << "\n";
+    std::cout << oss.str() << "\n";
+    assert(false);
+  }
 }

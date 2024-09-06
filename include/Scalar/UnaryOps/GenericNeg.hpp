@@ -48,7 +48,6 @@ public:
       : mp_left{u}, m_caller{std::make_tuple(std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
-
   // Symbolic evaluation
   V_OVERRIDE(Variable *symEval()) {
     if (nullptr == this->mp_tmp) {
@@ -106,9 +105,8 @@ public:
 
       // Modify cache for left node
       if (u != (Type)(0)) {
-        std::for_each(EXECUTION_PAR 
-                      mp_left->m_cache.begin(), mp_left->m_cache.end(), 
-                      [u,&cache](const auto& item) {
+        std::for_each(EXECUTION_PAR mp_left->m_cache.begin(),
+                      mp_left->m_cache.end(), [u, &cache](const auto &item) {
                         const auto idx = item.first;
                         const auto val = item.second;
                         (*cache)[idx] += (val * u);
@@ -129,12 +127,11 @@ public:
 
       // Modify cache for left node
       if (ustar != (Type)(0)) {
-        std::for_each(EXECUTION_PAR 
-                      mp_left->m_cache.begin(), mp_left->m_cache.end(), 
-                      [ustar,&cache](auto& item) {
+        std::for_each(EXECUTION_PAR mp_left->m_cache.begin(),
+                      mp_left->m_cache.end(), [ustar, &cache](auto &item) {
                         const auto idx = item.first;
                         const auto val = item.second;
-                        (*cache)[idx] += (val * ustar); 
+                        (*cache)[idx] += (val * ustar);
                       });
       }
     }
@@ -145,24 +142,16 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair &getCache()) { 
-    return m_cache; 
-  }
+  V_OVERRIDE(OMPair &getCache()) { return m_cache; }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { 
-    UNARY_RESET(); 
-  }
+  V_OVERRIDE(void reset()) { UNARY_RESET(); }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { 
-    return "GenericNeg"; 
-  }
+  V_OVERRIDE(std::string_view getType() const) { return "GenericNeg"; }
 
   // Find mes
-  V_OVERRIDE(bool findMe(void *v) const) { 
-    UNARY_FIND_ME(); 
-  }
+  V_OVERRIDE(bool findMe(void *v) const) { UNARY_FIND_ME(); }
 
   // Destructor
   V_DTR(~GenericNeg()) = default;

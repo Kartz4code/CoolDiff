@@ -51,7 +51,6 @@ public:
                                      std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
-
   // Symbolic evaluation
   V_OVERRIDE(Variable *symEval()) {
     if (nullptr == this->mp_tmp) {
@@ -113,22 +112,20 @@ public:
       (*cache)[mp_right->m_nidx] += (Type)(-1);
 
       // Modify cache for left node
-      std::for_each(EXECUTION_PAR 
-                    mp_left->m_cache.begin(), mp_left->m_cache.end(), 
-                    [&cache](const auto& item) {
+      std::for_each(EXECUTION_PAR mp_left->m_cache.begin(),
+                    mp_left->m_cache.end(), [&cache](const auto &item) {
                       const auto idx = item.first;
                       const auto val = item.second;
                       (*cache)[idx] += (val);
-              });
+                    });
 
       // Modify cache for right node
-      std::for_each(EXECUTION_PAR 
-                    mp_right->m_cache.begin(), mp_right->m_cache.end(), 
-                    [&cache](const auto& item) {
+      std::for_each(EXECUTION_PAR mp_right->m_cache.begin(),
+                    mp_right->m_cache.end(), [&cache](const auto &item) {
                       const auto idx = item.first;
                       const auto val = item.second;
-                      (*cache)[idx] += ((Type)(-1)*val);
-              });
+                      (*cache)[idx] += ((Type)(-1) * val);
+                    });
     } else {
       // Cached value
       const Type cCache = (*cache)[m_nidx];
@@ -148,22 +145,22 @@ public:
 
       // Modify cache for left node
       if (cCache != (Type)(0)) {
-        std::for_each(EXECUTION_PAR 
-                      mp_left->m_cache.begin(), mp_left->m_cache.end(), 
-                      [&cache, cCache](const auto& item) {
+        std::for_each(EXECUTION_PAR mp_left->m_cache.begin(),
+                      mp_left->m_cache.end(),
+                      [&cache, cCache](const auto &item) {
                         const auto idx = item.first;
                         const auto val = item.second;
                         (*cache)[idx] += (val * cCache);
-              });
-              
+                      });
+
         // Modify cache for right node
-        std::for_each(EXECUTION_PAR 
-                      mp_right->m_cache.begin(), mp_right->m_cache.end(), 
-                      [&cache, cCache](const auto& item) {
+        std::for_each(EXECUTION_PAR mp_right->m_cache.begin(),
+                      mp_right->m_cache.end(),
+                      [&cache, cCache](const auto &item) {
                         const auto idx = item.first;
                         const auto val = item.second;
                         (*cache)[idx] += ((Type)(-1) * val * cCache);
-              });
+                      });
       }
     }
     // Traverse left/right nodes
@@ -219,7 +216,6 @@ public:
                                      std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
-
   // Symbolic evaluation
   V_OVERRIDE(Variable *symEval()) {
     if (nullptr == this->mp_tmp) {
@@ -274,13 +270,12 @@ public:
       (*cache)[mp_right->m_nidx] += (Type)(-1);
 
       // Modify cache for right node
-      std::for_each(EXECUTION_PAR 
-                    mp_right->m_cache.begin(), mp_right->m_cache.end(), 
-                    [&cache](const auto& item) {
+      std::for_each(EXECUTION_PAR mp_right->m_cache.begin(),
+                    mp_right->m_cache.end(), [&cache](const auto &item) {
                       const auto idx = item.first;
                       const auto val = item.second;
                       (*cache)[idx] += ((Type)(-1) * val);
-              });
+                    });
     } else {
       // Cached value
       const Type cCache = (*cache)[m_nidx];
@@ -296,13 +291,13 @@ public:
       // Modify cache for right node
       if (cCache != (Type)(0)) {
         // Modify cache for right node
-        std::for_each(EXECUTION_PAR 
-                      mp_right->m_cache.begin(), mp_right->m_cache.end(), 
-                      [&cache, cCache](const auto& item) {
+        std::for_each(EXECUTION_PAR mp_right->m_cache.begin(),
+                      mp_right->m_cache.end(),
+                      [&cache, cCache](const auto &item) {
                         const auto idx = item.first;
                         const auto val = item.second;
                         (*cache)[idx] += ((Type)(-1) * val * cCache);
-              });
+                      });
       }
     }
     // Traverse left/right nodes
@@ -354,7 +349,6 @@ public:
       : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
                                      std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
-
 
   // Symbolic evaluation
   V_OVERRIDE(Variable *symEval()) {
@@ -410,13 +404,12 @@ public:
       (*cache)[mp_left->m_nidx] += (Type)1;
 
       // Modify cache for left node
-      std::for_each(EXECUTION_PAR 
-                    mp_left->m_cache.begin(), mp_left->m_cache.end(), 
-                    [&cache](const auto& item) {
+      std::for_each(EXECUTION_PAR mp_left->m_cache.begin(),
+                    mp_left->m_cache.end(), [&cache](const auto &item) {
                       const auto idx = item.first;
                       const auto val = item.second;
                       (*cache)[idx] += (val);
-              });
+                    });
     } else {
       // Cached value
       const Type cCache = (*cache)[m_nidx];
@@ -431,13 +424,13 @@ public:
 
       // Modify cache for left node
       if (cCache != (Type)(0)) {
-        std::for_each(EXECUTION_PAR 
-                      mp_left->m_cache.begin(), mp_left->m_cache.end(), 
-                      [&cache, cCache](const auto& item) {
+        std::for_each(EXECUTION_PAR mp_left->m_cache.begin(),
+                      mp_left->m_cache.end(),
+                      [&cache, cCache](const auto &item) {
                         const auto idx = item.first;
                         const auto val = item.second;
                         (*cache)[idx] += (val * cCache);
-              });
+                      });
       }
     }
     // Traverse left/right nodes

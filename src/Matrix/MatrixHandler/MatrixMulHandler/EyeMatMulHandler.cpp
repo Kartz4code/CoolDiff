@@ -20,27 +20,29 @@
  */
 
 #include "EyeMatMulHandler.hpp"
-#include "MatrixEyeOps.hpp"
 #include "Matrix.hpp"
+#include "MatrixEyeOps.hpp"
 
-void EyeMatMulHandler::handle(Matrix<Type>* lhs, 
-                              Matrix<Type>* rhs, 
-                              Matrix<Type>*& result) {
-    // Null pointer check
-    NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-    NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+void EyeMatMulHandler::handle(Matrix<Type> *lhs, Matrix<Type> *rhs,
+                              Matrix<Type> *&result) {
+#if defined(NAIVE_IMPL)
+  // Null pointer check
+  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-    /* Eye matrix special check */ 
-    if(auto* it = EyeMatMul(lhs,rhs); nullptr != it) {
-        result = it;
-        return;
-    } 
-    /* Eye matrix numerical check */
-    else if(auto* it = EyeMatMulNum(lhs, rhs); nullptr != it) {
-        result = it;
-        return;
-    }
+  /* Eye matrix special check */
+  if (auto *it = EyeMatMul(lhs, rhs); nullptr != it) {
+    result = it;
+    return;
+  }
 
-    // Chain of responsibility 
-    MatrixHandler::handle(lhs, rhs, result);
+  /* Eye matrix numerical check */
+  else if (auto *it = EyeMatMulNum(lhs, rhs); nullptr != it) {
+    result = it;
+    return;
+  }
+#endif
+
+  // Chain of responsibility
+  MatrixHandler::handle(lhs, rhs, result);
 }

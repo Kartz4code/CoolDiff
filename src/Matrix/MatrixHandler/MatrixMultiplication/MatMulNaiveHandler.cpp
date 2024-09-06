@@ -22,55 +22,47 @@
 #include "MatMulNaiveHandler.hpp"
 #include "Matrix.hpp"
 
-void MatMulNaiveHandler::handle(Matrix<Type>* lhs, 
-                                Matrix<Type>* rhs, 
-                                Matrix<Type>*& result) {
-    // Null pointer check
-    NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-    NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+void MatMulNaiveHandler::handle(Matrix<Type> *lhs, Matrix<Type> *rhs,
+                                Matrix<Type> *&result) {
+  // Null pointer check
+  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-    // If result is nullptr, then create a new resource
-    const size_t lrows = lhs->getNumRows();
-    const size_t rcols = rhs->getNumColumns();
-    const size_t rrows = rhs->getNumRows();
-    if (nullptr == result) {
-        result = CreateMatrixPtr<Type>(lrows, rcols);
-    }
-    else if((lrows != result->getNumRows()) || (rcols != result->getNumColumns())) {
-        result = CreateMatrixPtr<Type>(lrows, rcols);
-    }
+  // If result is nullptr, then create a new resource
+  const size_t lrows = lhs->getNumRows();
+  const size_t rcols = rhs->getNumColumns();
+  const size_t rrows = rhs->getNumRows();
+  if (nullptr == result) {
+    result = CreateMatrixPtr<Type>(lrows, rcols);
+  } else if ((lrows != result->getNumRows()) ||
+             (rcols != result->getNumColumns())) {
+    result = CreateMatrixPtr<Type>(lrows, rcols);
+  }
 
-    // Get raw pointers to result, left and right matrices
-    Matrix<Type>& res = *result;
-    Matrix<Type>& left = *lhs;
-    Matrix<Type>& right = *rhs;   
-    
-    // Indices for outer loop
-    Vector<size_t> elemM(lrows*rcols);
-    std::iota(elemM.begin(), elemM.end(), 0);
-    // Indices for inner loop
-    Vector<size_t> elemR(rrows);
-    std::iota(elemR.begin(), elemR.end(), 0);
-                    
-    // Naive matrix-matrix multiplication
-    std::for_each(EXECUTION_PAR 
-                  elemM.begin(), elemM.end(), 
-                  [&](const size_t n) {
-                    // Row and column index
-                    const size_t j = n%rcols;
-                    const size_t i = (n-j)/rcols;
+  // Get raw pointers to result, left and right matrices
+  Matrix<Type> &res = *result;
+  Matrix<Type> &left = *lhs;
+  Matrix<Type> &right = *rhs;
 
-                    // Inner product
-                    Type tmp{};
-                    std::for_each(EXECUTION_SEQ 
-                                    elemR.begin(), elemR.end(), 
-                                    [&](const size_t m) {
-                                    tmp += left(i,m)*right(m,j);
-                  });
+  // Indices for outer loop and inner loop
+  auto outer_idx = Range<size_t>(0, lrows * rcols);
+  auto inner_idx = Range<size_t>(0, rrows);
 
-                  // Store result
-                  res(i,j) = std::exchange(tmp, (Type)(0));
-    });
+  // Naive matrix-matrix multiplication
+  std::for_each(
+      EXECUTION_PAR outer_idx.begin(), outer_idx.end(), [&](const size_t n) {
+        // Row and column index
+        const size_t j = n % rcols;
+        const size_t i = (n - j) / rcols;
 
-    return;
+        // Inner product
+        Type tmp{};
+        std::for_each(EXECUTION_SEQ inner_idx.begin(), inner_idx.end(),
+                      [&](const size_t m) { tmp += left(i, m) * right(m, j); });
+
+        // Store result
+        res(i, j) = std::exchange(tmp, (Type)(0));
+      });
+
+  return;
 }

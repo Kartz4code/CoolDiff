@@ -19,18 +19,16 @@
  * associated repository.
  */
 
-#pragma once 
+#pragma once
 
 #include "MatrixHandler.hpp"
 
 class MatMulNaiveHandler : public MatrixHandler {
-    public:
-        using MatrixHandler::MatrixHandler; 
+public:
+  using MatrixHandler::MatrixHandler;
 
-        V_OVERRIDE(void handle(Matrix<Type>*, 
-                               Matrix<Type>*, 
-                               Matrix<Type>*&));
+  V_OVERRIDE(void handle(Matrix<Type> *, Matrix<Type> *, Matrix<Type> *&));
 
-        // Destructor
-        V_DTR(~MatMulNaiveHandler() = default);
+  // Destructor
+  V_DTR(~MatMulNaiveHandler() = default);
 };

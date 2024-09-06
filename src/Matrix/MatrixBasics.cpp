@@ -22,54 +22,25 @@
 #include "MatrixBasics.hpp"
 #include "Matrix.hpp"
 
-// Transpose of matrix
-void Transpose(Matrix<Type>* mat, Matrix<Type>*& result){
-  // Null pointer check
-  NULL_CHECK(mat, "Matrix (mat) is a nullptr");
-  const size_t nrows = mat->getNumRows();
-  const size_t ncols = mat->getNumColumns();
-
-  if(nullptr == nullptr) {
-    result = CreateMatrixPtr<Type>(ncols, nrows); 
-  } else if((ncols != result->getNumRows()) || (nrows != result->getNumColumns())) {
-    result = CreateMatrixPtr<Type>(ncols, nrows); 
-  }
-
-  Vector<size_t> elem(mat->getNumElem());
-  std::iota(elem.begin(), elem.end(), 0);
-
-  std::for_each(EXECUTION_PAR 
-    elem.begin(), elem.end(), [&](const size_t n) {
-    const size_t j = n%ncols;
-    const size_t i = (n-j)/ncols;
-    (*result)(j,i) = (*mat)(i,j);
-  });
-}
-
-
 // Numerical Eye matrix
-Matrix<Type>* Eye(const size_t n) {
+Matrix<Type> *Eye(const size_t n) {
 
   // Eye matrix registry
-  static Vector<Matrix<Type>*> eye_register; 
+  static UnOrderedMap<size_t, Matrix<Type> *> eye_register;
 
   // Find in registry of special matrices
-  if(auto it = std::find_if(EXECUTION_PAR 
-                            eye_register.begin(), eye_register.end(), [&](Matrix<Type>* m) { 
-                                return ((m->getNumColumns() == n) && (m->getNumRows() == n)); 
-                          }); it != eye_register.end()) {
-    return *it;
+  if (auto it = eye_register.find(n); it != eye_register.end()) {
+    return it->second;
   } else {
-    Matrix<Type>* result = CreateMatrixPtr<Type>(n, n); 
-    
-    Vector<size_t> elem(n);
-    std::iota(elem.begin(), elem.end(), 0);
+    Matrix<Type> *result = CreateMatrixPtr<Type>(n, n);
 
-    std::for_each(EXECUTION_PAR 
-      elem.begin(), elem.end(), [&](const size_t i) {
-      (*result)(i,i) = (Type)(1);
-    });
-    eye_register.push_back(result);
+    // Vector of indices
+    auto idx = Range<size_t>(0, n);
+    std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
+                  [&](const size_t i) { (*result)(i, i) = (Type)(1); });
+
+    // Register and return result
+    eye_register[n] = result;
     return result;
   }
 }

@@ -35,7 +35,7 @@ bool IsOnesMatrix(const Matrix<Type> &m) {
   const size_t n = m.getNumElem();
 
   // Check all elements for one
-  return std::all_of(EXECUTION_PAR 
+  return std::all_of(EXECUTION_PAR
                      it, it + n,
                      [](Type i) { return (i == (Type)(1)); });
 }
@@ -70,7 +70,7 @@ bool IsDiagMatrix(const Matrix<Type> &m) {
 }
 
 // Is the row matrix ?
-bool IsRowMatrix(const Matrix<Type> &m) { 
+bool IsRowMatrix(const Matrix<Type> &m) {
   // If special matrix and of corresponding type, return
   if(m.getMatType() == MatrixSpl::ROW_MAT) {
     return true;
@@ -80,17 +80,17 @@ bool IsRowMatrix(const Matrix<Type> &m) {
   if(m.getMatType() == MatrixSpl::ZEROS) {
     return true;
   }
-  return (m.getNumRows() == 1); 
+  return (m.getNumRows() == 1);
 }
 
 // Is the column matrix ?
-bool IsColMatrix(const Matrix<Type> &m) { 
+bool IsColMatrix(const Matrix<Type> &m) {
   // If special matrix and of corresponding type, return
   if(m.getMatType() == MatrixSpl::COL_MAT) {
     return true;
   }
 
-  return (m.getNumColumns() == 1); 
+  return (m.getNumColumns() == 1);
 }
 
 // Find type of matrix
@@ -119,11 +119,11 @@ size_t FindMatType(const Matrix<Type> &m) {
   // Column matrix check
   else if (true == IsColMatrix(m)) {
     result |= MatrixSpl::COL_MAT;
-  } 
+  }
   // If none of special type
   else {
   result = -1;
-  }  
+  }
   return result;
 }
 */
@@ -137,7 +137,7 @@ Matrix<Type> &Eval(Matrix<Expression> &Mexp) {
 }
 
 // Matrix-Matrix derivative evaluation
-Matrix<Type>& DevalF(Matrix<Expression>& Mexp, Matrix<Variable>& X) {
+Matrix<Type> &DevalF(Matrix<Expression> &Mexp, Matrix<Variable> &X) {
   // Reset graph/tree
   Mexp.resetImpl();
   // Return evaluation value

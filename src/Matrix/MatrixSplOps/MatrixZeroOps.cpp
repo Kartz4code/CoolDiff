@@ -22,58 +22,83 @@
 #include "MatrixZeroOps.hpp"
 #include "CommonMatFunctions.hpp"
 
-// Is the matrix zero 
-bool IsZeroMatrix(Matrix<Type>* m) {
+// Is the matrix zero
+bool IsZeroMatrix(Matrix<Type> *m) {
   // Null pointer check
   NULL_CHECK(m, "Matrix (m) is a nullptr");
 
-  // Zero special matrix check 
-  if(m->getMatType() == MatrixSpl::ZEROS) {
+  // Zero special matrix check
+  if (m->getMatType() == MatrixSpl::ZEROS) {
     return true;
-  } 
+  }
   // else if m is some special matrix
-  else if(m->getMatType() != -1) {
+  else if (m->getMatType() != -1) {
     return false;
   }
 
-  // Get Matrix pointer and number of elements
+  // Get Matrix pointer and check for null pointer
   auto *it = m->getMatrixPtr();
-  const size_t n = m->getNumElem();
+  NULL_CHECK(it, "Matrix is a nullptr");
 
   // Check all elements for zero
-  return std::all_of(EXECUTION_PAR 
-                     it, it + n,
-                     [](Type i) { return (i == (Type)(0)); 
-                     });
+  return std::all_of(EXECUTION_PAR it, it + m->getNumElem(),
+                     [](Type i) { return (i == (Type)(0)); });
 }
 
 // Zero matrix addition checks
-Matrix<Type>* ZeroMatAdd(Matrix<Type>* lhs, Matrix<Type>* rhs) {
+Matrix<Type> *ZeroMatAdd(Matrix<Type> *lhs, Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-  // Rows and columns of result matrix    
+  // Rows and columns of result matrix
   const size_t nrows{lhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
 
   // If both lhs and rhs matrices are zero matrices
-  if(lhs->getMatType() == MatrixSpl::ZEROS && 
-     rhs->getMatType() == MatrixSpl::ZEROS) {
-    return CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS); 
+  if (lhs->getMatType() == MatrixSpl::ZEROS &&
+      rhs->getMatType() == MatrixSpl::ZEROS) {
+    return CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS);
   }
   // If lhs is a zero matrix
-  else if(lhs->getMatType() == MatrixSpl::ZEROS) {
+  else if (lhs->getMatType() == MatrixSpl::ZEROS) {
     return rhs;
-  // If rhs is a zero matrix
-  } else if(rhs->getMatType() == MatrixSpl::ZEROS) {
+    // If rhs is a zero matrix
+  } else if (rhs->getMatType() == MatrixSpl::ZEROS) {
     return lhs;
   } else {
     return nullptr;
   }
 }
+
+// Zero matrix subtraction
+Matrix<Type> *ZeroMatSub(Matrix<Type>* lhs, Matrix<Type> * rhs) {
+  // Null pointer check
+  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+
+  // Rows and columns of result matrix
+  const size_t nrows{lhs->getNumRows()};
+  const size_t ncols{rhs->getNumColumns()};
+
+  // If both lhs and rhs matrices are zero matrices
+  if (lhs->getMatType() == MatrixSpl::ZEROS &&
+      rhs->getMatType() == MatrixSpl::ZEROS) {
+    return CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS);
+  } 
+  // If lhs is a zero matrix
+  else if (lhs->getMatType() == MatrixSpl::ZEROS) {
+    return rhs;
+  // If rhs is a zero matrix
+  } else if (rhs->getMatType() == MatrixSpl::ZEROS) {
+    return lhs;
+  } else {
+    return nullptr;
+  } 
+}
+
 // Zero matrix multiplication checks
-Matrix<Type>* ZeroMatMul(Matrix<Type>* lhs, Matrix<Type>* rhs) {
+Matrix<Type> *ZeroMatMul(Matrix<Type> *lhs, Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -83,20 +108,21 @@ Matrix<Type>* ZeroMatMul(Matrix<Type>* lhs, Matrix<Type>* rhs) {
   const size_t rc = rhs->getNumColumns();
 
   // If both lhs and rhs matrices are zero matrices
-  if(lhs->getMatType() == MatrixSpl::ZEROS || 
-     rhs->getMatType() == MatrixSpl::ZEROS) {    
-      return CreateMatrixPtr<Type>(lr, rc, MatrixSpl::ZEROS);
+  if (lhs->getMatType() == MatrixSpl::ZEROS ||
+      rhs->getMatType() == MatrixSpl::ZEROS) {
+    return CreateMatrixPtr<Type>(lr, rc, MatrixSpl::ZEROS);
   }
   // If neither, then return nullptr
   else {
     return nullptr;
   }
 }
+
 // Zero matrix kronocker product
-Matrix<Type>* ZeroMatKron(Matrix<Type>* lhs, Matrix<Type>* rhs) {
+Matrix<Type> *ZeroMatKron(Matrix<Type> *lhs, Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");  
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
   // Left matrix rows and right matrix columns
   const size_t lr = lhs->getNumRows();
@@ -105,9 +131,9 @@ Matrix<Type>* ZeroMatKron(Matrix<Type>* lhs, Matrix<Type>* rhs) {
   const size_t rc = rhs->getNumColumns();
 
   // If both lhs and rhs matrices are zero matrices
-  if(lhs->getMatType() == MatrixSpl::ZEROS || 
-     rhs->getMatType() == MatrixSpl::ZEROS) {    
-      return CreateMatrixPtr<Type>(lr*rr, lc*rc, MatrixSpl::ZEROS);
+  if (lhs->getMatType() == MatrixSpl::ZEROS ||
+      rhs->getMatType() == MatrixSpl::ZEROS) {
+    return CreateMatrixPtr<Type>(lr * rr, lc * rc, MatrixSpl::ZEROS);
   }
   // If neither, then return nullptr
   else {
@@ -116,7 +142,7 @@ Matrix<Type>* ZeroMatKron(Matrix<Type>* lhs, Matrix<Type>* rhs) {
 }
 
 // Zero matrix addition numerical check
-Matrix<Type>* ZeroMatAddNum(Matrix<Type>* lhs, Matrix<Type>* rhs) {
+Matrix<Type> *ZeroMatAddNum(Matrix<Type> *lhs, Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -125,13 +151,13 @@ Matrix<Type>* ZeroMatAddNum(Matrix<Type>* lhs, Matrix<Type>* rhs) {
   const bool lhs_bool = IsZeroMatrix(lhs);
   const bool rhs_bool = IsZeroMatrix(rhs);
 
-  // Rows and columns of result matrix    
+  // Rows and columns of result matrix
   const size_t nrows{lhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
 
-  if(lhs_bool == true && rhs_bool == true) {
-    return CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS); 
-  } else if(lhs_bool == true) {
+  if (lhs_bool == true && rhs_bool == true) {
+    return CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS);
+  } else if (lhs_bool == true) {
     return rhs;
   } else if (rhs_bool == true) {
     return lhs;
@@ -139,8 +165,35 @@ Matrix<Type>* ZeroMatAddNum(Matrix<Type>* lhs, Matrix<Type>* rhs) {
     return nullptr;
   }
 }
+
+// Zero matrix subtraction numerics
+Matrix<Type> *ZeroMatSubNum(Matrix<Type> * lhs, Matrix<Type> * rhs) {
+  // Null pointer check
+  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+
+  // Boolean check
+  const bool lhs_bool = IsZeroMatrix(lhs);
+  const bool rhs_bool = IsZeroMatrix(rhs);
+
+  // Rows and columns of result matrix
+  const size_t nrows{lhs->getNumRows()};
+  const size_t ncols{rhs->getNumColumns()};
+
+  if (lhs_bool == true && rhs_bool == true) {
+    return CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS);
+  } else if (lhs_bool == true) {
+    return rhs;
+  } else if (rhs_bool == true) {
+    return lhs;
+  } else {
+    return nullptr;
+  }
+}
+
+
 // Zero matrix multiplication numerical checks
-Matrix<Type>* ZeroMatMulNum(Matrix<Type>* lhs, Matrix<Type>* rhs) {
+Matrix<Type> *ZeroMatMulNum(Matrix<Type> *lhs, Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -151,18 +204,19 @@ Matrix<Type>* ZeroMatMulNum(Matrix<Type>* lhs, Matrix<Type>* rhs) {
 
   // Boolean check
   const bool lhs_bool = IsZeroMatrix(lhs);
-  const bool rhs_bool = IsZeroMatrix(rhs); 
-  if(lhs_bool == true || rhs_bool == true) {
+  const bool rhs_bool = IsZeroMatrix(rhs);
+  if (lhs_bool == true || rhs_bool == true) {
     return CreateMatrixPtr<Type>(lr, rc, MatrixSpl::ZEROS);
   } else {
     return nullptr;
   }
 }
+
 // Zero matrix kronocker product numerics
-Matrix<Type>* ZeroMatKronNum(Matrix<Type>* lhs, Matrix<Type>* rhs) {
-    // Null pointer check
+Matrix<Type> *ZeroMatKronNum(Matrix<Type> *lhs, Matrix<Type> *rhs) {
+  // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");  
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
   // Left matrix rows and right matrix columns
   const size_t lr = lhs->getNumRows();
@@ -172,11 +226,10 @@ Matrix<Type>* ZeroMatKronNum(Matrix<Type>* lhs, Matrix<Type>* rhs) {
 
   // Boolean check
   const bool lhs_bool = IsZeroMatrix(lhs);
-  const bool rhs_bool = IsZeroMatrix(rhs); 
-  if(lhs_bool == true || rhs_bool == true) {
-    return CreateMatrixPtr<Type>(lr*rr, lc*rc, MatrixSpl::ZEROS);
+  const bool rhs_bool = IsZeroMatrix(rhs);
+  if (lhs_bool == true || rhs_bool == true) {
+    return CreateMatrixPtr<Type>(lr * rr, lc * rc, MatrixSpl::ZEROS);
   } else {
     return nullptr;
   }
 }
-

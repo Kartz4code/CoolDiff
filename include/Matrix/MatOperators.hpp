@@ -24,10 +24,13 @@
 #include "CommonHeader.hpp"
 
 // Matrix-Matrix addition - Left, Right, Result matrix pointer
-void MatrixAdd(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&);
+void MatrixAdd(Matrix<Type> *, Matrix<Type> *, Matrix<Type> *&);
+
+// Matrix-Matrix subtraction - Left, Right, Result matrix pointer
+void MatrixSub(Matrix<Type> *, Matrix<Type> *, Matrix<Type> *&);
 
 // Matrix-Matrix multiplication - Left, Right, Result matrix pointer
-void MatrixMul(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&);
+void MatrixMul(Matrix<Type> *, Matrix<Type> *, Matrix<Type> *&);
 
 // Matrix-Matrix Kronocker product - Left, Right, Result matrix pointer
-void MatrixKron(Matrix<Type>*, Matrix<Type>*, Matrix<Type>*&);
+void MatrixKron(Matrix<Type> *, Matrix<Type> *, Matrix<Type> *&);

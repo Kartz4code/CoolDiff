@@ -38,12 +38,12 @@ public:
   V_PURE(Matrix<Type> *eval());
 
   // Forward derivative
-  V_PURE(Matrix<Type>* devalF(Matrix<Variable>&));
+  V_PURE(Matrix<Type> *devalF(Matrix<Variable> &));
 
   // Get number of rows and columns
-  V_PURE( size_t getNumRows() const );
+  V_PURE(size_t getNumRows() const);
 
-  V_PURE( size_t getNumColumns() const );
+  V_PURE(size_t getNumColumns() const);
 
   // Reset all visited flags
   V_PURE(void reset());

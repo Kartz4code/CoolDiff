@@ -19,23 +19,27 @@
  * associated repository.
  */
 
-#pragma once 
+#pragma once
 
 #include "CommonHeader.hpp"
 
 // Is the matrix zero?
-bool IsZeroMatrix(Matrix<Type>*);
+bool IsZeroMatrix(Matrix<Type> *);
 
 // Zero matrix addition
-Matrix<Type>* ZeroMatAdd(Matrix<Type>*, Matrix<Type>*);
+Matrix<Type> *ZeroMatAdd(Matrix<Type> *, Matrix<Type> *);
+// Zero matrix subtraction
+Matrix<Type> *ZeroMatSub(Matrix<Type> *, Matrix<Type> *);
 // Zero matrix multiplication
-Matrix<Type>* ZeroMatMul(Matrix<Type>*, Matrix<Type>*);
+Matrix<Type> *ZeroMatMul(Matrix<Type> *, Matrix<Type> *);
 // Zero matrix kronocker product
-Matrix<Type>* ZeroMatKron(Matrix<Type>*, Matrix<Type>*);
+Matrix<Type> *ZeroMatKron(Matrix<Type> *, Matrix<Type> *);
 
 // Zero matrix addition numerics
-Matrix<Type>* ZeroMatAddNum(Matrix<Type>*, Matrix<Type>*);
+Matrix<Type> *ZeroMatAddNum(Matrix<Type> *, Matrix<Type> *);
+// Zero matrix subtraction numerics
+Matrix<Type> *ZeroMatSubNum(Matrix<Type> *, Matrix<Type> *);
 // Zero matrix multiplication numerics
-Matrix<Type>* ZeroMatMulNum(Matrix<Type>*, Matrix<Type>*);
+Matrix<Type> *ZeroMatMulNum(Matrix<Type> *, Matrix<Type> *);
 // Zero matrix kronocker product numerics
-Matrix<Type>* ZeroMatKronNum(Matrix<Type>*, Matrix<Type>*);
+Matrix<Type> *ZeroMatKronNum(Matrix<Type> *, Matrix<Type> *);

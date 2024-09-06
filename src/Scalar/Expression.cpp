@@ -30,9 +30,7 @@ Expression::Expression() {
 }
 
 // Is recursive expression
-bool Expression::isRecursive() const { 
-  return m_recursive_exp; 
-}
+bool Expression::isRecursive() const { return m_recursive_exp; }
 
 Expression &Expression::SymDiff(const Variable &var) {
   auto tmp = Allocate<Expression>();
@@ -41,8 +39,6 @@ Expression &Expression::SymDiff(const Variable &var) {
 }
 
 // Get type
-std::string_view Expression::getType() const { 
-  return "Expression"; 
-}
+std::string_view Expression::getType() const { return "Expression"; }
 
 Expression::~Expression() = default;

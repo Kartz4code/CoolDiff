@@ -19,24 +19,21 @@
  * associated repository.
  */
 
-#pragma once 
+#pragma once
 
 #include "CommonHeader.hpp"
 
 // Matrix handler for different types
 class MatrixHandler {
-    private:
-        MatrixHandler* mp_handler{nullptr};
+private:
+  MatrixHandler *mp_handler{nullptr};
 
-    public:
-        // Constructor
-        constexpr MatrixHandler(MatrixHandler* h = nullptr) : mp_handler{h} {}
+public:
+  // Constructor
+  constexpr MatrixHandler(MatrixHandler *h = nullptr) : mp_handler{h} {}
 
-        V_PURE(void handle(Matrix<Type>*, 
-                           Matrix<Type>*, 
-                           Matrix<Type>*&));
+  V_PURE(void handle(Matrix<Type> *, Matrix<Type> *, Matrix<Type> *&));
 
-        // Destructor
-        V_DTR(~MatrixHandler() = default);
+  // Destructor
+  V_DTR(~MatrixHandler() = default);
 };
-

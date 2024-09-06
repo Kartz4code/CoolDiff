@@ -46,13 +46,11 @@ OMPair &PreCompCache(Expression &exp) {
   return exp.getCache();
 }
 
-
 // Symbolic Expression
 Expression &SymDiff(Expression &exp, const Variable &var) {
   // Reset graph/tree
   return exp.SymDiff(var);
 }
-
 
 // Forward mode algorithmic differentiation (Scalar)
 Type DevalF(Expression &exp, const Variable &x) {
@@ -61,7 +59,7 @@ Type DevalF(Expression &exp, const Variable &x) {
   // Return forward differentiation value
   return exp.devalF(x);
 }
-// Reverse mode algorithmic differentiation (Scalar) 
+// Reverse mode algorithmic differentiation (Scalar)
 Type DevalR(Expression &exp, const Variable &x) {
   // Return reverse differentiation value
   return exp.devalR(x);
@@ -76,33 +74,25 @@ Type Deval(Expression &exp, const Variable &x, ADMode ad) {
   }
 }
 
-
 // Forward mode algorithmic differentiation (Matrix)
-Matrix<Type> &DevalF(Expression &exp, const Matrix<Variable> &m, bool serial_exec) {
+Matrix<Type> &DevalF(Expression &exp, const Matrix<Variable> &m,
+                     bool serial_exec) {
   const size_t n = m.getNumElem();
   auto &result = CreateMatrix<Type>(m.getNumRows(), m.getNumColumns());
 
   if (true == exp.isRecursive() || true == serial_exec) {
-    std::transform(EXECUTION_SEQ 
-                    m.getMatrixPtr(), m.getMatrixPtr() + n, 
-                    result.getMatrixPtr(),
-                    [&exp](const auto &v) { 
-                      return DevalF(exp, v); 
-                    });
+    std::transform(EXECUTION_SEQ m.getMatrixPtr(), m.getMatrixPtr() + n,
+                   result.getMatrixPtr(),
+                   [&exp](const auto &v) { return DevalF(exp, v); });
   } else {
     // Copy expression and fill it up with exp
     Vector<Expression> exp_coll(n);
-    std::fill(EXECUTION_PAR 
-              exp_coll.begin(), exp_coll.end(), exp);
+    std::fill(EXECUTION_PAR exp_coll.begin(), exp_coll.end(), exp);
 
     // Tranform and get results
-    std::transform(EXECUTION_PAR 
-                   exp_coll.begin(), exp_coll.end(), 
-                   m.getMatrixPtr(),
-                   result.getMatrixPtr(), 
-                   [](auto &v1, const auto &v2) {
-                     return DevalF(v1, v2);
-                   });
+    std::transform(EXECUTION_PAR exp_coll.begin(), exp_coll.end(),
+                   m.getMatrixPtr(), result.getMatrixPtr(),
+                   [](auto &v1, const auto &v2) { return DevalF(v1, v2); });
   }
 
   return result;
@@ -115,13 +105,10 @@ Matrix<Type> &DevalR(Expression &exp, const Matrix<Variable> &m) {
   // Precompute (By design, the operation is serial)
   PreComp(exp);
 
-  std::transform(EXECUTION_SEQ 
-                 m.getMatrixPtr(), m.getMatrixPtr() + n, 
+  std::transform(EXECUTION_SEQ m.getMatrixPtr(), m.getMatrixPtr() + n,
                  result.getMatrixPtr(),
-                 [&exp](const auto& v) {
-                    return DevalR(exp, v);
-                 });
-                
+                 [&exp](const auto &v) { return DevalR(exp, v); });
+
   return result;
 }
 // Derivative of expression (Matrix)
@@ -133,49 +120,38 @@ Matrix<Type> &Deval(Expression &exp, const Matrix<Variable> &m, ADMode ad) {
   }
 }
 
-
 // Jacobian forward mode
-Matrix<Type> &JacobF(Expression &exp, const Vector<Variable> &vec, bool serial_exec) {
+Matrix<Type> &JacobF(Expression &exp, const Vector<Variable> &vec,
+                     bool serial_exec) {
   const size_t rows = vec.size();
   auto &result = CreateMatrix<Type>(rows, 1);
 
   if (true == exp.isRecursive() || true == serial_exec) {
-    std::transform(EXECUTION_SEQ 
-                   vec.begin(), vec.end(), result.getMatrixPtr(),
-                   [&exp](const auto &v) { 
-                      return DevalF(exp, v); 
-                   });
+    std::transform(EXECUTION_SEQ vec.begin(), vec.end(), result.getMatrixPtr(),
+                   [&exp](const auto &v) { return DevalF(exp, v); });
   } else {
     // Copy expression and fill it up with exp
     Vector<Expression> exp_coll(rows);
-    std::fill(EXECUTION_PAR 
-              exp_coll.begin(), exp_coll.end(), exp);
+    std::fill(EXECUTION_PAR exp_coll.begin(), exp_coll.end(), exp);
 
     // Tranform and get results
-    std::transform(EXECUTION_PAR 
-                   exp_coll.begin(), exp_coll.end(), 
-                   vec.begin(),
-                   result.getMatrixPtr(), 
-                   [](auto &v1, const auto &v2) {
-                     return DevalF(v1, v2);
-                   });
+    std::transform(EXECUTION_PAR exp_coll.begin(), exp_coll.end(), vec.begin(),
+                   result.getMatrixPtr(),
+                   [](auto &v1, const auto &v2) { return DevalF(v1, v2); });
   }
-  
+
   return result;
 }
-// Jacobian reverse mode 
+// Jacobian reverse mode
 Matrix<Type> &JacobR(Expression &exp, const Vector<Variable> &vec) {
   const size_t rows = vec.size();
   auto &result = CreateMatrix<Type>(rows, 1);
-  
+
   // Precompute (By design, the operation is serial)
   PreComp(exp);
 
-  std::transform(EXECUTION_SEQ 
-                 vec.cbegin(), vec.cend(), result.getMatrixPtr(),
-                 [&exp](const auto& v) {
-                    return DevalR(exp, v);
-                 });
+  std::transform(EXECUTION_SEQ vec.cbegin(), vec.cend(), result.getMatrixPtr(),
+                 [&exp](const auto &v) { return DevalR(exp, v); });
 
   return result;
 }
@@ -188,7 +164,6 @@ Matrix<Type> &Jacob(Expression &exp, const Vector<Variable> &vec, ADMode ad) {
   }
 }
 
-
 // Symbolic Jacobian of expression (Vector)
 Matrix<Expression> &JacobSym(Expression &exp, const Vector<Variable> &vec) {
   const size_t rows = vec.size();
@@ -198,7 +173,6 @@ Matrix<Expression> &JacobSym(Expression &exp, const Vector<Variable> &vec) {
   }
   return result;
 }
-
 
 // Hessian forward mode
 Matrix<Type> &HessF(Expression &exp, const Vector<Variable> &vec) {
@@ -274,8 +248,6 @@ Matrix<Expression> &HessSym(Expression &exp, const Vector<Variable> &vec) {
 
   return result;
 }
-
-
 
 // Symbolic Expression (Matrix)
 Matrix<Expression> &SymMatDiff(Expression &exp, const Matrix<Variable> &m) {
