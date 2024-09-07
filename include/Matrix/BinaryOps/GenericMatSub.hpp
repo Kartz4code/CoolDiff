@@ -134,3 +134,48 @@ const GenericMatSubT<T1, T2> &operator-(const IMatrix<T1> &u,
       const_cast<T2 *>(static_cast<const T2 *>(&v)), OpMatObj);
   return *tmp;
 }
+
+// Matrix sub with scalar (LHS) - SFINAE'd
+template<typename T, typename Z, typename = std::enable_if_t<std::is_base_of_v<MetaVariable, Z> && 
+                                                             !std::is_arithmetic_v<Z> &&
+                                                             !std::is_same_v<Type,Z>>>
+const auto& operator-(const Z& value, const IMatrix<T>& mat) {
+  // Create type matrix filled with value (Type)
+  auto& u = CreateMatrix<Expression>(mat.getNumRows(), mat.getNumColumns()); 
+  std::fill_n(EXECUTION_PAR u.getMatrixPtr(), u.getNumElem(), value);
+  // Return matrix
+  return u - mat;
+}
+
+// Matrix sub with scalar (RHS) - SFINAE'd
+template<typename T, typename Z, typename = std::enable_if_t<std::is_base_of_v<MetaVariable, Z> && 
+                                                             !std::is_arithmetic_v<Z> &&
+                                                             !std::is_same_v<Type,Z>>>
+const auto& operator-(const IMatrix<T>& mat, const Z& value) {
+  // Create type matrix filled with value (Type)
+  auto& u = CreateMatrix<Expression>(mat.getNumRows(), mat.getNumColumns()); 
+  std::fill_n(EXECUTION_PAR u.getMatrixPtr(), u.getNumElem(), value);
+  // Return matrix
+  return mat - u;
+}
+
+// Matrix sub with Type (LHS)
+template<typename T>
+const auto& operator-(const Type& value, const IMatrix<T>& mat) {
+  // Create type matrix filled with value (Type)
+  auto& u = CreateMatrix<Type>(mat.getNumRows(), mat.getNumColumns()); 
+  std::fill_n(EXECUTION_PAR u.getMatrixPtr(), u.getNumElem(), value);
+  // Return matrix
+  return u - mat;
+}
+
+
+// Matrix sub with Type (RHS)
+template<typename T>
+const auto& operator-(const IMatrix<T>& mat, const Type& value) {
+  // Create type matrix filled with value (Type)
+  auto& u = CreateMatrix<Type>(mat.getNumRows(), mat.getNumColumns()); 
+  std::fill_n(EXECUTION_PAR u.getMatrixPtr(), u.getNumElem(), value);
+  // Return matrix
+  return mat - u;
+}

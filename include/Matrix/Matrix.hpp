@@ -48,12 +48,19 @@ private:
     // If T is of type Type
     if constexpr (true == std::is_same_v<T, Type>) {
       return val;
-      // If T is of type Variable
-    } else if constexpr (true == std::is_same_v<T, Variable> ||
-                         true == std::is_same_v<T, Parameter>) {
+      
+    } 
+    // If T is of type Parameter
+    else if constexpr (true == std::is_same_v<T, Parameter>) {
       return val.eval();
-      // If T is of type Expression
-    } else if constexpr (true == std::is_same_v<T, Expression>) {
+    }
+    // If T is of type Variable
+    else if constexpr (true == std::is_same_v<T, Variable>) {
+      val.resetImpl();
+      return val.eval();
+    }
+    // If T is of type Expression
+    else if constexpr (true == std::is_same_v<T, Expression>) {
       return Eval(val);
     } else {
       // If T is unknown, then return typecasted val
@@ -61,16 +68,17 @@ private:
     }
   }
 
-  // Get derivative value
+  // Get derivative value (Forward derivative)
   inline constexpr Type getdValue(T &val, const Variable &var) const {
     // If T is of type Variable
     if constexpr (true == std::is_same_v<T, Variable>) {
+      val.resetImpl();
       return val.devalF(var);
-      // If T is of type Expression
+    // If T is of type Expression
     } else if constexpr (true == std::is_same_v<T, Expression>) {
       return DevalF(val, var);
     } else {
-      // If T is unknown, then return typecasted 0
+    // If T is unknown, then return typecasted 0
       return (Type)(0);
     }
   }
@@ -79,11 +87,14 @@ private:
   inline void setEval() {
     // Set result matrix
     if constexpr (false == std::is_same_v<T, Type>) {
-      if ((nullptr != mp_mat) && (nullptr != mp_result) &&
+      if ((nullptr != mp_mat) && 
+          (nullptr != mp_result) &&
           (nullptr != mp_result->mp_mat)) {
         std::transform(EXECUTION_SEQ mp_mat, mp_mat + getNumElem(),
                        mp_result->mp_mat,
-                       [this](auto &v) { return getValue(v); });
+                       [this](auto &v) { 
+                        return getValue(v); 
+                     });
       }
     }
   }
@@ -92,11 +103,14 @@ private:
   inline void setDevalF(const Matrix<Variable> &X) {
     // If the matrix type is Expression
     if constexpr (true == std::is_same_v<T, Expression>) {
-      if ((nullptr != mp_mat) && (nullptr != mp_dresult) &&
+      if ((nullptr != mp_mat) && 
+          (nullptr != mp_dresult) &&
           (nullptr != mp_dresult->mp_mat)) {
         // Precompute the reverse derivatives
         std::for_each(EXECUTION_SEQ mp_mat, mp_mat + getNumElem(),
-                      [](auto &i) { PreComp(i); });
+                      [](auto &i) { 
+                        PreComp(i); 
+                    });
 
         // Get dimensions of X variable matrix
         const size_t xrows = X.getNumRows();
@@ -106,7 +120,7 @@ private:
         auto outer_idx = Range<size_t>(0, getNumElem());
         auto inner_idx = Range<size_t>(0, xrows * xcols);
 
-        // Logic for Kronecker product
+        // Logic for Kronecker product (Reverse mode differentiation)
         std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(),
                       [this, &X, &inner_idx, xrows, xcols](const size_t i) {
                         const size_t k = i % m_cols;
@@ -120,12 +134,16 @@ private:
                                         (*mp_dresult)(l * xrows + i,
                                                       k * xcols + j) =
                                             DevalR((*this)(l, k), X(i, j));
-                                      });
-                      });
+                                    });
+                    });
       }
-    } else if constexpr (true == std::is_same_v<T, Variable>) {
-      if ((nullptr != mp_mat) && (nullptr != mp_dresult) &&
-          (nullptr != mp_dresult->mp_mat) && (m_nidx == X.m_nidx)) {
+    } 
+    // If the matrix type is Variable
+    else if constexpr (true == std::is_same_v<T, Variable>) {
+      if ((nullptr != mp_mat) && 
+          (nullptr != mp_dresult) &&
+          (nullptr != mp_dresult->mp_mat) && 
+          (m_nidx == X.m_nidx)) {
         // Get dimensions of X variable matrix
         const size_t xrows = X.getNumRows();
         const size_t xcols = X.getNumColumns();
@@ -139,6 +157,34 @@ private:
                         const size_t i = (n - j) / xcols;
                         // Inner loop
                         (*mp_dresult)(i * xrows + i, j * xcols + j) = (Type)(1);
+                      });
+      } 
+      // If the Matrix is Variable, but of different form 
+      else if ((nullptr != mp_mat) && 
+               (nullptr != mp_dresult) && 
+               (nullptr != mp_dresult->mp_mat)) {
+        // Get dimensions of X variable matrix
+        const size_t xrows = X.getNumRows();
+        const size_t xcols = X.getNumColumns();
+
+        // Vector of indices in current matrix
+        auto outer_idx = Range<size_t>(0, getNumElem());
+        auto inner_idx = Range<size_t>(0, xrows * xcols);
+
+        // Logic for Kronecker product (Forward mode differentiation)
+        std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(),
+                      [this, &X, &inner_idx, xrows, xcols](const size_t i) {
+                        const size_t k = i % m_cols;
+                        const size_t l = (i - k) / m_cols;
+
+                        // Inner loop
+                        std::for_each(EXECUTION_PAR inner_idx.begin(),
+                                      inner_idx.end(), [&](const size_t n) {
+                                        const size_t j = n % xcols;
+                                        const size_t i = (n - j) / xcols;
+                                        (*mp_dresult)(l * xrows + i, k * xcols + j) = 
+                                        (((*this)(l, k).m_nidx == X(i, j).m_nidx) ? (Type)(1) : (Type)(0));
+                                      });
                       });
       }
     }

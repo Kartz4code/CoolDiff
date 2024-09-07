@@ -38,14 +38,19 @@
 #include "EyeMatKronHandler.hpp"
 #include "ZeroMatKronHandler.hpp"
 
+// Special matrix Hadamard product
+#include "EyeMatHadamardHandler.hpp"
+#include "ZeroMatHadamardHandler.hpp"
+
 // Matrix operations
 #include "MatAddNaiveHandler.hpp"
 #include "MatSubNaiveHandler.hpp"
 #include "MatKronNaiveHandler.hpp"
 #include "MatMulNaiveHandler.hpp"
+#include "MatHadamardNaiveHandler.hpp"
 
 // Matrix-Matrix addition - Left, Right, Result matrix pointer
-void MatrixAdd(Matrix<Type> *lhs, Matrix<Type> *rhs, Matrix<Type> *&result) {
+void MatrixAdd(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -66,7 +71,7 @@ void MatrixAdd(Matrix<Type> *lhs, Matrix<Type> *rhs, Matrix<Type> *&result) {
 
 
 // Matrix-Matrix subtraction - Left, Right, Result matrix pointer
-void MatrixSub(Matrix<Type>* lhs, Matrix<Type>* rhs, Matrix<Type>*& result) {
+void MatrixSub(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
    // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -74,19 +79,19 @@ void MatrixSub(Matrix<Type>* lhs, Matrix<Type>* rhs, Matrix<Type>*& result) {
   /* Chain of responsibility (Order matters)
       1) Eye matrix check
       2) Zero matrix check
-      3) Matrix-Matrix addition
+      3) Matrix-Matrix subtraction
   */
 
   MatSubNaiveHandler h1{nullptr};
   ZeroMatSubHandler h2{&h1};
   EyeMatSubHandler h3{&h2};
 
-  // Handle matrix addition
+  // Handle matrix subtraction
   h3.handle(lhs, rhs, result);
 }
 
 // Matrix-Matrix multiplication - Left, Right, Result matrix pointer
-void MatrixMul(Matrix<Type> *lhs, Matrix<Type> *rhs, Matrix<Type> *&result) {
+void MatrixMul(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -100,12 +105,12 @@ void MatrixMul(Matrix<Type> *lhs, Matrix<Type> *rhs, Matrix<Type> *&result) {
   ZeroMatMulHandler h2{&h1};
   EyeMatMulHandler h3{&h2};
 
-  // Handle matrix addition
+  // Handle matrix multiplication
   h3.handle(lhs, rhs, result);
 }
 
 // Matrix-Matrix Kronocker product - Left, Right, Result matrix pointer
-void MatrixKron(Matrix<Type> *lhs, Matrix<Type> *rhs, Matrix<Type> *&result) {
+void MatrixKron(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -113,14 +118,33 @@ void MatrixKron(Matrix<Type> *lhs, Matrix<Type> *rhs, Matrix<Type> *&result) {
   /* Chain of responsibility (Order matters)
       1) Eye matrix check
       2) Zero matrix check
-      3) Matrix-Matrix multiplication
+      3) Matrix-Matrix Kronocker product
   */
 
   MatKronNaiveHandler h1{nullptr};
   ZeroMatKronHandler h2{&h1};
   EyeMatKronHandler h3{&h2};
 
-  // Handle matrix addition
+  // Handle Kronocker product
   h3.handle(lhs, rhs, result);
 }
 
+// Matrix-Matrix Hadamard product - Left, Right, Result matrix pointer
+void MatrixHadamard(const Matrix<Type> * lhs, const Matrix<Type> * rhs, Matrix<Type> *& result) {
+  // Null pointer check
+  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+
+  /* Chain of responsibility (Order matters)
+      1) Eye matrix check
+      2) Zero matrix check
+      3) Matrix-Matrix Hadamard product
+  */
+
+  MatHadamardNaiveHandler h1{nullptr};
+  ZeroMatHadamardHandler h2{&h1};
+  EyeMatHadamardHandler h3{&h2};
+
+  // Handle Hadamard product
+  h3.handle(lhs, rhs, result);
+}

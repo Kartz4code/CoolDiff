@@ -22,7 +22,7 @@
 #include "MatMulNaiveHandler.hpp"
 #include "Matrix.hpp"
 
-void MatMulNaiveHandler::handle(Matrix<Type> *lhs, Matrix<Type> *rhs,
+void MatMulNaiveHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
                                 Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
@@ -39,11 +39,6 @@ void MatMulNaiveHandler::handle(Matrix<Type> *lhs, Matrix<Type> *rhs,
     result = CreateMatrixPtr<Type>(lrows, rcols);
   }
 
-  // Get raw pointers to result, left and right matrices
-  Matrix<Type> &res = *result;
-  Matrix<Type> &left = *lhs;
-  Matrix<Type> &right = *rhs;
-
   // Indices for outer loop and inner loop
   auto outer_idx = Range<size_t>(0, lrows * rcols);
   auto inner_idx = Range<size_t>(0, rrows);
@@ -58,10 +53,10 @@ void MatMulNaiveHandler::handle(Matrix<Type> *lhs, Matrix<Type> *rhs,
         // Inner product
         Type tmp{};
         std::for_each(EXECUTION_SEQ inner_idx.begin(), inner_idx.end(),
-                      [&](const size_t m) { tmp += left(i, m) * right(m, j); });
+                      [&](const size_t m) { tmp += (*lhs)(i, m) * (*rhs)(m, j); });
 
         // Store result
-        res(i, j) = std::exchange(tmp, (Type)(0));
+        (*result)(i, j) = std::exchange(tmp, (Type)(0));
       });
 
   return;

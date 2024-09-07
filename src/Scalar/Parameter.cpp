@@ -38,13 +38,15 @@ Parameter::Parameter(const Type &value)
 
 // Copy constructor
 Parameter::Parameter(const Parameter &s)
-    : m_nidx{this->m_idx_count++}, m_value{s.m_value} {
+    : m_nidx{s.m_nidx}, m_value{s.m_value}, m_cache{s.m_cache} {
   this->mp_tmp = s.mp_tmp;
 }
 
 // Copy assignment
 Parameter &Parameter::operator=(const Parameter &s) {
   m_value = s.m_value;
+  m_nidx = s.m_nidx;
+  m_cache = s.m_cache;
   this->mp_tmp = s.mp_tmp;
   return *this;
 }
@@ -57,7 +59,9 @@ Parameter &Parameter::operator=(const Type &value) {
 }
 
 // Evaluate value and derivative value
-Type Parameter::eval() { return m_value; }
+Type Parameter::eval() { 
+  return this->mp_tmp->eval();
+}
 
 void Parameter::reset() {
   // Reset temporaries

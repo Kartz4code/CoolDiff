@@ -22,7 +22,7 @@
 #include "MatAddNaiveHandler.hpp"
 #include "Matrix.hpp"
 
-void MatAddNaiveHandler::handle(Matrix<Type> *lhs, Matrix<Type> *rhs,
+void MatAddNaiveHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
                                 Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
@@ -41,9 +41,9 @@ void MatAddNaiveHandler::handle(Matrix<Type> *lhs, Matrix<Type> *rhs,
   }
 
   // Get raw pointers to result, left and right matrices
-  Type *res = result->getMatrixPtr();
-  Type *left = lhs->getMatrixPtr();
-  Type *right = rhs->getMatrixPtr();
+  const Type *res = result->getMatrixPtr();
+  const Type *left = lhs->getMatrixPtr();
+  const Type *right = rhs->getMatrixPtr();
 
   // For each element, perform addition
   const size_t size{nrows * ncols};

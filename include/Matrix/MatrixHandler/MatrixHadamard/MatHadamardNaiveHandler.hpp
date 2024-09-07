@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixMulHandler/EyeMatMulHandler.hpp
+ * @file src/Matrix/MatrixHandler/MatrixHadamard/MatHadamardNaiveHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -23,12 +23,12 @@
 
 #include "MatrixHandler.hpp"
 
-class EyeMatMulHandler : public MatrixHandler {
+class MatHadamardNaiveHandler : public MatrixHandler {
 public:
   using MatrixHandler::MatrixHandler;
 
   V_OVERRIDE(void handle(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&));
 
   // Destructor
-  V_DTR(~EyeMatMulHandler() = default);
+  V_DTR(~MatHadamardNaiveHandler() = default);
 };

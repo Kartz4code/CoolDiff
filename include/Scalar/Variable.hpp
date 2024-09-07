@@ -58,8 +58,8 @@ private:
 protected:
   // Underlying symbolic variable
   VarWrap m_var{};
-  // Type-time value
-  Type m_value_var{};
+  // Type real-time value
+  SharedPtr<Type> m_value_var{std::make_shared<Type>()};
 
   // Collection of meta variable expressions
   Vector<MetaVariable *> m_gh_vec{};

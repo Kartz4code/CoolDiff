@@ -22,9 +22,9 @@
 #include "CommonMatFunctions.hpp"
 #include "CoolDiff.hpp"
 #include "MatOperators.hpp"
-#include "MatrixBasics.hpp"
 
 void func9() {
+
   Matrix<Variable> x(2, 2);
   x(0, 0) = 1;
   x(0, 1) = 5;
@@ -37,9 +37,11 @@ void func9() {
   x2(1, 0) = 3;
   x2(1, 1) = 20;
 
-  Matrix<Expression> S = x - x + x;
+  Matrix<Expression> S = 2*x + 3;
 
   std::cout << Eval(S) << "\n";
+  std::cout << Eval(S) << "\n";
+  
   std::cout << DevalF(S, x) << "\n";
 }
 

@@ -80,7 +80,7 @@ bool operator==(Real val, const Type &cmx) {
 #endif
 
 // Non nullptr correctness (Unary)
-void CheckNullPtr(void *mat, std::string_view msg) {
+void CheckNullPtr(const void *mat, std::string_view msg) {
   std::ostringstream oss;
   if (nullptr == mat) {
     oss << "[ERROR]: " << msg.data() << "\n"

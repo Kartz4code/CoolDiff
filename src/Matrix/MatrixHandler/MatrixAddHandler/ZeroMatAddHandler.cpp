@@ -23,7 +23,7 @@
 #include "Matrix.hpp"
 #include "MatrixZeroOps.hpp"
 
-void ZeroMatAddHandler::handle(Matrix<Type> *lhs, Matrix<Type> *rhs,
+void ZeroMatAddHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
                                Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   // Null pointer check
@@ -32,12 +32,12 @@ void ZeroMatAddHandler::handle(Matrix<Type> *lhs, Matrix<Type> *rhs,
 
   /* Zero matrix special check */
   if (auto *it = ZeroMatAdd(lhs, rhs); nullptr != it) {
-    result = it;
+    result = const_cast<Matrix<Type>*>(it);
     return;
   }
   /* Zero matrix numerical check */
   else if (auto *it = ZeroMatAddNum(lhs, rhs); nullptr != it) {
-    result = it;
+    result = const_cast<Matrix<Type>*>(it);
     return;
   }
 #endif

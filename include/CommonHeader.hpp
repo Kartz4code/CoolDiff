@@ -184,6 +184,10 @@ using OMMatPair = std::unordered_map<size_t, Matrix<Type> *>;
 template <typename T, typename U> using UnOrderedMap = std::unordered_map<T, U>;
 #endif
 
+// Pair type
+template<typename T, typename U>
+using Pair = std::pair<T,U>;
+
 // A generic vector type
 template <typename T> using Vector = std::vector<T>;
 
@@ -223,7 +227,7 @@ template <typename T> std::string ToString(const T &value) {
 #define ASSERT(X, MSG) CheckAssertions(X, MSG);
 
 // Non nullptr correctness (Unary)
-void CheckNullPtr(void *, std::string_view = "");
+void CheckNullPtr(const void *, std::string_view = "");
 void CheckAssertions(bool, std::string_view = "");
 
 // Range values from start to end
@@ -242,4 +246,15 @@ public:
   typename Vector<T>::const_iterator end() const { return m_vec.cend(); }
 
   ~Range() = default;
+};
+
+// Hashing function for Pair<size_t, size_t>
+template <>
+struct std::hash<Pair<size_t, size_t>> {
+    std::size_t operator()(const Pair<size_t, size_t>& k) const {
+        std::size_t res = 17;
+        res = res * 31 + std::hash<size_t>()( k.first );
+        res = res * 31 + std::hash<size_t>()( k.second );
+        return res;
+    }
 };

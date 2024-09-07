@@ -24,22 +24,27 @@
 #include "CommonHeader.hpp"
 
 // Is the matrix zero?
-bool IsZeroMatrix(Matrix<Type> *);
+bool IsZeroMatrix(const Matrix<Type> *);
 
 // Zero matrix addition
-Matrix<Type> *ZeroMatAdd(Matrix<Type> *, Matrix<Type> *);
+const Matrix<Type> *ZeroMatAdd(const Matrix<Type> *, const Matrix<Type> *);
 // Zero matrix subtraction
-Matrix<Type> *ZeroMatSub(Matrix<Type> *, Matrix<Type> *);
+const Matrix<Type> *ZeroMatSub(const Matrix<Type> *, const Matrix<Type> *);
 // Zero matrix multiplication
-Matrix<Type> *ZeroMatMul(Matrix<Type> *, Matrix<Type> *);
-// Zero matrix kronocker product
-Matrix<Type> *ZeroMatKron(Matrix<Type> *, Matrix<Type> *);
+const Matrix<Type> *ZeroMatMul(const Matrix<Type> *, const Matrix<Type> *);
+// Zero matrix Kronocker product
+const Matrix<Type> *ZeroMatKron(const Matrix<Type> *, const Matrix<Type> *);
+// Zero matrix Hadamard product
+const Matrix<Type> *ZeroMatHadamard(const Matrix<Type> *, const Matrix<Type> *);
 
 // Zero matrix addition numerics
-Matrix<Type> *ZeroMatAddNum(Matrix<Type> *, Matrix<Type> *);
+const Matrix<Type> *ZeroMatAddNum(const Matrix<Type> *, const Matrix<Type> *);
 // Zero matrix subtraction numerics
-Matrix<Type> *ZeroMatSubNum(Matrix<Type> *, Matrix<Type> *);
+const Matrix<Type> *ZeroMatSubNum(const Matrix<Type> *, const Matrix<Type> *);
 // Zero matrix multiplication numerics
-Matrix<Type> *ZeroMatMulNum(Matrix<Type> *, Matrix<Type> *);
+const Matrix<Type> *ZeroMatMulNum(const Matrix<Type> *, const Matrix<Type> *);
 // Zero matrix kronocker product numerics
-Matrix<Type> *ZeroMatKronNum(Matrix<Type> *, Matrix<Type> *);
+const Matrix<Type> *ZeroMatKronNum(const Matrix<Type> *, const Matrix<Type> *);
+// Zero matrix Hadamard product
+const Matrix<Type> *ZeroMatHadamardNum(const Matrix<Type> *, const Matrix<Type> *);
+

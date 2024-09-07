@@ -64,19 +64,22 @@ enum MatrixSpl : size_t {
 };
 
 // Operations enum [Order matters!]
-enum OpMat : size_t { ADD_MAT = 0, MUL_MAT, KRON_MAT, SUB_MAT, COUNT_MAT };
+enum OpMat : size_t { ADD_MAT = 0, MUL_MAT, KRON_MAT, SUB_MAT, HADAMARD_MAT, COUNT_MAT };
 
 // Matrix operations Macros
 #define MATRIX_ADD(X, Y, Z) std::get<OpMat::ADD_MAT>(m_caller)(X, Y, Z)
 #define MATRIX_MUL(X, Y, Z) std::get<OpMat::MUL_MAT>(m_caller)(X, Y, Z)
 #define MATRIX_KRON(X, Y, Z) std::get<OpMat::KRON_MAT>(m_caller)(X, Y, Z)
 #define MATRIX_SUB(X, Y, Z) std::get<OpMat::SUB_MAT>(m_caller)(X, Y, Z)
+#define MATRIX_HADAMARD(X,Y,Z) std::get<OpMat::HADAMARD_MAT>(m_caller)(X, Y, Z)
 
 // Operation type [Order matters!]
-#define OpMatType                                                              \
-  void (*)(Matrix<Type> *, Matrix<Type> *, Matrix<Type> *&),                   \
-      void (*)(Matrix<Type> *, Matrix<Type> *, Matrix<Type> *&),               \
-      void (*)(Matrix<Type> *, Matrix<Type> *, Matrix<Type> *&),               \
-      void (*)(Matrix<Type> *, Matrix<Type> *, Matrix<Type> *&)
+#define OpMatType                                                                      \
+  void (*)(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&),               \
+  void (*)(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&),               \
+  void (*)(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&),               \
+  void (*)(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&),               \
+  void (*)(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&)
+
 // Operation objects [Order matters!]
-#define OpMatObj MatrixAdd, MatrixMul, MatrixKron, MatrixSub
+#define OpMatObj MatrixAdd, MatrixMul, MatrixKron, MatrixSub, MatrixHadamard

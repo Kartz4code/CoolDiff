@@ -22,7 +22,7 @@
 #include "MatKronNaiveHandler.hpp"
 #include "Matrix.hpp"
 
-void MatKronNaiveHandler::handle(Matrix<Type> *lhs, Matrix<Type> *rhs,
+void MatKronNaiveHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
                                  Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");

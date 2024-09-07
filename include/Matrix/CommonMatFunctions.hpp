@@ -24,6 +24,8 @@
 #include "GenericMatProduct.hpp"
 #include "GenericMatSum.hpp"
 #include "GenericMatSub.hpp"
+#include "GenericMatHadamard.hpp"
+#include "MatrixBasics.hpp"
 #include "Matrix.hpp"
 
 /*

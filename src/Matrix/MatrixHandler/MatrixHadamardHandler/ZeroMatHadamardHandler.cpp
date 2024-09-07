@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixKronHandler/ZeroMatKronHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixHadamardHandler/ZeroMatHadamardHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,25 +19,25 @@
  * associated repository.
  */
 
-#include "ZeroMatKronHandler.hpp"
+#include "ZeroMatHadamardHandler.hpp"
 #include "Matrix.hpp"
 #include "MatrixZeroOps.hpp"
 
-void ZeroMatKronHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
-                                Matrix<Type> *&result) {
+void ZeroMatHadamardHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+                                   Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
   /* Zero matrix special check */
-  if (auto *it = ZeroMatKron(lhs, rhs); nullptr != it) {
+  if (auto *it = ZeroMatHadamard(lhs, rhs); nullptr != it) {
     result = const_cast<Matrix<Type>*>(it);
     return;
   }
 
   /* Zero matrix numerical check */
-  else if (auto *it = ZeroMatKronNum(lhs, rhs); nullptr != it) {
+  else if (auto *it = ZeroMatHadamardNum(lhs, rhs); nullptr != it) {
     result = const_cast<Matrix<Type>*>(it);
     return;
   }
