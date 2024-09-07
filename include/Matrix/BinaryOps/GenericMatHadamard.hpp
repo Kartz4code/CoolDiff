@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/BinaryOps/GenericMatProduct.hpp
+ * @file include/Matrix/BinaryOps/GenericMatHadamard.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,6 +19,7 @@
  * associated repository.
  */
 
+
 #pragma once
 
 #include "IMatrix.hpp"
@@ -28,8 +29,7 @@
 
 // Left/right side is an expression
 template <typename T1, typename T2, typename... Callables>
-class GenericMatProduct
-    : public IMatrix<GenericMatProduct<T1, T2, Callables...>> {
+class GenericMatHadamard : public IMatrix<GenericMatHadamard<T1, T2, Callables...>> {
 private:
   // Resources
   T1 *mp_left{nullptr};
@@ -39,10 +39,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericMatProduct)
-  DISABLE_MOVE(GenericMatProduct)
+  DISABLE_COPY(GenericMatHadamard)
+  DISABLE_MOVE(GenericMatHadamard)
 
-  // Verify dimensions of result matrix for multiplication operation
+   // Verify dimensions of result matrix for subtraction operation
   inline constexpr bool verifyDim() const {
     // Left matrix rows
     const int lr = mp_left->getNumRows();
@@ -52,8 +52,8 @@ private:
     const int lc = mp_left->getNumColumns();
     // Right matrix columns
     const int rc = mp_right->getNumColumns();
-    // Condition for Matrix-Matrix multiplication
-    return ((lc == rr));
+    // Condition for Matrix-Matrix subtraction
+    return ((lr == rr) && (lc == rc));
   }
 
 public:
@@ -73,12 +73,17 @@ public:
   const size_t m_nidx{};
 
   // Constructor
-  GenericMatProduct(T1 *u, T2 *v, Callables &&...call)
-      : mp_left{u}, mp_right{v}, mp_result{nullptr}, mp_dresult{nullptr},
-        mp_dresult_l{nullptr}, mp_dresult_r{nullptr}, mp_lhs_kron{nullptr},
-        mp_rhs_kron{nullptr}, m_caller{std::make_tuple(
-                                  std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {}
+  GenericMatHadamard(T1 *u, T2 *v, Callables &&...call) : mp_left{u}, 
+                                                          mp_right{v}, 
+                                                          mp_result{nullptr}, 
+                                                          mp_dresult{nullptr},
+                                                          mp_dresult_l{nullptr}, 
+                                                          mp_dresult_r{nullptr}, 
+                                                          mp_lhs_kron{nullptr},
+                                                          mp_rhs_kron{nullptr}, 
+                                                          m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                          m_nidx{this->m_idx_count++} 
+  {}
 
   // Get number of rows
   V_OVERRIDE(size_t getNumRows() const) { return mp_left->getNumRows(); }
@@ -92,14 +97,14 @@ public:
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type> *eval()) {
     // Check whether dimensions are correct
-    ASSERT(verifyDim(), "Matrix-Matrix multiplication dimensions mismatch");
+    ASSERT(verifyDim(), "Matrix-Matrix Hadamard product dimensions mismatch");
 
     // Get raw pointers to result, left and right matrices
     Matrix<Type> *left_mat = mp_left->eval();
     Matrix<Type> *right_mat = mp_right->eval();
 
-    // Matrix multiplication evaluation (Policy design)
-    MATRIX_MUL(left_mat, right_mat, mp_result);
+    // Matrix-Matrix Hadamard product evaluation (Policy design)
+    MATRIX_HADAMARD(left_mat, right_mat, mp_result);
 
     return mp_result;
   }
@@ -107,7 +112,7 @@ public:
   // Matrix devalF computation
   V_OVERRIDE(Matrix<Type> *devalF(Matrix<Variable> &X)) {
     // Check whether dimensions are correct
-    ASSERT(verifyDim(), "Matrix-Matrix multiplication dimensions mismatch");
+    ASSERT(verifyDim(), "Matrix-Matrix Hadamard product dimensions mismatch");
 
     // Left and right matrices derivatives
     Matrix<Type> *dleft_mat = mp_left->devalF(X);
@@ -118,13 +123,13 @@ public:
     Matrix<Type> *right_mat = mp_right->eval();
 
     // L (X) I - Left matrix and identity Kronocker product (Policy design)
-    MATRIX_KRON(left_mat, Eye(X.getNumRows()), mp_lhs_kron);
+    MATRIX_KRON(left_mat, Ones(X.getNumRows()), mp_lhs_kron);
     // R (X) I - Right matrix and identity Kronocke product (Policy design)
-    MATRIX_KRON(right_mat, Eye(X.getNumColumns()), mp_rhs_kron);
+    MATRIX_KRON(right_mat, Ones(X.getNumColumns()), mp_rhs_kron);
 
-    // Product with left and right derivatives (Policy design)
-    MATRIX_MUL(mp_lhs_kron, dright_mat, mp_dresult_l);
-    MATRIX_MUL(dleft_mat, mp_rhs_kron, mp_dresult_r);
+    // Hadamard product with left and right derivatives (Policy design)
+    MATRIX_HADAMARD(mp_lhs_kron, dright_mat, mp_dresult_l);
+    MATRIX_HADAMARD(dleft_mat, mp_rhs_kron, mp_dresult_r);
 
     // Addition between left and right derivatives (Policy design)
     MATRIX_ADD(mp_dresult_l, mp_dresult_r, mp_dresult);
@@ -138,60 +143,23 @@ public:
 
   // Get type
   V_OVERRIDE(std::string_view getType() const) {
-    return "GenericMatProduct";
+    return "GenericMatHadamard";
   }
 
   // Destructor
-  V_DTR(~GenericMatProduct()) = default;
+  V_DTR(~GenericMatHadamard()) = default;
 };
 
-// GenericMatProduct with 2 typename callables
+// GenericMatHadamard with 2 typename callables
 template <typename T1, typename T2>
-using GenericMatProductT = GenericMatProduct<T1, T2, OpMatType>;
+using GenericMatHadamardT = GenericMatHadamard<T1, T2, OpMatType>;
 
-// Function for product computation
+// Function for Hadamard product computation
 template <typename T1, typename T2>
-const GenericMatProductT<T1, T2> &operator*(const IMatrix<T1> &u,
-                                            const IMatrix<T2> &v) {
-  auto tmp = Allocate<GenericMatProductT<T1, T2>>(
+const GenericMatHadamardT<T1, T2> &operator^(const IMatrix<T1> &u,
+                                             const IMatrix<T2> &v) {
+  auto tmp = Allocate<GenericMatHadamardT<T1, T2>>(
       const_cast<T1 *>(static_cast<const T1 *>(&u)),
       const_cast<T2 *>(static_cast<const T2 *>(&v)), OpMatObj);
   return *tmp;
-}
-
-// Matrix multiplication with scalar (LHS) - SFINAE'd
-template<typename T, typename Z, typename = std::enable_if_t<std::is_base_of_v<MetaVariable, Z> && 
-                                                             !std::is_arithmetic_v<Z> &&
-                                                             !std::is_same_v<Type,Z>>>
-const auto& operator*(const Z& value, const IMatrix<T>& mat) {
-  // Create type matrix filled with value (Type)
-  auto& u = CreateMatrix<Expression>(mat.getNumRows(), mat.getNumColumns()); 
-  std::fill_n(EXECUTION_PAR u.getMatrixPtr(), u.getNumElem(), value);
-  // Return matrix
-  return u ^ mat;
-}
-
-// Matrix multiplication with scalar (RHS) - SFINAE'd
-template<typename T, typename Z, typename = std::enable_if_t<std::is_base_of_v<MetaVariable, Z> && 
-                                                             !std::is_arithmetic_v<Z> &&
-                                                             !std::is_same_v<Type,Z>>>
-const auto& operator*(const IMatrix<T>& mat, const Z& value) {
-  return value ^ mat; 
-}
-
-// Matrix multiplication with Type (LHS)
-template<typename T>
-const auto& operator*(const Type& value, const IMatrix<T>& mat) {
-  // Create type matrix filled with value (Type)
-  auto& u = CreateMatrix<Type>(mat.getNumRows(), mat.getNumColumns()); 
-  std::fill_n(EXECUTION_PAR u.getMatrixPtr(), u.getNumElem(), value);
-  // Return matrix
-  return u ^ mat;
-}
-
-
-// Matrix multiplication with Type (RHS)
-template<typename T>
-const auto& operator*(const IMatrix<T>& mat, const Type& value) {
-  return value ^ mat; 
 }

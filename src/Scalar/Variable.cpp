@@ -32,7 +32,8 @@ Variable::Variable() : m_nidx{this->m_idx_count++} {
 
 // Variables with concrete values
 Variable::Variable(const Type &value)
-    : m_nidx{this->m_idx_count++}, m_value_var{value} {
+    : m_nidx{this->m_idx_count++} {
+  *m_value_var = value;
   // Set all the values for VarWrap
   m_var.setConstructor(value);
   // Reserve a buffer of expressions
@@ -44,7 +45,7 @@ Variable::Variable(const Type &value)
 // Copy assignment to Type values
 Variable &Variable::operator=(const Type &value) {
   // Set value
-  m_value_var = value;
+  *m_value_var = value;
   // Set all the values for VarWrap
   m_var.setConstructor(value);
   // A number doesn't contain any content, so clear expression buffer
@@ -70,7 +71,7 @@ Variable::Variable(const Variable &exp)
 Variable::Variable(Variable &&exp) noexcept
     : m_nidx{std::exchange(exp.m_nidx, -1)}, m_cache{std::move(exp.m_cache)},
       m_var{std::move(exp.m_var)},
-      m_value_var{std::exchange(exp.m_value_var, (Type)0)}, m_gh_vec{std::move(
+      m_value_var{std::exchange(exp.m_value_var, nullptr)}, m_gh_vec{std::move(
                                                                 exp.m_gh_vec)} {
   // Copy visited flag
   m_visited = std::exchange(exp.m_visited, false);
@@ -94,7 +95,7 @@ Variable &Variable::operator=(Variable &&exp) noexcept {
   m_nidx = std::exchange(exp.m_nidx, -1);
   m_cache = std::move(exp.m_cache);
   m_var = std::move(exp.m_var);
-  m_value_var = std::exchange(exp.m_value_var, (Type)0);
+  m_value_var = std::exchange(exp.m_value_var, nullptr);
   m_gh_vec = std::move(exp.m_gh_vec);
   m_visited = std::exchange(exp.m_visited, false);
 
@@ -133,7 +134,7 @@ Type Variable::eval() {
   /* eval BEGIN */
   if (false == this->m_visited) {
     // Set value
-    setValue(m_value_var);
+    setValue(*m_value_var);
     // Set visit flag to true
     this->m_visited = true;
     // Loop on internal equations
@@ -159,7 +160,8 @@ Type Variable::devalF(const Variable &var) {
     // Set visit flag to true
     this->m_visited = true;
     // Loop on internal equations
-    std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(),
+    std::for_each(EXECUTION_SEQ 
+                  m_gh_vec.begin(), m_gh_vec.end(),
                   [this, &var](auto *i) {
                     if (nullptr != i) {
                       setdValue(i->devalF(var));
@@ -261,7 +263,7 @@ void Variable::reset() {
   this->m_visited = false;
 
   // Set derivative to zero
-  setValue(m_value_var);
+  setValue(*m_value_var);
   setdValue((Type)0);
 
   // Empty cache

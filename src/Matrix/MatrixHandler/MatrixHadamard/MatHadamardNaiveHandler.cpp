@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixSubtraction/MatSubNaiveHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixHadamard/MatHadamardNaiveHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,16 +19,16 @@
  * associated repository.
  */
 
-#include "MatSubNaiveHandler.hpp"
+#include "MatHadamardNaiveHandler.hpp"
 #include "Matrix.hpp"
 
-void MatSubNaiveHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
-                                Matrix<Type> *&result) {
+void MatHadamardNaiveHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+                                           Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-  /* Matrix-Matrix numerical subtraction */
+  /* Matrix-Matrix numerical addition */
   // Rows and columns of result matrix and if result is nullptr, then create a
   // new resource
   const size_t nrows{lhs->getNumRows()};
@@ -45,10 +45,10 @@ void MatSubNaiveHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs
   const Type *left = lhs->getMatrixPtr();
   const Type *right = rhs->getMatrixPtr();
 
-  // For each element, perform subtraction
+  // For each element, perform addition
   const size_t size{nrows * ncols};
   std::transform(EXECUTION_PAR left, left + size, right, res,
-                 [](const Type a, const Type b) { return a - b; });
+                 [](const Type a, const Type b) { return a * b; });
 
   return;
 }

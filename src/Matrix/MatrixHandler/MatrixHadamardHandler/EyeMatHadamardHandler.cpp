@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixSubHandler/ZeroMatSubHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixHadamardHandler/EyeMatHadamardHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,17 +19,18 @@
  * associated repository.
  */
 
-#include "ZeroMatSubHandler.hpp"
+#include "EyeMatHadamardHandler.hpp"
 #include "Matrix.hpp"
-#include "MatrixZeroOps.hpp"
+#include "MatrixEyeOps.hpp"
 
-void SubZero(const Matrix<Type> *it, Matrix<Type> *&result) {
+void HadamardEye(const Matrix<Type>* it, Matrix<Type> *&result) {
   /*
     Rows and columns of result matrix and if result is nullptr or if dimensions
     mismatch, then create a new matrix resource
   */
   const size_t nrows{it->getNumRows()};
   const size_t ncols{it->getNumColumns()};
+  
   if (nullptr == result) {
     result = CreateMatrixPtr<Type>(nrows, ncols);
   } else if ((nrows != result->getNumRows()) ||
@@ -37,39 +38,34 @@ void SubZero(const Matrix<Type> *it, Matrix<Type> *&result) {
     result = CreateMatrixPtr<Type>(nrows, ncols);
   }
 
-  std::transform(EXECUTION_PAR 
-                 it->getMatrixPtr(), it->getMatrixPtr() + it->getNumElem(), 
-                 result->getMatrixPtr(), 
-                 [](const auto& i) {
-                    return (Type)(-1)*i;
-                 });
+  // Diagonal indices (Modification)
+  auto diag_idx = Range<size_t>(0, nrows);
+  std::for_each(
+      EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
+      [&](const size_t i) { (*result)(i, i) = (*it)(i, i); });
 }
 
-void ZeroMatSubHandler::handle(const Matrix<Type> *lhs, 
-                               const Matrix<Type> *rhs,
-                               Matrix<Type> *&result) {
+void EyeMatHadamardHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+                                   Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-  /* Zero matrix special check */
-  if (auto *it = ZeroMatSub(lhs, rhs); nullptr != it) {
-    if(it == lhs) {
-        result = const_cast<Matrix<Type>*>(lhs);
-    } else if(it == rhs) {
-        SubZero(it, result);
+  /* Eye matrix special check */
+  if (auto *it = EyeMatHadamard(lhs, rhs); nullptr != it) {
+    if(it == lhs || it == rhs) {
+        HadamardEye(it, result);
     } else {
         result = const_cast<Matrix<Type>*>(it);
     }
     return;
   }
-  /* Zero matrix numerical check */
-  else if (auto *it = ZeroMatSubNum(lhs, rhs); nullptr != it) {
-    if(it == lhs) {
-        result = const_cast<Matrix<Type>*>(lhs);
-    } else if(it == rhs) {
-        SubZero(it, result);
+
+  /* Eye matrix numerical check */
+  else if (auto *it = EyeMatHadamardNum(lhs, rhs); nullptr != it) {
+    if(it == lhs || it == rhs) {
+        HadamardEye(it, result);
     } else {
         result = const_cast<Matrix<Type>*>(it);
     }

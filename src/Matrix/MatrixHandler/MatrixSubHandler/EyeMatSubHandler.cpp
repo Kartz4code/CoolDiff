@@ -23,7 +23,7 @@
 #include "Matrix.hpp"
 #include "MatrixEyeOps.hpp"
 
-void SubEyeRHS(Matrix<Type> *it, Matrix<Type> *&result) {
+void SubEyeRHS(const Matrix<Type> *it, Matrix<Type> *&result) {
   /*
     Rows and columns of result matrix and if result is nullptr or if dimensions
     mismatch, then create a new matrix resource
@@ -51,7 +51,7 @@ void SubEyeRHS(Matrix<Type> *it, Matrix<Type> *&result) {
 
 }
 
-void SubEyeLHS(Matrix<Type> *it, Matrix<Type> *&result) {
+void SubEyeLHS(const Matrix<Type> *it, Matrix<Type> *&result) {
   /*
     Rows and columns of result matrix and if result is nullptr or if dimensions
     mismatch, then create a new matrix resource
@@ -78,8 +78,8 @@ void SubEyeLHS(Matrix<Type> *it, Matrix<Type> *&result) {
 }
 
 
-void EyeMatSubHandler::handle(Matrix<Type> *lhs, 
-                              Matrix<Type> *rhs,
+void EyeMatSubHandler::handle(const Matrix<Type> *lhs, 
+                              const Matrix<Type> *rhs,
                               Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   // Null pointer check
@@ -93,7 +93,7 @@ void EyeMatSubHandler::handle(Matrix<Type> *lhs,
     } else if(it == rhs) {
         SubEyeLHS(it, result);
     } else {
-        result = it;
+        result = const_cast<Matrix<Type>*>(it);
     }
     return;
   }
@@ -104,7 +104,7 @@ void EyeMatSubHandler::handle(Matrix<Type> *lhs,
     } else if(it == rhs) {
         SubEyeLHS(it, result);
     } else {
-        result = it;
+        result = const_cast<Matrix<Type>*>(it);
     }
     return;
   }

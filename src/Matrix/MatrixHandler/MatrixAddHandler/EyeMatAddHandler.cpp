@@ -23,7 +23,7 @@
 #include "Matrix.hpp"
 #include "MatrixEyeOps.hpp"
 
-void AddEye(Matrix<Type> *it, Matrix<Type> *&result) {
+void AddEye(const Matrix<Type> *it, Matrix<Type> *&result) {
   /*
     Rows and columns of result matrix and if result is nullptr or if dimensions
     mismatch, then create a new matrix resource
@@ -47,7 +47,7 @@ void AddEye(Matrix<Type> *it, Matrix<Type> *&result) {
       [&](const size_t i) { (*result)(i, i) = (*it)(i, i) + (Type)(1); });
 }
 
-void Add2Eye(Matrix<Type> *it, Matrix<Type> *&result) {
+void Add2Eye(const Matrix<Type> *it, Matrix<Type> *&result) {
   /*
     Rows and columns of result matrix and if result is nullptr or if dimensions
     mismatch, then create a new matrix resource
@@ -68,7 +68,7 @@ void Add2Eye(Matrix<Type> *it, Matrix<Type> *&result) {
                 [&](const size_t i) { (*result)(i, i) = (Type)(2); });
 }
 
-void EyeMatAddHandler::handle(Matrix<Type> *lhs, Matrix<Type> *rhs,
+void EyeMatAddHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
                               Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   // Null pointer check

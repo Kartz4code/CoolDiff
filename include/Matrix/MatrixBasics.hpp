@@ -24,4 +24,16 @@
 #include "CommonHeader.hpp"
 
 // Numerical Eye matrix
-Matrix<Type> *Eye(const size_t);
+const Matrix<Type> *Eye(const size_t);
+
+// Numerical Zeros matrix
+const Matrix<Type> *Zeros(const size_t, const size_t);
+
+// Numerical Zeros square matrix
+const Matrix<Type> *Zeros(const size_t);
+
+// Numerical Ones matrix
+const Matrix<Type> *Ones(const size_t, const size_t);
+
+// Numerical Ones square matrix
+const Matrix<Type> *Ones(const size_t);

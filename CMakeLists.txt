@@ -102,6 +102,7 @@ set(SRC
     ${CMAKE_SOURCE_DIR}/src/CommonHeader.cpp
     ${CMAKE_SOURCE_DIR}/src/Scalar/VarWrap.cpp
     ${CMAKE_SOURCE_DIR}/src/Scalar/Variable.cpp
+    ${CMAKE_SOURCE_DIR}/src/Scalar/Parameter.cpp
     ${CMAKE_SOURCE_DIR}/src/Scalar/MetaVariable.cpp
     ${CMAKE_SOURCE_DIR}/src/Scalar/Expression.cpp
     ${CMAKE_SOURCE_DIR}/src/Scalar/CommonFunctions.cpp
@@ -131,8 +132,13 @@ set(SRC
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixSubHandler/EyeMatSubHandler.cpp
     # MatrixSubtraction folder
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixSubtraction/MatSubNaiveHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/MemoryManager/MemoryManager.cpp
-    ${CMAKE_SOURCE_DIR}/src/Scalar/Parameter.cpp)
+    # MatrixHadamardHandler folder
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHadamardHandler/ZeroMatHadamardHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHadamardHandler/EyeMatHadamardHandler.cpp
+    # MatrixHadamard folder
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHadamard/MatHadamardNaiveHandler.cpp
+    # Memory manager folder
+    ${CMAKE_SOURCE_DIR}/src/MemoryManager/MemoryManager.cpp)
 
 # [Set target includes]
 set(INCLUDES
@@ -151,6 +157,8 @@ set(INCLUDES
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubHandler 
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamardHandler 
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixSplOps
     ${CMAKE_SOURCE_DIR}/include/MemoryManager
     ${CMAKE_BINARY_DIR}/_deps/robin-hood-hashing-src/src/include)
