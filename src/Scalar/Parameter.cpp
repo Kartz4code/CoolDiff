@@ -59,9 +59,7 @@ Parameter &Parameter::operator=(const Type &value) {
 }
 
 // Evaluate value and derivative value
-Type Parameter::eval() { 
-  return this->mp_tmp->eval();
-}
+Type Parameter::eval() { return this->mp_tmp->eval(); }
 
 void Parameter::reset() {
   // Reset temporaries

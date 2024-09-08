@@ -22,7 +22,8 @@
 #include "MatSubNaiveHandler.hpp"
 #include "Matrix.hpp"
 
-void MatSubNaiveHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+void MatSubNaiveHandler::handle(const Matrix<Type> *lhs,
+                                const Matrix<Type> *rhs,
                                 Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");

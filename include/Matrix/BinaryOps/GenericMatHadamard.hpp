@@ -19,7 +19,6 @@
  * associated repository.
  */
 
-
 #pragma once
 
 #include "IMatrix.hpp"
@@ -29,7 +28,8 @@
 
 // Left/right side is an expression
 template <typename T1, typename T2, typename... Callables>
-class GenericMatHadamard : public IMatrix<GenericMatHadamard<T1, T2, Callables...>> {
+class GenericMatHadamard
+    : public IMatrix<GenericMatHadamard<T1, T2, Callables...>> {
 private:
   // Resources
   T1 *mp_left{nullptr};
@@ -42,7 +42,7 @@ private:
   DISABLE_COPY(GenericMatHadamard)
   DISABLE_MOVE(GenericMatHadamard)
 
-   // Verify dimensions of result matrix for subtraction operation
+  // Verify dimensions of result matrix for subtraction operation
   inline constexpr bool verifyDim() const {
     // Left matrix rows
     const int lr = mp_left->getNumRows();
@@ -73,17 +73,12 @@ public:
   const size_t m_nidx{};
 
   // Constructor
-  GenericMatHadamard(T1 *u, T2 *v, Callables &&...call) : mp_left{u}, 
-                                                          mp_right{v}, 
-                                                          mp_result{nullptr}, 
-                                                          mp_dresult{nullptr},
-                                                          mp_dresult_l{nullptr}, 
-                                                          mp_dresult_r{nullptr}, 
-                                                          mp_lhs_kron{nullptr},
-                                                          mp_rhs_kron{nullptr}, 
-                                                          m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                          m_nidx{this->m_idx_count++} 
-  {}
+  GenericMatHadamard(T1 *u, T2 *v, Callables &&...call)
+      : mp_left{u}, mp_right{v}, mp_result{nullptr}, mp_dresult{nullptr},
+        mp_dresult_l{nullptr}, mp_dresult_r{nullptr}, mp_lhs_kron{nullptr},
+        mp_rhs_kron{nullptr}, m_caller{std::make_tuple(
+                                  std::forward<Callables>(call)...)},
+        m_nidx{this->m_idx_count++} {}
 
   // Get number of rows
   V_OVERRIDE(size_t getNumRows() const) { return mp_left->getNumRows(); }

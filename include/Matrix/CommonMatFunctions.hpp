@@ -21,12 +21,12 @@
 
 #pragma once
 
-#include "GenericMatProduct.hpp"
-#include "GenericMatSum.hpp"
-#include "GenericMatSub.hpp"
 #include "GenericMatHadamard.hpp"
-#include "MatrixBasics.hpp"
+#include "GenericMatProduct.hpp"
+#include "GenericMatSub.hpp"
+#include "GenericMatSum.hpp"
 #include "Matrix.hpp"
+#include "MatrixBasics.hpp"
 
 /*
 // Is the matrix ones?

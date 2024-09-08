@@ -24,6 +24,49 @@
 #include "CommonFunctions.hpp"
 #include "IMatrix.hpp"
 
+
+// Get value
+template<typename T>
+inline constexpr Type GetValue(T &val) {
+  // If T is of type Type
+  if constexpr (true == std::is_same_v<T, Type>) {
+    return val;
+
+  }
+  // If T is of type Parameter
+  else if constexpr (true == std::is_same_v<T, Parameter>) {
+    return val.eval();
+  }
+  // If T is of type Variable
+  else if constexpr (true == std::is_same_v<T, Variable>) {
+    val.resetImpl();
+    return val.eval();
+  }
+  // If T is of type Expression
+  else if constexpr (true == std::is_same_v<T, Expression>) {
+    return Eval(val);
+  } else {
+    // If T is unknown, then return typecasted val
+    return (Type)(val);
+  }
+}
+
+// Get derivative value (Forward derivative)
+template<typename T>
+inline constexpr Type GetDValue(T &val, const Variable &var) {
+  // If T is of type Variable
+  if constexpr (true == std::is_same_v<T, Variable>) {
+    val.resetImpl();
+    return val.devalF(var);
+    // If T is of type Expression
+  } else if constexpr (true == std::is_same_v<T, Expression>) {
+    return DevalF(val, var);
+  } else {
+    // If T is unknown, then return typecasted 0
+    return (Type)(0);
+  }
+}
+
 // Factory function for matrix reference creation
 template <typename T, typename... Args> Matrix<T> &CreateMatrix(Args &&...);
 
@@ -43,58 +86,15 @@ private:
   // Collection of meta variable expressions
   Vector<MetaMatrix *> m_gh_vec{};
 
-  // Get value
-  inline constexpr Type getValue(T &val) const {
-    // If T is of type Type
-    if constexpr (true == std::is_same_v<T, Type>) {
-      return val;
-      
-    } 
-    // If T is of type Parameter
-    else if constexpr (true == std::is_same_v<T, Parameter>) {
-      return val.eval();
-    }
-    // If T is of type Variable
-    else if constexpr (true == std::is_same_v<T, Variable>) {
-      val.resetImpl();
-      return val.eval();
-    }
-    // If T is of type Expression
-    else if constexpr (true == std::is_same_v<T, Expression>) {
-      return Eval(val);
-    } else {
-      // If T is unknown, then return typecasted val
-      return (Type)(val);
-    }
-  }
-
-  // Get derivative value (Forward derivative)
-  inline constexpr Type getdValue(T &val, const Variable &var) const {
-    // If T is of type Variable
-    if constexpr (true == std::is_same_v<T, Variable>) {
-      val.resetImpl();
-      return val.devalF(var);
-    // If T is of type Expression
-    } else if constexpr (true == std::is_same_v<T, Expression>) {
-      return DevalF(val, var);
-    } else {
-    // If T is unknown, then return typecasted 0
-      return (Type)(0);
-    }
-  }
-
   // Set values for the result matrix
   inline void setEval() {
     // Set result matrix
     if constexpr (false == std::is_same_v<T, Type>) {
-      if ((nullptr != mp_mat) && 
-          (nullptr != mp_result) &&
+      if ((nullptr != mp_mat) && (nullptr != mp_result) &&
           (nullptr != mp_result->mp_mat)) {
         std::transform(EXECUTION_SEQ mp_mat, mp_mat + getNumElem(),
                        mp_result->mp_mat,
-                       [this](auto &v) { 
-                        return getValue(v); 
-                     });
+                       [this](auto &v) { return GetValue(v); });
       }
     }
   }
@@ -103,14 +103,11 @@ private:
   inline void setDevalF(const Matrix<Variable> &X) {
     // If the matrix type is Expression
     if constexpr (true == std::is_same_v<T, Expression>) {
-      if ((nullptr != mp_mat) && 
-          (nullptr != mp_dresult) &&
+      if ((nullptr != mp_mat) && (nullptr != mp_dresult) &&
           (nullptr != mp_dresult->mp_mat)) {
         // Precompute the reverse derivatives
         std::for_each(EXECUTION_SEQ mp_mat, mp_mat + getNumElem(),
-                      [](auto &i) { 
-                        PreComp(i); 
-                    });
+                      [](auto &i) { PreComp(i); });
 
         // Get dimensions of X variable matrix
         const size_t xrows = X.getNumRows();
@@ -134,16 +131,14 @@ private:
                                         (*mp_dresult)(l * xrows + i,
                                                       k * xcols + j) =
                                             DevalR((*this)(l, k), X(i, j));
-                                    });
-                    });
+                                      });
+                      });
       }
-    } 
+    }
     // If the matrix type is Variable
     else if constexpr (true == std::is_same_v<T, Variable>) {
-      if ((nullptr != mp_mat) && 
-          (nullptr != mp_dresult) &&
-          (nullptr != mp_dresult->mp_mat) && 
-          (m_nidx == X.m_nidx)) {
+      if ((nullptr != mp_mat) && (nullptr != mp_dresult) &&
+          (nullptr != mp_dresult->mp_mat) && (m_nidx == X.m_nidx)) {
         // Get dimensions of X variable matrix
         const size_t xrows = X.getNumRows();
         const size_t xcols = X.getNumColumns();
@@ -158,10 +153,9 @@ private:
                         // Inner loop
                         (*mp_dresult)(i * xrows + i, j * xcols + j) = (Type)(1);
                       });
-      } 
-      // If the Matrix is Variable, but of different form 
-      else if ((nullptr != mp_mat) && 
-               (nullptr != mp_dresult) && 
+      }
+      // If the Matrix is Variable, but of different form
+      else if ((nullptr != mp_mat) && (nullptr != mp_dresult) &&
                (nullptr != mp_dresult->mp_mat)) {
         // Get dimensions of X variable matrix
         const size_t xrows = X.getNumRows();
@@ -178,13 +172,16 @@ private:
                         const size_t l = (i - k) / m_cols;
 
                         // Inner loop
-                        std::for_each(EXECUTION_PAR inner_idx.begin(),
-                                      inner_idx.end(), [&](const size_t n) {
-                                        const size_t j = n % xcols;
-                                        const size_t i = (n - j) / xcols;
-                                        (*mp_dresult)(l * xrows + i, k * xcols + j) = 
-                                        (((*this)(l, k).m_nidx == X(i, j).m_nidx) ? (Type)(1) : (Type)(0));
-                                      });
+                        std::for_each(
+                            EXECUTION_PAR inner_idx.begin(), inner_idx.end(),
+                            [&](const size_t n) {
+                              const size_t j = n % xcols;
+                              const size_t i = (n - j) / xcols;
+                              (*mp_dresult)(l * xrows + i, k * xcols + j) =
+                                  (((*this)(l, k).m_nidx == X(i, j).m_nidx)
+                                       ? (Type)(1)
+                                       : (Type)(0));
+                            });
                       });
       }
     }
@@ -506,12 +503,12 @@ public:
       const size_t xcols = X.getNumColumns();
       if constexpr (true == std::is_same_v<T, Type> ||
                     true == std::is_same_v<T, Parameter>) {
-        #if defined(NAIVE_IMPL)
-          mp_dresult = CreateMatrixPtr<Type>(m_rows * xrows, m_cols * xcols,
-                                            MatrixSpl::ZEROS);
-        #else 
-          mp_dresult = CreateMatrixPtr<Type>(m_rows * xrows, m_cols * xcols);
-        #endif
+#if defined(NAIVE_IMPL)
+        mp_dresult = CreateMatrixPtr<Type>(m_rows * xrows, m_cols * xcols,
+                                           MatrixSpl::ZEROS);
+#else
+        mp_dresult = CreateMatrixPtr<Type>(m_rows * xrows, m_cols * xcols);
+#endif
       } else {
         mp_dresult = CreateMatrixPtr<Type>(m_rows * xrows, m_cols * xcols);
       }

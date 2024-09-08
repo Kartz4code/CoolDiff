@@ -1,5 +1,6 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixHadamardHandler/EyeMatHadamardHandler.cpp
+ * @file
+ * src/Matrix/MatrixHandler/MatrixHadamardHandler/EyeMatHadamardHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -23,14 +24,14 @@
 #include "Matrix.hpp"
 #include "MatrixEyeOps.hpp"
 
-void HadamardEye(const Matrix<Type>* it, Matrix<Type> *&result) {
+void HadamardEye(const Matrix<Type> *it, Matrix<Type> *&result) {
   /*
     Rows and columns of result matrix and if result is nullptr or if dimensions
     mismatch, then create a new matrix resource
   */
   const size_t nrows{it->getNumRows()};
   const size_t ncols{it->getNumColumns()};
-  
+
   if (nullptr == result) {
     result = CreateMatrixPtr<Type>(nrows, ncols);
   } else if ((nrows != result->getNumRows()) ||
@@ -40,12 +41,12 @@ void HadamardEye(const Matrix<Type>* it, Matrix<Type> *&result) {
 
   // Diagonal indices (Modification)
   auto diag_idx = Range<size_t>(0, nrows);
-  std::for_each(
-      EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
-      [&](const size_t i) { (*result)(i, i) = (*it)(i, i); });
+  std::for_each(EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
+                [&](const size_t i) { (*result)(i, i) = (*it)(i, i); });
 }
 
-void EyeMatHadamardHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+void EyeMatHadamardHandler::handle(const Matrix<Type> *lhs,
+                                   const Matrix<Type> *rhs,
                                    Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   // Null pointer check
@@ -54,20 +55,20 @@ void EyeMatHadamardHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *
 
   /* Eye matrix special check */
   if (auto *it = EyeMatHadamard(lhs, rhs); nullptr != it) {
-    if(it == lhs || it == rhs) {
-        HadamardEye(it, result);
+    if (it == lhs || it == rhs) {
+      HadamardEye(it, result);
     } else {
-        result = const_cast<Matrix<Type>*>(it);
+      result = const_cast<Matrix<Type> *>(it);
     }
     return;
   }
 
   /* Eye matrix numerical check */
   else if (auto *it = EyeMatHadamardNum(lhs, rhs); nullptr != it) {
-    if(it == lhs || it == rhs) {
-        HadamardEye(it, result);
+    if (it == lhs || it == rhs) {
+      HadamardEye(it, result);
     } else {
-        result = const_cast<Matrix<Type>*>(it);
+      result = const_cast<Matrix<Type> *>(it);
     }
     return;
   }

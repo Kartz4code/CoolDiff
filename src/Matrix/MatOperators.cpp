@@ -44,13 +44,14 @@
 
 // Matrix operations
 #include "MatAddNaiveHandler.hpp"
-#include "MatSubNaiveHandler.hpp"
+#include "MatHadamardNaiveHandler.hpp"
 #include "MatKronNaiveHandler.hpp"
 #include "MatMulNaiveHandler.hpp"
-#include "MatHadamardNaiveHandler.hpp"
+#include "MatSubNaiveHandler.hpp"
 
 // Matrix-Matrix addition - Left, Right, Result matrix pointer
-void MatrixAdd(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
+void MatrixAdd(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+               Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -69,10 +70,10 @@ void MatrixAdd(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&
   h3.handle(lhs, rhs, result);
 }
 
-
 // Matrix-Matrix subtraction - Left, Right, Result matrix pointer
-void MatrixSub(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
-   // Null pointer check
+void MatrixSub(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+               Matrix<Type> *&result) {
+  // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
@@ -91,7 +92,8 @@ void MatrixSub(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& 
 }
 
 // Matrix-Matrix multiplication - Left, Right, Result matrix pointer
-void MatrixMul(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
+void MatrixMul(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+               Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -110,7 +112,8 @@ void MatrixMul(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&
 }
 
 // Matrix-Matrix Kronocker product - Left, Right, Result matrix pointer
-void MatrixKron(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
+void MatrixKron(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+                Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -130,7 +133,8 @@ void MatrixKron(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *
 }
 
 // Matrix-Matrix Hadamard product - Left, Right, Result matrix pointer
-void MatrixHadamard(const Matrix<Type> * lhs, const Matrix<Type> * rhs, Matrix<Type> *& result) {
+void MatrixHadamard(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+                    Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");

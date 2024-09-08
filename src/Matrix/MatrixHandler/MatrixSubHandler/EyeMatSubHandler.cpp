@@ -39,16 +39,13 @@ void SubEyeRHS(const Matrix<Type> *it, Matrix<Type> *&result) {
 
   // Copy all LHS matrix value into result
   *result = *it;
-    
+
   // Iteration elements (Along the diagonal)
   auto idx = Range<size_t>(0, nrows);
   // For each execution
-  std::for_each(EXECUTION_PAR 
-                idx.begin(), idx.end(),
-                [&](const size_t i) {
-                    (*result)(i,i) = (*it)(i,i) - (Type)(1);
-                });
-
+  std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t i) {
+    (*result)(i, i) = (*it)(i, i) - (Type)(1);
+  });
 }
 
 void SubEyeLHS(const Matrix<Type> *it, Matrix<Type> *&result) {
@@ -66,20 +63,17 @@ void SubEyeLHS(const Matrix<Type> *it, Matrix<Type> *&result) {
   }
 
   // Iteration elements
-  auto idx = Range<size_t>(0, nrows*ncols);
+  auto idx = Range<size_t>(0, nrows * ncols);
   // For each execution
-  std::for_each(EXECUTION_PAR 
-                idx.begin(), idx.end(),
-                [&](const size_t n) {
-                    const size_t j = n % ncols;
-                    const size_t i = (n - j) / ncols;
-                    (*result)(i,j) = ((i == j) ? ((Type)(1) - (*it)(i,j)) : ((Type)(-1)*(*it)(i,j)));
-                });
+  std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t n) {
+    const size_t j = n % ncols;
+    const size_t i = (n - j) / ncols;
+    (*result)(i, j) =
+        ((i == j) ? ((Type)(1) - (*it)(i, j)) : ((Type)(-1) * (*it)(i, j)));
+  });
 }
 
-
-void EyeMatSubHandler::handle(const Matrix<Type> *lhs, 
-                              const Matrix<Type> *rhs,
+void EyeMatSubHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
                               Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   // Null pointer check
@@ -88,23 +82,23 @@ void EyeMatSubHandler::handle(const Matrix<Type> *lhs,
 
   /* Zero matrix special check */
   if (auto *it = EyeMatSub(lhs, rhs); nullptr != it) {
-    if(it == lhs) {
-        SubEyeRHS(it, result);
-    } else if(it == rhs) {
-        SubEyeLHS(it, result);
+    if (it == lhs) {
+      SubEyeRHS(it, result);
+    } else if (it == rhs) {
+      SubEyeLHS(it, result);
     } else {
-        result = const_cast<Matrix<Type>*>(it);
+      result = const_cast<Matrix<Type> *>(it);
     }
     return;
   }
   /* Zero matrix numerical check */
   else if (auto *it = EyeMatSubNum(lhs, rhs); nullptr != it) {
-    if(it == lhs) {
-        SubEyeRHS(it, result);
-    } else if(it == rhs) {
-        SubEyeLHS(it, result);
+    if (it == lhs) {
+      SubEyeRHS(it, result);
+    } else if (it == rhs) {
+      SubEyeLHS(it, result);
     } else {
-        result = const_cast<Matrix<Type>*>(it);
+      result = const_cast<Matrix<Type> *>(it);
     }
     return;
   }

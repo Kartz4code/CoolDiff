@@ -80,7 +80,8 @@ bool IsEyeMatrix(const Matrix<Type> *m) {
 }
 
 // Eye matrix addition checks
-const Matrix<Type> *EyeMatAdd(const Matrix<Type> *lhs, const Matrix<Type> *rhs) {
+const Matrix<Type> *EyeMatAdd(const Matrix<Type> *lhs,
+                              const Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -103,7 +104,8 @@ const Matrix<Type> *EyeMatAdd(const Matrix<Type> *lhs, const Matrix<Type> *rhs) 
 }
 
 // Eye matrix subtraction
-const Matrix<Type> *EyeMatSub(const Matrix<Type> * lhs, const Matrix<Type> * rhs) {
+const Matrix<Type> *EyeMatSub(const Matrix<Type> *lhs,
+                              const Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -125,9 +127,9 @@ const Matrix<Type> *EyeMatSub(const Matrix<Type> * lhs, const Matrix<Type> * rhs
   }
 }
 
-
 // Eye matrix multiplication checks
-const Matrix<Type> *EyeMatMul(const Matrix<Type> *lhs, const Matrix<Type> *rhs) {
+const Matrix<Type> *EyeMatMul(const Matrix<Type> *lhs,
+                              const Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -155,7 +157,8 @@ const Matrix<Type> *EyeMatMul(const Matrix<Type> *lhs, const Matrix<Type> *rhs) 
 }
 
 // Eye matrix Kronocker
-const Matrix<Type> *EyeMatKron(const Matrix<Type> *lhs, const Matrix<Type> *rhs) {
+const Matrix<Type> *EyeMatKron(const Matrix<Type> *lhs,
+                               const Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -182,7 +185,8 @@ const Matrix<Type> *EyeMatKron(const Matrix<Type> *lhs, const Matrix<Type> *rhs)
 }
 
 // Eye matrix Hadamard product
-const Matrix<Type> *EyeMatHadamard(const Matrix<Type> * lhs, const Matrix<Type> * rhs) {
+const Matrix<Type> *EyeMatHadamard(const Matrix<Type> *lhs,
+                                   const Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -210,7 +214,8 @@ const Matrix<Type> *EyeMatHadamard(const Matrix<Type> * lhs, const Matrix<Type> 
 }
 
 // Eye matrix addition numerical checks
-const Matrix<Type> *EyeMatAddNum(const Matrix<Type> *lhs, const Matrix<Type> *rhs) {
+const Matrix<Type> *EyeMatAddNum(const Matrix<Type> *lhs,
+                                 const Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -235,8 +240,9 @@ const Matrix<Type> *EyeMatAddNum(const Matrix<Type> *lhs, const Matrix<Type> *rh
 }
 
 // Eye matrix subtraction numerics
-const Matrix<Type> *EyeMatSubNum(const Matrix<Type> * lhs, const Matrix<Type> * rhs) {
-    // Null pointer check
+const Matrix<Type> *EyeMatSubNum(const Matrix<Type> *lhs,
+                                 const Matrix<Type> *rhs) {
+  // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
@@ -259,9 +265,9 @@ const Matrix<Type> *EyeMatSubNum(const Matrix<Type> * lhs, const Matrix<Type> * 
   }
 }
 
-
 // Eye matrix multiplication numerical check
-const Matrix<Type> *EyeMatMulNum(const Matrix<Type> *lhs, const Matrix<Type> *rhs) {
+const Matrix<Type> *EyeMatMulNum(const Matrix<Type> *lhs,
+                                 const Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -285,7 +291,8 @@ const Matrix<Type> *EyeMatMulNum(const Matrix<Type> *lhs, const Matrix<Type> *rh
 }
 
 // Eye matrix Kronocker product numerics
-const Matrix<Type> *EyeMatKronNum(const Matrix<Type> *lhs, const Matrix<Type> *rhs) {
+const Matrix<Type> *EyeMatKronNum(const Matrix<Type> *lhs,
+                                  const Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -314,7 +321,8 @@ const Matrix<Type> *EyeMatKronNum(const Matrix<Type> *lhs, const Matrix<Type> *r
 }
 
 // Eye matrix Hadamard product numerics
-const Matrix<Type> *EyeMatHadamardNum(const Matrix<Type> * lhs, const Matrix<Type> * rhs) {
+const Matrix<Type> *EyeMatHadamardNum(const Matrix<Type> *lhs,
+                                      const Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -334,5 +342,5 @@ const Matrix<Type> *EyeMatHadamardNum(const Matrix<Type> * lhs, const Matrix<Typ
     return lhs;
   } else {
     return nullptr;
-  }  
+  }
 }

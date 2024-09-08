@@ -26,7 +26,7 @@
 
 #include "MatrixBasics.hpp"
 
-// Left/right side is an expression
+// Left/right side is a Matrix
 template <typename T1, typename T2, typename... Callables>
 class GenericMatProduct
     : public IMatrix<GenericMatProduct<T1, T2, Callables...>> {
@@ -160,38 +160,35 @@ const GenericMatProductT<T1, T2> &operator*(const IMatrix<T1> &u,
 }
 
 // Matrix multiplication with scalar (LHS) - SFINAE'd
-template<typename T, typename Z, typename = std::enable_if_t<std::is_base_of_v<MetaVariable, Z> && 
-                                                             !std::is_arithmetic_v<Z> &&
-                                                             !std::is_same_v<Type,Z>>>
-const auto& operator*(const Z& value, const IMatrix<T>& mat) {
-  // Create type matrix filled with value (Type)
-  auto& u = CreateMatrix<Expression>(mat.getNumRows(), mat.getNumColumns()); 
-  std::fill_n(EXECUTION_PAR u.getMatrixPtr(), u.getNumElem(), value);
-  // Return matrix
-  return u ^ mat;
+template <typename T, typename Z,
+          typename = std::enable_if_t<std::is_base_of_v<MetaVariable, Z> &&
+                                      false == std::is_arithmetic_v<Z> &&
+                                      false == std::is_same_v<Type, Z>>>
+const auto &operator*(const Z &v, const IMatrix<T> &M) {
+  auto &U = CreateMatrix<Expression>(M.getNumRows(), M.getNumColumns());
+  std::fill_n(EXECUTION_PAR U.getMatrixPtr(), U.getNumElem(), v);
+  return U ^ M;
 }
 
 // Matrix multiplication with scalar (RHS) - SFINAE'd
-template<typename T, typename Z, typename = std::enable_if_t<std::is_base_of_v<MetaVariable, Z> && 
-                                                             !std::is_arithmetic_v<Z> &&
-                                                             !std::is_same_v<Type,Z>>>
-const auto& operator*(const IMatrix<T>& mat, const Z& value) {
-  return value ^ mat; 
+template <typename T, typename Z,
+          typename = std::enable_if_t<std::is_base_of_v<MetaVariable, Z> &&
+                                      false == std::is_arithmetic_v<Z> &&
+                                      false == std::is_same_v<Type, Z>>>
+const auto &operator*(const IMatrix<T> &M, const Z &v) {
+  return v*M;
 }
 
 // Matrix multiplication with Type (LHS)
-template<typename T>
-const auto& operator*(const Type& value, const IMatrix<T>& mat) {
-  // Create type matrix filled with value (Type)
-  auto& u = CreateMatrix<Type>(mat.getNumRows(), mat.getNumColumns()); 
-  std::fill_n(EXECUTION_PAR u.getMatrixPtr(), u.getNumElem(), value);
-  // Return matrix
-  return u ^ mat;
+template <typename T>
+const auto &operator*(const Type &v, const IMatrix<T> &M) {
+  auto &U = CreateMatrix<Type>(M.getNumRows(), M.getNumColumns());
+  std::fill_n(EXECUTION_PAR U.getMatrixPtr(), U.getNumElem(), v);
+  return U ^ M;
 }
 
-
 // Matrix multiplication with Type (RHS)
-template<typename T>
-const auto& operator*(const IMatrix<T>& mat, const Type& value) {
-  return value ^ mat; 
+template <typename T>
+const auto &operator*(const IMatrix<T> &M, const Type &v) {
+  return v*M;
 }

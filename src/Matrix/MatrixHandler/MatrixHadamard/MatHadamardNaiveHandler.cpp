@@ -22,8 +22,9 @@
 #include "MatHadamardNaiveHandler.hpp"
 #include "Matrix.hpp"
 
-void MatHadamardNaiveHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
-                                           Matrix<Type> *&result) {
+void MatHadamardNaiveHandler::handle(const Matrix<Type> *lhs,
+                                     const Matrix<Type> *rhs,
+                                     Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");

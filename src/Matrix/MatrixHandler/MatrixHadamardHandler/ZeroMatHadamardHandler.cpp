@@ -1,5 +1,6 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixHadamardHandler/ZeroMatHadamardHandler.cpp
+ * @file
+ * src/Matrix/MatrixHandler/MatrixHadamardHandler/ZeroMatHadamardHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -23,8 +24,9 @@
 #include "Matrix.hpp"
 #include "MatrixZeroOps.hpp"
 
-void ZeroMatHadamardHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
-                                   Matrix<Type> *&result) {
+void ZeroMatHadamardHandler::handle(const Matrix<Type> *lhs,
+                                    const Matrix<Type> *rhs,
+                                    Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
@@ -32,13 +34,13 @@ void ZeroMatHadamardHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> 
 
   /* Zero matrix special check */
   if (auto *it = ZeroMatHadamard(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type>*>(it);
+    result = const_cast<Matrix<Type> *>(it);
     return;
   }
 
   /* Zero matrix numerical check */
   else if (auto *it = ZeroMatHadamardNum(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type>*>(it);
+    result = const_cast<Matrix<Type> *>(it);
     return;
   }
 #endif

@@ -32,15 +32,15 @@ void ZeroMatAddHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
 
   /* Zero matrix special check */
   if (auto *it = ZeroMatAdd(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type>*>(it);
+    result = const_cast<Matrix<Type> *>(it);
     return;
   }
   /* Zero matrix numerical check */
   else if (auto *it = ZeroMatAddNum(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type>*>(it);
+    result = const_cast<Matrix<Type> *>(it);
     return;
   }
-#endif
+#endif 
 
   // Chain of responsibility
   MatrixHandler::handle(lhs, rhs, result);
