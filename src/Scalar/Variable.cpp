@@ -31,8 +31,7 @@ Variable::Variable() : m_nidx{this->m_idx_count++} {
 }
 
 // Variables with concrete values
-Variable::Variable(const Type &value)
-    : m_nidx{this->m_idx_count++} {
+Variable::Variable(const Type &value) : m_nidx{this->m_idx_count++} {
   *m_value_var = value;
   // Set all the values for VarWrap
   m_var.setConstructor(value);
@@ -160,8 +159,7 @@ Type Variable::devalF(const Variable &var) {
     // Set visit flag to true
     this->m_visited = true;
     // Loop on internal equations
-    std::for_each(EXECUTION_SEQ 
-                  m_gh_vec.begin(), m_gh_vec.end(),
+    std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(),
                   [this, &var](auto *i) {
                     if (nullptr != i) {
                       setdValue(i->devalF(var));

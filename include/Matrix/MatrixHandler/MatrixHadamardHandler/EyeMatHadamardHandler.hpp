@@ -1,5 +1,6 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixHadamardHandler/EyeMatHadamardHandler.hpp
+ * @file
+ * src/Matrix/MatrixHandler/MatrixHadamardHandler/EyeMatHadamardHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -27,7 +28,8 @@ class EyeMatHadamardHandler : public MatrixHandler {
 public:
   using MatrixHandler::MatrixHandler;
 
-  V_OVERRIDE(void handle(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&));
+  V_OVERRIDE(void handle(const Matrix<Type> *, const Matrix<Type> *,
+                         Matrix<Type> *&));
 
   // Destructor
   V_DTR(~EyeMatHadamardHandler() = default);

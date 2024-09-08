@@ -22,7 +22,8 @@
 #include "MatAddNaiveHandler.hpp"
 #include "Matrix.hpp"
 
-void MatAddNaiveHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+void MatAddNaiveHandler::handle(const Matrix<Type> *lhs,
+                                const Matrix<Type> *rhs,
                                 Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
@@ -31,8 +32,10 @@ void MatAddNaiveHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs
   /* Matrix-Matrix numerical addition */
   // Rows and columns of result matrix and if result is nullptr, then create a
   // new resource
-  const size_t nrows{lhs->getNumRows()};
-  const size_t ncols{rhs->getNumColumns()};
+
+  const size_t nrows = lhs->getNumRows();
+  const size_t ncols = rhs->getNumColumns();
+  
   if (nullptr == result) {
     result = CreateMatrixPtr<Type>(nrows, ncols);
   } else if ((nrows != result->getNumRows()) ||
@@ -45,10 +48,9 @@ void MatAddNaiveHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs
   const Type *left = lhs->getMatrixPtr();
   const Type *right = rhs->getMatrixPtr();
 
-  // For each element, perform addition
   const size_t size{nrows * ncols};
+  // For each element, perform addition
   std::transform(EXECUTION_PAR left, left + size, right, res,
-                 [](const Type a, const Type b) { return a + b; });
-
+                [](const Type a, const Type b) { return a + b; });
   return;
 }

@@ -24,25 +24,31 @@
 #include "MatOperators.hpp"
 
 void func9() {
+  Matrix<Variable> X(2, 2);
+  X(0, 0) = -0.3;
+  X(0, 1) = 2.71;
+  X(1, 0) = 3.352;
+  X(1, 1) = 44;
 
-  Matrix<Variable> x(2, 2);
-  x(0, 0) = 1;
-  x(0, 1) = 5;
-  x(1, 0) = 3;
-  x(1, 1) = 20;
+  Matrix<Variable> Z(2,2);
+  Z(1,1) = X(0,0);
 
-  Matrix<Type> x2(2, 2);
-  x2(0, 0) = 1;
-  x2(0, 1) = 5;
-  x2(1, 0) = 3;
-  x2(1, 1) = 20;
+  Matrix<Type> A(2, 2);
+  A(0, 0) = 1;
+  A(0, 1) = 2;
+  A(1, 0) = 3;
+  A(1, 1) = 4;
 
-  Matrix<Expression> S = 2*x + 3;
+  Matrix<Expression> Y(2,2);
+  Y(0,0) = X(0,0) + X(0,1);
+  Y(0,1) = X(0,0)*X(0,1)-X(1,0);
+  Y(1,0) = X(0,1)-X(0,0)+X(1,0);
+  Y(1,1) = X(0,1)/X(1,1); 
+
+  Matrix<Expression> S = 2*X(0,0)+X;
 
   std::cout << Eval(S) << "\n";
-  std::cout << Eval(S) << "\n";
-  
-  std::cout << DevalF(S, x) << "\n";
+  std::cout << DevalF(S, Z) << "\n";
 }
 
 void func2() {

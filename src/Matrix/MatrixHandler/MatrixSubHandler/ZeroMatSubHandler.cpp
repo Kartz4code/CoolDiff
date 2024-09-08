@@ -37,16 +37,12 @@ void SubZero(const Matrix<Type> *it, Matrix<Type> *&result) {
     result = CreateMatrixPtr<Type>(nrows, ncols);
   }
 
-  std::transform(EXECUTION_PAR 
-                 it->getMatrixPtr(), it->getMatrixPtr() + it->getNumElem(), 
-                 result->getMatrixPtr(), 
-                 [](const auto& i) {
-                    return (Type)(-1)*i;
-                 });
+  std::transform(EXECUTION_PAR it->getMatrixPtr(),
+                 it->getMatrixPtr() + it->getNumElem(), result->getMatrixPtr(),
+                 [](const auto &i) { return (Type)(-1) * i; });
 }
 
-void ZeroMatSubHandler::handle(const Matrix<Type> *lhs, 
-                               const Matrix<Type> *rhs,
+void ZeroMatSubHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
                                Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   // Null pointer check
@@ -55,23 +51,23 @@ void ZeroMatSubHandler::handle(const Matrix<Type> *lhs,
 
   /* Zero matrix special check */
   if (auto *it = ZeroMatSub(lhs, rhs); nullptr != it) {
-    if(it == lhs) {
-        result = const_cast<Matrix<Type>*>(lhs);
-    } else if(it == rhs) {
-        SubZero(it, result);
+    if (it == lhs) {
+      result = const_cast<Matrix<Type> *>(lhs);
+    } else if (it == rhs) {
+      SubZero(it, result);
     } else {
-        result = const_cast<Matrix<Type>*>(it);
+      result = const_cast<Matrix<Type> *>(it);
     }
     return;
   }
   /* Zero matrix numerical check */
   else if (auto *it = ZeroMatSubNum(lhs, rhs); nullptr != it) {
-    if(it == lhs) {
-        result = const_cast<Matrix<Type>*>(lhs);
-    } else if(it == rhs) {
-        SubZero(it, result);
+    if (it == lhs) {
+      result = const_cast<Matrix<Type> *>(lhs);
+    } else if (it == rhs) {
+      SubZero(it, result);
     } else {
-        result = const_cast<Matrix<Type>*>(it);
+      result = const_cast<Matrix<Type> *>(it);
     }
     return;
   }

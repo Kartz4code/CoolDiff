@@ -46,7 +46,8 @@ bool IsZeroMatrix(const Matrix<Type> *m) {
 }
 
 // Zero matrix addition checks
-const Matrix<Type> *ZeroMatAdd(const Matrix<Type> *lhs, const Matrix<Type> *rhs) {
+const Matrix<Type> *ZeroMatAdd(const Matrix<Type> *lhs,
+                               const Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -72,7 +73,8 @@ const Matrix<Type> *ZeroMatAdd(const Matrix<Type> *lhs, const Matrix<Type> *rhs)
 }
 
 // Zero matrix subtraction
-const Matrix<Type> *ZeroMatSub(const Matrix<Type>* lhs, const Matrix<Type> * rhs) {
+const Matrix<Type> *ZeroMatSub(const Matrix<Type> *lhs,
+                               const Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -85,20 +87,21 @@ const Matrix<Type> *ZeroMatSub(const Matrix<Type>* lhs, const Matrix<Type> * rhs
   if (lhs->getMatType() == MatrixSpl::ZEROS &&
       rhs->getMatType() == MatrixSpl::ZEROS) {
     return CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS);
-  } 
+  }
   // If lhs is a zero matrix
   else if (lhs->getMatType() == MatrixSpl::ZEROS) {
     return rhs;
-  // If rhs is a zero matrix
+    // If rhs is a zero matrix
   } else if (rhs->getMatType() == MatrixSpl::ZEROS) {
     return lhs;
   } else {
     return nullptr;
-  } 
+  }
 }
 
 // Zero matrix multiplication checks
-const Matrix<Type> *ZeroMatMul(const Matrix<Type> *lhs, const Matrix<Type> *rhs) {
+const Matrix<Type> *ZeroMatMul(const Matrix<Type> *lhs,
+                               const Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -119,7 +122,8 @@ const Matrix<Type> *ZeroMatMul(const Matrix<Type> *lhs, const Matrix<Type> *rhs)
 }
 
 // Zero matrix kronocker product
-const Matrix<Type> *ZeroMatKron(const Matrix<Type> *lhs, const Matrix<Type> *rhs) {
+const Matrix<Type> *ZeroMatKron(const Matrix<Type> *lhs,
+                                const Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -142,7 +146,8 @@ const Matrix<Type> *ZeroMatKron(const Matrix<Type> *lhs, const Matrix<Type> *rhs
 }
 
 // Zero matrix Hadamard product
-const Matrix<Type> *ZeroMatHadamard(const Matrix<Type> * lhs, const Matrix<Type> * rhs) {
+const Matrix<Type> *ZeroMatHadamard(const Matrix<Type> *lhs,
+                                    const Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -159,11 +164,12 @@ const Matrix<Type> *ZeroMatHadamard(const Matrix<Type> * lhs, const Matrix<Type>
   // If neither, then return nullptr
   else {
     return nullptr;
-  } 
+  }
 }
 
 // Zero matrix addition numerical check
-const Matrix<Type> *ZeroMatAddNum(const Matrix<Type> *lhs, const Matrix<Type> *rhs) {
+const Matrix<Type> *ZeroMatAddNum(const Matrix<Type> *lhs,
+                                  const Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -188,7 +194,8 @@ const Matrix<Type> *ZeroMatAddNum(const Matrix<Type> *lhs, const Matrix<Type> *r
 }
 
 // Zero matrix subtraction numerics
-const Matrix<Type> *ZeroMatSubNum(const Matrix<Type> * lhs, const Matrix<Type> * rhs) {
+const Matrix<Type> *ZeroMatSubNum(const Matrix<Type> *lhs,
+                                  const Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -212,9 +219,9 @@ const Matrix<Type> *ZeroMatSubNum(const Matrix<Type> * lhs, const Matrix<Type> *
   }
 }
 
-
 // Zero matrix multiplication numerical checks
-const Matrix<Type> *ZeroMatMulNum(const Matrix<Type> *lhs, const Matrix<Type> *rhs) {
+const Matrix<Type> *ZeroMatMulNum(const Matrix<Type> *lhs,
+                                  const Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -234,7 +241,8 @@ const Matrix<Type> *ZeroMatMulNum(const Matrix<Type> *lhs, const Matrix<Type> *r
 }
 
 // Zero matrix kronocker product numerics
-const Matrix<Type> *ZeroMatKronNum(const Matrix<Type> *lhs, const Matrix<Type> *rhs) {
+const Matrix<Type> *ZeroMatKronNum(const Matrix<Type> *lhs,
+                                   const Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -255,9 +263,9 @@ const Matrix<Type> *ZeroMatKronNum(const Matrix<Type> *lhs, const Matrix<Type> *
   }
 }
 
-
 // Zero matrix Hadamard product
-const Matrix<Type> *ZeroMatHadamardNum(const Matrix<Type> * lhs, const Matrix<Type> * rhs) {
+const Matrix<Type> *ZeroMatHadamardNum(const Matrix<Type> *lhs,
+                                       const Matrix<Type> *rhs) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");

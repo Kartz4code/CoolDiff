@@ -32,13 +32,13 @@ void ZeroMatMulHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
 
   /* Zero matrix special check */
   if (auto *it = ZeroMatMul(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type>*>(it);
+    result = const_cast<Matrix<Type> *>(it);
     return;
   }
 
   /* Zero matrix numerical check */
   else if (auto *it = ZeroMatMulNum(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type>*>(it);
+    result = const_cast<Matrix<Type> *>(it);
     return;
   }
 #endif

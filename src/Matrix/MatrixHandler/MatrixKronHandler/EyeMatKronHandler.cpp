@@ -24,7 +24,8 @@
 #include "MatrixEyeOps.hpp"
 
 // When left matrix is special matrix of identity type
-void KronEyeLHS(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
+void KronEyeLHS(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+                Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -67,7 +68,8 @@ void KronEyeLHS(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *
 }
 
 // When right matrix is special matrix of identity type
-void KronEyeRHS(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
+void KronEyeRHS(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+                Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -123,7 +125,7 @@ void EyeMatKronHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
     } else if (it == rhs) {
       KronEyeLHS(lhs, rhs, result);
     } else {
-      result = const_cast<Matrix<Type>*>(it);
+      result = const_cast<Matrix<Type> *>(it);
     }
     return;
   }
@@ -135,7 +137,7 @@ void EyeMatKronHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
     } else if (it == rhs) {
       KronEyeLHS(lhs, rhs, result);
     } else {
-      result = const_cast<Matrix<Type>*>(it);
+      result = const_cast<Matrix<Type> *>(it);
     }
     return;
   }

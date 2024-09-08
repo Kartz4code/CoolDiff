@@ -22,7 +22,8 @@
 #include "MatMulNaiveHandler.hpp"
 #include "Matrix.hpp"
 
-void MatMulNaiveHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+void MatMulNaiveHandler::handle(const Matrix<Type> *lhs,
+                                const Matrix<Type> *rhs,
                                 Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
@@ -44,20 +45,22 @@ void MatMulNaiveHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs
   auto inner_idx = Range<size_t>(0, rrows);
 
   // Naive matrix-matrix multiplication
-  std::for_each(
-      EXECUTION_PAR outer_idx.begin(), outer_idx.end(), [&](const size_t n) {
-        // Row and column index
-        const size_t j = n % rcols;
-        const size_t i = (n - j) / rcols;
+  std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(),
+                [&](const size_t n) {
+                  // Row and column index
+                  const size_t j = n % rcols;
+                  const size_t i = (n - j) / rcols;
 
-        // Inner product
-        Type tmp{};
-        std::for_each(EXECUTION_SEQ inner_idx.begin(), inner_idx.end(),
-                      [&](const size_t m) { tmp += (*lhs)(i, m) * (*rhs)(m, j); });
+                  // Inner product
+                  Type tmp{};
+                  std::for_each(EXECUTION_SEQ inner_idx.begin(),
+                                inner_idx.end(), [&](const size_t m) {
+                                  tmp += (*lhs)(i, m) * (*rhs)(m, j);
+                                });
 
-        // Store result
-        (*result)(i, j) = std::exchange(tmp, (Type)(0));
-      });
+                  // Store result
+                  (*result)(i, j) = std::exchange(tmp, (Type)(0));
+                });
 
   return;
 }
