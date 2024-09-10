@@ -45,8 +45,11 @@ void func9() {
   Y(1,0) = X(0,1)-X(0,0)+X(1,0);
   Y(1,1) = X(0,1)/X(1,1); 
 
-  Matrix<Expression> S = 2*X(0,0)+X;
+  Parameter p{2};
+  Matrix<Expression> S = X+p;
 
+  std::cout << Eval(S) << "\n";
+  p = 3;
   std::cout << Eval(S) << "\n";
   std::cout << DevalF(S, Z) << "\n";
 }

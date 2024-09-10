@@ -72,6 +72,27 @@ const Matrix<Type> *ZeroMatAdd(const Matrix<Type> *lhs,
   }
 }
 
+// Zero matrix scalar addition
+const Matrix<Type> *ZeroMatScalarAdd(Type lhs, const Matrix<Type> * rhs) {
+  // Null pointer check
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+  
+  // Rows and columns of result matrix
+  const size_t nrows{rhs->getNumRows()};
+  const size_t ncols{rhs->getNumColumns()};
+
+  // If both lhs and rhs matrices are zero matrices
+  if ((lhs == (Type)(0)) && (rhs->getMatType() == MatrixSpl::ZEROS)) {
+    return CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS);
+  } else if(lhs == (Type)(0)) {
+    return rhs;
+  } else if(rhs->getMatType() == MatrixSpl::ZEROS) {
+    return CreateMatrixPtr<Type>(nrows, ncols, lhs);
+  } else {
+    return nullptr;
+  }
+}
+
 // Zero matrix subtraction
 const Matrix<Type> *ZeroMatSub(const Matrix<Type> *lhs,
                                const Matrix<Type> *rhs) {
@@ -188,6 +209,29 @@ const Matrix<Type> *ZeroMatAddNum(const Matrix<Type> *lhs,
     return rhs;
   } else if (rhs_bool == true) {
     return lhs;
+  } else {
+    return nullptr;
+  }
+}
+
+// Zero matrix scalar addition
+const Matrix<Type> *ZeroMatScalarAddNum(Type lhs, const Matrix<Type> * rhs) {
+  // Null pointer check
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+
+  // Rows and columns of result matrix
+  const size_t nrows{rhs->getNumRows()};
+  const size_t ncols{rhs->getNumColumns()};
+  
+  // Boolean check
+  const bool rhs_bool = IsZeroMatrix(rhs);
+
+  if ((lhs == (Type)(0)) && rhs_bool == true) {
+    return CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS);
+  } else if ((lhs == (Type)(0))) {
+    return rhs;
+  } else if (rhs_bool == true) {
+    return CreateMatrixPtr<Type>(nrows, ncols, lhs);
   } else {
     return nullptr;
   }

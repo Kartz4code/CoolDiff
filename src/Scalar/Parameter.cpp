@@ -24,42 +24,56 @@
 #include "Variable.hpp"
 
 // Constructors
-Parameter::Parameter() : m_nidx{this->m_idx_count++}, m_value{(Type)0} {
+Parameter::Parameter() : m_nidx{this->m_idx_count++} {
   auto tmp = Allocate<Variable>((Type)0);
   this->mp_tmp = tmp.get();
 }
 
 // Constructors for Type values
-Parameter::Parameter(const Type &value)
-    : m_nidx{this->m_idx_count++}, m_value{value} {
-  auto tmp = Allocate<Variable>(m_value);
+Parameter::Parameter(const Type &value) : m_nidx{this->m_idx_count++} {
+  auto tmp = Allocate<Variable>(value);
   this->mp_tmp = tmp.get();
 }
 
 // Copy constructor
-Parameter::Parameter(const Parameter &s)
-    : m_nidx{s.m_nidx}, m_value{s.m_value}, m_cache{s.m_cache} {
+Parameter::Parameter(const Parameter &s) : m_nidx{s.m_nidx}, m_cache{s.m_cache} {
   this->mp_tmp = s.mp_tmp;
+}
+
+
+// Move constructor 
+Parameter::Parameter(Parameter&& s) noexcept : m_nidx{std::exchange(s.m_nidx,-1)}, 
+                                               m_cache{std::move(s.m_cache)} {
+  this->mp_tmp = std::exchange(s.mp_tmp, nullptr);
 }
 
 // Copy assignment
 Parameter &Parameter::operator=(const Parameter &s) {
-  m_value = s.m_value;
   m_nidx = s.m_nidx;
   m_cache = s.m_cache;
   this->mp_tmp = s.mp_tmp;
   return *this;
 }
 
+// Move assignment 
+Parameter& Parameter::operator=(Parameter&& s) noexcept {
+    m_nidx = std::exchange(s.m_nidx,-1);
+    m_cache = std::move(s.m_cache);
+    this->mp_tmp = std::exchange(s.mp_tmp, nullptr);
+    return *this;
+}
+
 // Assignment to Type
 Parameter &Parameter::operator=(const Type &value) {
-  m_value = value;
   *this->mp_tmp = value;
   return *this;
 }
 
 // Evaluate value and derivative value
-Type Parameter::eval() { return this->mp_tmp->eval(); }
+Type Parameter::eval() { 
+  this->mp_tmp->resetImpl();
+  return this->mp_tmp->eval(); 
+}
 
 void Parameter::reset() {
   // Reset temporaries
@@ -68,7 +82,9 @@ void Parameter::reset() {
 }
 
 // Evaluate paramter
-Variable *Parameter::symEval() { return this->mp_tmp; }
+Variable *Parameter::symEval() { 
+  return this->mp_tmp; 
+}
 
 // Forward derivative of paramter in forward mode
 Variable *Parameter::symDeval(const Variable &var) {
@@ -81,12 +97,6 @@ Type Parameter::devalF(const Variable &) { return (Type)0; }
 
 // Deval in run-time for reverse derivative
 Type Parameter::devalR(const Variable &) { return (Type)0; }
-
-// Getters and setters
-Type Parameter::getValue() const { return m_value; }
-
-// Get/Set dvalue
-Type Parameter::getdValue() const { return 0; }
 
 // Traverse tree
 void Parameter::traverse(OMPair *) { return; }
@@ -106,4 +116,3 @@ bool Parameter::findMe(void *v) const {
   }
 }
 
-Parameter::~Parameter() = default;

@@ -28,6 +28,9 @@ bool IsEyeMatrix(const Matrix<Type> *);
 
 // Eye matrix addition
 const Matrix<Type> *EyeMatAdd(const Matrix<Type> *, const Matrix<Type> *);
+// Eye matrix scalar addition
+const Matrix<Type> *EyeMatScalarAdd(Type, const Matrix<Type> *);
+
 // Eye matrix subtraction
 const Matrix<Type> *EyeMatSub(const Matrix<Type> *, const Matrix<Type> *);
 // Eye matrix multiplication
@@ -39,6 +42,10 @@ const Matrix<Type> *EyeMatHadamard(const Matrix<Type> *, const Matrix<Type> *);
 
 // Eye matrix addition numerics
 const Matrix<Type> *EyeMatAddNum(const Matrix<Type> *, const Matrix<Type> *);
+// Eye matrix scalar addition
+const Matrix<Type> *EyeMatScalarAddNum(Type, const Matrix<Type> *);
+
+
 // Eye matrix subtraction numerics
 const Matrix<Type> *EyeMatSubNum(const Matrix<Type> *, const Matrix<Type> *);
 // Eye matrix multiplication numerics

@@ -25,6 +25,8 @@
 // Special matrix addition
 #include "EyeMatAddHandler.hpp"
 #include "ZeroMatAddHandler.hpp"
+#include "ZeroMatScalarAddHandler.hpp"
+#include "EyeMatScalarAddHandler.hpp"
 
 // Special matrix subtraction
 #include "EyeMatSubHandler.hpp"
@@ -44,6 +46,7 @@
 
 // Matrix operations
 #include "MatAddNaiveHandler.hpp"
+#include "MatScalarAddNaiveHandler.hpp"
 #include "MatHadamardNaiveHandler.hpp"
 #include "MatKronNaiveHandler.hpp"
 #include "MatMulNaiveHandler.hpp"
@@ -150,5 +153,25 @@ void MatrixHadamard(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
   EyeMatHadamardHandler h3{&h2};
 
   // Handle Hadamard product
+  h3.handle(lhs, rhs, result);
+}
+
+
+// Matrix-Scalar addition
+void MatrixScalarAdd(Type lhs, const Matrix<Type> * rhs, Matrix<Type> *& result) {
+  // Null pointer check
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+
+  /* Chain of responsibility (Order matters)
+      1) Eye matrix check
+      2) Zero matrix check
+      3) Matrix-Matrix Hadamard product
+  */
+
+  MatScalarAddNaiveHandler h1{nullptr};
+  ZeroMatScalarAddHandler h2{&h1};
+  EyeMatScalarAddHandler h3{&h2};
+
+  // Handle Matrix-Scalar addition
   h3.handle(lhs, rhs, result);
 }

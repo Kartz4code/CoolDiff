@@ -103,6 +103,17 @@ const Matrix<Type> *EyeMatAdd(const Matrix<Type> *lhs,
   }
 }
 
+// Eye matrix scalar addition
+const Matrix<Type> *EyeMatScalarAdd(Type lhs, const Matrix<Type> * rhs) {
+  // Null pointer check
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+  if (rhs->getMatType() == MatrixSpl::EYE) {
+    return rhs;
+  } else {
+    return nullptr;
+  }
+}
+
 // Eye matrix subtraction
 const Matrix<Type> *EyeMatSub(const Matrix<Type> *lhs,
                               const Matrix<Type> *rhs) {
@@ -234,6 +245,18 @@ const Matrix<Type> *EyeMatAddNum(const Matrix<Type> *lhs,
     return rhs;
   } else if (rhs_bool == true) {
     return lhs;
+  } else {
+    return nullptr;
+  }
+}
+
+// Eye matrix scalar addition
+const Matrix<Type> *EyeMatScalarAddNum(Type lhs, const Matrix<Type> * rhs) {
+  // Null pointer check
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+  const bool rhs_bool = IsEyeMatrix(rhs);
+  if (rhs_bool == true) {
+    return rhs;
   } else {
     return nullptr;
   }

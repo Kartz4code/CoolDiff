@@ -114,9 +114,12 @@ set(SRC
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHandler.cpp
     # MatrixAddHandler folder
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixAddHandler/ZeroMatAddHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixAddHandler/ZeroMatScalarAddHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixAddHandler/EyeMatAddHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixAddHandler/EyeMatScalarAddHandler.cpp
     # MatrixAddition folder
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixAddition/MatAddNaiveHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixAddition/MatScalarAddNaiveHandler.cpp
     # MatrixKronHandler folder
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixKronHandler/ZeroMatKronHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixKronHandler/EyeMatKronHandler.cpp

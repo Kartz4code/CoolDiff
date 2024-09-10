@@ -51,10 +51,6 @@ private:
     return *this;
   }
 
-  // Set string sets the expression (which can also be a variable name)
-  void setExpression(const std::string &);
-  const std::string &getExpression() const;
-
 protected:
   // Underlying symbolic variable
   VarWrap m_var{};
