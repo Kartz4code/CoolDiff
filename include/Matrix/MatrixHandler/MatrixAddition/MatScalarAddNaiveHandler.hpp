@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixAddition/MatScalarAddNaiveHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,20 +19,16 @@
  * associated repository.
  */
 
+#pragma once
+
 #include "MatrixHandler.hpp"
 
-void MatrixHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
-                           Matrix<Type> *&result) {
-  ASSERT(this != mp_handler, "The handle is recursive");
-  if (nullptr != mp_handler) {
-    mp_handler->handle(lhs, rhs, result);
-  }
-}
+class MatScalarAddNaiveHandler : public MatrixHandler {
+public:
+  using MatrixHandler::MatrixHandler;
 
+  V_OVERRIDE(void handle(Type, const Matrix<Type> *, Matrix<Type> *&));
 
-void MatrixHandler::handle(Type lhs, const Matrix<Type> * rhs, Matrix<Type> *& result) {
-  ASSERT(this != mp_handler, "The handle is recursive");
-  if (nullptr != mp_handler) {
-    mp_handler->handle(lhs, rhs, result);
-  }
-}
+  // Destructor
+  V_DTR(~MatScalarAddNaiveHandler() = default);
+};

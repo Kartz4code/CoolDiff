@@ -49,29 +49,27 @@ Variable &Variable::operator=(const Type &value) {
   m_var.setConstructor(value);
   // A number doesn't contain any content, so clear expression buffer
   m_gh_vec.clear();
-  // If the variable is nameless, then just set expression to the value
-  if ("0" == m_var.getVariableName()) {
-    m_var.setString(ToString(value));
-  }
   // Clear cache
   m_cache.clear();
   return *this;
 }
 
 // Variable copy constructor
-Variable::Variable(const Variable &exp)
-    : m_nidx{exp.m_nidx}, m_cache{exp.m_cache}, m_var{exp.m_var},
-      m_value_var{exp.m_value_var}, m_gh_vec{exp.m_gh_vec} {
+Variable::Variable(const Variable &exp) : m_nidx{exp.m_nidx}, 
+                                          m_cache{exp.m_cache}, 
+                                          m_var{exp.m_var},
+                                          m_value_var{exp.m_value_var}, 
+                                          m_gh_vec{exp.m_gh_vec} {
   // Copy visited flag
   m_visited = exp.m_visited;
 }
 
 // Variable copy constructor
-Variable::Variable(Variable &&exp) noexcept
-    : m_nidx{std::exchange(exp.m_nidx, -1)}, m_cache{std::move(exp.m_cache)},
-      m_var{std::move(exp.m_var)},
-      m_value_var{std::exchange(exp.m_value_var, nullptr)}, m_gh_vec{std::move(
-                                                                exp.m_gh_vec)} {
+Variable::Variable(Variable &&exp) noexcept : m_nidx{std::exchange(exp.m_nidx, -1)}, 
+                                              m_cache{std::move(exp.m_cache)},
+                                              m_var{std::move(exp.m_var)},
+                                              m_value_var{std::exchange(exp.m_value_var, nullptr)}, 
+                                              m_gh_vec{std::move(exp.m_gh_vec)} {
   // Copy visited flag
   m_visited = std::exchange(exp.m_visited, false);
 }
@@ -108,14 +106,6 @@ Type Variable::getValue() const { return m_var.getValue(); }
 void Variable::setdValue(Type val) { m_var.setdValue(val); }
 
 Type Variable::getdValue() const { return m_var.getdValue(); }
-
-void Variable::setExpression(const std::string &str) {
-  m_var.setExpression(str);
-}
-
-const std::string &Variable::getExpression() const {
-  return m_var.getExpression();
-}
 
 void Variable::resetImpl() {
   this->m_visited = true;

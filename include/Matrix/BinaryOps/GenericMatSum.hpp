@@ -121,9 +121,96 @@ public:
   V_DTR(~GenericMatSum()) = default;
 };
 
-// GenericMatSum with 2 typename callables
+
+// Left is Type and right is a matrix 
+template <typename T, typename... Callables>
+class GenericMatScalarSum : public IMatrix<GenericMatScalarSum<T, Callables...>> {
+private:
+  // Resources
+  Type m_left{};
+  T *mp_right{nullptr};
+
+  // Callables
+  Tuples<Callables...> m_caller;
+
+  // Disable copy and move constructors/assignments
+  DISABLE_COPY(GenericMatScalarSum)
+  DISABLE_MOVE(GenericMatScalarSum)
+
+public:
+  // Result
+  Matrix<Type> *mp_result{nullptr};
+
+  // Block index
+  const size_t m_nidx{};
+
+  // Constructor
+  GenericMatScalarSum(Type u, T *v, Callables &&...call) : m_left{u}, 
+                                                           mp_right{v}, 
+                                                           mp_result{nullptr}, 
+                                                           m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                           m_nidx{this->m_idx_count++} 
+  {}
+
+  // Get number of rows
+  V_OVERRIDE(size_t getNumRows() const) { 
+    return mp_right->getNumRows(); 
+  }
+
+  // Get number of columns
+  V_OVERRIDE(size_t getNumColumns() const) { 
+    return mp_right->getNumColumns(); 
+  }
+
+  // Find me
+  bool findMe(void *v) const { 
+    BINARY_RIGHT_FIND_ME(); 
+  }
+
+  // Matrix eval computation
+  V_OVERRIDE(Matrix<Type> *eval()) {
+    // Get raw pointers to result and right matrices
+    Matrix<Type> *right_mat = mp_right->eval();
+
+    // Matrix-Scalar addition computation (Policy design)
+    MATRIX_SCALAR_ADD(m_left, right_mat, mp_result);
+
+    // Return result pointer
+    return mp_result;
+  }
+
+  // Matrix devalF computation
+  V_OVERRIDE(Matrix<Type> *devalF(Matrix<Variable> &X)) {
+    
+    // Right matrix derivative
+    Matrix<Type> *dright_mat = mp_right->devalF(X);
+
+    // Return result pointer
+    return dright_mat;
+  }
+
+  // Reset visit run-time
+  V_OVERRIDE(void reset()) { 
+    BINARY_MAT_RIGHT_RESET();
+  }
+
+  // Get type
+  V_OVERRIDE(std::string_view getType() const) {
+    return "GenericMatScalarSum";
+  }
+
+  // Destructor
+  V_DTR(~GenericMatScalarSum()) = default;
+};
+
+
+// GenericMatSum with 2 typename and callables
 template <typename T1, typename T2>
 using GenericMatSumT = GenericMatSum<T1, T2, OpMatType>;
+
+// GenericMatScalarSum with 1 typename and callables
+template<typename T>
+using GenericMatScalarSumT = GenericMatScalarSum<T, OpMatType>;
 
 // Function for sum computation
 template <typename T1, typename T2>
@@ -133,6 +220,18 @@ const GenericMatSumT<T1, T2> &operator+(const IMatrix<T1> &u,
       const_cast<T1 *>(static_cast<const T1 *>(&u)),
       const_cast<T2 *>(static_cast<const T2 *>(&v)), OpMatObj);
   return *tmp;
+}
+
+// Function for sum computation 
+template <typename T>
+const GenericMatScalarSumT<T> &operator+(Type u, const IMatrix<T> &v) {
+  auto tmp = Allocate<GenericMatScalarSumT<T>>(u, const_cast<T*>(static_cast<const T*>(&v)), OpMatObj);
+  return *tmp;
+}
+
+template <typename T>
+const GenericMatScalarSumT<T> &operator+(const IMatrix<T> &v, Type u) {
+  return u + v;
 }
 
 // Matrix sum with scalar (LHS) - SFINAE'd
@@ -152,19 +251,5 @@ template <typename T, typename Z,
                                       false == std::is_arithmetic_v<Z> &&
                                       false == std::is_same_v<Type, Z>>>
 const auto &operator+(const IMatrix<T> &M, const Z &v) {
-  return v + M;
-}
-
-// Matrix sum with Type (LHS)
-template <typename T>
-const auto &operator+(const Type &v, const IMatrix<T> &M) {
-  auto &U = CreateMatrix<Type>(M.getNumRows(), M.getNumColumns());
-  std::fill_n(EXECUTION_PAR U.getMatrixPtr(), U.getNumElem(), v);
-  return U + M;
-}
-
-// Matrix sum with Type (RHS)
-template <typename T>
-const auto &operator+(const IMatrix<T> &M, const Type &v) {
   return v + M;
 }

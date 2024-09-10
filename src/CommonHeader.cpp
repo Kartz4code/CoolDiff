@@ -83,9 +83,9 @@ bool operator==(Real val, const Type &cmx) {
 void CheckNullPtr(const void *mat, std::string_view msg) {
   std::ostringstream oss;
   if (nullptr == mat) {
-    oss << "[ERROR]: " << msg.data() << "\n"
-        << "[FILE]: " << std::string{__FILE__} << "\n"
-        << "[LINE]: " << std::to_string(__LINE__) << "\n";
+    oss << "[ERROR MSG]: " << msg.data() << "\n"
+        << "[FILENAME]: " << std::string{__FILE__} << "\n"
+        << "[LINE NO]: " << std::to_string(__LINE__) << "\n";
     std::cout << oss.str() << "\n";
     assert(false);
   }
@@ -94,9 +94,9 @@ void CheckNullPtr(const void *mat, std::string_view msg) {
 void CheckAssertions(bool b, std::string_view msg) {
   std::ostringstream oss;
   if (false == b) {
-    oss << "[ERROR]: " << msg.data() << "\n"
-        << "[FILE]: " << std::string{__FILE__} << "\n"
-        << "[LINE]: " << std::to_string(__LINE__) << "\n";
+    oss << "[ERROR MSG]: " << msg.data() << "\n"
+        << "[FILENAME]: " << std::string{__FILE__} << "\n"
+        << "[LINE NO]: " << std::to_string(__LINE__) << "\n";
     std::cout << oss.str() << "\n";
     assert(false);
   }

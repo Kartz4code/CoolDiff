@@ -53,6 +53,10 @@ public:
   mp_left->reset();                                                            \
   mp_right->reset();
 
+#define BINARY_MAT_RIGHT_RESET()                                               \
+  this->m_visited = false;                                                     \
+  mp_right->reset();
+
 // Special matrices
 enum MatrixSpl : size_t {
   ZEROS = 1 << 1,
@@ -80,6 +84,7 @@ enum OpMat : size_t {
 #define MATRIX_KRON(X, Y, Z) std::get<OpMat::KRON_MAT>(m_caller)(X, Y, Z)
 #define MATRIX_SUB(X, Y, Z) std::get<OpMat::SUB_MAT>(m_caller)(X, Y, Z)
 #define MATRIX_HADAMARD(X, Y, Z) std::get<OpMat::HADAMARD_MAT>(m_caller)(X, Y, Z)
+#define MATRIX_SCALAR_ADD(X, Y, Z) std::get<OpMat::ADD_SCALAR_MAT>(m_caller)(X, Y, Z)
 
 
 // Operation type [Order matters!]
@@ -88,7 +93,8 @@ enum OpMat : size_t {
       void (*)(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&),   \
       void (*)(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&),   \
       void (*)(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&),   \
-      void (*)(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&)
+      void (*)(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&),   \
+      void (*)(Type, const Matrix<Type> *, Matrix<Type> *&)
 
 // Operation objects [Order matters!]
-#define OpMatObj MatrixAdd, MatrixMul, MatrixKron, MatrixSub, MatrixHadamard
+#define OpMatObj MatrixAdd, MatrixMul, MatrixKron, MatrixSub, MatrixHadamard, MatrixScalarAdd

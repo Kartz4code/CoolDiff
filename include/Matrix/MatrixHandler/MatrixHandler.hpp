@@ -32,8 +32,9 @@ public:
   // Constructor
   constexpr MatrixHandler(MatrixHandler *h = nullptr) : mp_handler{h} {}
 
-  V_PURE(void handle(const Matrix<Type> *, const Matrix<Type> *,
-                     Matrix<Type> *&));
+  V_UNPURE(void handle(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&));
+
+  V_UNPURE(void handle(Type, const Matrix<Type> *, Matrix<Type> *&));
 
   // Destructor
   V_DTR(~MatrixHandler() = default);

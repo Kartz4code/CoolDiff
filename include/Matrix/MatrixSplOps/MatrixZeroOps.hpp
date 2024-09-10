@@ -28,6 +28,9 @@ bool IsZeroMatrix(const Matrix<Type> *);
 
 // Zero matrix addition
 const Matrix<Type> *ZeroMatAdd(const Matrix<Type> *, const Matrix<Type> *);
+// Zero matrix scalar addition
+const Matrix<Type> *ZeroMatScalarAdd(Type, const Matrix<Type> *);
+
 // Zero matrix subtraction
 const Matrix<Type> *ZeroMatSub(const Matrix<Type> *, const Matrix<Type> *);
 // Zero matrix multiplication
@@ -39,6 +42,9 @@ const Matrix<Type> *ZeroMatHadamard(const Matrix<Type> *, const Matrix<Type> *);
 
 // Zero matrix addition numerics
 const Matrix<Type> *ZeroMatAddNum(const Matrix<Type> *, const Matrix<Type> *);
+// Zero matrix scalar addition
+const Matrix<Type> *ZeroMatScalarAddNum(Type, const Matrix<Type> *);
+
 // Zero matrix subtraction numerics
 const Matrix<Type> *ZeroMatSubNum(const Matrix<Type> *, const Matrix<Type> *);
 // Zero matrix multiplication numerics

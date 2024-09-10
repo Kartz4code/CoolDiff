@@ -201,6 +201,7 @@ template <typename T> using Future = std::future<T>;
 
 #if defined(USE_VIRTUAL_FUNCTIONS)
 #define V_OVERRIDE(X) X override
+#define V_UNPURE(X) virtual X
 #define V_DTR(X) virtual X
 #define V_PURE(X) virtual X = 0
 #endif

@@ -26,7 +26,7 @@
 
 #include "MatrixBasics.hpp"
 
-// Left/right side is an expression
+// Left/right side is a Matrix
 template <typename T1, typename T2, typename... Callables>
 class GenericMatHadamard
     : public IMatrix<GenericMatHadamard<T1, T2, Callables...>> {

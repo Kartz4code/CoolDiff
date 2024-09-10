@@ -25,9 +25,6 @@
 
 // Parameter class for l-value data variables
 class Parameter : public IVariable<Parameter> {
-private:
-  Type m_value{};
-
 public:
   // Block index
   size_t m_nidx{};
@@ -43,18 +40,20 @@ public:
   // Copy constructor
   Parameter(const Parameter &);
 
+  // Move constructor 
+  Parameter(Parameter&&) noexcept;
+
   // Copy assignment
   Parameter &operator=(const Parameter &);
+
+  // Move assignment 
+  Parameter& operator=(Parameter&&) noexcept;
 
   // Assignment to Type
   Parameter &operator=(const Type &);
 
   // Deval in run-time for reverse derivative
   Type devalR(const Variable &);
-
-  // Getters
-  Type getValue() const;
-  Type getdValue() const;
 
   // Evaluate variable and its derivative value in run-time
   V_OVERRIDE(Variable *symEval());
@@ -82,5 +81,5 @@ public:
   V_OVERRIDE(bool findMe(void *) const);
 
   // Destructor
-  V_DTR(~Parameter());
+  V_DTR(~Parameter() = default);
 };

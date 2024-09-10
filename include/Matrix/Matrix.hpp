@@ -216,6 +216,14 @@ public:
         mp_mat{new T[getNumElem()]{}}, mp_result{nullptr}, mp_dresult{nullptr},
         m_eval{false}, m_devalf{false}, m_nidx{this->m_idx_count++} {}
 
+  // Initalize the matrix with rows and columns with initial values
+  Matrix(size_t rows, size_t cols, Type val)
+      : m_rows{rows}, m_cols{cols}, m_type{(size_t)(-1)},
+        mp_mat{new T[getNumElem()]{}}, mp_result{nullptr}, mp_dresult{nullptr},
+        m_eval{false}, m_devalf{false}, m_nidx{this->m_idx_count++} {
+      std::fill(EXECUTION_PAR mp_mat, mp_mat + getNumElem(), val);  
+  }
+
   // Matrix expressions constructor
   template <typename Z>
   Matrix(const IMatrix<Z> &expr)
@@ -465,7 +473,9 @@ public:
     // Cache the mp_result value
     if (nullptr == mp_result) {
       if constexpr (false == std::is_same_v<T, Type>) {
-        mp_result = CreateMatrixPtr<Type>(m_rows, m_cols);
+        if(nullptr != mp_mat) {
+          mp_result = CreateMatrixPtr<Type>(m_rows, m_cols);
+        }
       } else {
         mp_result = this;
       }
@@ -510,7 +520,9 @@ public:
         mp_dresult = CreateMatrixPtr<Type>(m_rows * xrows, m_cols * xcols);
 #endif
       } else {
-        mp_dresult = CreateMatrixPtr<Type>(m_rows * xrows, m_cols * xcols);
+        if(nullptr != mp_mat) {
+          mp_dresult = CreateMatrixPtr<Type>(m_rows * xrows, m_cols * xcols);
+        }
       }
     }
 

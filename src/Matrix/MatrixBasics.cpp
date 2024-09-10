@@ -73,12 +73,7 @@ const Matrix<Type> *Ones(const size_t n, const size_t m) {
     return it->second;
   } else {
     // Result matrix
-    Matrix<Type> *result = CreateMatrixPtr<Type>(n, m);
-
-    std::for_each(EXECUTION_PAR result->getMatrixPtr(),
-                  result->getMatrixPtr() + result->getNumElem(),
-                  [](auto &i) { i = (Type)(1); });
-
+    Matrix<Type> *result = CreateMatrixPtr<Type>(n, m, (Type)(1));
     // Register and return result
     ones_register[{n, m}] = result;
     return result;
