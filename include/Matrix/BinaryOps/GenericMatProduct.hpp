@@ -73,7 +73,7 @@ public:
   const size_t m_nidx{};
 
   // Constructor
-  GenericMatProduct(T1 *u, T2 *v, Callables &&...call)
+  constexpr GenericMatProduct(T1 *u, T2 *v, Callables &&...call)
       : mp_left{u}, mp_right{v}, mp_result{nullptr}, mp_dresult{nullptr},
         mp_dresult_l{nullptr}, mp_dresult_r{nullptr}, mp_lhs_kron{nullptr},
         mp_rhs_kron{nullptr}, m_caller{std::make_tuple(
@@ -145,13 +145,104 @@ public:
   V_DTR(~GenericMatProduct()) = default;
 };
 
+// Left is Type and right is a matrix 
+template <typename T, typename... Callables>
+class GenericMatScalarProduct : public IMatrix<GenericMatScalarProduct<T, Callables...>> {
+private:
+  // Resources
+  Type m_left{};
+  T *mp_right{nullptr};
+
+  // Callables
+  Tuples<Callables...> m_caller;
+
+  // Disable copy and move constructors/assignments
+  DISABLE_COPY(GenericMatScalarProduct)
+  DISABLE_MOVE(GenericMatScalarProduct)
+
+public:
+  // Result
+  Matrix<Type> *mp_result{nullptr};
+  Matrix<Type> *mp_dresult{nullptr};
+
+  // Block index
+  const size_t m_nidx{};
+
+  // Constructor
+  constexpr GenericMatScalarProduct(Type u, T *v, Callables &&...call) : m_left{u}, 
+                                                           mp_right{v}, 
+                                                           mp_result{nullptr}, 
+                                                           mp_dresult{nullptr}, 
+                                                           m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                           m_nidx{this->m_idx_count++} 
+  {}
+
+  // Get number of rows
+  V_OVERRIDE(size_t getNumRows() const) { 
+    return mp_right->getNumRows(); 
+  }
+
+  // Get number of columns
+  V_OVERRIDE(size_t getNumColumns() const) { 
+    return mp_right->getNumColumns(); 
+  }
+
+  // Find me
+  bool findMe(void *v) const { 
+    BINARY_RIGHT_FIND_ME(); 
+  }
+
+  // Matrix eval computation
+  V_OVERRIDE(Matrix<Type> *eval()) {
+    // Get raw pointers to result and right matrices
+    Matrix<Type> *right_mat = mp_right->eval();
+
+    // Matrix-Scalar multiplication computation (Policy design)
+    MATRIX_SCALAR_MUL(m_left, right_mat, mp_result);
+
+    // Return result pointer
+    return mp_result;
+  }
+
+  // Matrix devalF computation
+  V_OVERRIDE(Matrix<Type> *devalF(Matrix<Variable> &X)) {
+    
+    // Right matrix derivative
+    Matrix<Type> *dright_mat = mp_right->devalF(X);
+
+    // Matrix-Scalar multiplication computation (Policy design)
+    MATRIX_SCALAR_MUL(m_left, dright_mat, mp_dresult);
+
+    // Return result pointer
+    return mp_dresult;
+  }
+
+  // Reset visit run-time
+  V_OVERRIDE(void reset()) { 
+    BINARY_MAT_RIGHT_RESET();
+  }
+
+  // Get type
+  V_OVERRIDE(std::string_view getType() const) {
+    return "GenericMatScalarProduct";
+  }
+
+  // Destructor
+  V_DTR(~GenericMatScalarProduct()) = default;
+};
+
 // GenericMatProduct with 2 typename callables
 template <typename T1, typename T2>
 using GenericMatProductT = GenericMatProduct<T1, T2, OpMatType>;
 
+// GenericMatScalarProduct with 1 typename and callables
+template<typename T>
+using GenericMatScalarProductT = GenericMatScalarProduct<T, OpMatType>;
+
+
 // Function for product computation
 template <typename T1, typename T2>
-const GenericMatProductT<T1, T2> &operator*(const IMatrix<T1> &u,
+constexpr const GenericMatProductT<T1, T2> &operator*(const IMatrix<T1> &u,
                                             const IMatrix<T2> &v) {
   auto tmp = Allocate<GenericMatProductT<T1, T2>>(
       const_cast<T1 *>(static_cast<const T1 *>(&u)),
@@ -159,12 +250,24 @@ const GenericMatProductT<T1, T2> &operator*(const IMatrix<T1> &u,
   return *tmp;
 }
 
+// Function for product computation 
+template <typename T>
+constexpr const auto& operator*(Type u, const IMatrix<T> &v) {
+  auto tmp = Allocate<GenericMatScalarProductT<T>>(u, const_cast<T*>(static_cast<const T*>(&v)), OpMatObj);
+  return *tmp;
+}
+
+template <typename T>
+constexpr const auto& operator*(const IMatrix<T> &v, Type u) {
+  return u*v;
+}
+
 // Matrix multiplication with scalar (LHS) - SFINAE'd
 template <typename T, typename Z,
           typename = std::enable_if_t<std::is_base_of_v<MetaVariable, Z> &&
                                       false == std::is_arithmetic_v<Z> &&
                                       false == std::is_same_v<Type, Z>>>
-const auto &operator*(const Z &v, const IMatrix<T> &M) {
+constexpr const auto &operator*(const Z &v, const IMatrix<T> &M) {
   auto &U = CreateMatrix<Expression>(M.getNumRows(), M.getNumColumns());
   std::fill_n(EXECUTION_PAR U.getMatrixPtr(), U.getNumElem(), v);
   return U ^ M;
@@ -175,20 +278,6 @@ template <typename T, typename Z,
           typename = std::enable_if_t<std::is_base_of_v<MetaVariable, Z> &&
                                       false == std::is_arithmetic_v<Z> &&
                                       false == std::is_same_v<Type, Z>>>
-const auto &operator*(const IMatrix<T> &M, const Z &v) {
-  return v*M;
-}
-
-// Matrix multiplication with Type (LHS)
-template <typename T>
-const auto &operator*(const Type &v, const IMatrix<T> &M) {
-  auto &U = CreateMatrix<Type>(M.getNumRows(), M.getNumColumns());
-  std::fill_n(EXECUTION_PAR U.getMatrixPtr(), U.getNumElem(), v);
-  return U ^ M;
-}
-
-// Matrix multiplication with Type (RHS)
-template <typename T>
-const auto &operator*(const IMatrix<T> &M, const Type &v) {
+constexpr const auto &operator*(const IMatrix<T> &M, const Z &v) {
   return v*M;
 }

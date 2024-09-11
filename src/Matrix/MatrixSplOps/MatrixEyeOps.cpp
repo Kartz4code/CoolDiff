@@ -167,6 +167,17 @@ const Matrix<Type> *EyeMatMul(const Matrix<Type> *lhs,
   }
 }
 
+// Eye matrix scalar addition
+const Matrix<Type> *EyeMatScalarMul(Type lhs, const Matrix<Type> * rhs) {
+    // Null pointer check
+    NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+    if (rhs->getMatType() == MatrixSpl::EYE) {
+      return rhs;
+    } else {
+      return nullptr;
+    }  
+}
+
 // Eye matrix Kronocker
 const Matrix<Type> *EyeMatKron(const Matrix<Type> *lhs,
                                const Matrix<Type> *rhs) {
@@ -311,6 +322,18 @@ const Matrix<Type> *EyeMatMulNum(const Matrix<Type> *lhs,
   } else {
     return nullptr;
   }
+}
+
+// Zero matrix scalar multiplication numerics
+const Matrix<Type> *EyeMatScalarMulNum(Type type, const Matrix<Type> * rhs) {
+    // Null pointer check
+    NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+    const bool rhs_bool = IsEyeMatrix(rhs);
+    if (rhs_bool == true) {
+      return rhs;
+    } else {
+      return nullptr;
+    }  
 }
 
 // Eye matrix Kronocker product numerics

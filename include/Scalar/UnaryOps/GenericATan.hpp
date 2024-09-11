@@ -44,7 +44,7 @@ public:
   OMPair m_cache;
 
   // Constructor
-  GenericATan(T *u, Callables &&...call)
+  constexpr GenericATan(T *u, Callables &&...call)
       : mp_left{u}, m_caller{std::make_tuple(std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
@@ -165,7 +165,7 @@ public:
 template <typename T> using GenericATanT = GenericATan<T, OpType>;
 
 // Function for atan computation
-template <typename T> const GenericATanT<T> &atan(const IVariable<T> &u) {
+template <typename T> constexpr const GenericATanT<T> &atan(const IVariable<T> &u) {
   auto tmp = Allocate<GenericATanT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

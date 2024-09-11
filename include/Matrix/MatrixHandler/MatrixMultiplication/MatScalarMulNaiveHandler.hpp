@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/CommonMatFunctions.hpp
+ * @file src/Matrix/MatrixHandler/MatrixMultiplication/MatScalarMulNaiveHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -21,32 +21,14 @@
 
 #pragma once
 
-#include "Matrix.hpp"
-#include "MatrixBasics.hpp"
-#include "GenericMatHadamard.hpp"
-#include "GenericMatProduct.hpp"
-#include "GenericMatSub.hpp"
-#include "GenericMatSum.hpp"
+#include "MatrixHandler.hpp"
 
-/*
-// Is the matrix ones?
-bool IsOnesMatrix(Matrix<Type>*);
+class MatScalarMulNaiveHandler : public MatrixHandler {
+public:
+  using MatrixHandler::MatrixHandler;
 
-// Is the matrix diagonal?
-bool IsDiagMatrix(Matrix<Type>*);
+  V_OVERRIDE(void handle(Type, const Matrix<Type> *, Matrix<Type> *&));
 
-// Is the row matrix ?
-bool IsRowMatrix(Matrix<Type>*);
-
-// Is the column matrix ?
-bool IsColMatrix(Matrix<Type>*);
-
-// Find type of matrix
-size_t FindMatType(const Matrix<Type>&);
-*/
-
-// Matrix evaluation
-Matrix<Type> &Eval(Matrix<Expression> &);
-
-// Matrix-Matrix derivative evaluation
-Matrix<Type> &DevalF(Matrix<Expression> &, Matrix<Variable> &);
+  // Destructor
+  V_DTR(~MatScalarMulNaiveHandler() = default);
+};

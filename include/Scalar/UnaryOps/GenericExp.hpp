@@ -44,7 +44,7 @@ public:
   OMPair m_cache;
 
   // Constructor
-  GenericExp(T *u, Callables &&...call)
+  constexpr GenericExp(T *u, Callables &&...call)
       : mp_left{u}, m_caller{std::make_tuple(std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
@@ -161,7 +161,7 @@ public:
 template <typename T> using GenericExpT = GenericExp<T, OpType>;
 
 // Function for exp computation
-template <typename T> const GenericExpT<T> &exp(const IVariable<T> &u) {
+template <typename T> constexpr const GenericExpT<T> &exp(const IVariable<T> &u) {
   auto tmp = Allocate<GenericExpT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

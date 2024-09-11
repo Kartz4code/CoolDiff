@@ -35,6 +35,8 @@
 // Special matrix multiplication
 #include "EyeMatMulHandler.hpp"
 #include "ZeroMatMulHandler.hpp"
+#include "ZeroMatScalarMulHandler.hpp"
+#include "EyeMatScalarMulHandler.hpp"
 
 // Special matrix Kronocker product
 #include "EyeMatKronHandler.hpp"
@@ -50,6 +52,7 @@
 #include "MatHadamardNaiveHandler.hpp"
 #include "MatKronNaiveHandler.hpp"
 #include "MatMulNaiveHandler.hpp"
+#include "MatScalarMulNaiveHandler.hpp"
 #include "MatSubNaiveHandler.hpp"
 
 // Matrix-Matrix addition - Left, Right, Result matrix pointer
@@ -173,5 +176,25 @@ void MatrixScalarAdd(Type lhs, const Matrix<Type> * rhs, Matrix<Type> *& result)
   EyeMatScalarAddHandler h3{&h2};
 
   // Handle Matrix-Scalar addition
+  h3.handle(lhs, rhs, result);
+}
+
+
+// Matrix-Scalar multiplication
+void MatrixScalarMul(Type lhs, const Matrix<Type> * rhs, Matrix<Type> *& result) {
+  // Null pointer check
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+
+   /* Chain of responsibility (Order matters)
+      1) Eye matrix check
+      2) Zero matrix check
+      3) Matrix-Matrix Hadamard product
+  */
+
+  MatScalarMulNaiveHandler h1{nullptr};
+  ZeroMatScalarMulHandler h2{&h1};
+  EyeMatScalarMulHandler h3{&h2};
+
+  // Handle Matrix-Scalar multiplication
   h3.handle(lhs, rhs, result);
 }

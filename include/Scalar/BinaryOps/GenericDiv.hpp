@@ -45,7 +45,7 @@ public:
   OMPair m_cache;
 
   // Constructor
-  GenericDiv(T1 *u, T2 *v, Callables &&...call)
+  constexpr GenericDiv(T1 *u, T2 *v, Callables &&...call)
       : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
                                      std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
@@ -232,7 +232,7 @@ public:
   OMPair m_cache;
 
   // Constructor
-  GenericDiv(const Type &u, T *v, Callables &&...call)
+  constexpr GenericDiv(const Type &u, T *v, Callables &&...call)
       : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
                                      std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
@@ -365,7 +365,7 @@ template <typename T> using GenericDivT2 = GenericDiv<Type, T, OpType>;
 
 // Function for division computation
 template <typename T1, typename T2>
-const GenericDivT1<T1, T2> &operator/(const IVariable<T1> &u,
+constexpr const GenericDivT1<T1, T2> &operator/(const IVariable<T1> &u,
                                       const IVariable<T2> &v) {
   auto tmp = Allocate<GenericDivT1<T1, T2>>(
       const_cast<T1 *>(static_cast<const T1 *>(&u)),
@@ -375,7 +375,7 @@ const GenericDivT1<T1, T2> &operator/(const IVariable<T1> &u,
 
 // Left side is a number (division)
 template <typename T>
-const GenericDivT2<T> &operator/(const Type &u, const IVariable<T> &v) {
+constexpr const GenericDivT2<T> &operator/(const Type &u, const IVariable<T> &v) {
   auto tmp = Allocate<GenericDivT2<T>>(
       u, const_cast<T *>(static_cast<const T *>(&v)), OpObj);
   return *tmp;
