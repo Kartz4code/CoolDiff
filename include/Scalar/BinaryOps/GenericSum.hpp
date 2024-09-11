@@ -46,7 +46,7 @@ public:
   OMPair m_cache{};
 
   // Constructor
-  GenericSum(T1 *u, T2 *v, Callables &&...call)
+  constexpr GenericSum(T1 *u, T2 *v, Callables &&...call)
       : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
                                      std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
@@ -213,7 +213,7 @@ public:
   OMPair m_cache;
 
   // Constructor
-  GenericSum(const Type &u, T *v, Callables &&...call)
+  constexpr GenericSum(const Type &u, T *v, Callables &&...call)
       : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
                                      std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
@@ -337,7 +337,7 @@ template <typename T> using GenericSumT2 = GenericSum<Type, T, OpType>;
 
 // Function for sum computation
 template <typename T1, typename T2>
-const GenericSumT1<T1, T2> &operator+(const IVariable<T1> &u,
+constexpr const GenericSumT1<T1, T2> &operator+(const IVariable<T1> &u,
                                       const IVariable<T2> &v) {
   auto tmp = Allocate<GenericSumT1<T1, T2>>(
       const_cast<T1 *>(static_cast<const T1 *>(&u)),
@@ -347,7 +347,7 @@ const GenericSumT1<T1, T2> &operator+(const IVariable<T1> &u,
 
 // Left side is a number (sum)
 template <typename T>
-const GenericSumT2<T> &operator+(const Type &u, const IVariable<T> &v) {
+constexpr const GenericSumT2<T> &operator+(const Type &u, const IVariable<T> &v) {
   auto tmp = Allocate<GenericSumT2<T>>(
       u, const_cast<T *>(static_cast<const T *>(&v)), OpObj);
   return *tmp;
@@ -355,7 +355,7 @@ const GenericSumT2<T> &operator+(const Type &u, const IVariable<T> &v) {
 
 // Right side is a number (sum)
 template <typename T>
-const GenericSumT2<T> &operator+(const IVariable<T> &u, const Type &v) {
+constexpr const GenericSumT2<T> &operator+(const IVariable<T> &u, const Type &v) {
   auto tmp = Allocate<GenericSumT2<T>>(
       v, const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

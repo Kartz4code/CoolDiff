@@ -44,7 +44,7 @@ public:
   OMPair m_cache;
 
   // Constructor
-  GenericSqrt(T *u, Callables &&...call)
+  constexpr GenericSqrt(T *u, Callables &&...call)
       : mp_left{u}, m_caller{std::make_tuple(std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
@@ -164,7 +164,7 @@ public:
 template <typename T> using GenericSqrtT = GenericSqrt<T, OpType>;
 
 // Function for sqrt computation
-template <typename T> const GenericSqrtT<T> &sqrt(const IVariable<T> &u) {
+template <typename T> constexpr const GenericSqrtT<T> &sqrt(const IVariable<T> &u) {
   auto tmp = Allocate<GenericSqrtT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

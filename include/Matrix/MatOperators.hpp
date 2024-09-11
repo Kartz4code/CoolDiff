@@ -40,3 +40,6 @@ void MatrixHadamard(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&)
 
 // Matrix-Scalar addition
 void MatrixScalarAdd(Type, const Matrix<Type> *, Matrix<Type> *&);
+
+// Matrix-Scalar multiplication
+void MatrixScalarMul(Type, const Matrix<Type> *, Matrix<Type> *&);

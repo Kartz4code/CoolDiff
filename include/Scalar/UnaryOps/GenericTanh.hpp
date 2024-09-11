@@ -44,7 +44,7 @@ public:
   OMPair m_cache;
 
   // Constructor
-  GenericTanh(T *u, Callables &&...call)
+  constexpr GenericTanh(T *u, Callables &&...call)
       : mp_left{u}, m_caller{std::make_tuple(std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
@@ -165,7 +165,7 @@ public:
 template <typename T> using GenericTanhT = GenericTanh<T, OpType>;
 
 // Function for tanh computation
-template <typename T> const GenericTanhT<T> &tanh(const IVariable<T> &u) {
+template <typename T> constexpr const GenericTanhT<T> &tanh(const IVariable<T> &u) {
   auto tmp = Allocate<GenericTanhT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

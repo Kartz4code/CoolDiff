@@ -44,7 +44,7 @@ public:
   OMPair m_cache;
 
   // Constructor
-  GenericNeg(T *u, Callables &&...call)
+  constexpr GenericNeg(T *u, Callables &&...call)
       : mp_left{u}, m_caller{std::make_tuple(std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
@@ -161,7 +161,7 @@ public:
 template <typename T> using GenericNegT = GenericNeg<T, OpType>;
 
 // Function for neg computation
-template <typename T> const GenericNegT<T> &operator-(const IVariable<T> &u) {
+template <typename T> constexpr const GenericNegT<T> &operator-(const IVariable<T> &u) {
   auto tmp = Allocate<GenericNegT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

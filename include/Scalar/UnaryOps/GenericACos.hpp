@@ -44,7 +44,7 @@ public:
   OMPair m_cache;
 
   // Constructor
-  GenericACos(T *u, Callables &&...call)
+  constexpr GenericACos(T *u, Callables &&...call)
       : mp_left{u}, m_caller{std::make_tuple(std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
@@ -167,7 +167,7 @@ public:
 template <typename T> using GenericACosT = GenericACos<T, OpType>;
 
 // Function for acos computation
-template <typename T> const GenericACosT<T> &acos(const IVariable<T> &u) {
+template <typename T> constexpr const GenericACosT<T> &acos(const IVariable<T> &u) {
   auto tmp = Allocate<GenericACosT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

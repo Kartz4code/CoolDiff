@@ -103,7 +103,8 @@ private:
   inline void setDevalF(const Matrix<Variable> &X) {
     // If the matrix type is Expression
     if constexpr (true == std::is_same_v<T, Expression>) {
-      if ((nullptr != mp_mat) && (nullptr != mp_dresult) &&
+      if ((nullptr != mp_mat) && 
+          (nullptr != mp_dresult) &&
           (nullptr != mp_dresult->mp_mat)) {
         // Precompute the reverse derivatives
         std::for_each(EXECUTION_SEQ mp_mat, mp_mat + getNumElem(),
@@ -137,8 +138,10 @@ private:
     }
     // If the matrix type is Variable
     else if constexpr (true == std::is_same_v<T, Variable>) {
-      if ((nullptr != mp_mat) && (nullptr != mp_dresult) &&
-          (nullptr != mp_dresult->mp_mat) && (m_nidx == X.m_nidx)) {
+      if ((nullptr != mp_mat) && 
+          (nullptr != mp_dresult) &&
+          (nullptr != mp_dresult->mp_mat) && 
+          (m_nidx == X.m_nidx)) {
         // Get dimensions of X variable matrix
         const size_t xrows = X.getNumRows();
         const size_t xcols = X.getNumColumns();
@@ -188,8 +191,7 @@ private:
   }
 
 public:
-  // Matrix raw pointer of underlying type (Expression, Variable, Parameter,
-  // Type)
+  // Matrix raw pointer of underlying type (Expression, Variable, Parameter, Type)
   T *mp_mat{nullptr};
   // Matrix pointer for evaluation result (Type)
   Matrix<Type> *mp_result{nullptr};
@@ -201,32 +203,29 @@ public:
   size_t m_nidx{};
 
   // Special matrix constructor
-  Matrix(size_t rows, size_t cols, size_t type)
+  constexpr Matrix(size_t rows, size_t cols, size_t type)
       : m_rows{rows}, m_cols{cols}, m_type{type} {}
 
   // Default constructor
-  Matrix()
-      : m_rows{0}, m_cols{0}, m_type{(size_t)(-1)}, mp_mat{new T{}},
+  constexpr Matrix()
+      : m_rows{0}, m_cols{0}, m_type{(size_t)(-1)}, mp_mat{new T[1]{}},
         mp_result{nullptr}, mp_dresult{nullptr}, m_eval{false}, m_devalf{false},
         m_nidx{this->m_idx_count++} {}
 
   // Initalize the matrix with rows and columns
-  Matrix(size_t rows, size_t cols)
+  constexpr Matrix(size_t rows, size_t cols)
       : m_rows{rows}, m_cols{cols}, m_type{(size_t)(-1)},
         mp_mat{new T[getNumElem()]{}}, mp_result{nullptr}, mp_dresult{nullptr},
         m_eval{false}, m_devalf{false}, m_nidx{this->m_idx_count++} {}
 
   // Initalize the matrix with rows and columns with initial values
-  Matrix(size_t rows, size_t cols, Type val)
-      : m_rows{rows}, m_cols{cols}, m_type{(size_t)(-1)},
-        mp_mat{new T[getNumElem()]{}}, mp_result{nullptr}, mp_dresult{nullptr},
-        m_eval{false}, m_devalf{false}, m_nidx{this->m_idx_count++} {
+  constexpr Matrix(size_t rows, size_t cols, Type val) : Matrix(rows, cols) {
       std::fill(EXECUTION_PAR mp_mat, mp_mat + getNumElem(), val);  
   }
 
   // Matrix expressions constructor
   template <typename Z>
-  Matrix(const IMatrix<Z> &expr)
+  constexpr Matrix(const IMatrix<Z> &expr)
       : m_rows{expr.getNumRows()}, m_cols{expr.getNumColumns()},
         m_type{(size_t)(-1)}, mp_result{nullptr}, mp_dresult{nullptr},
         m_eval{false}, m_devalf{false}, m_nidx{this->m_idx_count++} {
@@ -248,7 +247,7 @@ public:
   }
 
   // Move constructor
-  Matrix(Matrix &&m) noexcept
+  constexpr Matrix(Matrix &&m) noexcept
       : m_rows{std::exchange(m.m_rows, -1)}, m_cols{std::exchange(m.m_cols,
                                                                   -1)},
         m_type{std::exchange(m.m_type, -1)}, mp_mat{std::exchange(m.mp_mat,
@@ -285,7 +284,7 @@ public:
   }
 
   // Copy constructor
-  Matrix(const Matrix &m)
+  constexpr Matrix(const Matrix &m)
       : m_rows{m.m_rows}, m_cols{m.m_cols}, m_type{m.m_type},
         mp_mat{new T[getNumElem()]{}}, m_eval{m.m_eval}, m_devalf{m.m_devalf},
         m_nidx{m.m_nidx}, m_gh_vec{m.m_gh_vec} {
@@ -424,12 +423,16 @@ public:
   // Get final number of rows (Expression)
   size_t getFinalNumRows() const {
     size_t rows{};
-    if constexpr (std::is_same_v<T, Expression>) {
+    if constexpr (true == std::is_same_v<T, Expression>) {
       if (false == m_gh_vec.empty()) {
         if (auto it = m_gh_vec.back(); nullptr != it) {
           rows = it->getNumRows();
+        } else {
+          rows = getNumRows();
         }
-      }
+      } else {
+        rows = getNumRows();
+      } 
     } else {
       rows = getNumRows();
     }
@@ -439,11 +442,15 @@ public:
   // Get final number of columns (Expression)
   size_t getFinalNumColumns() const {
     size_t cols{};
-    if constexpr (std::is_same_v<T, Expression>) {
+    if constexpr (true == std::is_same_v<T, Expression>) {
       if (false == m_gh_vec.empty()) {
         if (auto it = m_gh_vec.back(); nullptr != it) {
           cols = it->getNumColumns();
+        } else {
+          cols = getNumColumns();
         }
+      } else {
+        cols = getNumColumns();
       }
     } else {
       cols = getNumColumns();
@@ -453,11 +460,13 @@ public:
 
   // Get total final number of elements
   size_t getFinalNumElem() const {
-    return getFinalNumRows() * getFinalNumColumns();
+    return (getFinalNumRows() * getFinalNumColumns());
   }
 
   // Get type of matrix
-  size_t getMatType() const { return m_type; }
+  size_t getMatType() const { 
+    return m_type; 
+  }
 
   // Find me
   bool findMe(void *v) const {
@@ -513,12 +522,11 @@ public:
       const size_t xcols = X.getNumColumns();
       if constexpr (true == std::is_same_v<T, Type> ||
                     true == std::is_same_v<T, Parameter>) {
-#if defined(NAIVE_IMPL)
-        mp_dresult = CreateMatrixPtr<Type>(m_rows * xrows, m_cols * xcols,
-                                           MatrixSpl::ZEROS);
-#else
+      #if defined(NAIVE_IMPL)
+        mp_dresult = CreateMatrixPtr<Type>(m_rows * xrows, m_cols * xcols, MatrixSpl::ZEROS);
+      #else
         mp_dresult = CreateMatrixPtr<Type>(m_rows * xrows, m_cols * xcols);
-#endif
+      #endif
       } else {
         if(nullptr != mp_mat) {
           mp_dresult = CreateMatrixPtr<Type>(m_rows * xrows, m_cols * xcols);

@@ -44,7 +44,7 @@ public:
   OMPair m_cache;
 
   // Constructor
-  GenericASin(T *u, Callables &&...call)
+  constexpr GenericASin(T *u, Callables &&...call)
       : mp_left{u}, m_caller{std::make_tuple(std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
@@ -167,7 +167,7 @@ public:
 template <typename T> using GenericASinT = GenericASin<T, OpType>;
 
 // Function for asin computation
-template <typename T> const GenericASinT<T> &asin(const IVariable<T> &u) {
+template <typename T> constexpr const GenericASinT<T> &asin(const IVariable<T> &u) {
   auto tmp = Allocate<GenericASinT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

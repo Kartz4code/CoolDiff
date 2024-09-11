@@ -44,7 +44,7 @@ public:
   OMPair m_cache;
 
   // Constructor
-  GenericACosh(T *u, Callables &&...call)
+  constexpr GenericACosh(T *u, Callables &&...call)
       : mp_left{u}, m_caller{std::make_tuple(std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
 
@@ -167,7 +167,7 @@ public:
 template <typename T> using GenericACoshT = GenericACosh<T, OpType>;
 
 // Function for acosh computation
-template <typename T> const GenericACoshT<T> &acosh(const IVariable<T> &u) {
+template <typename T> constexpr const GenericACoshT<T> &acosh(const IVariable<T> &u) {
   auto tmp = Allocate<GenericACoshT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

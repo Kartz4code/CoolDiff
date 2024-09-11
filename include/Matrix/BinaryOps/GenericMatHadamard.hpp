@@ -73,7 +73,7 @@ public:
   const size_t m_nidx{};
 
   // Constructor
-  GenericMatHadamard(T1 *u, T2 *v, Callables &&...call)
+  constexpr GenericMatHadamard(T1 *u, T2 *v, Callables &&...call)
       : mp_left{u}, mp_right{v}, mp_result{nullptr}, mp_dresult{nullptr},
         mp_dresult_l{nullptr}, mp_dresult_r{nullptr}, mp_lhs_kron{nullptr},
         mp_rhs_kron{nullptr}, m_caller{std::make_tuple(
@@ -151,7 +151,7 @@ using GenericMatHadamardT = GenericMatHadamard<T1, T2, OpMatType>;
 
 // Function for Hadamard product computation
 template <typename T1, typename T2>
-const GenericMatHadamardT<T1, T2> &operator^(const IMatrix<T1> &u,
+constexpr const GenericMatHadamardT<T1, T2> &operator^(const IMatrix<T1> &u,
                                              const IMatrix<T2> &v) {
   auto tmp = Allocate<GenericMatHadamardT<T1, T2>>(
       const_cast<T1 *>(static_cast<const T1 *>(&u)),

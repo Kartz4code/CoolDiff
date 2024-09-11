@@ -63,7 +63,7 @@ public:
   const size_t m_nidx{};
 
   // Constructor
-  GenericMatSum(T1 *u, T2 *v, Callables &&...call)
+  constexpr GenericMatSum(T1 *u, T2 *v, Callables &&...call)
       : mp_left{u}, mp_right{v}, mp_result{nullptr}, mp_dresult{nullptr},
         m_caller{std::make_tuple(std::forward<Callables>(call)...)},
         m_nidx{this->m_idx_count++} {}
@@ -145,7 +145,7 @@ public:
   const size_t m_nidx{};
 
   // Constructor
-  GenericMatScalarSum(Type u, T *v, Callables &&...call) : m_left{u}, 
+  constexpr GenericMatScalarSum(Type u, T *v, Callables &&...call) : m_left{u}, 
                                                            mp_right{v}, 
                                                            mp_result{nullptr}, 
                                                            m_caller{std::make_tuple(std::forward<Callables>(call)...)},
@@ -214,7 +214,7 @@ using GenericMatScalarSumT = GenericMatScalarSum<T, OpMatType>;
 
 // Function for sum computation
 template <typename T1, typename T2>
-const GenericMatSumT<T1, T2> &operator+(const IMatrix<T1> &u,
+constexpr const auto& operator+(const IMatrix<T1> &u,
                                         const IMatrix<T2> &v) {
   auto tmp = Allocate<GenericMatSumT<T1, T2>>(
       const_cast<T1 *>(static_cast<const T1 *>(&u)),
@@ -224,13 +224,13 @@ const GenericMatSumT<T1, T2> &operator+(const IMatrix<T1> &u,
 
 // Function for sum computation 
 template <typename T>
-const GenericMatScalarSumT<T> &operator+(Type u, const IMatrix<T> &v) {
+constexpr const auto& operator+(Type u, const IMatrix<T> &v) {
   auto tmp = Allocate<GenericMatScalarSumT<T>>(u, const_cast<T*>(static_cast<const T*>(&v)), OpMatObj);
   return *tmp;
 }
 
 template <typename T>
-const GenericMatScalarSumT<T> &operator+(const IMatrix<T> &v, Type u) {
+constexpr const auto& operator+(const IMatrix<T> &v, Type u) {
   return u + v;
 }
 
@@ -239,7 +239,7 @@ template <typename T, typename Z,
           typename = std::enable_if_t<std::is_base_of_v<MetaVariable, Z> &&
                                       false == std::is_arithmetic_v<Z> &&
                                       false == std::is_same_v<Type, Z>>>
-const auto &operator+(const Z &v, const IMatrix<T> &M) {
+constexpr const auto &operator+(const Z &v, const IMatrix<T> &M) {
   auto &U = CreateMatrix<Expression>(M.getNumRows(), M.getNumColumns());
   std::fill_n(EXECUTION_PAR U.getMatrixPtr(), U.getNumElem(), v);
   return U + M;
@@ -250,6 +250,6 @@ template <typename T, typename Z,
           typename = std::enable_if_t<std::is_base_of_v<MetaVariable, Z> &&
                                       false == std::is_arithmetic_v<Z> &&
                                       false == std::is_same_v<Type, Z>>>
-const auto &operator+(const IMatrix<T> &M, const Z &v) {
+ constexpr const auto &operator+(const IMatrix<T> &M, const Z &v) {
   return v + M;
 }

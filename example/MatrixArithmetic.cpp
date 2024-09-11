@@ -25,10 +25,10 @@
 
 void func9() {
   Matrix<Variable> X(2, 2);
-  X(0, 0) = -0.3;
-  X(0, 1) = 2.71;
-  X(1, 0) = 3.352;
-  X(1, 1) = 44;
+  X(0, 0) = 1;
+  X(0, 1) = 2;
+  X(1, 0) = 3;
+  X(1, 1) = 4;
 
   Matrix<Variable> Z(2,2);
   Z(1,1) = X(0,0);
@@ -46,12 +46,12 @@ void func9() {
   Y(1,1) = X(0,1)/X(1,1); 
 
   Parameter p{2};
-  Matrix<Expression> S = X+p;
+  Matrix<Expression> S = 2*X+X;
 
   std::cout << Eval(S) << "\n";
   p = 3;
   std::cout << Eval(S) << "\n";
-  std::cout << DevalF(S, Z) << "\n";
+  std::cout << DevalF(S, X) << "\n";
 }
 
 void func2() {
