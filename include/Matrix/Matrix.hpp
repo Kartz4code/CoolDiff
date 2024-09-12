@@ -24,48 +24,13 @@
 #include "CommonFunctions.hpp"
 #include "IMatrix.hpp"
 
-
 // Get value
 template<typename T>
-inline constexpr Type GetValue(T &val) {
-  // If T is of type Type
-  if constexpr (true == std::is_same_v<T, Type>) {
-    return val;
+inline constexpr Type GetValue(T&);
 
-  }
-  // If T is of type Parameter
-  else if constexpr (true == std::is_same_v<T, Parameter>) {
-    return val.eval();
-  }
-  // If T is of type Variable
-  else if constexpr (true == std::is_same_v<T, Variable>) {
-    val.resetImpl();
-    return val.eval();
-  }
-  // If T is of type Expression
-  else if constexpr (true == std::is_same_v<T, Expression>) {
-    return Eval(val);
-  } else {
-    // If T is unknown, then return typecasted val
-    return (Type)(val);
-  }
-}
-
-// Get derivative value (Forward derivative)
+// Get Dvalue
 template<typename T>
-inline constexpr Type GetDValue(T &val, const Variable &var) {
-  // If T is of type Variable
-  if constexpr (true == std::is_same_v<T, Variable>) {
-    val.resetImpl();
-    return val.devalF(var);
-    // If T is of type Expression
-  } else if constexpr (true == std::is_same_v<T, Expression>) {
-    return DevalF(val, var);
-  } else {
-    // If T is unknown, then return typecasted 0
-    return (Type)(0);
-  }
-}
+inline constexpr Type GetDValue(T&, const Variable&);
 
 // Factory function for matrix reference creation
 template <typename T, typename... Args> Matrix<T> &CreateMatrix(Args &&...);
@@ -652,4 +617,47 @@ template <typename T, typename... Args>
 Matrix<T> *CreateMatrixPtr(Args &&...args) {
   auto tmp = Allocate<Matrix<T>>(std::forward<Args>(args)...);
   return tmp.get();
+}
+
+
+// Get value
+template<typename T>
+inline constexpr Type GetValue(T &val) {
+  // If T is of type Type
+  if constexpr (true == std::is_same_v<T, Type>) {
+    return val;
+
+  }
+  // If T is of type Parameter
+  else if constexpr (true == std::is_same_v<T, Parameter>) {
+    return val.eval();
+  }
+  // If T is of type Variable
+  else if constexpr (true == std::is_same_v<T, Variable>) {
+    val.resetImpl();
+    return val.eval();
+  }
+  // If T is of type Expression
+  else if constexpr (true == std::is_same_v<T, Expression>) {
+    return Eval(val);
+  } else {
+    // If T is unknown, then return typecasted val
+    return (Type)(val);
+  }
+}
+
+// Get derivative value (Forward derivative)
+template<typename T>
+inline constexpr Type GetDValue(T &val, const Variable &var) {
+  // If T is of type Variable
+  if constexpr (true == std::is_same_v<T, Variable>) {
+    val.resetImpl();
+    return val.devalF(var);
+    // If T is of type Expression
+  } else if constexpr (true == std::is_same_v<T, Expression>) {
+    return DevalF(val, var);
+  } else {
+    // If T is unknown, then return typecasted 0
+    return (Type)(0);
+  }
 }

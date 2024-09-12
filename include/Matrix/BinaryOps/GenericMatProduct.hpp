@@ -238,7 +238,6 @@ using GenericMatProductT = GenericMatProduct<T1, T2, OpMatType>;
 template<typename T>
 using GenericMatScalarProductT = GenericMatScalarProduct<T, OpMatType>;
 
-
 // Function for product computation
 template <typename T1, typename T2>
 constexpr const auto &operator*(const IMatrix<T1> &u, const IMatrix<T2> &v) {
