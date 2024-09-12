@@ -127,12 +127,24 @@ using GenericMatSubT = GenericMatSub<T1, T2, OpMatType>;
 
 // Function for sub computation
 template <typename T1, typename T2>
-constexpr const GenericMatSubT<T1, T2> &operator-(const IMatrix<T1> &u,
-                                        const IMatrix<T2> &v) {
+constexpr const auto &operator-(const IMatrix<T1> &u,
+                                const IMatrix<T2> &v) {
   auto tmp = Allocate<GenericMatSubT<T1, T2>>(
       const_cast<T1 *>(static_cast<const T1 *>(&u)),
       const_cast<T2 *>(static_cast<const T2 *>(&v)), OpMatObj);
   return *tmp;
+}
+
+// Matrix sub with Type (LHS)
+template <typename T>
+constexpr const auto &operator-(const Type &v, const IMatrix<T> &M) {
+  return (v + ((Type)(-1)*M));
+}
+
+// Matrix sub with Type (RHS)
+template <typename T>
+constexpr const auto &operator-(const IMatrix<T> &M, const Type &v) {
+  return (M + ((Type)(-1)*v));  
 }
 
 // Matrix sub with scalar (LHS) - SFINAE'd
@@ -153,22 +165,6 @@ template <typename T, typename Z,
                                       false == std::is_same_v<Type, Z>>>
 constexpr const auto &operator-(const IMatrix<T> &M, const Z &v) {
   auto &U = CreateMatrix<Expression>(M.getNumRows(), M.getNumColumns());
-  std::fill_n(EXECUTION_PAR U.getMatrixPtr(), U.getNumElem(), v);
-  return M - U;
-}
-
-// Matrix sub with Type (LHS)
-template <typename T>
-constexpr const auto &operator-(const Type &v, const IMatrix<T> &M) {
-  auto &U = CreateMatrix<Type>(M.getNumRows(), M.getNumColumns());
-  std::fill_n(EXECUTION_PAR U.getMatrixPtr(), U.getNumElem(), v);
-  return U - M;
-}
-
-// Matrix sub with Type (RHS)
-template <typename T>
-constexpr const auto &operator-(const IMatrix<T> &M, const Type &v) {
-  auto &U = CreateMatrix<Type>(M.getNumRows(), M.getNumColumns());
   std::fill_n(EXECUTION_PAR U.getMatrixPtr(), U.getNumElem(), v);
   return M - U;
 }

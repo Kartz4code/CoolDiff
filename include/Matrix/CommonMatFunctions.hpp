@@ -28,23 +28,6 @@
 #include "GenericMatSub.hpp"
 #include "GenericMatSum.hpp"
 
-/*
-// Is the matrix ones?
-bool IsOnesMatrix(Matrix<Type>*);
-
-// Is the matrix diagonal?
-bool IsDiagMatrix(Matrix<Type>*);
-
-// Is the row matrix ?
-bool IsRowMatrix(Matrix<Type>*);
-
-// Is the column matrix ?
-bool IsColMatrix(Matrix<Type>*);
-
-// Find type of matrix
-size_t FindMatType(const Matrix<Type>&);
-*/
-
 // Matrix evaluation
 Matrix<Type> &Eval(Matrix<Expression> &);
 

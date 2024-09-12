@@ -161,7 +161,7 @@ public:
 template <typename T> using GenericExpT = GenericExp<T, OpType>;
 
 // Function for exp computation
-template <typename T> constexpr const GenericExpT<T> &exp(const IVariable<T> &u) {
+template <typename T> constexpr const auto &exp(const IVariable<T> &u) {
   auto tmp = Allocate<GenericExpT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

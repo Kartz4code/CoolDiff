@@ -111,6 +111,27 @@ Matrix<Type> &DevalR(Expression &exp, const Matrix<Variable> &m) {
 
   return result;
 }
+
+void DevalR(Expression& exp, const Matrix<Variable>& X, Matrix<Type>*& result) {
+  const size_t lrows = X.getNumRows();
+  const size_t rcols = X.getNumColumns();
+ 
+  if (nullptr == result) {
+    result = CreateMatrixPtr<Type>(lrows, rcols);
+  } else if ((lrows != result->getNumRows()) ||
+             (rcols != result->getNumColumns())) {
+    result = CreateMatrixPtr<Type>(lrows, rcols);
+  }
+
+  // Precompute (By design, the operation is serial)
+  PreComp(exp);
+
+  const size_t n = X.getNumElem();
+  std::transform(EXECUTION_SEQ X.getMatrixPtr(), X.getMatrixPtr() + n,
+                 result->getMatrixPtr(),
+                 [&exp](const auto &v) { return DevalR(exp, v); });
+}
+
 // Derivative of expression (Matrix)
 Matrix<Type> &Deval(Expression &exp, const Matrix<Variable> &m, ADMode ad) {
   if (ad == ADMode::FORWARD) {

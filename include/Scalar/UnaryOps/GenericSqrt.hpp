@@ -164,7 +164,7 @@ public:
 template <typename T> using GenericSqrtT = GenericSqrt<T, OpType>;
 
 // Function for sqrt computation
-template <typename T> constexpr const GenericSqrtT<T> &sqrt(const IVariable<T> &u) {
+template <typename T> constexpr const auto &sqrt(const IVariable<T> &u) {
   auto tmp = Allocate<GenericSqrtT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

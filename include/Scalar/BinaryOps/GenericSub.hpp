@@ -466,7 +466,7 @@ template <typename T> using GenericSubT3 = GenericSub<T, Type, OpType>;
 
 // Function for subtraction computation
 template <typename T1, typename T2>
-constexpr const GenericSubT1<T1, T2> &operator-(const IVariable<T1> &u,
+constexpr const auto &operator-(const IVariable<T1> &u,
                                       const IVariable<T2> &v) {
   auto tmp = Allocate<GenericSubT1<T1, T2>>(
       const_cast<T1 *>(static_cast<const T1 *>(&u)),
@@ -476,7 +476,7 @@ constexpr const GenericSubT1<T1, T2> &operator-(const IVariable<T1> &u,
 
 // Left side is a number (subtraction)
 template <typename T>
-constexpr const GenericSubT2<T> &operator-(const Type &u, const IVariable<T> &v) {
+constexpr const auto &operator-(const Type &u, const IVariable<T> &v) {
   auto tmp = Allocate<GenericSubT2<T>>(
       u, const_cast<T *>(static_cast<const T *>(&v)), OpObj);
   return *tmp;
@@ -484,7 +484,7 @@ constexpr const GenericSubT2<T> &operator-(const Type &u, const IVariable<T> &v)
 
 // Right side is a number (subtraction)
 template <typename T>
-constexpr const GenericSubT3<T> &operator-(const IVariable<T> &u, const Type &v) {
+constexpr const auto &operator-(const IVariable<T> &u, const Type &v) {
   auto tmp = Allocate<GenericSubT3<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), v, OpObj);
   return *tmp;

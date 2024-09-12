@@ -151,8 +151,7 @@ using GenericMatHadamardT = GenericMatHadamard<T1, T2, OpMatType>;
 
 // Function for Hadamard product computation
 template <typename T1, typename T2>
-constexpr const GenericMatHadamardT<T1, T2> &operator^(const IMatrix<T1> &u,
-                                             const IMatrix<T2> &v) {
+constexpr const auto& operator^(const IMatrix<T1> &u, const IMatrix<T2> &v) {
   auto tmp = Allocate<GenericMatHadamardT<T1, T2>>(
       const_cast<T1 *>(static_cast<const T1 *>(&u)),
       const_cast<T2 *>(static_cast<const T2 *>(&v)), OpMatObj);

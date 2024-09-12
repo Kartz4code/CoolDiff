@@ -28,8 +28,7 @@
 
 // Left/right side is a Matrix
 template <typename T1, typename T2, typename... Callables>
-class GenericMatProduct
-    : public IMatrix<GenericMatProduct<T1, T2, Callables...>> {
+class GenericMatProduct : public IMatrix<GenericMatProduct<T1, T2, Callables...>> {
 private:
   // Resources
   T1 *mp_left{nullptr};
@@ -242,8 +241,7 @@ using GenericMatScalarProductT = GenericMatScalarProduct<T, OpMatType>;
 
 // Function for product computation
 template <typename T1, typename T2>
-constexpr const GenericMatProductT<T1, T2> &operator*(const IMatrix<T1> &u,
-                                            const IMatrix<T2> &v) {
+constexpr const auto &operator*(const IMatrix<T1> &u, const IMatrix<T2> &v) {
   auto tmp = Allocate<GenericMatProductT<T1, T2>>(
       const_cast<T1 *>(static_cast<const T1 *>(&u)),
       const_cast<T2 *>(static_cast<const T2 *>(&v)), OpMatObj);

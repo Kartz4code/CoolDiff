@@ -165,7 +165,7 @@ public:
 template <typename T> using GenericATanhT = GenericATanh<T, OpType>;
 
 // Function for atanh computation
-template <typename T> constexpr const GenericATanhT<T> &atanh(const IVariable<T> &u) {
+template <typename T> constexpr const auto &atanh(const IVariable<T> &u) {
   auto tmp = Allocate<GenericATanhT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

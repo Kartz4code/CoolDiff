@@ -161,7 +161,7 @@ public:
 template <typename T> using GenericNegT = GenericNeg<T, OpType>;
 
 // Function for neg computation
-template <typename T> constexpr const GenericNegT<T> &operator-(const IVariable<T> &u) {
+template <typename T> constexpr const auto &operator-(const IVariable<T> &u) {
   auto tmp = Allocate<GenericNegT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;
