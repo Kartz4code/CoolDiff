@@ -165,7 +165,7 @@ public:
 template <typename T> using GenericATanT = GenericATan<T, OpType>;
 
 // Function for atan computation
-template <typename T> constexpr const GenericATanT<T> &atan(const IVariable<T> &u) {
+template <typename T> constexpr const auto &atan(const IVariable<T> &u) {
   auto tmp = Allocate<GenericATanT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

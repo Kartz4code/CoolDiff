@@ -76,7 +76,6 @@ bool operator==(const Type &cmx, Real val) {
 bool operator==(Real val, const Type &cmx) {
   return (cmx.real() == val && cmx.imag() == val);
 }
-
 #endif
 
 // Non nullptr correctness (Unary)

@@ -71,6 +71,8 @@ Type Deval(Expression &, const Variable &, ADMode = ADMode::REVERSE);
 Matrix<Type> &DevalF(Expression &, const Matrix<Variable> &, bool = false);
 // Reverse mode algorithmic differentiation (Matrix)
 Matrix<Type> &DevalR(Expression &, const Matrix<Variable> &);
+void DevalR(Expression&, const Matrix<Variable>&, Matrix<Type>*&);
+
 // Derivative of expression (Matrix)
 Matrix<Type> &Deval(Expression &, const Matrix<Variable> &,
                     ADMode = ADMode::REVERSE);

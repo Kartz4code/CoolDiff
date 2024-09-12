@@ -167,7 +167,7 @@ public:
 template <typename T> using GenericACoshT = GenericACosh<T, OpType>;
 
 // Function for acosh computation
-template <typename T> constexpr const GenericACoshT<T> &acosh(const IVariable<T> &u) {
+template <typename T> constexpr const auto &acosh(const IVariable<T> &u) {
   auto tmp = Allocate<GenericACoshT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

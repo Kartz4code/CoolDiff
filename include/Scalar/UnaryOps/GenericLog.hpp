@@ -162,7 +162,7 @@ public:
 template <typename T> using GenericLogT = GenericLog<T, OpType>;
 
 // Function for log computation
-template <typename T> constexpr const GenericLogT<T> &log(const IVariable<T> &u) {
+template <typename T> constexpr const auto &log(const IVariable<T> &u) {
   auto tmp = Allocate<GenericLogT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

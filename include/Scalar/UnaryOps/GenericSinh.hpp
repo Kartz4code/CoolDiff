@@ -161,7 +161,7 @@ public:
 template <typename T> using GenericSinhT = GenericSinh<T, OpType>;
 
 // Function for sinh computation
-template <typename T> constexpr const GenericSinhT<T> &sinh(const IVariable<T> &u) {
+template <typename T> constexpr const auto &sinh(const IVariable<T> &u) {
   auto tmp = Allocate<GenericSinhT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

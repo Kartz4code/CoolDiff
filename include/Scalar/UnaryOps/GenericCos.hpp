@@ -162,7 +162,7 @@ public:
 template <typename T> using GenericCosT = GenericCos<T, OpType>;
 
 // Function for cos computation
-template <typename T> constexpr const GenericCosT<T> &cos(const IVariable<T> &u) {
+template <typename T> constexpr const auto &cos(const IVariable<T> &u) {
   auto tmp = Allocate<GenericCosT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

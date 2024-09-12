@@ -76,6 +76,14 @@ template <typename T, typename... Args> Matrix<T> *CreateMatrixPtr(Args &&...);
 // Matrix class
 template <typename T> class Matrix : public IMatrix<Matrix<T>> {
 private:
+  template <typename Z, typename... Argz> 
+  friend SharedPtr<Z> Allocate(Argz&&...);
+
+  // Special matrix constructor
+  constexpr Matrix(size_t rows, size_t cols, size_t type)
+      : m_rows{rows}, m_cols{cols}, m_type{type} {}
+
+private:
   // Matrix row and column size
   mutable size_t m_rows{0};
   mutable size_t m_cols{0};
@@ -202,10 +210,6 @@ public:
   // Block index
   size_t m_nidx{};
 
-  // Special matrix constructor
-  constexpr Matrix(size_t rows, size_t cols, size_t type)
-      : m_rows{rows}, m_cols{cols}, m_type{type} {}
-
   // Default constructor
   constexpr Matrix()
       : m_rows{0}, m_cols{0}, m_type{(size_t)(-1)}, mp_mat{new T[1]{}},
@@ -219,7 +223,7 @@ public:
         m_eval{false}, m_devalf{false}, m_nidx{this->m_idx_count++} {}
 
   // Initalize the matrix with rows and columns with initial values
-  constexpr Matrix(size_t rows, size_t cols, Type val) : Matrix(rows, cols) {
+  constexpr Matrix(size_t rows, size_t cols, const T& val) : Matrix(rows, cols) {
       std::fill(EXECUTION_PAR mp_mat, mp_mat + getNumElem(), val);  
   }
 

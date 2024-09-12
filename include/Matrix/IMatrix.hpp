@@ -57,6 +57,12 @@ public:
   this->m_visited = false;                                                     \
   mp_right->reset();
 
+
+template<typename T>
+using ExpType =  std::enable_if_t<std::is_base_of_v<MetaVariable, T> && 
+                                  false == std::is_arithmetic_v<T>   &&  
+                                  false == std::is_same_v<Type, T>>;
+
 // Special matrices
 enum MatrixSpl : size_t {
   ZEROS = 1 << 1,

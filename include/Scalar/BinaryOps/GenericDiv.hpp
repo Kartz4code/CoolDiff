@@ -365,7 +365,7 @@ template <typename T> using GenericDivT2 = GenericDiv<Type, T, OpType>;
 
 // Function for division computation
 template <typename T1, typename T2>
-constexpr const GenericDivT1<T1, T2> &operator/(const IVariable<T1> &u,
+constexpr const auto &operator/(const IVariable<T1> &u,
                                       const IVariable<T2> &v) {
   auto tmp = Allocate<GenericDivT1<T1, T2>>(
       const_cast<T1 *>(static_cast<const T1 *>(&u)),
@@ -375,7 +375,7 @@ constexpr const GenericDivT1<T1, T2> &operator/(const IVariable<T1> &u,
 
 // Left side is a number (division)
 template <typename T>
-constexpr const GenericDivT2<T> &operator/(const Type &u, const IVariable<T> &v) {
+constexpr const auto &operator/(const Type &u, const IVariable<T> &v) {
   auto tmp = Allocate<GenericDivT2<T>>(
       u, const_cast<T *>(static_cast<const T *>(&v)), OpObj);
   return *tmp;

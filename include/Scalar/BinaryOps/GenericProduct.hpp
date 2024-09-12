@@ -344,7 +344,7 @@ template <typename T> using GenericProductT2 = GenericProduct<Type, T, OpType>;
 
 // Function for product computation
 template <typename T1, typename T2>
-constexpr const GenericProductT1<T1, T2> &operator*(const IVariable<T1> &u,
+constexpr const auto &operator*(const IVariable<T1> &u,
                                           const IVariable<T2> &v) {
   auto tmp = Allocate<GenericProductT1<T1, T2>>(
       const_cast<T1 *>(static_cast<const T1 *>(&u)),
@@ -354,7 +354,7 @@ constexpr const GenericProductT1<T1, T2> &operator*(const IVariable<T1> &u,
 
 // Left side is a number (product)
 template <typename T>
-constexpr const GenericProductT2<T> &operator*(const Type &u, const IVariable<T> &v) {
+constexpr const auto &operator*(const Type &u, const IVariable<T> &v) {
   auto tmp = Allocate<GenericProductT2<T>>(
       u, const_cast<T *>(static_cast<const T *>(&v)), OpObj);
   return *tmp;
@@ -362,7 +362,7 @@ constexpr const GenericProductT2<T> &operator*(const Type &u, const IVariable<T>
 
 // Right side is a number (product)
 template <typename T>
-constexpr const GenericProductT2<T> &operator*(const IVariable<T> &u, const Type &v) {
+constexpr const auto &operator*(const IVariable<T> &u, const Type &v) {
   auto tmp = Allocate<GenericProductT2<T>>(
       v, const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;
@@ -370,7 +370,7 @@ constexpr const GenericProductT2<T> &operator*(const IVariable<T> &u, const Type
 
 // Right side is a number (division)
 template <typename T>
-const GenericProductT2<T> &operator/(const IVariable<T> &u, const Type &v) {
+constexpr const auto &operator/(const IVariable<T> &u, const Type &v) {
   auto tmp = Allocate<GenericProductT2<T>>(
       (1 / v), const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

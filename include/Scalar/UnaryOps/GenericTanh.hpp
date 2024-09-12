@@ -165,7 +165,7 @@ public:
 template <typename T> using GenericTanhT = GenericTanh<T, OpType>;
 
 // Function for tanh computation
-template <typename T> constexpr const GenericTanhT<T> &tanh(const IVariable<T> &u) {
+template <typename T> constexpr const auto &tanh(const IVariable<T> &u) {
   auto tmp = Allocate<GenericTanhT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

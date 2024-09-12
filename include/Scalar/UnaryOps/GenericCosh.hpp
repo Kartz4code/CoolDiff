@@ -161,7 +161,7 @@ public:
 template <typename T> using GenericCoshT = GenericCosh<T, OpType>;
 
 // Function for cosh computation
-template <typename T> constexpr const GenericCoshT<T> &cosh(const IVariable<T> &u) {
+template <typename T> constexpr const auto &cosh(const IVariable<T> &u) {
   auto tmp = Allocate<GenericCoshT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

@@ -166,7 +166,7 @@ public:
 template <typename T> using GenericASinhT = GenericASinh<T, OpType>;
 
 // Function for asinh computation
-template <typename T> constexpr const GenericASinhT<T> &asinh(const IVariable<T> &u) {
+template <typename T> constexpr const auto &asinh(const IVariable<T> &u) {
   auto tmp = Allocate<GenericASinhT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;

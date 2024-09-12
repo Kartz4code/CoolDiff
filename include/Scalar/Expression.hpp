@@ -32,7 +32,8 @@ private:
 public:
   Expression();
 
-  template <typename T> Expression(const IVariable<T> &expr) {
+  template <typename T> 
+  constexpr Expression(const IVariable<T> &expr) {
     Variable::m_nidx = this->m_idx_count++;
     // Reserve a buffer of expressions
     Variable::m_gh_vec.reserve(g_vec_init);
@@ -40,7 +41,7 @@ public:
     if constexpr (true == std::is_same_v<T, Expression>) {
       Variable::m_gh_vec.emplace_back(&expr);
     } else {
-      Variable::m_gh_vec.emplace_back(&(expr * 1));
+      Variable::m_gh_vec.emplace_back(&(expr * (Type)(1)));
     }
   }
 
@@ -56,7 +57,7 @@ public:
     if constexpr (true == std::is_same_v<T, Expression>) {
       Variable::m_gh_vec.emplace_back(&expr);
     } else {
-      Variable::m_gh_vec.emplace_back(&(expr * 1));
+      Variable::m_gh_vec.emplace_back(&(expr * (Type)(1)));
     }
     return *this;
   }

@@ -500,7 +500,7 @@ template <typename T> using GenericPowT3 = GenericPow<T, Type, OpType>;
 
 // Function for power computation
 template <typename T1, typename T2>
-constexpr const GenericPowT1<T1, T2> &pow(const IVariable<T1> &u,
+constexpr const auto &pow(const IVariable<T1> &u,
                                 const IVariable<T2> &v) {
   auto tmp = Allocate<GenericPowT1<T1, T2>>(
       const_cast<T1 *>(static_cast<const T1 *>(&u)),
@@ -510,7 +510,7 @@ constexpr const GenericPowT1<T1, T2> &pow(const IVariable<T1> &u,
 
 // Left side is a number (power)
 template <typename T>
-constexpr const GenericPowT2<T> &pow(const Type &u, const IVariable<T> &v) {
+constexpr const auto &pow(const Type &u, const IVariable<T> &v) {
   auto tmp = Allocate<GenericPowT2<T>>(
       u, const_cast<T *>(static_cast<const T *>(&v)), OpObj);
   return *tmp;
@@ -518,7 +518,7 @@ constexpr const GenericPowT2<T> &pow(const Type &u, const IVariable<T> &v) {
 
 // Right side is a number (power)
 template <typename T>
-constexpr const GenericPowT3<T> &pow(const IVariable<T> &u, const Type &v) {
+constexpr const auto &pow(const IVariable<T> &u, const Type &v) {
   auto tmp = Allocate<GenericPowT3<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), v, OpObj);
   return *tmp;

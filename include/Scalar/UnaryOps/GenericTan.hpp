@@ -165,7 +165,7 @@ public:
 template <typename T> using GenericTanT = GenericTan<T, OpType>;
 
 // Function for tan computation
-template <typename T> constexpr const GenericTanT<T> &tan(const IVariable<T> &u) {
+template <typename T> constexpr const auto &tan(const IVariable<T> &u) {
   auto tmp = Allocate<GenericTanT<T>>(
       const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;
