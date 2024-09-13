@@ -55,9 +55,9 @@ private:
 
 public:
   // Result
-  Matrix<Type> *mp_result{nullptr};
+  const Matrix<Type> *mp_result{nullptr};
   // Derivative result
-  Matrix<Type> *mp_dresult{nullptr};
+  const Matrix<Type> *mp_dresult{nullptr};
 
   // Block index
   const size_t m_nidx{};
@@ -83,8 +83,8 @@ public:
     ASSERT(verifyDim(), "Matrix-Matrix subtraction dimensions mismatch");
 
     // Get raw pointers to result, left and right matrices
-    Matrix<Type> *left_mat = mp_left->eval();
-    Matrix<Type> *right_mat = mp_right->eval();
+    const Matrix<Type> *left_mat = mp_left->eval();
+    const Matrix<Type> *right_mat = mp_right->eval();
 
     // Matrix-Matrix subtraction computation (Policy design)
     MATRIX_SUB(left_mat, right_mat, mp_result);
@@ -99,8 +99,8 @@ public:
     ASSERT(verifyDim(), "Matrix-Matrix subtraction dimensions mismatch");
 
     // Left and right matrices
-    Matrix<Type> *dleft_mat = mp_left->devalF(X);
-    Matrix<Type> *dright_mat = mp_right->devalF(X);
+    const Matrix<Type> *dleft_mat = mp_left->devalF(X);
+    const Matrix<Type> *dright_mat = mp_right->devalF(X);
 
     // Matrix-Matrix derivative subtraction computation (Policy design)
     MATRIX_SUB(dleft_mat, dright_mat, mp_dresult);
@@ -137,34 +137,24 @@ constexpr const auto &operator-(const IMatrix<T1> &u,
 
 // Matrix sub with Type (LHS)
 template <typename T>
-constexpr const auto &operator-(const Type &v, const IMatrix<T> &M) {
-  return (v + ((Type)(-1)*M));
+constexpr const auto &operator-(const Type &v, const IMatrix<T> &u) {
+  return (v + ((Type)(-1)*u));
 }
 
 // Matrix sub with Type (RHS)
 template <typename T>
-constexpr const auto &operator-(const IMatrix<T> &M, const Type &v) {
-  return (M + ((Type)(-1)*v));  
+constexpr const auto &operator-(const IMatrix<T> &u, const Type &v) {
+  return (u + ((Type)(-1)*v));  
 }
 
 // Matrix sub with scalar (LHS) - SFINAE'd
-template <typename T, typename Z,
-          typename = std::enable_if_t<std::is_base_of_v<MetaVariable, Z> &&
-                                      false == std::is_arithmetic_v<Z> &&
-                                      false == std::is_same_v<Type, Z>>>
-constexpr const auto &operator-(const Z &v, const IMatrix<T> &M) {
-  auto &U = CreateMatrix<Expression>(M.getNumRows(), M.getNumColumns());
-  std::fill_n(EXECUTION_PAR U.getMatrixPtr(), U.getNumElem(), v);
-  return U - M;
+template <typename T1, typename T2, typename = ExpType<T1>>
+constexpr const auto &operator-(const T1 &v, const IMatrix<T2> &u) {
+  return (v + ((Type)(-1)*u));
 }
 
 // Matrix sub with scalar (RHS) - SFINAE'd
-template <typename T, typename Z,
-          typename = std::enable_if_t<std::is_base_of_v<MetaVariable, Z> &&
-                                      false == std::is_arithmetic_v<Z> &&
-                                      false == std::is_same_v<Type, Z>>>
-constexpr const auto &operator-(const IMatrix<T> &M, const Z &v) {
-  auto &U = CreateMatrix<Expression>(M.getNumRows(), M.getNumColumns());
-  std::fill_n(EXECUTION_PAR U.getMatrixPtr(), U.getNumElem(), v);
-  return M - U;
+template <typename T1, typename T2, typename = ExpType<T2>>
+constexpr const auto &operator-(const IMatrix<T1> &u, const T2 &v) {
+  return (u + ((Type)(-1)*v));
 }

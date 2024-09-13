@@ -95,8 +95,8 @@ public:
     ASSERT(verifyDim(), "Matrix-Matrix Hadamard product dimensions mismatch");
 
     // Get raw pointers to result, left and right matrices
-    Matrix<Type> *left_mat = mp_left->eval();
-    Matrix<Type> *right_mat = mp_right->eval();
+    const Matrix<Type> *left_mat = mp_left->eval();
+    const Matrix<Type> *right_mat = mp_right->eval();
 
     // Matrix-Matrix Hadamard product evaluation (Policy design)
     MATRIX_HADAMARD(left_mat, right_mat, mp_result);
@@ -110,12 +110,12 @@ public:
     ASSERT(verifyDim(), "Matrix-Matrix Hadamard product dimensions mismatch");
 
     // Left and right matrices derivatives
-    Matrix<Type> *dleft_mat = mp_left->devalF(X);
-    Matrix<Type> *dright_mat = mp_right->devalF(X);
+    const Matrix<Type> *dleft_mat = mp_left->devalF(X);
+    const Matrix<Type> *dright_mat = mp_right->devalF(X);
 
     // Left and right matrices evaluation
-    Matrix<Type> *left_mat = mp_left->eval();
-    Matrix<Type> *right_mat = mp_right->eval();
+    const Matrix<Type> *left_mat = mp_left->eval();
+    const Matrix<Type> *right_mat = mp_right->eval();
 
     // L (X) I - Left matrix and identity Kronocker product (Policy design)
     MATRIX_KRON(left_mat, Ones(X.getNumRows()), mp_lhs_kron);
