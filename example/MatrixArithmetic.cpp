@@ -46,7 +46,8 @@ void func9() {
   Y(1,1) = X(0,1)/X(1,1); 
 
   Parameter p{2};
-  Matrix<Expression> S = 2*X + X(0,0) + X(0,0);
+  Expression s = X(0,0);
+  Matrix<Expression> S = X*s - X(0,0);
 
   std::cout << Eval(S) << "\n";
   p = 3;

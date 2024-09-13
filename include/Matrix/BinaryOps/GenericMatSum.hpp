@@ -121,7 +121,6 @@ public:
   V_DTR(~GenericMatSum()) = default;
 };
 
-
 // Left is Type and right is a matrix 
 template <typename T, typename... Callables>
 class GenericMatScalarSum : public IMatrix<GenericMatScalarSum<T, Callables...>> {
@@ -298,7 +297,6 @@ public:
   V_DTR(~GenericMatScalarSumExp()) = default;
 };
 
-
 // GenericMatSum with 2 typename and callables
 template <typename T1, typename T2>
 using GenericMatSumT = GenericMatSum<T1, T2, OpMatType>;
@@ -307,7 +305,7 @@ using GenericMatSumT = GenericMatSum<T1, T2, OpMatType>;
 template<typename T>
 using GenericMatScalarSumT = GenericMatScalarSum<T, OpMatType>;
 
-// GenericMatScalarSum with 2 typename and callables
+// GenericMatScalarSumExp with 2 typename and callables
 template<typename T1, typename T2>
 using GenericMatScalarSumExpT = GenericMatScalarSumExp<T1, T2, OpMatType>;
 

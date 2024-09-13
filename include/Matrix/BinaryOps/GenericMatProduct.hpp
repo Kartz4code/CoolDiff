@@ -94,8 +94,8 @@ public:
     ASSERT(verifyDim(), "Matrix-Matrix multiplication dimensions mismatch");
 
     // Get raw pointers to result, left and right matrices
-    Matrix<Type> *left_mat = mp_left->eval();
-    Matrix<Type> *right_mat = mp_right->eval();
+    const Matrix<Type> *left_mat = mp_left->eval();
+    const Matrix<Type> *right_mat = mp_right->eval();
 
     // Matrix multiplication evaluation (Policy design)
     MATRIX_MUL(left_mat, right_mat, mp_result);
@@ -109,12 +109,12 @@ public:
     ASSERT(verifyDim(), "Matrix-Matrix multiplication dimensions mismatch");
 
     // Left and right matrices derivatives
-    Matrix<Type> *dleft_mat = mp_left->devalF(X);
-    Matrix<Type> *dright_mat = mp_right->devalF(X);
+    const Matrix<Type> *dleft_mat = mp_left->devalF(X);
+    const Matrix<Type> *dright_mat = mp_right->devalF(X);
 
     // Left and right matrices evaluation
-    Matrix<Type> *left_mat = mp_left->eval();
-    Matrix<Type> *right_mat = mp_right->eval();
+    const Matrix<Type> *left_mat = mp_left->eval();
+    const Matrix<Type> *right_mat = mp_right->eval();
 
     // L (X) I - Left matrix and identity Kronocker product (Policy design)
     MATRIX_KRON(left_mat, Eye(X.getNumRows()), mp_lhs_kron);
@@ -194,7 +194,7 @@ public:
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type> *eval()) {
     // Get raw pointers to result and right matrices
-    Matrix<Type> *right_mat = mp_right->eval();
+    const Matrix<Type> *right_mat = mp_right->eval();
 
     // Matrix-Scalar multiplication computation (Policy design)
     MATRIX_SCALAR_MUL(m_left, right_mat, mp_result);
@@ -207,7 +207,7 @@ public:
   V_OVERRIDE(Matrix<Type> *devalF(Matrix<Variable> &X)) {
     
     // Right matrix derivative
-    Matrix<Type> *dright_mat = mp_right->devalF(X);
+    const Matrix<Type> *dright_mat = mp_right->devalF(X);
 
     // Matrix-Scalar multiplication computation (Policy design)
     MATRIX_SCALAR_MUL(m_left, dright_mat, mp_dresult);
@@ -230,6 +230,116 @@ public:
   V_DTR(~GenericMatScalarProduct()) = default;
 };
 
+// Left is Expression/Variable/Parameter and right is a matrix 
+template <typename T1, typename T2, typename... Callables>
+class GenericMatScalarProductExp : public IMatrix<GenericMatScalarProductExp<T1, T2, Callables...>> {
+private:
+  // Resources
+  Expression m_left;
+  T2* mp_right{nullptr};
+
+  // Callables
+  Tuples<Callables...> m_caller;
+
+  // Disable copy and move constructors/assignments
+  DISABLE_COPY(GenericMatScalarProductExp)
+  DISABLE_MOVE(GenericMatScalarProductExp)
+
+  public:
+    // Result
+    Matrix<Type> *mp_result{nullptr};
+    // Derivative result
+    Matrix<Type> *mp_dresult{nullptr};
+    Matrix<Type> *mp_dtmp{nullptr};
+    Matrix<Type> *mp_dresult_r{nullptr};
+    Matrix<Type> *mp_dresult_l{nullptr};
+    // Kronocker product
+    Matrix<Type> *mp_dlhs_kron{nullptr};
+    Matrix<Type> *mp_rhs_kron{nullptr};
+
+    // Block index
+    const size_t m_nidx{};
+
+    // Constructor
+    constexpr GenericMatScalarProductExp(T1* u, T2* v, Callables &&...call) : m_left{*u}, 
+                                                                              mp_right{v}, 
+                                                                              mp_result{nullptr},
+                                                                              mp_dresult{nullptr},
+                                                                              mp_dtmp{nullptr},
+                                                                              mp_dresult_r{nullptr},
+                                                                              mp_dlhs_kron{nullptr}, 
+                                                                              mp_dresult_l{nullptr},
+                                                                              mp_rhs_kron{nullptr},
+                                                                              m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                                              m_nidx{this->m_idx_count++} 
+    {}
+
+    
+    // Get number of rows
+    V_OVERRIDE(size_t getNumRows() const) { 
+      return mp_right->getNumRows(); 
+    }
+
+    // Get number of columns
+    V_OVERRIDE(size_t getNumColumns() const) { 
+      return mp_right->getNumColumns(); 
+    }
+
+    // Find me
+    bool findMe(void *v) const { 
+      BINARY_RIGHT_FIND_ME(); 
+    }
+
+    // Matrix eval computation
+    V_OVERRIDE(Matrix<Type> *eval()) {
+      // Get raw pointers to result and right matrices
+      const Matrix<Type>* rhs = mp_right->eval();
+      const Type val = GetValue(m_left);
+
+      // Matrix-Scalar addition computation (Policy design)
+      MATRIX_SCALAR_MUL(val, rhs, mp_result);
+
+      // Return result pointer
+      return mp_result;
+    }
+
+    // Matrix devalF computation
+    V_OVERRIDE(Matrix<Type> *devalF(Matrix<Variable> &X)) {
+      // Left derivative and evaluation    
+      DevalR(m_left, X, mp_dtmp); 
+      MATRIX_KRON(Ones(X.getNumRows(), X.getNumColumns()), mp_dtmp, mp_dlhs_kron);
+      const Type val = GetValue(m_left);
+
+      // Right matrix derivative and evaluation
+      const Matrix<Type>* d_right_mat = mp_right->devalF(X);
+      const Matrix<Type> *right_mat = mp_right->eval();
+      MATRIX_KRON(right_mat, Eye(X.getNumColumns()), mp_rhs_kron);
+      
+      // Product with left and right derivatives (Policy design)
+      MATRIX_SCALAR_MUL(val, d_right_mat, mp_dresult_l);
+      MATRIX_HADAMARD(mp_dlhs_kron, mp_rhs_kron, mp_dresult_r);
+      
+      // Addition between left and right derivatives (Policy design)
+      MATRIX_ADD(mp_dresult_l, mp_dresult_r, mp_dresult);
+
+      // Return result pointer
+      return mp_dresult;
+    }
+
+    // Reset visit run-time
+    V_OVERRIDE(void reset()) { 
+      BINARY_MAT_RIGHT_RESET();
+    }
+
+    // Get type
+    V_OVERRIDE(std::string_view getType() const) {
+      return "GenericMatScalarProductExp";
+    }
+
+    // Destructor
+    V_DTR(~GenericMatScalarProductExp()) = default;
+};
+
 // GenericMatProduct with 2 typename callables
 template <typename T1, typename T2>
 using GenericMatProductT = GenericMatProduct<T1, T2, OpMatType>;
@@ -237,6 +347,10 @@ using GenericMatProductT = GenericMatProduct<T1, T2, OpMatType>;
 // GenericMatScalarProduct with 1 typename and callables
 template<typename T>
 using GenericMatScalarProductT = GenericMatScalarProduct<T, OpMatType>;
+
+// GenericMatScalarProductExp with 2 typename and callables
+template<typename T1, typename T2>
+using GenericMatScalarProductExpT = GenericMatScalarProductExp<T1, T2, OpMatType>;
 
 // Function for product computation
 template <typename T1, typename T2>
@@ -260,21 +374,16 @@ constexpr const auto& operator*(const IMatrix<T> &v, Type u) {
 }
 
 // Matrix multiplication with scalar (LHS) - SFINAE'd
-template <typename T, typename Z,
-          typename = std::enable_if_t<std::is_base_of_v<MetaVariable, Z> &&
-                                      false == std::is_arithmetic_v<Z> &&
-                                      false == std::is_same_v<Type, Z>>>
-constexpr const auto &operator*(const Z &v, const IMatrix<T> &M) {
-  auto &U = CreateMatrix<Expression>(M.getNumRows(), M.getNumColumns());
-  std::fill_n(EXECUTION_PAR U.getMatrixPtr(), U.getNumElem(), v);
-  return U ^ M;
+template <typename T1, typename T2, typename = ExpType<T1>>
+constexpr const auto &operator*(const T1 &v, const IMatrix<T2> &u) {
+  auto tmp = Allocate<GenericMatScalarProductExpT<T1,T2>>(const_cast<T1*>(static_cast<const T1*>(&v)), 
+                                                          const_cast<T2*>(static_cast<const T2*>(&u)), 
+                                                          OpMatObj);
+  return *tmp;
 }
 
-// Matrix multiplication with scalar (RHS) - SFINAE'd
-template <typename T, typename Z,
-          typename = std::enable_if_t<std::is_base_of_v<MetaVariable, Z> &&
-                                      false == std::is_arithmetic_v<Z> &&
-                                      false == std::is_same_v<Type, Z>>>
-constexpr const auto &operator*(const IMatrix<T> &M, const Z &v) {
-  return v*M;
+// Matrix sum with scalar (RHS) - SFINAE'd
+template <typename T1, typename T2, typename = ExpType<T2>>
+ constexpr const auto &operator*(const IMatrix<T1> &u, const T2 &v) {
+  return v*u;
 }
