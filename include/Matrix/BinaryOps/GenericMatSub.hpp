@@ -55,9 +55,9 @@ private:
 
 public:
   // Result
-  const Matrix<Type> *mp_result{nullptr};
+  Matrix<Type> *mp_result{nullptr};
   // Derivative result
-  const Matrix<Type> *mp_dresult{nullptr};
+  Matrix<Type> *mp_dresult{nullptr};
 
   // Block index
   const size_t m_nidx{};

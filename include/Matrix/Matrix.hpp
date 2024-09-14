@@ -45,7 +45,7 @@ private:
   friend SharedPtr<Z> Allocate(Argz&&...);
 
   // Special matrix constructor
-  constexpr Matrix(size_t rows, size_t cols, size_t type)
+  constexpr Matrix(size_t rows, size_t cols, MatrixSpl type)
       : m_rows{rows}, m_cols{cols}, m_type{type} {}
 
 private:
@@ -63,7 +63,8 @@ private:
   inline void setEval() {
     // Set result matrix
     if constexpr (false == std::is_same_v<T, Type>) {
-      if ((nullptr != mp_mat) && (nullptr != mp_result) &&
+      if ((nullptr != mp_mat) && 
+          (nullptr != mp_result) &&
           (nullptr != mp_result->mp_mat)) {
         std::transform(EXECUTION_SEQ mp_mat, mp_mat + getNumElem(),
                        mp_result->mp_mat,
@@ -293,7 +294,7 @@ public:
     // Return this reference
     return *this;
   }
-
+  
   // Get matrix pointer const
   const T *getMatrixPtr() const { return mp_mat; }
 
@@ -619,14 +620,12 @@ Matrix<T> *CreateMatrixPtr(Args &&...args) {
   return tmp.get();
 }
 
-
 // Get value
 template<typename T>
 inline constexpr Type GetValue(T &val) {
   // If T is of type Type
   if constexpr (true == std::is_same_v<T, Type>) {
     return val;
-
   }
   // If T is of type Parameter
   else if constexpr (true == std::is_same_v<T, Parameter>) {

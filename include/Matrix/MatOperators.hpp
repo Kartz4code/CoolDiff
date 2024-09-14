@@ -43,3 +43,6 @@ void MatrixScalarAdd(Type, const Matrix<Type> *, Matrix<Type> *&);
 
 // Matrix-Scalar multiplication
 void MatrixScalarMul(Type, const Matrix<Type> *, Matrix<Type> *&);
+
+// Matrix transpose
+void MatrixTranspose(const Matrix<Type> *, Matrix<Type> *&);
