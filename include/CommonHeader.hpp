@@ -224,7 +224,16 @@ template <typename T> std::string ToString(const T &value) {
 // Null pointer check
 #define NULL_CHECK(PTR, MSG) CheckNullPtr(PTR, MSG)
 // Check boolean
-#define ASSERT(X, MSG) CheckAssertions(X, MSG);
+#define ASSERT(X, MSG) [b = X, msg = MSG]() {\
+  std::ostringstream oss;\
+  if (false == b) {\
+    oss << "[ERROR MSG]: " << msg << "\n"\
+        << "[FILENAME]: " << std::string{__FILE__} << "\n"\
+        << "[LINE NO]: " << std::to_string(__LINE__) << "\n";\
+    std::cout << oss.str() << "\n";\
+    assert(false);\
+  }\
+}();
 
 // Non nullptr correctness (Unary)
 void CheckNullPtr(const void *, std::string_view = "");

@@ -27,6 +27,7 @@
 #include "GenericMatProduct.hpp"
 #include "GenericMatSub.hpp"
 #include "GenericMatSum.hpp"
+#include "GenericMatTranspose.hpp"
 
 // Matrix evaluation
 Matrix<Type> &Eval(Matrix<Expression> &);

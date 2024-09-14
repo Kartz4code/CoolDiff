@@ -117,10 +117,11 @@ public:
     const Matrix<Type> *left_mat = mp_left->eval();
     const Matrix<Type> *right_mat = mp_right->eval();
 
+    
     // L (X) I - Left matrix and identity Kronocker product (Policy design)
-    MATRIX_KRON(left_mat, Ones(X.getNumRows()), mp_lhs_kron);
+    MATRIX_KRON(left_mat, Ones(X.getNumRows(), X.getNumColumns()), mp_lhs_kron);
     // R (X) I - Right matrix and identity Kronocke product (Policy design)
-    MATRIX_KRON(right_mat, Ones(X.getNumColumns()), mp_rhs_kron);
+    MATRIX_KRON(right_mat, Ones(X.getNumRows(), X.getNumColumns()), mp_rhs_kron);
 
     // Hadamard product with left and right derivatives (Policy design)
     MATRIX_HADAMARD(mp_lhs_kron, dright_mat, mp_dresult_l);

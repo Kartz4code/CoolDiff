@@ -23,6 +23,34 @@
 #include "CoolDiff.hpp"
 #include "MatOperators.hpp"
 
+void func10() {
+  Matrix<Variable> X(2, 1);
+  X(0, 0) = 1; 
+  X(1, 0) = 3; 
+
+  Matrix<Type> A(2, 2);
+  A(0, 0) = 1;
+  A(0, 1) = 2;
+  A(1, 0) = 3;
+  A(1, 1) = 4;
+
+  Matrix<Type> Z(2,1);
+  Z(0,0) = 5; Z(1,0) = 6;
+
+  Matrix<Expression> M3 = transpose(Z-A*X)*(Z-A*X);
+  Type alpha = -0.01;
+
+  for(int i{}; i < 1000; ++i) {
+    auto& der = DevalF(M3,X);
+    X(0,0) = GetValue(X(0,0)) + alpha*der(0,0);
+    X(1,0) = GetValue(X(1,0)) + alpha*der(1,0); 
+  }
+
+  std::cout << "x1 " << GetValue(X(0,0)) << "\n";
+  std::cout << "x2 " << GetValue(X(1,0)) << "\n"; 
+
+}
+
 void func9() {
   Matrix<Variable> X(2, 2);
   X(0, 0) = 1;
@@ -133,6 +161,7 @@ void func5() {
 }
 
 int main(int argc, char **argv) {
+  func10();
   func9();
   func2();
   func3();

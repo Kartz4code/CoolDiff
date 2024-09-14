@@ -198,3 +198,26 @@ void MatrixScalarMul(Type lhs, const Matrix<Type> * rhs, Matrix<Type> *& result)
   // Handle Matrix-Scalar multiplication
   h3.handle(lhs, rhs, result);
 }
+
+
+// Matrix transpose
+void MatrixTranspose(const Matrix<Type> * mat, Matrix<Type> *& result) {
+  // Null pointer check
+  NULL_CHECK(mat, "Matrix (mat) is a nullptr");
+
+  const size_t nrows = mat->getNumRows();
+  const size_t ncols = mat->getNumColumns();
+  
+  if (nullptr == result) {
+    result = CreateMatrixPtr<Type>(ncols, nrows);
+  } else if ((ncols != result->getNumRows()) ||
+             (nrows != result->getNumColumns())) {
+    result = CreateMatrixPtr<Type>(ncols, nrows);
+  }
+
+  for(size_t i{}; i < nrows; ++i) {
+    for(size_t j{}; j < ncols; ++j) {
+      (*result)(j,i) = (*mat)(i,j);
+    }
+  }
+}
