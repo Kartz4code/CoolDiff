@@ -46,6 +46,10 @@
 #include "EyeMatHadamardHandler.hpp"
 #include "ZeroMatHadamardHandler.hpp"
 
+// Special matrix transpose product
+#include "EyeMatTransposeHandler.hpp"
+#include "ZeroMatTransposeHandler.hpp"
+
 // Matrix operations
 #include "MatAddNaiveHandler.hpp"
 #include "MatScalarAddNaiveHandler.hpp"
@@ -54,6 +58,7 @@
 #include "MatMulNaiveHandler.hpp"
 #include "MatScalarMulNaiveHandler.hpp"
 #include "MatSubNaiveHandler.hpp"
+#include "MatTransposeNaiveHandler.hpp"
 
 // Matrix-Matrix addition - Left, Right, Result matrix pointer
 void MatrixAdd(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
@@ -205,19 +210,54 @@ void MatrixTranspose(const Matrix<Type> * mat, Matrix<Type> *& result) {
   // Null pointer check
   NULL_CHECK(mat, "Matrix (mat) is a nullptr");
 
-  const size_t nrows = mat->getNumRows();
-  const size_t ncols = mat->getNumColumns();
-  
+   /* Chain of responsibility (Order matters)
+      1) Eye matrix check
+      2) Zero matrix check
+      3) Matrix transpose
+  */
+
+
+  MatTransposeNaiveHandler h1{nullptr};
+  ZeroMatTransposeHandler h2{&h1};
+  EyeMatTransposeHandler h3{&h2};
+
+  // Handle Matrix transpose
+  h3.handle(mat, result);
+}
+
+// Matrix derivative transpose
+void MatrixDervTranspose(const size_t nrows_f, const size_t ncols_f, const size_t nrows_x, const size_t ncols_x, 
+                         const Matrix<Type> * mat, Matrix<Type>*& result) {
+  // Result matrix dimensions
+  const size_t nrows = ncols_f*nrows_x;
+  const size_t ncols = nrows_f*ncols_x;
+
   if (nullptr == result) {
-    result = CreateMatrixPtr<Type>(ncols, nrows);
+      result = CreateMatrixPtr<Type>(nrows, ncols);
   } else if ((ncols != result->getNumRows()) ||
              (nrows != result->getNumColumns())) {
-    result = CreateMatrixPtr<Type>(ncols, nrows);
+      result = CreateMatrixPtr<Type>(nrows, ncols);
   }
 
-  for(size_t i{}; i < nrows; ++i) {
-    for(size_t j{}; j < ncols; ++j) {
-      (*result)(j,i) = (*mat)(i,j);
-    }
-  }
+  const auto outer_idx = Range<size_t>(0, ncols_f*nrows_f);
+  const auto inner_idx = Range<size_t>(0, ncols_x*nrows_x);
+
+  // Outer loop
+  std::for_each(EXECUTION_PAR
+                outer_idx.begin(), outer_idx.end(), 
+                [&](const size_t n1) {
+                    // Outer Row and column index
+                    const size_t j = n1 % ncols_f;
+                    const size_t i = (n1 - j) / ncols_f;
+                    // Inner loop
+                    std::for_each(EXECUTION_PAR 
+                                  inner_idx.begin(), inner_idx.end(), 
+                                  [&](const size_t n2) {
+                                  // Inner Row and column index
+                                  const size_t m = n2 % ncols_x;
+                                  const size_t l = (n2 - m) / ncols_x;
+                                  (*result)(l+j*nrows_x, m+i*ncols_x) = std::conj((*mat)(l+i*nrows_x, m+j*ncols_x));
+                    });
+  });
+
 }

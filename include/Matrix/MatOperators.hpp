@@ -46,3 +46,6 @@ void MatrixScalarMul(Type, const Matrix<Type> *, Matrix<Type> *&);
 
 // Matrix transpose
 void MatrixTranspose(const Matrix<Type> *, Matrix<Type> *&);
+
+// Matrix derivative transpose
+void MatrixDervTranspose(const size_t, const size_t, const size_t, const size_t, const Matrix<Type>*, Matrix<Type>*&);

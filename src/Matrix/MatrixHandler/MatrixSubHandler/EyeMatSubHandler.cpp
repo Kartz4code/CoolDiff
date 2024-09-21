@@ -41,7 +41,7 @@ void SubEyeRHS(const Matrix<Type> *it, Matrix<Type> *&result) {
   *result = *it;
 
   // Iteration elements (Along the diagonal)
-  auto idx = Range<size_t>(0, nrows);
+  const auto idx = Range<size_t>(0, nrows);
   // For each execution
   std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t i) {
     (*result)(i, i) = (*it)(i, i) - (Type)(1);
@@ -63,7 +63,7 @@ void SubEyeLHS(const Matrix<Type> *it, Matrix<Type> *&result) {
   }
 
   // Iteration elements
-  auto idx = Range<size_t>(0, nrows * ncols);
+  const auto idx = Range<size_t>(0, nrows * ncols);
   // For each execution
   std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t n) {
     const size_t j = n % ncols;
@@ -76,10 +76,6 @@ void SubEyeLHS(const Matrix<Type> *it, Matrix<Type> *&result) {
 void EyeMatSubHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
                               Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
-  // Null pointer check
-  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-
   /* Zero matrix special check */
   if (auto *it = EyeMatSub(lhs, rhs); nullptr != it) {
     if (it == lhs) {

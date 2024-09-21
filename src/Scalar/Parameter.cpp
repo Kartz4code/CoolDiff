@@ -71,8 +71,9 @@ Parameter &Parameter::operator=(const Type &value) {
 
 // Evaluate value and derivative value
 Type Parameter::eval() { 
-  this->mp_tmp->resetImpl();
-  return this->mp_tmp->eval(); 
+  //this->mp_tmp->resetImpl();
+  //return this->mp_tmp->eval(); 
+  return this->mp_tmp->getValue();
 }
 
 void Parameter::reset() {

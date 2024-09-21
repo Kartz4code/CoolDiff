@@ -25,14 +25,15 @@
 void MatMulNaiveHandler::handle(const Matrix<Type> *lhs,
                                 const Matrix<Type> *rhs,
                                 Matrix<Type> *&result) {
-  // Null pointer check
-  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-
   // If result is nullptr, then create a new resource
   const size_t lrows = lhs->getNumRows();
+  const size_t lcols = lhs->getNumColumns();
   const size_t rcols = rhs->getNumColumns();
   const size_t rrows = rhs->getNumRows();
+
+  // Assert dimensions
+  ASSERT(lcols == rrows, "Matrix multiplication dimensions mismatch");
+
   if (nullptr == result) {
     result = CreateMatrixPtr<Type>(lrows, rcols);
   } else if ((lrows != result->getNumRows()) ||
@@ -41,8 +42,8 @@ void MatMulNaiveHandler::handle(const Matrix<Type> *lhs,
   }
 
   // Indices for outer loop and inner loop
-  auto outer_idx = Range<size_t>(0, lrows * rcols);
-  auto inner_idx = Range<size_t>(0, rrows);
+  const auto outer_idx = Range<size_t>(0, lrows * rcols);
+  const auto inner_idx = Range<size_t>(0, rrows);
 
   // Naive matrix-matrix multiplication
   std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(),

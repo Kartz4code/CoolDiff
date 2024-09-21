@@ -25,15 +25,17 @@
 void MatSubNaiveHandler::handle(const Matrix<Type> *lhs,
                                 const Matrix<Type> *rhs,
                                 Matrix<Type> *&result) {
-  // Null pointer check
-  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-
   /* Matrix-Matrix numerical subtraction */
   // Rows and columns of result matrix and if result is nullptr, then create a
   // new resource
   const size_t nrows{lhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
+  const size_t lcols = lhs->getNumColumns();
+  const size_t rrows = rhs->getNumRows();
+
+  // Assert dimensions
+  ASSERT((nrows == rrows) && (ncols == lcols), "Matrix subtraction dimensions mismatch");
+
   if (nullptr == result) {
     result = CreateMatrixPtr<Type>(nrows, ncols);
   } else if ((nrows != result->getNumRows()) ||

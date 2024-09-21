@@ -28,9 +28,22 @@
 #include "GenericMatSub.hpp"
 #include "GenericMatSum.hpp"
 #include "GenericMatTranspose.hpp"
+#include "GenericMatSigma.hpp"
 
 // Matrix evaluation
-Matrix<Type> &Eval(Matrix<Expression> &);
+template<typename T>
+Matrix<Type> &Eval(Matrix<T> &Mexp) {
+  // Reset graph/tree
+  Mexp.resetImpl();
+  // Return evaluation value
+  return *(Mexp.eval());
+}
 
 // Matrix-Matrix derivative evaluation
-Matrix<Type> &DevalF(Matrix<Expression> &, Matrix<Variable> &);
+template<typename T>
+Matrix<Type> &DevalF(Matrix<T> &Mexp, Matrix<Variable> &X) {
+  // Reset graph/tree
+  Mexp.resetImpl();
+  // Return evaluation value
+  return *(Mexp.devalF(X));
+}

@@ -24,9 +24,6 @@
 
 // Is the matrix zero
 bool IsZeroMatrix(const Matrix<Type> *m) {
-  // Null pointer check
-  NULL_CHECK(m, "Matrix (m) is a nullptr");
-
   // Zero special matrix check
   if (m->getMatType() == MatrixSpl::ZEROS) {
     return true;
@@ -38,7 +35,6 @@ bool IsZeroMatrix(const Matrix<Type> *m) {
 
   // Get Matrix pointer and check for null pointer
   auto *it = m->getMatrixPtr();
-  NULL_CHECK(it, "Matrix is a nullptr");
 
   // Check all elements for zero
   return std::all_of(EXECUTION_PAR it, it + m->getNumElem(),
@@ -48,10 +44,6 @@ bool IsZeroMatrix(const Matrix<Type> *m) {
 // Zero matrix addition checks
 const Matrix<Type> *ZeroMatAdd(const Matrix<Type> *lhs,
                                const Matrix<Type> *rhs) {
-  // Null pointer check
-  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-
   // Rows and columns of result matrix
   const size_t nrows{lhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
@@ -74,9 +66,6 @@ const Matrix<Type> *ZeroMatAdd(const Matrix<Type> *lhs,
 
 // Zero matrix scalar addition
 const Matrix<Type> *ZeroMatScalarAdd(Type lhs, const Matrix<Type> * rhs) {
-  // Null pointer check
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-  
   // Rows and columns of result matrix
   const size_t nrows{rhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
@@ -96,10 +85,6 @@ const Matrix<Type> *ZeroMatScalarAdd(Type lhs, const Matrix<Type> * rhs) {
 // Zero matrix subtraction
 const Matrix<Type> *ZeroMatSub(const Matrix<Type> *lhs,
                                const Matrix<Type> *rhs) {
-  // Null pointer check
-  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-
   // Rows and columns of result matrix
   const size_t nrows{lhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
@@ -123,10 +108,6 @@ const Matrix<Type> *ZeroMatSub(const Matrix<Type> *lhs,
 // Zero matrix multiplication checks
 const Matrix<Type> *ZeroMatMul(const Matrix<Type> *lhs,
                                const Matrix<Type> *rhs) {
-  // Null pointer check
-  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-
   // Left matrix rows and right matrix columns
   const size_t lr = lhs->getNumRows();
   const size_t rc = rhs->getNumColumns();
@@ -144,9 +125,6 @@ const Matrix<Type> *ZeroMatMul(const Matrix<Type> *lhs,
 
 // Zero matrix scalar multiplication
 const Matrix<Type> *ZeroMatScalarMul(Type lhs, const Matrix<Type> * rhs) {
-  // Null pointer check
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-  
   // Rows and columns of result matrix
   const size_t nrows{rhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
@@ -163,10 +141,6 @@ const Matrix<Type> *ZeroMatScalarMul(Type lhs, const Matrix<Type> * rhs) {
 // Zero matrix kronocker product
 const Matrix<Type> *ZeroMatKron(const Matrix<Type> *lhs,
                                 const Matrix<Type> *rhs) {
-  // Null pointer check
-  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-
   // Left matrix rows and right matrix columns
   const size_t lr = lhs->getNumRows();
   const size_t lc = lhs->getNumColumns();
@@ -187,10 +161,6 @@ const Matrix<Type> *ZeroMatKron(const Matrix<Type> *lhs,
 // Zero matrix Hadamard product
 const Matrix<Type> *ZeroMatHadamard(const Matrix<Type> *lhs,
                                     const Matrix<Type> *rhs) {
-  // Null pointer check
-  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-
   // Left matrix rows and right matrix columns
   const size_t lr = lhs->getNumRows();
   const size_t rc = rhs->getNumColumns();
@@ -209,10 +179,6 @@ const Matrix<Type> *ZeroMatHadamard(const Matrix<Type> *lhs,
 // Zero matrix addition numerical check
 const Matrix<Type> *ZeroMatAddNum(const Matrix<Type> *lhs,
                                   const Matrix<Type> *rhs) {
-  // Null pointer check
-  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-
   // Boolean check
   const bool lhs_bool = IsZeroMatrix(lhs);
   const bool rhs_bool = IsZeroMatrix(rhs);
@@ -234,9 +200,6 @@ const Matrix<Type> *ZeroMatAddNum(const Matrix<Type> *lhs,
 
 // Zero matrix scalar addition numerics
 const Matrix<Type> *ZeroMatScalarAddNum(Type lhs, const Matrix<Type> * rhs) {
-  // Null pointer check
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-
   // Rows and columns of result matrix
   const size_t nrows{rhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
@@ -258,10 +221,6 @@ const Matrix<Type> *ZeroMatScalarAddNum(Type lhs, const Matrix<Type> * rhs) {
 // Zero matrix subtraction numerics
 const Matrix<Type> *ZeroMatSubNum(const Matrix<Type> *lhs,
                                   const Matrix<Type> *rhs) {
-  // Null pointer check
-  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-
   // Boolean check
   const bool lhs_bool = IsZeroMatrix(lhs);
   const bool rhs_bool = IsZeroMatrix(rhs);
@@ -284,10 +243,6 @@ const Matrix<Type> *ZeroMatSubNum(const Matrix<Type> *lhs,
 // Zero matrix multiplication numerics
 const Matrix<Type> *ZeroMatMulNum(const Matrix<Type> *lhs,
                                   const Matrix<Type> *rhs) {
-  // Null pointer check
-  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-
   // Left matrix rows and column numbers
   const size_t lr = lhs->getNumRows();
   const size_t rc = rhs->getNumColumns();
@@ -304,9 +259,6 @@ const Matrix<Type> *ZeroMatMulNum(const Matrix<Type> *lhs,
 
 // Zero matrix scalar multiplication numerics
 const Matrix<Type> *ZeroMatScalarMulNum(Type lhs, const Matrix<Type> * rhs) {
-  // Null pointer check
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-
   // Rows and columns of result matrix
   const size_t nrows{rhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
@@ -323,10 +275,6 @@ const Matrix<Type> *ZeroMatScalarMulNum(Type lhs, const Matrix<Type> * rhs) {
 // Zero matrix kronocker product numerics
 const Matrix<Type> *ZeroMatKronNum(const Matrix<Type> *lhs,
                                    const Matrix<Type> *rhs) {
-  // Null pointer check
-  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-
   // Left matrix rows and right matrix columns
   const size_t lr = lhs->getNumRows();
   const size_t lc = lhs->getNumColumns();
@@ -346,10 +294,6 @@ const Matrix<Type> *ZeroMatKronNum(const Matrix<Type> *lhs,
 // Zero matrix Hadamard product
 const Matrix<Type> *ZeroMatHadamardNum(const Matrix<Type> *lhs,
                                        const Matrix<Type> *rhs) {
-  // Null pointer check
-  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-
   // Left matrix rows and column numbers
   const size_t lr = lhs->getNumRows();
   const size_t rc = rhs->getNumColumns();

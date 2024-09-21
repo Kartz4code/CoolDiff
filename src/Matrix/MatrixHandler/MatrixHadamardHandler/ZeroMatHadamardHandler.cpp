@@ -28,10 +28,6 @@ void ZeroMatHadamardHandler::handle(const Matrix<Type> *lhs,
                                     const Matrix<Type> *rhs,
                                     Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
-  // Null pointer check
-  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-
   /* Zero matrix special check */
   if (auto *it = ZeroMatHadamard(lhs, rhs); nullptr != it) {
     result = const_cast<Matrix<Type> *>(it);

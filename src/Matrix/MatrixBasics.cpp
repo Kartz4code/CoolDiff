@@ -34,7 +34,7 @@ const Matrix<Type> *Eye(const size_t n) {
     Matrix<Type> *result = CreateMatrixPtr<Type>(n, n);
 
     // Vector of indices
-    auto idx = Range<size_t>(0, n);
+    const auto idx = Range<size_t>(0, n);
     std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
                   [&](const size_t i) { (*result)(i, i) = (Type)(1); });
 
@@ -61,7 +61,9 @@ const Matrix<Type> *Zeros(const size_t n, const size_t m) {
 }
 
 // Numerical Zeros square matrix
-const Matrix<Type> *Zeros(const size_t n) { return Zeros(n, n); }
+const Matrix<Type> *Zeros(const size_t n) { 
+  return Zeros(n, n); 
+}
 
 // Numerical Ones matrix
 const Matrix<Type> *Ones(const size_t n, const size_t m) {
@@ -81,4 +83,6 @@ const Matrix<Type> *Ones(const size_t n, const size_t m) {
 }
 
 // Numerical Ones square matrix
-const Matrix<Type> *Ones(const size_t n) { return Ones(n, n); }
+const Matrix<Type> *Ones(const size_t n) { 
+  return Ones(n, n); 
+}

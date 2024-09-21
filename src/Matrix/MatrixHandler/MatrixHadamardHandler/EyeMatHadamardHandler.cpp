@@ -40,7 +40,7 @@ void HadamardEye(const Matrix<Type> *it, Matrix<Type> *&result) {
   }
 
   // Diagonal indices (Modification)
-  auto diag_idx = Range<size_t>(0, nrows);
+  const auto diag_idx = Range<size_t>(0, nrows);
   std::for_each(EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
                 [&](const size_t i) { (*result)(i, i) = (*it)(i, i); });
 }
@@ -49,10 +49,6 @@ void EyeMatHadamardHandler::handle(const Matrix<Type> *lhs,
                                    const Matrix<Type> *rhs,
                                    Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
-  // Null pointer check
-  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-
   /* Eye matrix special check */
   if (auto *it = EyeMatHadamard(lhs, rhs); nullptr != it) {
     if (it == lhs || it == rhs) {

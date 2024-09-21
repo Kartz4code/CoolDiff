@@ -23,6 +23,7 @@
 
 #include "CommonHeader.hpp"
 
+/* Pointer semantics */
 // Numerical Eye matrix
 const Matrix<Type> *Eye(const size_t);
 

@@ -36,6 +36,8 @@ public:
 
   V_UNPURE(void handle(Type, const Matrix<Type> *, Matrix<Type> *&));
 
+  V_UNPURE(void handle(const Matrix<Type> *, Matrix<Type> *&));
+
   // Destructor
   V_DTR(~MatrixHandler() = default);
 };

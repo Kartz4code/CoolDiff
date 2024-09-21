@@ -53,29 +53,36 @@ private:
     return ((lr == rr) && (lc == rc));
   }
 
-public:
-  // Result
-  Matrix<Type> *mp_result{nullptr};
-  // Derivative result
-  Matrix<Type> *mp_dresult{nullptr};
+  // All matrices
+  inline static constexpr const size_t m_size{2};
+  Matrix<Type>* mp_arr[m_size]{}; 
 
+public:
   // Block index
   const size_t m_nidx{};
 
   // Constructor
-  constexpr GenericMatSum(T1 *u, T2 *v, Callables &&...call)
-      : mp_left{u}, mp_right{v}, mp_result{nullptr}, mp_dresult{nullptr},
-        m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {}
+  constexpr GenericMatSum(T1 *u, T2 *v, Callables &&...call) : mp_left{u}, 
+                                                               mp_right{v}, 
+                                                               m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                               m_nidx{this->m_idx_count++} {
+    std::fill_n(mp_arr, m_size, nullptr);                                                            
+  }
 
   // Get number of rows
-  V_OVERRIDE(size_t getNumRows() const) { return mp_left->getNumRows(); }
+  V_OVERRIDE(size_t getNumRows() const) { 
+    return mp_left->getNumRows(); 
+  }
 
   // Get number of columns
-  V_OVERRIDE(size_t getNumColumns() const) { return mp_right->getNumColumns(); }
+  V_OVERRIDE(size_t getNumColumns() const) { 
+    return mp_right->getNumColumns(); 
+  }
 
   // Find me
-  bool findMe(void *v) const { BINARY_FIND_ME(); }
+  bool findMe(void *v) const { 
+    BINARY_FIND_ME(); 
+  }
 
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type> *eval()) {
@@ -87,10 +94,10 @@ public:
     const Matrix<Type> *right_mat = mp_right->eval();
 
     // Matrix-Matrix addition computation (Policy design)
-    MATRIX_ADD(left_mat, right_mat, mp_result);
+    MATRIX_ADD(left_mat, right_mat, mp_arr[0]);
 
     // Return result pointer
-    return mp_result;
+    return mp_arr[0];
   }
 
   // Matrix devalF computation
@@ -103,14 +110,16 @@ public:
     const Matrix<Type> *dright_mat = mp_right->devalF(X);
 
     // Matrix-Matrix derivative addition computation (Policy design)
-    MATRIX_ADD(dleft_mat, dright_mat, mp_dresult);
+    MATRIX_ADD(dleft_mat, dright_mat, mp_arr[1]);
 
     // Return result pointer
-    return mp_dresult;
+    return mp_arr[1];
   }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()){BINARY_MAT_RESET()}
+  V_OVERRIDE(void reset()){ 
+    BINARY_MAT_RESET();
+  }
 
   // Get type
   V_OVERRIDE(std::string_view getType() const) {
@@ -136,20 +145,22 @@ private:
   DISABLE_COPY(GenericMatScalarSum)
   DISABLE_MOVE(GenericMatScalarSum)
 
+  // All matrices
+  inline static constexpr const size_t m_size{1};
+  Matrix<Type>* mp_arr[m_size]{};  
+
 public:
-  // Result
-  Matrix<Type> *mp_result{nullptr};
 
   // Block index
   const size_t m_nidx{};
 
   // Constructor
   constexpr GenericMatScalarSum(Type u, T *v, Callables &&...call) : m_left{u}, 
-                                                           mp_right{v}, 
-                                                           mp_result{nullptr}, 
-                                                           m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                           m_nidx{this->m_idx_count++} 
-  {}
+                                                                     mp_right{v}, 
+                                                                     m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                                     m_nidx{this->m_idx_count++} {
+    std::fill_n(mp_arr, m_size, nullptr);                                                                    
+  }
 
   // Get number of rows
   V_OVERRIDE(size_t getNumRows() const) { 
@@ -172,10 +183,10 @@ public:
     const Matrix<Type> *right_mat = mp_right->eval();
 
     // Matrix-Scalar addition computation (Policy design)
-    MATRIX_SCALAR_ADD(m_left, right_mat, mp_result);
+    MATRIX_SCALAR_ADD(m_left, right_mat, mp_arr[0]);
 
     // Return result pointer
-    return mp_result;
+    return mp_arr[0];
   }
 
   // Matrix devalF computation
@@ -216,28 +227,21 @@ private:
   DISABLE_COPY(GenericMatScalarSumExp)
   DISABLE_MOVE(GenericMatScalarSumExp)
 
-public:
-  // Result
-  Matrix<Type> *mp_result{nullptr};
-  // Derivative result
-  Matrix<Type> *mp_dresult{nullptr};
-  Matrix<Type> *mp_dtmp{nullptr};
-  // Kronocker product
-  Matrix<Type> *mp_kron{nullptr};
+  // All matrices
+  inline static constexpr const size_t m_size{4};
+  Matrix<Type>* mp_arr[m_size]{};  
 
+public:
   // Block index
   const size_t m_nidx{};
 
   // Constructor
   constexpr GenericMatScalarSumExp(T1* u, T2* v, Callables &&...call) : m_left{*u}, 
                                                                         mp_right{v}, 
-                                                                        mp_result{nullptr},
-                                                                        mp_dresult{nullptr},
-                                                                        mp_dtmp{nullptr},
-                                                                        mp_kron{nullptr}, 
                                                                         m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                                        m_nidx{this->m_idx_count++} 
-  {}
+                                                                        m_nidx{this->m_idx_count++} {
+    std::fill_n(mp_arr, m_size, nullptr);                                                                        
+  }
 
   // Get number of rows
   V_OVERRIDE(size_t getNumRows() const) { 
@@ -258,29 +262,34 @@ public:
   V_OVERRIDE(Matrix<Type> *eval()) {
     // Get raw pointers to result and right matrices
     const Matrix<Type>* rhs = mp_right->eval();
-    const Type val = GetValue(m_left);
+    const Type val = Eval(m_left);
 
     // Matrix-Scalar addition computation (Policy design)
-    MATRIX_SCALAR_ADD(val, rhs, mp_result);
+    MATRIX_SCALAR_ADD(val, rhs, mp_arr[0]);
 
     // Return result pointer
-    return mp_result;
+    return mp_arr[0];
   }
 
   // Matrix devalF computation
   V_OVERRIDE(Matrix<Type> *devalF(Matrix<Variable> &X)) {
     // Right matrix derivative
     const Matrix<Type>* drhs = mp_right->devalF(X);
+    
+    const size_t nrows_x = X.getNumRows();
+    const size_t ncols_x = X.getNumColumns();
+    const size_t nrows_f = getNumRows();
+    const size_t ncols_f = getNumColumns();
 
     // Derivative of expression w.r.t to variable matrix (Reverse mode)
-    DevalR(m_left, X, mp_dtmp); 
+    DevalR(m_left, X, mp_arr[2]); 
 
     // Kronecker product with ones and add with right derivatives
-    MATRIX_KRON(Ones(X.getNumRows(), X.getNumColumns()), mp_dtmp, mp_kron);
-    MATRIX_ADD(mp_kron, drhs, mp_dresult);
+    MATRIX_KRON(Ones(nrows_f, ncols_f), mp_arr[2], mp_arr[3]);
+    MATRIX_ADD(mp_arr[3], drhs, mp_arr[1]);
 
     // Return result pointer
-    return mp_dresult;
+    return mp_arr[1];
   }
 
   // Reset visit run-time

@@ -23,12 +23,21 @@
 #include "Matrix.hpp"
 
 // Evaluate function (Scalar)
-Type Eval(Expression &exp) {
+Type EvalExp(Expression &exp) {
   // Reset graph/tree
   exp.resetImpl();
   // Return evaluation value
   return exp.eval();
 }
+
+// Forward mode algorithmic differentiation (Scalar)
+Type DevalFExp(Expression &exp, const Variable &x) {
+  // Reset visited flags in the tree
+  exp.resetImpl();
+  // Return forward differentiation value
+  return exp.devalF(x);
+}
+
 // Main precomputation of reverse mode AD computation 1st
 void PreComp(Expression &exp) {
   // Reset visited flags in the tree
@@ -52,13 +61,6 @@ Expression &SymDiff(Expression &exp, const Variable &var) {
   return exp.SymDiff(var);
 }
 
-// Forward mode algorithmic differentiation (Scalar)
-Type DevalF(Expression &exp, const Variable &x) {
-  // Reset visited flags in the tree
-  exp.resetImpl();
-  // Return forward differentiation value
-  return exp.devalF(x);
-}
 // Reverse mode algorithmic differentiation (Scalar)
 Type DevalR(Expression &exp, const Variable &x) {
   // Return reverse differentiation value
