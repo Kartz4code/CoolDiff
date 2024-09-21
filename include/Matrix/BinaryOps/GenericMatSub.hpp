@@ -53,29 +53,36 @@ private:
     return ((lr == rr) && (lc == rc));
   }
 
-public:
-  // Result
-  Matrix<Type> *mp_result{nullptr};
-  // Derivative result
-  Matrix<Type> *mp_dresult{nullptr};
+  // All matrices
+  inline static constexpr const size_t m_size{2};
+  Matrix<Type>* mp_arr[m_size]{}; 
 
+public:
   // Block index
   const size_t m_nidx{};
 
   // Constructor
-  constexpr GenericMatSub(T1 *u, T2 *v, Callables &&...call)
-      : mp_left{u}, mp_right{v}, mp_result{nullptr}, mp_dresult{nullptr},
-        m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {}
+  constexpr GenericMatSub(T1 *u, T2 *v, Callables &&...call) : mp_left{u}, 
+                                                               mp_right{v},
+                                                               m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                               m_nidx{this->m_idx_count++} {
+    std::fill_n(mp_arr, m_size, nullptr);
+  }
 
   // Get number of rows
-  V_OVERRIDE(size_t getNumRows() const) { return mp_left->getNumRows(); }
+  V_OVERRIDE(size_t getNumRows() const) { 
+    return mp_left->getNumRows(); 
+  }
 
   // Get number of columns
-  V_OVERRIDE(size_t getNumColumns() const) { return mp_right->getNumColumns(); }
+  V_OVERRIDE(size_t getNumColumns() const) { 
+    return mp_right->getNumColumns(); 
+  }
 
   // Find me
-  bool findMe(void *v) const { BINARY_FIND_ME(); }
+  bool findMe(void *v) const { 
+    BINARY_FIND_ME(); 
+  }
 
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type> *eval()) {
@@ -87,10 +94,10 @@ public:
     const Matrix<Type> *right_mat = mp_right->eval();
 
     // Matrix-Matrix subtraction computation (Policy design)
-    MATRIX_SUB(left_mat, right_mat, mp_result);
+    MATRIX_SUB(left_mat, right_mat, mp_arr[0]);
 
     // Return result pointer
-    return mp_result;
+    return mp_arr[0];
   }
 
   // Matrix devalF computation
@@ -103,14 +110,16 @@ public:
     const Matrix<Type> *dright_mat = mp_right->devalF(X);
 
     // Matrix-Matrix derivative subtraction computation (Policy design)
-    MATRIX_SUB(dleft_mat, dright_mat, mp_dresult);
+    MATRIX_SUB(dleft_mat, dright_mat, mp_arr[1]);
 
     // Return result pointer
-    return mp_dresult;
+    return mp_arr[1];
   }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()){BINARY_MAT_RESET()}
+  V_OVERRIDE(void reset()){ 
+    BINARY_MAT_RESET();
+  }
 
   // Get type
   V_OVERRIDE(std::string_view getType() const) {

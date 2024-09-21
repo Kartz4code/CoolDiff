@@ -36,3 +36,10 @@ void MatrixHandler::handle(Type lhs, const Matrix<Type> * rhs, Matrix<Type> *& r
     mp_handler->handle(lhs, rhs, result);
   }
 }
+
+void MatrixHandler::handle(const Matrix<Type> * mat, Matrix<Type> *& result) {
+  ASSERT(this != mp_handler, "The handle is recursive");
+  if (nullptr != mp_handler) {
+    mp_handler->handle(mat, result);
+  }
+}

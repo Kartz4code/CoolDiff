@@ -82,6 +82,7 @@ enum OpMat : size_t {
   ADD_SCALAR_MAT,
   MUL_SCALAR_MAT,
   TRANSPOSE_MAT,
+  TRANSPOSE_DERV_MAT,
   COUNT_MAT
 };
 
@@ -94,6 +95,7 @@ enum OpMat : size_t {
 #define MATRIX_SCALAR_ADD(X, Y, Z) std::get<OpMat::ADD_SCALAR_MAT>(m_caller)(X, Y, Z)
 #define MATRIX_SCALAR_MUL(X, Y, Z) std::get<OpMat::MUL_SCALAR_MAT>(m_caller)(X, Y, Z)
 #define MATRIX_TRANSPOSE(X, Y) std::get<OpMat::TRANSPOSE_MAT>(m_caller)(X, Y)
+#define MATRIX_DERV_TRANSPOSE(X1, X2, X3, X4, X5, X6) std::get<OpMat::TRANSPOSE_DERV_MAT>(m_caller)(X1, X2, X3, X4, X5, X6)
 
 
 // Operation type [Order matters!]
@@ -105,7 +107,8 @@ enum OpMat : size_t {
       void (*)(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&),   \
       void (*)(Type, const Matrix<Type> *, Matrix<Type> *&),                   \
       void (*)(Type, const Matrix<Type> *, Matrix<Type> *&),                   \
-      void (*)(const Matrix<Type> *, Matrix<Type> *&)
+      void (*)(const Matrix<Type> *, Matrix<Type> *&),                         \
+      void (*)(const size_t, const size_t, const size_t, const size_t, const Matrix<Type>*, Matrix<Type>*&)
 
 // Operation objects [Order matters!]
-#define OpMatObj MatrixAdd, MatrixMul, MatrixKron, MatrixSub, MatrixHadamard, MatrixScalarAdd, MatrixScalarMul, MatrixTranspose
+#define OpMatObj MatrixAdd, MatrixMul, MatrixKron, MatrixSub, MatrixHadamard, MatrixScalarAdd, MatrixScalarMul, MatrixTranspose, MatrixDervTranspose

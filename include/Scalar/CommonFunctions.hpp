@@ -50,8 +50,68 @@
 #include "GenericTan.hpp"
 #include "GenericTanh.hpp"
 
+
 // Main evaluate expression function
-Type Eval(Expression &);
+Type EvalExp(Expression &);
+
+// Main forward mode AD computation
+Type DevalFExp(Expression &, const Variable &);
+
+template<typename T>
+inline constexpr Type Eval(T& v) {
+  // If T is Expression
+  if constexpr (true == std::is_same_v<Expression, T>) {
+    return EvalExp(v);
+  }
+  // If T is Parameter
+  else if constexpr (true == std::is_same_v<T, Parameter>) {
+    return v.eval();
+  }
+  // If T is Variable
+  else if constexpr (true == std::is_same_v<T, Variable>) {
+    return v.getValue();
+  }
+  // If T is an expression template
+  else if constexpr (true == std::is_base_of_v<MetaVariable, T>) {
+    return const_cast<std::decay_t<T>&>(v).eval();
+  } 
+  // If T is Type or arithmetic
+  else if constexpr (std::is_arithmetic_v<T> == true || 
+                     std::is_same_v<T,Type> == true) {
+    return (Type)(v);
+  } 
+  // If unknown type, throw error 
+  else {
+    ASSERT(false, "Unknown type");
+  }
+}
+
+template<typename T>
+inline constexpr Type DevalF(T& v, const Variable& var) {
+  // If T is Expression
+  if constexpr (true == std::is_same_v<Expression, T>) {
+    return DevalFExp(v,var);
+  }
+  // If T is Variable
+  else if constexpr (true == std::is_same_v<T, Variable>) {
+    return ((v.m_nidx == var.m_nidx)?(Type)(1):(Type)(0));
+  }
+  // If T is Parameter
+  else if constexpr (true == std::is_same_v<T, Parameter> || 
+                     true == std::is_arithmetic_v<T> ||
+                     true == std::is_same_v<T,Type>) {
+    return (Type)(0);
+  } 
+  // If T is an expression template
+  else if constexpr (true == std::is_base_of_v<MetaVariable, T>) {
+    return const_cast<std::decay_t<T>&>(v).devalF(var);
+  } 
+  // If unknown type, throw error 
+  else {
+    ASSERT(false, "Unknown type");
+  }
+}
+
 // Main precomputation of reverse mode AD computation
 void PreComp(Expression &);
 // Main reverse mode AD table
@@ -60,8 +120,7 @@ OMPair &PreCompCache(const Expression &);
 // Symbolic Expression
 Expression &SymDiff(Expression &, const Variable &);
 
-// Main forward mode AD computation
-Type DevalF(Expression &, const Variable &);
+
 // Main reverse mode AD computation
 Type DevalR(Expression &, const Variable &);
 // Derivative of expression

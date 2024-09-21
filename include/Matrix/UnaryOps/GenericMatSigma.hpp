@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/UnaryOps/GenericMatTranspose.hpp
+ * @file include/Matrix/UnaryOps/GenericMatSigma.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -26,7 +26,7 @@
 
 // Left/right side is a Matrix
 template <typename T, typename... Callables>
-class GenericMatTranspose : public IMatrix<GenericMatTranspose<T, Callables...>> {
+class GenericMatSigma : public IMatrix<GenericMatSigma<T, Callables...>> {
 private:
   // Resources
   T *mp_right{nullptr};
@@ -35,34 +35,32 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericMatTranspose)
-  DISABLE_MOVE(GenericMatTranspose)
+  DISABLE_COPY(GenericMatSigma)
+  DISABLE_MOVE(GenericMatSigma)
+
+  // All matrices
+  inline static constexpr const size_t m_size{6};
+  Matrix<Type>* mp_arr[m_size]{}; 
 
 public:
-  // Result
-  Matrix<Type> *mp_result{nullptr};
-  // Derivative result
-  Matrix<Type> *mp_dresult{nullptr};
-
   // Block index
   const size_t m_nidx{};
 
   // Constructor
-  constexpr GenericMatTranspose(T *u, Callables &&...call) : mp_right{u}, 
-                                                             mp_result{nullptr}, 
-                                                             mp_dresult{nullptr},
-                                                             m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                             m_nidx{this->m_idx_count++} 
-  {}
+  constexpr GenericMatSigma(T *u, Callables &&...call) : mp_right{u}, 
+                                                         m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                         m_nidx{this->m_idx_count++} {
+    std::fill_n(mp_arr, m_size, nullptr);                                                        
+  }  
 
   // Get number of rows
   V_OVERRIDE(size_t getNumRows() const) { 
-    return mp_right->getNumColumns();
+    return 1;
   }
 
   // Get number of columns
   V_OVERRIDE(size_t getNumColumns() const) { 
-    return mp_right->getNumRows();  
+    return 1;  
   }
 
   // Find me
@@ -70,34 +68,38 @@ public:
     BINARY_RIGHT_FIND_ME(); 
   }
 
-  
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type> *eval()) {
     // Get raw pointers to result and right matrices
     const Matrix<Type> *right_mat = mp_right->eval();
+    const size_t rows = mp_right->getNumRows();
+    const size_t cols = mp_right->getNumColumns();
 
-    // Matrix transpose computation (Policy design)
-    MATRIX_TRANSPOSE(right_mat, mp_result);
+    MATRIX_MUL(Ones(1, rows), right_mat, mp_arr[2]);
+    MATRIX_MUL(mp_arr[2], Ones(cols, 1), mp_arr[0]);
 
     // Return result pointer
-    return mp_result;
+    return mp_arr[0];
   }
 
-  // Matrix devalF computation
+    // Matrix devalF computation
   V_OVERRIDE(Matrix<Type> *devalF(Matrix<Variable> &X)) {
     // Rows and columns of function and variable
-    const size_t nrows_f = mp_right->getNumRows();
-    const size_t ncols_f = mp_right->getNumColumns();
     const size_t nrows_x = X.getNumRows();
     const size_t ncols_x = X.getNumColumns();
-
+    const size_t nrows_f = mp_right->getNumRows();
+    const size_t ncols_f = mp_right->getNumColumns();
+    
     // Right matrix derivative
-    const Matrix<Type> *dright_mat = mp_right->devalF(X);
-  
-    MATRIX_DERV_TRANSPOSE(nrows_f, ncols_f, nrows_x, ncols_x, dright_mat, mp_dresult);
+    const Matrix<Type>* drhs = mp_right->devalF(X);
 
+    MATRIX_KRON(Ones(1, nrows_f), Eye(nrows_x), mp_arr[3]);
+    MATRIX_KRON(Ones(ncols_f, 1), Eye(ncols_x), mp_arr[4]);
+    MATRIX_MUL(mp_arr[3], drhs, mp_arr[5]);
+    MATRIX_MUL(mp_arr[5], mp_arr[4], mp_arr[1]);
+   
     // Return result pointer
-    return mp_dresult;
+    return mp_arr[1];
   }
 
   // Reset visit run-time
@@ -107,20 +109,20 @@ public:
 
   // Get type
   V_OVERRIDE(std::string_view getType() const) {
-    return "GenericMatTranspose";
+    return "GenericMatSigma";
   }
 
   // Destructor
-  V_DTR(~GenericMatTranspose()) = default;
+  V_DTR(~GenericMatSigma()) = default;
 };
 
-// GenericMatTranspose with 1 typename and callables
+// GenericMatSigma with 1 typename and callables
 template <typename T>
-using GenericMatTransposeT = GenericMatTranspose<T, OpMatType>;
+using GenericMatSigmaT = GenericMatSigma<T, OpMatType>;
 
-// Function for transpose computation
+// Function for sigma computation
 template <typename T>
-constexpr const auto& transpose(const IMatrix<T> &u) {
-  auto tmp = Allocate<GenericMatTransposeT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpMatObj);
+constexpr const auto& sigma(const IMatrix<T> &u) {
+  auto tmp = Allocate<GenericMatSigmaT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpMatObj);
   return *tmp;
 }

@@ -23,9 +23,6 @@
 #include "Matrix.hpp"
 
 void MatScalarMulNaiveHandler::handle(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
-  // Null pointer check   
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-
   /* Matrix-Scalar numerical multiplication */
   // Rows and columns of result matrix and if result is nullptr, then create a
   // new resource

@@ -25,10 +25,6 @@
 void MatKronNaiveHandler::handle(const Matrix<Type> *lhs,
                                  const Matrix<Type> *rhs,
                                  Matrix<Type> *&result) {
-  // Null pointer check
-  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-
   /* Matrix-Matrix numerical Kronocker product */
   // Rows and columns of result matrix and if result is nullptr, then create a
   // new resource
@@ -43,8 +39,8 @@ void MatKronNaiveHandler::handle(const Matrix<Type> *lhs,
     result = CreateMatrixPtr<Type>((lr * rr), (lc * rc));
   }
 
-  auto lhs_idx = Range<size_t>(0, lr * lc);
-  auto rhs_idx = Range<size_t>(0, rr * rc);
+  const auto lhs_idx = Range<size_t>(0, lr * lc);
+  const auto rhs_idx = Range<size_t>(0, rr * rc);
   std::for_each(EXECUTION_PAR lhs_idx.begin(), lhs_idx.end(),
                 [&](const size_t n1) {
                   const size_t j{n1 % lc};

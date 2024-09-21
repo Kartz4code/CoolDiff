@@ -23,32 +23,63 @@
 #include "CoolDiff.hpp"
 #include "MatOperators.hpp"
 
+void func11() {
+  Matrix<Variable> X(2, 3);
+  X(0, 0) = 1; X(0, 1) = 2; X(0, 2) = 3;
+  X(1, 0) = 4; X(1, 1) = 5; X(1, 2) = 6;
+
+  Matrix<Type> A(3,2);
+  A(0,0) = 4; A(0,1) = 3; 
+  A(1,0) = 2; A(1,1) = 1;
+  A(2,0) = 37; A(2,1) = 43;
+
+  Matrix<Expression> Y = transpose(A*X);
+  Y = Y*(A*X);
+
+  std::cout << Eval(Y) << "\n";
+  std::cout << DevalF(Y,X) << "\n";
+}
+
 void func10() {
   Matrix<Variable> X(2, 1);
-  X(0, 0) = 1; 
+  X(0, 0) = 2.3; 
   X(1, 0) = 3; 
 
-  Matrix<Type> A(2, 2);
-  A(0, 0) = 1;
-  A(0, 1) = 2;
-  A(1, 0) = 3;
-  A(1, 1) = 4;
+  std::cout << Eval(X(0,0)*X(0,0) + X(0,0)) << "\n";
+  X(0,0) = 3;
+  std::cout << Eval(X(0,0)*X(0,0) + X(0,0)) << "\n";
+  std::cout << DevalF(X(0,0)*X(0,0) + X(0,0), X(0,0)) << "\n";
+  //std::cout << DevalR(X(0,0)*X(0,0), X(0,0)) << "\n";
+
+  Matrix<Type> A(3, 2);
+  A(0, 0) = 1; A(0, 1) = 2;
+  A(1, 0) = 3; A(1, 1) = 4;
+  A(2, 0) = 5; A(2, 1) = 6;
+  
+  auto Mz = A({1,2},{0,1});
+  std::cout << Mz << "\n";
+
+  Matrix<Type> L(4,4);
+  for(size_t i{}; i < 2; ++i) {
+    for(size_t j{}; j < 2; ++j) {
+      L({2*i,2*i+2-1},{2*j,2*j+2-1}, Mz);
+    }
+  }
+  std::cout << L << "\n";
+  auto Mz1 = A({1,2},{0,0});
+  std::cout << Mz1 << "\n";
+  L({1,2},{1,1}, Mz1);
+  std::cout << L << "\n";
+
+
 
   Matrix<Type> Z(2,1);
   Z(0,0) = 5; Z(1,0) = 6;
 
-  Matrix<Expression> M3 = transpose(Z-A*X)*(Z-A*X);
-  Type alpha = -0.01;
+  Matrix<Expression> M3 = transpose(A*X)*(A*X);
 
-  for(int i{}; i < 1000; ++i) {
-    auto& der = DevalF(M3,X);
-    X(0,0) = GetValue(X(0,0)) + alpha*der(0,0);
-    X(1,0) = GetValue(X(1,0)) + alpha*der(1,0); 
-  }
-
-  std::cout << "x1 " << GetValue(X(0,0)) << "\n";
-  std::cout << "x2 " << GetValue(X(1,0)) << "\n"; 
-
+  std::cout << Eval(M3) << "\n";
+  std::cout << DevalF(M3,X) << "\n";
 }
 
 void func9() {
@@ -161,6 +192,7 @@ void func5() {
 }
 
 int main(int argc, char **argv) {
+  func11();
   func10();
   func9();
   func2();

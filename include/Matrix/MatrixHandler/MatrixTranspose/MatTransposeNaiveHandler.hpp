@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixAddHandler/ZeroMatScalarAddHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatTranspose/MatTransposeNaiveHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,25 +19,16 @@
  * associated repository.
  */
 
-#include "ZeroMatScalarAddHandler.hpp"
-#include "Matrix.hpp"
-#include "MatrixZeroOps.hpp"
+#pragma once
 
+#include "MatrixHandler.hpp"
 
-void ZeroMatScalarAddHandler::handle(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
-#if defined(NAIVE_IMPL)
-  /* Zero matrix special check */
-  if (auto *it = ZeroMatScalarAdd(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type> *>(it);
-    return;
-  }
-  /* Zero matrix numerical check */
-  else if (auto *it = ZeroMatScalarAddNum(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type> *>(it);
-    return;
-  }
-#endif 
+class MatTransposeNaiveHandler : public MatrixHandler {
+public:
+  using MatrixHandler::MatrixHandler;
 
-  // Chain of responsibility
-  MatrixHandler::handle(lhs, rhs, result);
-}
+  V_OVERRIDE(void handle(const Matrix<Type> *, Matrix<Type> *&));
+
+  // Destructor
+  V_DTR(~MatTransposeNaiveHandler() = default);
+};

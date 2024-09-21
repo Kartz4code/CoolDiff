@@ -21,19 +21,3 @@
 
 #include "CommonMatFunctions.hpp"
 #include "Matrix.hpp"
-
-// Matrix evaluation
-Matrix<Type> &Eval(Matrix<Expression> &Mexp) {
-  // Reset graph/tree
-  Mexp.resetImpl();
-  // Return evaluation value
-  return *(Mexp.eval());
-}
-
-// Matrix-Matrix derivative evaluation
-Matrix<Type> &DevalF(Matrix<Expression> &Mexp, Matrix<Variable> &X) {
-  // Reset graph/tree
-  Mexp.resetImpl();
-  // Return evaluation value
-  return *(Mexp.devalF(X));
-}

@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixKronHandler/ZeroMatKronHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixTransposeHandler/EyeMatTransposeHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,27 +19,20 @@
  * associated repository.
  */
 
-#include "ZeroMatKronHandler.hpp"
+#include "EyeMatTransposeHandler.hpp"
 #include "Matrix.hpp"
-#include "MatrixZeroOps.hpp"
+#include "MatrixEyeOps.hpp"
 
-void ZeroMatKronHandler::handle(const Matrix<Type> *lhs,
-                                const Matrix<Type> *rhs,
-                                Matrix<Type> *&result) {
+void EyeMatTransposeHandler::handle(const Matrix<Type> * mat, Matrix<Type> *& result) {
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
-  if (auto *it = ZeroMatKron(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type> *>(it);
-    return;
-  }
-
-  /* Zero matrix numerical check */
-  else if (auto *it = ZeroMatKronNum(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type> *>(it);
-    return;
+  if(true == IsEyeMatrix(mat)) {
+    // Rows and columns of result matrix
+    const size_t nrows{mat->getNumRows()};
+    const size_t ncols{mat->getNumColumns()};
+    result = CreateMatrixPtr<Type>(ncols, nrows, MatrixSpl::EYE);
   }
 #endif
-
   // Chain of responsibility
-  MatrixHandler::handle(lhs, rhs, result);
+  MatrixHandler::handle(mat, result);
 }

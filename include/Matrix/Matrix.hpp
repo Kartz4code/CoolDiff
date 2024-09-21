@@ -24,14 +24,6 @@
 #include "CommonFunctions.hpp"
 #include "IMatrix.hpp"
 
-// Get value
-template<typename T>
-inline constexpr Type GetValue(T&);
-
-// Get Dvalue
-template<typename T>
-inline constexpr Type GetDValue(T&, const Variable&);
-
 // Factory function for matrix reference creation
 template <typename T, typename... Args> Matrix<T> &CreateMatrix(Args &&...);
 
@@ -68,7 +60,7 @@ private:
           (nullptr != mp_result->mp_mat)) {
         std::transform(EXECUTION_SEQ mp_mat, mp_mat + getNumElem(),
                        mp_result->mp_mat,
-                       [this](auto &v) { return GetValue(v); });
+                       [this](auto &v) { return Eval(v); });
       }
     }
   }
@@ -89,8 +81,8 @@ private:
         const size_t xcols = X.getNumColumns();
 
         // Vector of indices in current matrix
-        auto outer_idx = Range<size_t>(0, getNumElem());
-        auto inner_idx = Range<size_t>(0, xrows * xcols);
+        const auto outer_idx = Range<size_t>(0, getNumElem());
+        const auto inner_idx = Range<size_t>(0, xrows * xcols);
 
         // Logic for Kronecker product (Reverse mode differentiation)
         std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(),
@@ -121,7 +113,7 @@ private:
         const size_t xcols = X.getNumColumns();
 
         // Vector of indices in X matrix
-        auto idx = Range<size_t>(0, X.getNumElem());
+        const  auto idx = Range<size_t>(0, X.getNumElem());
         // Logic for Kronecker product (With ones)
         std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
                       [this, xrows, xcols](const size_t n) {
@@ -139,8 +131,8 @@ private:
         const size_t xcols = X.getNumColumns();
 
         // Vector of indices in current matrix
-        auto outer_idx = Range<size_t>(0, getNumElem());
-        auto inner_idx = Range<size_t>(0, xrows * xcols);
+        const auto outer_idx = Range<size_t>(0, getNumElem());
+        const auto inner_idx = Range<size_t>(0, xrows * xcols);
 
         // Logic for Kronecker product (Forward mode differentiation)
         std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(),
@@ -327,6 +319,104 @@ public:
     return mp_mat[l];
   }
 
+  // Set block matrix
+  Matrix& operator()(const Pair<size_t, size_t>& rows, const Pair<size_t, size_t>& cols, const Matrix& m) {
+    const size_t row_start = rows.first;
+    const size_t row_end = rows.second; 
+    const size_t col_start = cols.first; 
+    const size_t col_end = cols.second; 
+
+    // Assert for row start/end, column start/end and index out of bound checks
+    ASSERT((row_start >= 0 && row_start < m_rows), "Row starting index out of bound");
+    ASSERT((row_end >= 0 && row_end < m_rows), "Row ending index out of bound");
+    ASSERT((col_start >= 0 && col_start < m_cols), "Column starting index out of bound");
+    ASSERT((col_end >= 0 && col_end < m_cols), "Column ending index out of bound");
+    ASSERT((row_start <= row_end), "Row start greater than row ending");
+    ASSERT((col_start <= col_end), "Column start greater than row ending");
+    ASSERT((row_end-row_start+1 == m.getNumRows()), "Row mismatch for insertion matrix");
+    ASSERT((col_end-col_start+1 == m.getNumColumns()), "Column mismatch for insertion matrix");
+
+    // Output matrix
+    const auto outer_idx = Range<size_t>(row_start, row_end+1);
+    const auto inner_idx = Range<size_t>(col_start, col_end+1); 
+    std::for_each(EXECUTION_PAR 
+                  outer_idx.begin(), outer_idx.end(), 
+                  [this,&col_start,&row_start,&inner_idx,&m] (const size_t i) {
+      std::for_each(EXECUTION_PAR 
+                    inner_idx.begin(), inner_idx.end(), 
+                    [i,this,&col_start,&row_start,&inner_idx,&m] (const size_t j) {
+          (*this)(i,j) = m(i-row_start,j-col_start);
+      });
+    });
+
+    return *this;
+  }
+
+  // Get block copy
+  Matrix operator()(const Pair<size_t, size_t>& rows, const Pair<size_t, size_t>& cols) const & {
+    const size_t row_start = rows.first;
+    const size_t row_end = rows.second; 
+    const size_t col_start = cols.first; 
+    const size_t col_end = cols.second; 
+
+    // Assert for row start/end, column start/end and index out of bound checks
+    ASSERT((row_start >= 0 && row_start < m_rows), "Row starting index out of bound");
+    ASSERT((row_end >= 0 && row_end < m_rows), "Row ending index out of bound");
+    ASSERT((col_start >= 0 && col_start < m_cols), "Column starting index out of bound");
+    ASSERT((col_end >= 0 && col_end < m_cols), "Column ending index out of bound");
+    ASSERT((row_start <= row_end), "Row start greater than row ending");
+    ASSERT((col_start <= col_end), "Column start greater than row ending");
+
+    // Output matrix
+    Matrix tmp(row_end - row_start + 1, col_end - col_start + 1);
+    const auto outer_idx = Range<size_t>(row_start, row_end+1);
+    const auto inner_idx = Range<size_t>(col_start, col_end+1); 
+    std::for_each(EXECUTION_PAR 
+                  outer_idx.begin(), outer_idx.end(), 
+                  [this,&col_start,&row_start,&inner_idx,&tmp] (const size_t i) {
+      std::for_each(EXECUTION_PAR 
+                    inner_idx.begin(), inner_idx.end(), 
+                    [i,this,&col_start,&row_start,&inner_idx,&tmp] (const size_t j) {
+          tmp(i-row_start,j-col_start) = (*this)(i,j);
+      });
+    });
+
+    return tmp;
+  }
+
+  // Get block move
+  Matrix  operator()(const Pair<size_t, size_t>& rows, const Pair<size_t, size_t>& cols) && {
+    const size_t row_start = rows.first;
+    const size_t row_end = rows.second; 
+    const size_t col_start = cols.first; 
+    const size_t col_end = cols.second; 
+
+    // Assert for row start/end, column start/end and index out of bound checks
+    ASSERT((row_start >= 0 && row_start < m_rows), "Row starting index out of bound");
+    ASSERT((row_end >= 0 && row_end < m_rows), "Row ending index out of bound");
+    ASSERT((col_start >= 0 && col_start < m_cols), "Column starting index out of bound");
+    ASSERT((col_end >= 0 && col_end < m_cols), "Column ending index out of bound");
+    ASSERT((row_start <= row_end), "Row start greater than row ending");
+    ASSERT((col_start <= col_end), "Column start greater than row ending");
+
+    // Output matrix
+    Matrix tmp(row_end - row_start + 1, col_end - col_start + 1);
+    const auto outer_idx = Range<size_t>(row_start, row_end+1);
+    const auto inner_idx = Range<size_t>(col_start, col_end+1); 
+    std::for_each(EXECUTION_PAR 
+                  outer_idx.begin(), outer_idx.end(), 
+                  [this,&col_start,&row_start,&inner_idx,&tmp] (const size_t i) {
+      std::for_each(EXECUTION_PAR 
+                    inner_idx.begin(), inner_idx.end(), 
+                    [i,this,&col_start,&row_start,&inner_idx,&tmp] (const size_t j) {
+          tmp(i-row_start,j-col_start) = (*this)(i,j);
+      });
+    });
+
+    return std::move(tmp);
+  }
+
+
   // Get a row (Move)
   Matrix getRow(const size_t &i) && {
     ASSERT((i >= 0 && i < m_rows), "Row index out of bound");
@@ -351,7 +441,7 @@ public:
     Matrix tmp(m_rows, 1);
 
     // Iteration elements
-    auto idx = Range<size_t>(0, m_rows);
+    const auto idx = Range<size_t>(0, m_rows);
     // For each execution
     std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
                   [this, &tmp](const size_t n) {
@@ -369,7 +459,7 @@ public:
     Matrix tmp(m_rows, 1);
 
     // Iteration elements
-    auto idx = Range<size_t>(0, m_rows);
+    const auto idx = Range<size_t>(0, m_rows);
     // For each execution
     std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
                   [this, &tmp](const size_t n) {
@@ -573,9 +663,9 @@ public:
 
   // To output stream
   friend std::ostream &operator<<(std::ostream &os, Matrix &mat) {
+    const size_t rows = mat.getFinalNumRows();
+    const size_t cols = mat.getFinalNumColumns();
     if constexpr (true == std::is_same_v<T, Type>) {
-      const size_t rows = mat.getFinalNumRows();
-      const size_t cols = mat.getFinalNumColumns();
       if (mat.getMatType() == MatrixSpl::ZEROS) {
         os << "Zero matrix of dimension: "
            << "(" << rows << "," << cols << ")\n";
@@ -592,9 +682,20 @@ public:
         }
       }
       return os;
-    } else {
-      static_assert(true, "[ERROR] Not a Type type");
+    } 
+    else if constexpr (true == std::is_arithmetic_v<T>) {
+        // Serial print
+        for (size_t i{}; i < rows; ++i) {
+          for (size_t j{}; j < cols; ++j) {
+            os << mat(i, j) << " ";
+          }
+          os << "\n";
+        }
+        return os;
     }
+    else {
+      ASSERT(false, "Matrix not in printable format");
+     } 
   }
 
   // Destructor
@@ -618,45 +719,4 @@ template <typename T, typename... Args>
 Matrix<T> *CreateMatrixPtr(Args &&...args) {
   auto tmp = Allocate<Matrix<T>>(std::forward<Args>(args)...);
   return tmp.get();
-}
-
-// Get value
-template<typename T>
-inline constexpr Type GetValue(T &val) {
-  // If T is of type Type
-  if constexpr (true == std::is_same_v<T, Type>) {
-    return val;
-  }
-  // If T is of type Parameter
-  else if constexpr (true == std::is_same_v<T, Parameter>) {
-    return val.eval();
-  }
-  // If T is of type Variable
-  else if constexpr (true == std::is_same_v<T, Variable>) {
-    val.resetImpl();
-    return val.eval();
-  }
-  // If T is of type Expression
-  else if constexpr (true == std::is_same_v<T, Expression>) {
-    return Eval(val);
-  } else {
-    // If T is unknown, then return typecasted val
-    return (Type)(val);
-  }
-}
-
-// Get derivative value (Forward derivative)
-template<typename T>
-inline constexpr Type GetDValue(T &val, const Variable &var) {
-  // If T is of type Variable
-  if constexpr (true == std::is_same_v<T, Variable>) {
-    val.resetImpl();
-    return val.devalF(var);
-    // If T is of type Expression
-  } else if constexpr (true == std::is_same_v<T, Expression>) {
-    return DevalF(val, var);
-  } else {
-    // If T is unknown, then return typecasted 0
-    return (Type)(0);
-  }
 }

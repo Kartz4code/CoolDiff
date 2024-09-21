@@ -143,6 +143,11 @@ set(SRC
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHadamardHandler/EyeMatHadamardHandler.cpp
     # MatrixHadamard folder
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHadamard/MatHadamardNaiveHandler.cpp
+    # MatrixTransposeHandler folder
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixTransposeHandler/ZeroMatTransposeHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixTransposeHandler/EyeMatTransposeHandler.cpp
+    # MatrixHadamard folder
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixTranspose/MatTransposeNaiveHandler.cpp
     # Memory manager folder
     ${CMAKE_SOURCE_DIR}/src/MemoryManager/MemoryManager.cpp)
 
@@ -166,6 +171,8 @@ set(INCLUDES
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamardHandler 
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTransposeHandler
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixSplOps
     ${CMAKE_SOURCE_DIR}/include/MemoryManager
     ${CMAKE_BINARY_DIR}/_deps/robin-hood-hashing-src/src/include)

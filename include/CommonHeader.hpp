@@ -222,22 +222,29 @@ template <typename T> std::string ToString(const T &value) {
 }
 
 // Null pointer check
-#define NULL_CHECK(PTR, MSG) CheckNullPtr(PTR, MSG)
-// Check boolean
-#define ASSERT(X, MSG) [b = X, msg = MSG]() {\
-  std::ostringstream oss;\
-  if (false == b) {\
+#define NULL_CHECK(PTR, MSG) [ptr = PTR, msg = MSG]() {\
+  if (nullptr == ptr) {\
+    std::ostringstream oss;\
     oss << "[ERROR MSG]: " << msg << "\n"\
-        << "[FILENAME]: " << std::string{__FILE__} << "\n"\
-        << "[LINE NO]: " << std::to_string(__LINE__) << "\n";\
+        << "[FILENAME]: " << __FILE__ << "\n"\
+        << "[LINE NO]: " << __LINE__ << "\n";\
     std::cout << oss.str() << "\n";\
     assert(false);\
   }\
 }();
 
-// Non nullptr correctness (Unary)
-void CheckNullPtr(const void *, std::string_view = "");
-void CheckAssertions(bool, std::string_view = "");
+
+// Check boolean
+#define ASSERT(X, MSG) [x = X, msg = MSG]() {\
+  if (false == x) {\
+    std::ostringstream oss;\
+    oss << "[ERROR MSG]: " << msg << "\n"\
+        << "[FILENAME]: " << __FILE__ << "\n"\
+        << "[LINE NO]: " << __LINE__ << "\n";\
+    std::cout << oss.str() << "\n";\
+    assert(false);\
+  }\
+}();
 
 // Range values from start to end
 template <typename T> class Range {
@@ -246,13 +253,13 @@ private:
 
 public:
   // Range constructor
-  Range(T start, T end) : m_vec(end - start) {
+  constexpr Range(T start, T end) : m_vec(end - start) {
     std::iota(m_vec.begin(), m_vec.end(), start);
   }
 
-  typename Vector<T>::const_iterator begin() const { return m_vec.cbegin(); }
+  constexpr typename Vector<T>::const_iterator begin() const { return m_vec.cbegin(); }
 
-  typename Vector<T>::const_iterator end() const { return m_vec.cend(); }
+  constexpr typename Vector<T>::const_iterator end() const { return m_vec.cend(); }
 
   ~Range() = default;
 };
