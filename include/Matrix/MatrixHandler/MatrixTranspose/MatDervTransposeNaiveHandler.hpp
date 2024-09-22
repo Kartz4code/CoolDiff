@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixHandler.hpp
+ * @file src/Matrix/MatrixHandler/MatTranspose/MatDervTransposeNaiveHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -21,25 +21,14 @@
 
 #pragma once
 
-#include "CommonHeader.hpp"
+#include "MatrixHandler.hpp"
 
-// Matrix handler for different types
-class MatrixHandler {
-private:
-  MatrixHandler *mp_handler{nullptr};
-
+class MatDervTransposeNaiveHandler : public MatrixHandler {
 public:
-  // Constructor
-  constexpr MatrixHandler(MatrixHandler *h = nullptr) : mp_handler{h} {}
+  using MatrixHandler::MatrixHandler;
 
-  V_UNPURE(void handle(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&));
-
-  V_UNPURE(void handle(Type, const Matrix<Type> *, Matrix<Type> *&));
-
-  V_UNPURE(void handle(const Matrix<Type> *, Matrix<Type> *&));
-
-  V_UNPURE(void handle(const size_t, const size_t, const size_t, const size_t, const Matrix<Type>*, Matrix<Type>*&));
+  V_OVERRIDE(void handle(const size_t, const size_t, const size_t, const size_t, const Matrix<Type>*, Matrix<Type>*&));
 
   // Destructor
-  V_DTR(~MatrixHandler() = default);
+  V_DTR(~MatDervTransposeNaiveHandler() = default);
 };
