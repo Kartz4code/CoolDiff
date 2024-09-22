@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixTransposeHandler/EyeMatTransposeHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixTransposeHandler/EyeMatDervTransposeHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,30 +19,32 @@
  * associated repository.
  */
 
-#include "EyeMatTransposeHandler.hpp"
+#include "EyeMatDervTransposeHandler.hpp"
 #include "Matrix.hpp"
 #include "MatrixEyeOps.hpp"
 
-void EyeMatTransposeHandler::handle(const Matrix<Type> * mat, Matrix<Type> *& result) {
+void EyeMatDervTransposeHandler::handle(const size_t nrows_f, const size_t ncols_f, 
+                                         const size_t nrows_x, const size_t ncols_x, 
+                                         const Matrix<Type> * mat, Matrix<Type>*& result) {
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
   if(true == IsEyeMatrix(mat)) {
-    // Rows and columns of result matrix
-    const size_t nrows{mat->getNumRows()};
-    const size_t ncols{mat->getNumColumns()};
+    // Result matrix dimensions
+    const size_t nrows = ncols_f*nrows_x;
+    const size_t ncols = nrows_f*ncols_x;
 
-    // Result matrix is transposed identity matrix   
+    // Result transposed derivative matrix   
     if (nullptr == result) {
-      result = CreateMatrixPtr<Type>(ncols, nrows, MatrixSpl::EYE);
-      return;
-    } else if ((ncols != result->getNumRows()) ||
-               (nrows != result->getNumColumns())) {  
-      result = CreateMatrixPtr<Type>(ncols, nrows, MatrixSpl::EYE);
-      return;
+        result = CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::EYE);
+        return;
+    } else if ((nrows != result->getNumRows()) ||
+               (ncols != result->getNumColumns())) {          
+        result = CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::EYE);
+        return;
     }
     return;
   }
 #endif
   // Chain of responsibility
-  MatrixHandler::handle(mat, result);
+  MatrixHandler::handle(nrows_f, ncols_f, nrows_x, ncols_x, mat, result);
 }

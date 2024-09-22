@@ -146,8 +146,11 @@ set(SRC
     # MatrixTransposeHandler folder
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixTransposeHandler/ZeroMatTransposeHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixTransposeHandler/EyeMatTransposeHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixTransposeHandler/ZeroMatDervTransposeHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixTransposeHandler/EyeMatDervTransposeHandler.cpp
     # MatrixHadamard folder
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixTranspose/MatTransposeNaiveHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixTranspose/MatDervTransposeNaiveHandler.cpp
     # Memory manager folder
     ${CMAKE_SOURCE_DIR}/src/MemoryManager/MemoryManager.cpp)
 

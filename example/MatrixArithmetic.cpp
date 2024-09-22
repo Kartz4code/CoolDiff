@@ -33,8 +33,7 @@ void func11() {
   A(1,0) = 2; A(1,1) = 1;
   A(2,0) = 37; A(2,1) = 43;
 
-  Matrix<Expression> Y = transpose(A*X);
-  Y = Y*(A*X);
+  Matrix<Expression> Y = transpose(X)*transpose(A)*A*X;
 
   std::cout << Eval(Y) << "\n";
   std::cout << DevalF(Y,X) << "\n";
