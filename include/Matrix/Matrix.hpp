@@ -37,8 +37,10 @@ private:
   friend SharedPtr<Z> Allocate(Argz&&...);
 
   // Special matrix constructor
-  constexpr Matrix(size_t rows, size_t cols, MatrixSpl type)
-      : m_rows{rows}, m_cols{cols}, m_type{type} {}
+  constexpr Matrix(size_t rows, size_t cols, MatrixSpl type) : m_rows{rows}, 
+                                                               m_cols{cols}, 
+                                                               m_type{type} 
+  {}
 
 private:
   // Matrix row and column size
@@ -113,7 +115,7 @@ private:
         const size_t xcols = X.getNumColumns();
 
         // Vector of indices in X matrix
-        const  auto idx = Range<size_t>(0, X.getNumElem());
+        const auto idx = Range<size_t>(0, X.getNumElem());
         // Logic for Kronecker product (With ones)
         std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
                       [this, xrows, xcols](const size_t n) {
@@ -124,7 +126,8 @@ private:
                       });
       }
       // If the Matrix is Variable, but of different form
-      else if ((nullptr != mp_mat) && (nullptr != mp_dresult) &&
+      else if ((nullptr != mp_mat) && 
+               (nullptr != mp_dresult) &&
                (nullptr != mp_dresult->mp_mat)) {
         // Get dimensions of X variable matrix
         const size_t xrows = X.getNumRows();
@@ -167,18 +170,32 @@ public:
   bool m_eval{false}, m_devalf{false};
   // Block index
   size_t m_nidx{};
+  // Cache for reverse AD
+  OMMatPair m_cache{};
 
   // Default constructor
-  constexpr Matrix()
-      : m_rows{0}, m_cols{0}, m_type{(size_t)(-1)}, mp_mat{new T[1]{}},
-        mp_result{nullptr}, mp_dresult{nullptr}, m_eval{false}, m_devalf{false},
-        m_nidx{this->m_idx_count++} {}
+  constexpr Matrix() : m_rows{0}, 
+                       m_cols{0}, 
+                       m_type{(size_t)(-1)}, 
+                       mp_mat{new T[1]{}},
+                       mp_result{nullptr}, 
+                       mp_dresult{nullptr}, 
+                       m_eval{false}, 
+                       m_devalf{false},
+                       m_nidx{this->m_idx_count++} 
+  {}
 
   // Initalize the matrix with rows and columns
-  constexpr Matrix(size_t rows, size_t cols)
-      : m_rows{rows}, m_cols{cols}, m_type{(size_t)(-1)},
-        mp_mat{new T[getNumElem()]{}}, mp_result{nullptr}, mp_dresult{nullptr},
-        m_eval{false}, m_devalf{false}, m_nidx{this->m_idx_count++} {}
+  constexpr Matrix(size_t rows, size_t cols) : m_rows{rows}, 
+                                               m_cols{cols}, 
+                                               m_type{(size_t)(-1)},
+                                               mp_mat{new T[getNumElem()]{}}, 
+                                               mp_result{nullptr}, 
+                                               mp_dresult{nullptr},
+                                               m_eval{false}, 
+                                               m_devalf{false}, 
+                                               m_nidx{this->m_idx_count++} 
+  {}
 
   // Initalize the matrix with rows and columns with initial values
   constexpr Matrix(size_t rows, size_t cols, const T& val) : Matrix(rows, cols) {
@@ -187,10 +204,14 @@ public:
 
   // Matrix expressions constructor
   template <typename Z>
-  constexpr Matrix(const IMatrix<Z> &expr)
-      : m_rows{expr.getNumRows()}, m_cols{expr.getNumColumns()},
-        m_type{(size_t)(-1)}, mp_result{nullptr}, mp_dresult{nullptr},
-        m_eval{false}, m_devalf{false}, m_nidx{this->m_idx_count++} {
+  constexpr Matrix(const IMatrix<Z> &expr) : m_rows{expr.getNumRows()}, 
+                                             m_cols{expr.getNumColumns()},
+                                             m_type{(size_t)(-1)}, 
+                                             mp_result{nullptr}, 
+                                             mp_dresult{nullptr},
+                                             m_eval{false}, 
+                                             m_devalf{false}, 
+                                             m_nidx{static_cast<const Z &>(expr).m_nidx} {
     // Reserve a buffer of Matrix expressions
     m_gh_vec.reserve(g_vec_init);
     // Emplace the expression in a generic holder
@@ -209,17 +230,17 @@ public:
   }
 
   // Move constructor
-  constexpr Matrix(Matrix &&m) noexcept
-      : m_rows{std::exchange(m.m_rows, -1)}, m_cols{std::exchange(m.m_cols,
-                                                                  -1)},
-        m_type{std::exchange(m.m_type, -1)}, mp_mat{std::exchange(m.mp_mat,
-                                                                  nullptr)},
-        mp_result{std::exchange(m.mp_result, nullptr)},
-        mp_dresult{std::exchange(m.mp_dresult, nullptr)},
-        m_eval{std::exchange(m.m_eval, false)}, m_devalf{std::exchange(
-                                                    m.m_devalf, false)},
-        m_gh_vec{std::exchange(m.m_gh_vec, {})}, m_nidx{std::exchange(m.m_nidx,
-                                                                      -1)}
+  constexpr Matrix(Matrix &&m) noexcept : m_rows{std::exchange(m.m_rows, -1)}, 
+                                          m_cols{std::exchange(m.m_cols, -1)},
+                                          m_type{std::exchange(m.m_type, -1)}, 
+                                          mp_mat{std::exchange(m.mp_mat, nullptr)},
+                                          mp_result{std::exchange(m.mp_result, nullptr)},
+                                          mp_dresult{std::exchange(m.mp_dresult, nullptr)},
+                                          m_eval{std::exchange(m.m_eval, false)}, 
+                                          m_devalf{std::exchange(m.m_devalf, false)},
+                                          m_cache{std::move(m.m_cache)},
+                                          m_gh_vec{std::exchange(m.m_gh_vec, {})}, 
+                                          m_nidx{std::exchange(m.m_nidx, -1)}
 
   {}
 
@@ -238,6 +259,7 @@ public:
     mp_dresult = std::exchange(m.mp_dresult, nullptr);
     m_eval = std::exchange(m.m_eval, false);
     m_devalf = std::exchange(m.m_devalf, false);
+    m_cache = std::move(m.m_cache);
     m_nidx = std::exchange(m.m_nidx, -1);
     m_gh_vec = std::exchange(m.m_gh_vec, {});
 
@@ -246,10 +268,15 @@ public:
   }
 
   // Copy constructor
-  constexpr Matrix(const Matrix &m)
-      : m_rows{m.m_rows}, m_cols{m.m_cols}, m_type{m.m_type},
-        mp_mat{new T[getNumElem()]{}}, m_eval{m.m_eval}, m_devalf{m.m_devalf},
-        m_nidx{m.m_nidx}, m_gh_vec{m.m_gh_vec} {
+  constexpr Matrix(const Matrix &m) : m_rows{m.m_rows}, 
+                                      m_cols{m.m_cols}, 
+                                      m_type{m.m_type},
+                                      mp_mat{new T[getNumElem()]{}}, 
+                                      m_eval{m.m_eval}, 
+                                      m_devalf{m.m_devalf},
+                                      m_cache{m.m_cache},
+                                      m_nidx{m.m_nidx}, 
+                                      m_gh_vec{m.m_gh_vec} {
     // Copy values
     std::copy(EXECUTION_PAR m.mp_mat, m.mp_mat + getNumElem(), mp_mat);
   }
@@ -265,6 +292,7 @@ public:
       m_gh_vec = m.m_gh_vec;
       m_eval = m.m_eval;
       m_devalf = m.m_devalf;
+      m_cache = m.m_cache;
 
       // Copy mp_mat
       if (nullptr != mp_mat) {
@@ -288,10 +316,14 @@ public:
   }
   
   // Get matrix pointer const
-  const T *getMatrixPtr() const { return mp_mat; }
+  const T *getMatrixPtr() const { 
+    return mp_mat; 
+  }
 
   // Get matrix pointer
-  T *getMatrixPtr() { return mp_mat; }
+  T *getMatrixPtr() { 
+    return mp_mat; 
+  }
 
   // Matrix 2D access using operator()()
   T &operator()(const size_t i, const size_t j) {
@@ -619,7 +651,7 @@ public:
     // Return derivative result
     return mp_dresult;
   }
-
+  
   // Reset all visited flags
   V_OVERRIDE(void reset()) {
     if (true == this->m_visited) {
@@ -638,6 +670,11 @@ public:
     }
     // Reset flag
     this->m_visited = false;
+
+    // Empty cache
+    if (false == m_cache.empty()) {
+      m_cache.clear();
+    }
   }
 
   // Reset impl
@@ -719,4 +756,34 @@ template <typename T, typename... Args>
 Matrix<T> *CreateMatrixPtr(Args &&...args) {
   auto tmp = Allocate<Matrix<T>>(std::forward<Args>(args)...);
   return tmp.get();
+}
+
+inline static Matrix<Type>* DervMatrix(const size_t xrows, const size_t xcols) {
+    const size_t drows = xrows*xrows;
+    const size_t dcols = xcols*xcols;
+    Matrix<Type>* dresult = CreateMatrixPtr<Type>(drows, dcols);
+
+    // Vector of indices in X matrix
+    const auto idx = Range<size_t>(0, xrows*xcols);
+    // Logic for Kronecker product (With ones)
+    std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
+                  [&](const size_t n) {
+                    const size_t j = n % xcols;
+                    const size_t i = (n - j) / xcols;
+                    // Inner loop
+                    (*dresult)(i * xrows + i, j * xcols + j) = (Type)(1);
+                  });
+            
+    return dresult;
+}
+
+inline static void CreateMatrixResource(const size_t rows, const size_t cols, Matrix<Type>*& result, Type val = (Type)0) {
+  if (nullptr == result) {
+    result = CreateMatrixPtr<Type>(rows, cols, val);
+  } else if ((rows != result->getNumRows()) ||
+             (cols != result->getNumColumns())) {
+    result = CreateMatrixPtr<Type>(rows, cols, val);
+  } else if (-1 != result->getMatType()) {
+    result = CreateMatrixPtr<Type>(rows, cols, val);
+  }
 }

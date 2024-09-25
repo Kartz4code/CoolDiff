@@ -23,13 +23,15 @@
 #include "Matrix.hpp"
 
 void MatTransposeNaiveHandler::handle(const Matrix<Type> * mat, Matrix<Type> *& result) {
-  const size_t nrows = mat->getNumRows();
-  const size_t ncols = mat->getNumColumns();
+  const size_t nrows{mat->getNumRows()};
+  const size_t ncols{mat->getNumColumns()};
   
   if (nullptr == result) {
     result = CreateMatrixPtr<Type>(ncols, nrows);
   } else if ((ncols != result->getNumRows()) ||
              (nrows != result->getNumColumns())) {
+    result = CreateMatrixPtr<Type>(ncols, nrows);
+  } else if(-1 != result->getMatType()) {
     result = CreateMatrixPtr<Type>(ncols, nrows);
   }
 

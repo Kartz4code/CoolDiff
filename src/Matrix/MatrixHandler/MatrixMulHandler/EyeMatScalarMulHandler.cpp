@@ -31,12 +31,8 @@ void MulEye(Type val, const Matrix<Type> * it, Matrix<Type> *&result) {
   */
   const size_t nrows{it->getNumRows()};
   const size_t ncols{it->getNumColumns()};
-  if (nullptr == result) {
-    result = CreateMatrixPtr<Type>(nrows, ncols);
-  } else if ((nrows != result->getNumRows()) ||
-             (ncols != result->getNumColumns())) {
-    result = CreateMatrixPtr<Type>(nrows, ncols);
-  }
+  
+  CreateMatrixResource(nrows, ncols, result);
 
   // Diagonal indices (Modification)
   const auto diag_idx = Range<size_t>(0, nrows);

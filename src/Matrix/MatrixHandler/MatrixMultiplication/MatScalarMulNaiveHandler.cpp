@@ -26,15 +26,10 @@ void MatScalarMulNaiveHandler::handle(Type lhs, const Matrix<Type> *rhs, Matrix<
   /* Matrix-Scalar numerical multiplication */
   // Rows and columns of result matrix and if result is nullptr, then create a
   // new resource
-  const size_t nrows = rhs->getNumRows();
-  const size_t ncols = rhs->getNumColumns();
-  
-  if (nullptr == result) {
-    result = CreateMatrixPtr<Type>(nrows, ncols);
-  } else if ((nrows != result->getNumRows()) ||
-             (ncols != result->getNumColumns())) {
-    result = CreateMatrixPtr<Type>(nrows, ncols);
-  }
+  const size_t nrows{rhs->getNumRows()};
+  const size_t ncols{rhs->getNumColumns()};
+
+  CreateMatrixResource(nrows, ncols, result);
 
   // Get raw pointers to result, left and right matrices
   const Type *res = result->getMatrixPtr();

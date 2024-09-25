@@ -60,6 +60,8 @@ private:
 public:
   // Block index
   const size_t m_nidx{};
+  // Cache for reverse AD 1st
+  OMMatPair m_cache{};
 
   // Constructor
   constexpr GenericMatSum(T1 *u, T2 *v, Callables &&...call) : mp_left{u}, 

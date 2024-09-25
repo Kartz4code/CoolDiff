@@ -26,13 +26,15 @@ void MatDervTransposeNaiveHandler::handle(const size_t nrows_f, const size_t nco
                                          const size_t nrows_x, const size_t ncols_x, 
                                          const Matrix<Type> * mat, Matrix<Type>*& result) {
   // Result matrix dimensions
-  const size_t nrows = ncols_f*nrows_x;
-  const size_t ncols = nrows_f*ncols_x;
+  const size_t nrows{ncols_f*nrows_x};
+  const size_t ncols{nrows_f*ncols_x};
 
   if (nullptr == result) {
       result = CreateMatrixPtr<Type>(nrows, ncols);
   } else if ((ncols != result->getNumRows()) ||
              (nrows != result->getNumColumns())) {
+      result = CreateMatrixPtr<Type>(nrows, ncols);
+  } else if(-1 != result->getMatType()) {
       result = CreateMatrixPtr<Type>(nrows, ncols);
   }
 

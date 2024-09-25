@@ -30,18 +30,13 @@ void MatSubNaiveHandler::handle(const Matrix<Type> *lhs,
   // new resource
   const size_t nrows{lhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
-  const size_t lcols = lhs->getNumColumns();
-  const size_t rrows = rhs->getNumRows();
+  const size_t lcols{lhs->getNumColumns()};
+  const size_t rrows{rhs->getNumRows()};
 
   // Assert dimensions
   ASSERT((nrows == rrows) && (ncols == lcols), "Matrix subtraction dimensions mismatch");
-
-  if (nullptr == result) {
-    result = CreateMatrixPtr<Type>(nrows, ncols);
-  } else if ((nrows != result->getNumRows()) ||
-             (ncols != result->getNumColumns())) {
-    result = CreateMatrixPtr<Type>(nrows, ncols);
-  }
+  
+  CreateMatrixResource(nrows, ncols, result);
 
   // Get raw pointers to result, left and right matrices
   const Type *res = result->getMatrixPtr();

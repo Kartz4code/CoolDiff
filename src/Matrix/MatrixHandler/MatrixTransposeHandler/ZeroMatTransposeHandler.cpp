@@ -39,6 +39,9 @@ void ZeroMatTransposeHandler::handle(const Matrix<Type> * mat, Matrix<Type> *& r
                (nrows != result->getNumColumns())) {  
       result = CreateMatrixPtr<Type>(ncols, nrows, MatrixSpl::ZEROS);
       return;
+    } else if(-1 != result->getMatType()) {
+      result = CreateMatrixPtr<Type>(ncols, nrows, MatrixSpl::ZEROS);
+      return;
     }
     return;
   }

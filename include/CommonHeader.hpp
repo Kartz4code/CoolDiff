@@ -168,24 +168,26 @@ class Expression;
 // Predeclare Matrix class
 template <typename> class Matrix;
 
+// Pair type
+template <typename T, typename U> using Pair = std::pair<T, U>;
+
 // Ordered map between size_t and Type
 #if defined(USE_ROBIN_HOOD_MAP)
 #include <robin_hood.h>
 using OMPair = robin_hood::unordered_flat_map<size_t, Type>;
-using OMMatPair = robin_hood::unordered_flat_map<size_t, Matrix<Type> *>;
+using OMMatPair = robin_hood::unordered_flat_map<Pair<size_t,size_t>, Matrix<Type> *>;
 // A generic unorderedmap
 template <typename T, typename U>
 using UnOrderedMap = robin_hood::unordered_flat_map<T, U>;
 #else
 #include <unordered_map>
 using OMPair = std::unordered_map<size_t, Type>;
-using OMMatPair = std::unordered_map<size_t, Matrix<Type> *>;
+using OMMatPair = std::unordered_map<Pair<size_t,size_t>, Matrix<Type> *>;
 // A generic unorderedmap
 template <typename T, typename U> using UnOrderedMap = std::unordered_map<T, U>;
 #endif
 
-// Pair type
-template <typename T, typename U> using Pair = std::pair<T, U>;
+
 
 // A generic vector type
 template <typename T> using Vector = std::vector<T>;
