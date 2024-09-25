@@ -62,5 +62,4 @@ const Matrix<Type> *EyeMatScalarMulNum(Type, const Matrix<Type> *);
 // Eye matrix Kronocker product numerics
 const Matrix<Type> *EyeMatKronNum(const Matrix<Type> *, const Matrix<Type> *);
 // Eye matrix Hadamard product numerics
-const Matrix<Type> *EyeMatHadamardNum(const Matrix<Type> *,
-                                      const Matrix<Type> *);
+const Matrix<Type> *EyeMatHadamardNum(const Matrix<Type> *, const Matrix<Type> *);
