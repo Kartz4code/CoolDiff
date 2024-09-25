@@ -30,6 +30,12 @@ template <typename T, typename... Args> Matrix<T> &CreateMatrix(Args &&...);
 // Factory function for matrix pointer creation
 template <typename T, typename... Args> Matrix<T> *CreateMatrixPtr(Args &&...);
 
+// Matrix resource allocation
+void CreateMatrixResource(const size_t, const size_t, Matrix<Type>*&, Type = (Type)0);
+
+// Derivative of matrices (Reverse AD)
+Matrix<Type>* DervMatrix(const size_t, const size_t, const size_t, const size_t);
+
 // Matrix class
 template <typename T> class Matrix : public IMatrix<Matrix<T>> {
 private:
@@ -60,7 +66,8 @@ private:
       if ((nullptr != mp_mat) && 
           (nullptr != mp_result) &&
           (nullptr != mp_result->mp_mat)) {
-        std::transform(EXECUTION_SEQ mp_mat, mp_mat + getNumElem(),
+        std::transform(EXECUTION_SEQ 
+                       mp_mat, mp_mat + getNumElem(),
                        mp_result->mp_mat,
                        [this](auto &v) { return Eval(v); });
       }
@@ -109,6 +116,7 @@ private:
       if ((nullptr != mp_mat) && 
           (nullptr != mp_dresult) &&
           (nullptr != mp_dresult->mp_mat) && 
+          // Important condition to delineate Matrix<Variable>
           (m_nidx == X.m_nidx)) {
         // Get dimensions of X variable matrix
         const size_t xrows = X.getNumRows();
@@ -150,9 +158,7 @@ private:
                               const size_t j = n % xcols;
                               const size_t i = (n - j) / xcols;
                               (*mp_dresult)(l * xrows + i, k * xcols + j) =
-                                  (((*this)(l, k).m_nidx == X(i, j).m_nidx)
-                                       ? (Type)(1)
-                                       : (Type)(0));
+                                  (((*this)(l, k).m_nidx == X(i, j).m_nidx) ? (Type)(1) : (Type)(0));
                             });
                       });
       }
@@ -504,13 +510,19 @@ public:
   }
 
   // Get number of rows
-  V_OVERRIDE(size_t getNumRows() const) { return m_rows; }
+  V_OVERRIDE(size_t getNumRows() const) { 
+    return m_rows; 
+  }
 
   // Get number of columns
-  V_OVERRIDE(size_t getNumColumns() const) { return m_cols; }
+  V_OVERRIDE(size_t getNumColumns() const) { 
+    return m_cols; 
+  }
 
   // Get total elements
-  size_t getNumElem() const { return (m_rows * m_cols); }
+  size_t getNumElem() const { 
+    return (m_rows * m_cols); 
+  }
 
   // Get final number of rows (Expression)
   size_t getFinalNumRows() const {
@@ -696,7 +708,9 @@ public:
   }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { return "Matrix"; }
+  V_OVERRIDE(std::string_view getType() const) { 
+    return "Matrix"; 
+  }
 
   // To output stream
   friend std::ostream &operator<<(std::ostream &os, Matrix &mat) {
@@ -758,32 +772,3 @@ Matrix<T> *CreateMatrixPtr(Args &&...args) {
   return tmp.get();
 }
 
-inline static Matrix<Type>* DervMatrix(const size_t xrows, const size_t xcols) {
-    const size_t drows = xrows*xrows;
-    const size_t dcols = xcols*xcols;
-    Matrix<Type>* dresult = CreateMatrixPtr<Type>(drows, dcols);
-
-    // Vector of indices in X matrix
-    const auto idx = Range<size_t>(0, xrows*xcols);
-    // Logic for Kronecker product (With ones)
-    std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
-                  [&](const size_t n) {
-                    const size_t j = n % xcols;
-                    const size_t i = (n - j) / xcols;
-                    // Inner loop
-                    (*dresult)(i * xrows + i, j * xcols + j) = (Type)(1);
-                  });
-            
-    return dresult;
-}
-
-inline static void CreateMatrixResource(const size_t rows, const size_t cols, Matrix<Type>*& result, Type val = (Type)0) {
-  if (nullptr == result) {
-    result = CreateMatrixPtr<Type>(rows, cols, val);
-  } else if ((rows != result->getNumRows()) ||
-             (cols != result->getNumColumns())) {
-    result = CreateMatrixPtr<Type>(rows, cols, val);
-  } else if (-1 != result->getMatType()) {
-    result = CreateMatrixPtr<Type>(rows, cols, val);
-  }
-}
