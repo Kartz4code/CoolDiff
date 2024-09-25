@@ -33,7 +33,22 @@ void func11() {
   A(1,0) = 2; A(1,1) = 1;
   A(2,0) = 37; A(2,1) = 43;
 
-  Matrix<Expression> Y = transpose(X)*transpose(A)*A*X;
+  Matrix<Expression> Y = sigma(transpose(X)*transpose(A));
+  Y = Y*sigma(A*X);
+
+  Matrix<Type> A1(2, 3);
+  A1(0, 0) = 1; A1(0, 1) = 2; A1(0, 2) = 3;
+  A1(1, 0) = 4; A1(1, 1) = 5; A1(1, 2) = 6;
+
+  Matrix<Variable> X2(2,3);
+  X2(0, 0) = 1; X2(0, 1) = 2; X2(0, 2) = 3;
+  X2(1, 0) = 4; X2(1, 1) = 5; X2(1, 2) = 6;
+
+  Matrix<Expression> Y2 = X + X2 + X + X;
+  Y2 = X + Y2 + X + X2;
+
+  std::cout << DevalF(Y2,X) << "\n";
+  std::cout << DevalF(Y2,X2) << "\n";
 
   std::cout << Eval(Y) << "\n";
   std::cout << DevalF(Y,X) << "\n";

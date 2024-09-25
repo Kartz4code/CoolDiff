@@ -30,8 +30,8 @@ void EyeMatDervTransposeHandler::handle(const size_t nrows_f, const size_t ncols
   /* Zero matrix special check */
   if(true == IsEyeMatrix(mat)) {
     // Result matrix dimensions
-    const size_t nrows = ncols_f*nrows_x;
-    const size_t ncols = nrows_f*ncols_x;
+    const size_t nrows{ncols_f*nrows_x};
+    const size_t ncols{nrows_f*ncols_x};
 
     // Result transposed derivative matrix   
     if (nullptr == result) {
@@ -41,6 +41,9 @@ void EyeMatDervTransposeHandler::handle(const size_t nrows_f, const size_t ncols
                (ncols != result->getNumColumns())) {          
         result = CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::EYE);
         return;
+    } else if(-1 != result->getMatType()) {
+      result = CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::EYE);
+      return;
     }
     return;
   }

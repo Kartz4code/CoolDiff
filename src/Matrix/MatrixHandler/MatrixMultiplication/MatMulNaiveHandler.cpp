@@ -26,20 +26,15 @@ void MatMulNaiveHandler::handle(const Matrix<Type> *lhs,
                                 const Matrix<Type> *rhs,
                                 Matrix<Type> *&result) {
   // If result is nullptr, then create a new resource
-  const size_t lrows = lhs->getNumRows();
-  const size_t lcols = lhs->getNumColumns();
-  const size_t rcols = rhs->getNumColumns();
-  const size_t rrows = rhs->getNumRows();
+  const size_t lrows{lhs->getNumRows()};
+  const size_t lcols{lhs->getNumColumns()};
+  const size_t rcols{rhs->getNumColumns()};
+  const size_t rrows{rhs->getNumRows()};
 
   // Assert dimensions
   ASSERT(lcols == rrows, "Matrix multiplication dimensions mismatch");
 
-  if (nullptr == result) {
-    result = CreateMatrixPtr<Type>(lrows, rcols);
-  } else if ((lrows != result->getNumRows()) ||
-             (rcols != result->getNumColumns())) {
-    result = CreateMatrixPtr<Type>(lrows, rcols);
-  }
+  CreateMatrixResource(lrows, rcols, result);
 
   // Indices for outer loop and inner loop
   const auto outer_idx = Range<size_t>(0, lrows * rcols);

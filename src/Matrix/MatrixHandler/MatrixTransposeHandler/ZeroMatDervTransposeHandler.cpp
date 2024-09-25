@@ -30,8 +30,8 @@ void ZeroMatDervTransposeHandler::handle(const size_t nrows_f, const size_t ncol
   /* Zero matrix special check */
   if(true == IsZeroMatrix(mat)) {
     // Result matrix dimensions
-    const size_t nrows = ncols_f*nrows_x;
-    const size_t ncols = nrows_f*ncols_x;
+    const size_t nrows{ncols_f*nrows_x};
+    const size_t ncols{nrows_f*ncols_x};
 
     // Result transposed derivative matrix   
     if (nullptr == result) {
@@ -39,6 +39,9 @@ void ZeroMatDervTransposeHandler::handle(const size_t nrows_f, const size_t ncol
         return;
     } else if ((nrows != result->getNumRows()) ||
                (ncols != result->getNumColumns())) {          
+        result = CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS);
+        return;
+    } else if(-1 != result->getMatType()) {
         result = CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS);
         return;
     }

@@ -29,16 +29,12 @@ void KronEyeLHS(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
   /* Matrix-Matrix numerical Kronocker product */
   // Rows and columns of result matrix and if result is nullptr, then create a
   // new resource
-  const size_t lr = lhs->getNumRows();
-  const size_t lc = lhs->getNumColumns();
-  const size_t rr = rhs->getNumRows();
-  const size_t rc = rhs->getNumColumns();
-  if (nullptr == result) {
-    result = CreateMatrixPtr<Type>((lr * rr), (lc * rc));
-  } else if (((lr * rr) != result->getNumRows()) ||
-             ((lc * rc) != result->getNumColumns())) {
-    result = CreateMatrixPtr<Type>((lr * rr), (lc * rc));
-  }
+  const size_t lr{lhs->getNumRows()};
+  const size_t lc{lhs->getNumColumns()};
+  const size_t rr{rhs->getNumRows()};
+  const size_t rc{rhs->getNumColumns()};
+
+  CreateMatrixResource((lr*rr), (lc*rc), result);
 
   const auto lhs_idx = Range<size_t>(0, lr * lc);
   const auto rhs_idx = Range<size_t>(0, rr * rc);
@@ -69,16 +65,12 @@ void KronEyeRHS(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
   /* Matrix-Matrix numerical Kronocker product */
   // Rows and columns of result matrix and if result is nullptr, then create a
   // new resource
-  const size_t lr = lhs->getNumRows();
-  const size_t lc = lhs->getNumColumns();
-  const size_t rr = rhs->getNumRows();
-  const size_t rc = rhs->getNumColumns();
-  if (nullptr == result) {
-    result = CreateMatrixPtr<Type>((lr * rr), (lc * rc));
-  } else if (((lr * rr) != result->getNumRows()) ||
-             ((lc * rc) != result->getNumColumns())) {
-    result = CreateMatrixPtr<Type>((lr * rr), (lc * rc));
-  }
+  const size_t lr{lhs->getNumRows()};
+  const size_t lc{lhs->getNumColumns()};
+  const size_t rr{rhs->getNumRows()};
+  const size_t rc{rhs->getNumColumns()};
+
+  CreateMatrixResource((lr*rr), (lc*rc), result);
 
   const auto lhs_idx = Range<size_t>(0, lr * lc);
   const auto rhs_idx = Range<size_t>(0, rr * rc);
