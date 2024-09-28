@@ -42,6 +42,8 @@ private:
   template <typename Z, typename... Argz> 
   friend SharedPtr<Z> Allocate(Argz&&...);
 
+  friend void CreateMatrixResource(const size_t, const size_t, Matrix<Type>*&, Type);
+
   // Special matrix constructor
   constexpr Matrix(size_t rows, size_t cols, MatrixSpl type) : m_rows{rows}, 
                                                                m_cols{cols}, 
@@ -58,6 +60,15 @@ private:
 
   // Collection of meta variable expressions
   Vector<MetaMatrix *> m_gh_vec{};
+
+  // Free matrix resource
+  bool m_free{false};
+
+  // Matrix pointer for evaluation result (Type)
+  Matrix<Type> *mp_result{nullptr};
+  // Matrix pointer for forward derivative (Type)
+  Matrix<Type> *mp_dresult{nullptr};
+
 
   // Set values for the result matrix
   inline void setEval() {
@@ -168,10 +179,7 @@ private:
 public:
   // Matrix raw pointer of underlying type (Expression, Variable, Parameter, Type)
   T *mp_mat{nullptr};
-  // Matrix pointer for evaluation result (Type)
-  Matrix<Type> *mp_result{nullptr};
-  // Matrix pointer for forward derivative (Type)
-  Matrix<Type> *mp_dresult{nullptr};
+
   // Boolean to verify evaluation/forward derivative values
   bool m_eval{false}, m_devalf{false};
   // Block index
@@ -217,7 +225,7 @@ public:
                                              mp_dresult{nullptr},
                                              m_eval{false}, 
                                              m_devalf{false}, 
-                                             m_nidx{static_cast<const Z &>(expr).m_nidx} {
+                                             m_nidx{this->m_idx_count++ } {
     // Reserve a buffer of Matrix expressions
     m_gh_vec.reserve(g_vec_init);
     // Emplace the expression in a generic holder
@@ -584,14 +592,12 @@ public:
   // Evaluate matrix
   V_OVERRIDE(Matrix<Type> *eval()) {
     // Cache the mp_result value
-    if (nullptr == mp_result) {
-      if constexpr (false == std::is_same_v<T, Type>) {
-        if(nullptr != mp_mat) {
-          mp_result = CreateMatrixPtr<Type>(m_rows, m_cols);
-        }
-      } else {
-        mp_result = this;
+    if constexpr (false == std::is_same_v<T, Type>) {
+      if(nullptr != mp_mat) {
+        CreateMatrixResource(m_rows, m_cols, mp_result);
       }
+    } else {
+      mp_result = this;
     }
 
     // If value not evaluated, compute it again
@@ -621,20 +627,18 @@ public:
   // Derivative matrix
   V_OVERRIDE(Matrix<Type> *devalF(Matrix<Variable> &X)) {
     // Derivative result computation
-    if (nullptr == mp_dresult) {
-      const size_t xrows = X.getNumRows();
-      const size_t xcols = X.getNumColumns();
-      if constexpr (true == std::is_same_v<T, Type> ||
-                    true == std::is_same_v<T, Parameter>) {
+    const size_t xrows = X.getNumRows();
+    const size_t xcols = X.getNumColumns();
+    if constexpr (true == std::is_same_v<T, Type> ||
+                  true == std::is_same_v<T, Parameter>) {
       #if defined(NAIVE_IMPL)
         mp_dresult = CreateMatrixPtr<Type>(m_rows * xrows, m_cols * xcols, MatrixSpl::ZEROS);
       #else
         mp_dresult = CreateMatrixPtr<Type>(m_rows * xrows, m_cols * xcols);
       #endif
-      } else {
-        if(nullptr != mp_mat) {
-          mp_dresult = CreateMatrixPtr<Type>(m_rows * xrows, m_cols * xcols);
-        }
+    } else {
+      if(nullptr != mp_mat) {
+        CreateMatrixResource(m_rows * xrows, m_cols * xcols, mp_dresult);
       }
     }
 
@@ -664,6 +668,11 @@ public:
     return mp_dresult;
   }
   
+  // Free resources 
+  void free() {
+    m_free = true;
+  }
+  
   // Reset all visited flags
   V_OVERRIDE(void reset()) {
     if (true == this->m_visited) {
@@ -683,6 +692,16 @@ public:
     // Reset flag
     this->m_visited = false;
 
+    // Free all results
+    if(mp_result != nullptr) {
+      mp_result->free();
+    }
+
+    // Free all derivative results
+    if(mp_dresult != nullptr) {
+      mp_dresult->free();
+    }
+
     // Empty cache
     if (false == m_cache.empty()) {
       m_cache.clear();
@@ -691,10 +710,22 @@ public:
 
   // Reset impl
   inline void resetImpl() {
+    // Reset flag
     this->m_visited = true;
+
     // Reset states
     m_eval = false;
     m_devalf = false;
+
+    // Free all results
+    if(mp_result != nullptr) {
+      mp_result->free();
+    }
+
+    // Free all derivative results
+    if(mp_dresult != nullptr) {
+      mp_dresult->free();
+    }
 
     // For each element
     std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(),

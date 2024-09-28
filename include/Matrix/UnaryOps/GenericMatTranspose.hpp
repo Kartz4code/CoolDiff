@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include "IMatrix.hpp"
 #include "Matrix.hpp"
 
 // Left/right side is a Matrix
@@ -38,22 +37,20 @@ private:
   DISABLE_COPY(GenericMatTranspose)
   DISABLE_MOVE(GenericMatTranspose)
 
-public:
-  // Result
-  Matrix<Type> *mp_result{nullptr};
-  // Derivative result
-  Matrix<Type> *mp_dresult{nullptr};
+  // All matrices
+  inline static constexpr const size_t m_size{2};
+  Matrix<Type>* mp_arr[m_size]{}; 
 
+public:
   // Block index
   const size_t m_nidx{};
 
   // Constructor
   constexpr GenericMatTranspose(T *u, Callables &&...call) : mp_right{u}, 
-                                                             mp_result{nullptr}, 
-                                                             mp_dresult{nullptr},
                                                              m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                             m_nidx{this->m_idx_count++} 
-  {}
+                                                             m_nidx{this->m_idx_count++} {
+     std::fill_n(mp_arr, m_size, nullptr);  
+  }
 
   // Get number of rows
   V_OVERRIDE(size_t getNumRows() const) { 
@@ -77,10 +74,10 @@ public:
     const Matrix<Type> *right_mat = mp_right->eval();
 
     // Matrix transpose computation (Policy design)
-    MATRIX_TRANSPOSE(right_mat, mp_result);
+    MATRIX_TRANSPOSE(right_mat, mp_arr[0]);
 
     // Return result pointer
-    return mp_result;
+    return mp_arr[0];
   }
 
   // Matrix devalF computation
@@ -94,10 +91,10 @@ public:
     // Right matrix derivative
     const Matrix<Type> *dright_mat = mp_right->devalF(X);
   
-    MATRIX_DERV_TRANSPOSE(nrows_f, ncols_f, nrows_x, ncols_x, dright_mat, mp_dresult);
+    MATRIX_DERV_TRANSPOSE(nrows_f, ncols_f, nrows_x, ncols_x, dright_mat, mp_arr[1]);
 
     // Return result pointer
-    return mp_dresult;
+    return mp_arr[1];
   }
 
   // Reset visit run-time

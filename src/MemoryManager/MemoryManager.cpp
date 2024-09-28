@@ -20,5 +20,8 @@
  */
 
 #include "MemoryManager.hpp"
+#include "Matrix.hpp"
 
-size_t MemoryManager::size() { return m_del_ptr.size(); }
+size_t MemoryManager::size() { 
+    return m_del_ptr.size(); 
+}
