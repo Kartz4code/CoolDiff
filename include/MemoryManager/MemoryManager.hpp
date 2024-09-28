@@ -30,9 +30,13 @@ private:
   template <typename T, typename... Args>
   friend SharedPtr<T> Allocate(Args &&...args);
 
-  // Vector of deleted or to be deleted variables
+  // Matrix resource generation
+  friend void CreateMatrixResource(const size_t, const size_t, Matrix<Type>*&, Type);
+
+  // Vector of deleted or to be deleted resources
   inline static Vector<SharedPtr<MetaVariable>> m_del_ptr;
   inline static Vector<SharedPtr<MetaMatrix>> m_del_mat_ptr;
+  inline static Vector<SharedPtr<Matrix<Type>>> m_del_mat_type_ptr;
 
 public:
   // Get size of memory allocated
@@ -60,7 +64,11 @@ inline SharedPtr<T> Allocate(Args &&...args) {
   if constexpr (std::is_base_of_v<MetaVariable, T>) {
     MemoryManager::m_del_ptr.push_back(tmp);
   } else if constexpr (std::is_base_of_v<MetaMatrix, T>) {
-    MemoryManager::m_del_mat_ptr.push_back(tmp);
+    if constexpr (std::is_same_v<T, Matrix<Type>>) {
+     MemoryManager::m_del_mat_type_ptr.push_back(tmp);
+    } else {
+     MemoryManager::m_del_mat_ptr.push_back(tmp);
+    }
   }
   return tmp;
 }

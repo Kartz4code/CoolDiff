@@ -24,8 +24,8 @@
 #include "MatrixEyeOps.hpp"
 
 void EyeMatDervTransposeHandler::handle(const size_t nrows_f, const size_t ncols_f, 
-                                         const size_t nrows_x, const size_t ncols_x, 
-                                         const Matrix<Type> * mat, Matrix<Type>*& result) {
+                                        const size_t nrows_x, const size_t ncols_x, 
+                                        const Matrix<Type> * mat, Matrix<Type>*& result) {
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
   if(true == IsEyeMatrix(mat)) {
@@ -34,17 +34,7 @@ void EyeMatDervTransposeHandler::handle(const size_t nrows_f, const size_t ncols
     const size_t ncols{nrows_f*ncols_x};
 
     // Result transposed derivative matrix   
-    if (nullptr == result) {
-        result = CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::EYE);
-        return;
-    } else if ((nrows != result->getNumRows()) ||
-               (ncols != result->getNumColumns())) {          
-        result = CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::EYE);
-        return;
-    } else if(-1 != result->getMatType()) {
-      result = CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::EYE);
-      return;
-    }
+    result = CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::EYE);
     return;
   }
 #endif

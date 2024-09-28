@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include "IMatrix.hpp"
 #include "Matrix.hpp"
 
 // Left/right side is a Matrix

@@ -34,17 +34,7 @@ void ZeroMatDervTransposeHandler::handle(const size_t nrows_f, const size_t ncol
     const size_t ncols{nrows_f*ncols_x};
 
     // Result transposed derivative matrix   
-    if (nullptr == result) {
-        result = CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS);
-        return;
-    } else if ((nrows != result->getNumRows()) ||
-               (ncols != result->getNumColumns())) {          
-        result = CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS);
-        return;
-    } else if(-1 != result->getMatType()) {
-        result = CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS);
-        return;
-    }
+    result = CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS);
     return;
   }
 #endif

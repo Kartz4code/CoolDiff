@@ -25,15 +25,8 @@
 void MatTransposeNaiveHandler::handle(const Matrix<Type> * mat, Matrix<Type> *& result) {
   const size_t nrows{mat->getNumRows()};
   const size_t ncols{mat->getNumColumns()};
-  
-  if (nullptr == result) {
-    result = CreateMatrixPtr<Type>(ncols, nrows);
-  } else if ((ncols != result->getNumRows()) ||
-             (nrows != result->getNumColumns())) {
-    result = CreateMatrixPtr<Type>(ncols, nrows);
-  } else if(-1 != result->getMatType()) {
-    result = CreateMatrixPtr<Type>(ncols, nrows);
-  }
+
+  CreateMatrixResource(ncols, nrows, result);
 
   const auto idx = Range<size_t>(0, nrows * ncols);
   std::for_each(EXECUTION_PAR idx.begin(), idx.end(),

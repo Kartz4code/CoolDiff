@@ -30,19 +30,9 @@ void EyeMatTransposeHandler::handle(const Matrix<Type> * mat, Matrix<Type> *& re
     // Rows and columns of result matrix
     const size_t nrows{mat->getNumRows()};
     const size_t ncols{mat->getNumColumns()};
-
+    
     // Result matrix is transposed identity matrix   
-    if (nullptr == result) {
-      result = CreateMatrixPtr<Type>(ncols, nrows, MatrixSpl::EYE);
-      return;
-    } else if ((ncols != result->getNumRows()) ||
-               (nrows != result->getNumColumns())) {  
-      result = CreateMatrixPtr<Type>(ncols, nrows, MatrixSpl::EYE);
-      return;
-    } else if(-1 != result->getMatType()) {
-      result = CreateMatrixPtr<Type>(ncols, nrows, MatrixSpl::EYE);
-      return;
-    }
+    result = CreateMatrixPtr<Type>(ncols, nrows, MatrixSpl::EYE);
     return;
   }
 #endif
