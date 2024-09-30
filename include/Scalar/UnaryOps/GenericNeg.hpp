@@ -44,9 +44,10 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericNeg(T *u, Callables &&...call)
-      : mp_left{u}, m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {}
+  constexpr GenericNeg(T *u, Callables &&...call) : mp_left{u}, 
+                                                    m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                    m_nidx{this->m_idx_count++} 
+  {}
 
   // Symbolic evaluation
   V_OVERRIDE(Variable *symEval()) {
@@ -142,27 +143,35 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair &getCache()) { return m_cache; }
+  V_OVERRIDE(OMPair &getCache()) { 
+    return m_cache; 
+  }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { UNARY_RESET(); }
+  V_OVERRIDE(void reset()) { 
+    UNARY_RESET(); 
+  }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { return "GenericNeg"; }
+  V_OVERRIDE(std::string_view getType() const) { 
+    return "GenericNeg"; 
+  }
 
   // Find mes
-  V_OVERRIDE(bool findMe(void *v) const) { UNARY_FIND_ME(); }
+  V_OVERRIDE(bool findMe(void *v) const) { 
+    UNARY_FIND_ME(); 
+  }
 
   // Destructor
   V_DTR(~GenericNeg()) = default;
 };
 
 // Generic neg with 1 typename callables
-template <typename T> using GenericNegT = GenericNeg<T, OpType>;
+template <typename T> 
+using GenericNegT = GenericNeg<T, OpType>;
 
 // Function for neg computation
 template <typename T> constexpr const auto &operator-(const IVariable<T> &u) {
-  auto tmp = Allocate<GenericNegT<T>>(
-      const_cast<T *>(static_cast<const T *>(&u)), OpObj);
+  auto tmp = Allocate<GenericNegT<T>>(const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;
 }

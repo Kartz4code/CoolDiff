@@ -40,14 +40,14 @@ private:
 
   // Verify dimensions of result matrix for addition operation
   inline constexpr bool verifyDim() const {
-    // Left matrix rows
-    const int lr = mp_left->getNumRows();
-    // Right matrix rows
-    const int rr = mp_right->getNumRows();
-    // Left matrix columns
-    const int lc = mp_left->getNumColumns();
-    // Right matrix columns
-    const int rc = mp_right->getNumColumns();
+    // Left matrix rows and columns
+    const size_t lr = mp_left->getNumRows();
+    const size_t lc = mp_left->getNumColumns();
+
+    // Right matrix rows and columns
+    const size_t rr = mp_right->getNumRows();
+    const size_t rc = mp_right->getNumColumns();
+
     // Condition for Matrix-Matrix addition
     return ((lr == rr) && (lc == rc));
   }
@@ -131,7 +131,7 @@ public:
   V_DTR(~GenericMatSum()) = default;
 };
 
-// Left is Type and right is a matrix 
+// Left is Type (scalar) and right is a matrix 
 template <typename T, typename... Callables>
 class GenericMatScalarSum : public IMatrix<GenericMatScalarSum<T, Callables...>> {
 private:
@@ -213,7 +213,7 @@ public:
   V_DTR(~GenericMatScalarSum()) = default;
 };
 
-// Left is Expression/Variable/Parameter and right is a matrix 
+// Left is Expression/Variable/Parameter (scalar) and right is a matrix 
 template <typename T1, typename T2, typename... Callables>
 class GenericMatScalarSumExp : public IMatrix<GenericMatScalarSumExp<T1, T2, Callables...>> {
 private:
@@ -323,9 +323,9 @@ using GenericMatScalarSumExpT = GenericMatScalarSumExp<T1, T2, OpMatType>;
 template <typename T1, typename T2>
 constexpr const auto& operator+(const IMatrix<T1> &u,
                                         const IMatrix<T2> &v) {
-  auto tmp = Allocate<GenericMatSumT<T1, T2>>(
-      const_cast<T1 *>(static_cast<const T1 *>(&u)),
-      const_cast<T2 *>(static_cast<const T2 *>(&v)), OpMatObj);
+  auto tmp = Allocate<GenericMatSumT<T1, T2>>(const_cast<T1 *>(static_cast<const T1 *>(&u)),
+                                              const_cast<T2 *>(static_cast<const T2 *>(&v)), 
+                                              OpMatObj);
   return *tmp;
 }
 

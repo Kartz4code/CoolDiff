@@ -21,18 +21,11 @@
 
 #pragma once
 
-#include <string_view>
-
 #include "IVariable.hpp"
 #include "VarWrap.hpp"
 
-class Expression;
-
 // Variable Expression is a wrapper around the variable class
 class Variable : public IVariable<Variable> {
-private:
-  friend class Expression;
-
 protected:
   // Underlying symbolic variable
   VarWrap m_var{};
@@ -80,11 +73,11 @@ public:
 
   // Getters and setters
   // Get/Set value
-  void setValue(Type);
+  void setValue(const Type&);
   Type getValue() const;
 
   // Get/Set dvalue
-  void setdValue(Type);
+  void setdValue(const Type&);
   Type getdValue() const;
 
   // Evaluate value and derivative value in run-time
@@ -109,6 +102,13 @@ public:
 
   // Find me
   V_OVERRIDE(bool findMe(void *) const);
+
+  // Variable factory
+  class VariableFactory {
+    public:      
+      // Create new variable
+      static Variable &CreateVariable(const Type& = (Type)(0));
+  };
 
   // Destructor
   V_DTR(~Variable());

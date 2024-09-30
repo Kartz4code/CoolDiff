@@ -99,13 +99,21 @@ Variable &Variable::operator=(Variable &&exp) noexcept {
   return *this;
 }
 
-void Variable::setValue(Type val) { m_var.setValue(val); }
+void Variable::setValue(const Type& val) { 
+  m_var.setValue(val); 
+}
 
-Type Variable::getValue() const { return m_var.getValue(); }
+Type Variable::getValue() const { 
+  return m_var.getValue(); 
+}
 
-void Variable::setdValue(Type val) { m_var.setdValue(val); }
+void Variable::setdValue(const Type& val) { 
+  m_var.setdValue(val); 
+}
 
-Type Variable::getdValue() const { return m_var.getdValue(); }
+Type Variable::getdValue() const { 
+  return m_var.getdValue(); 
+}
 
 void Variable::resetImpl() {
   this->m_visited = true;
@@ -233,7 +241,9 @@ void Variable::traverse(OMPair *cache) {
 }
 
 // Get cache
-OMPair &Variable::getCache() { return m_cache; }
+OMPair &Variable::getCache() { 
+  return m_cache; 
+}
 
 // Reset
 void Variable::reset() {
@@ -264,7 +274,9 @@ void Variable::reset() {
 }
 
 // Get type
-std::string_view Variable::getType() const { return "Variable"; }
+std::string_view Variable::getType() const { 
+  return "Variable"; 
+}
 
 // Find me
 bool Variable::findMe(void *v) const {
@@ -273,6 +285,11 @@ bool Variable::findMe(void *v) const {
   } else {
     return false;
   }
+}
+
+Variable& Variable::VariableFactory::CreateVariable(const Type& val) {
+  auto tmp = Allocate<Variable>(val);
+  return *tmp;
 }
 
 // Destructor

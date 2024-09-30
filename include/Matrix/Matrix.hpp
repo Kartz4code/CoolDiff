@@ -31,7 +31,8 @@ template <typename T, typename... Args> Matrix<T> &CreateMatrix(Args &&...);
 template <typename T, typename... Args> Matrix<T> *CreateMatrixPtr(Args &&...);
 
 // Matrix resource allocation
-void CreateMatrixResource(const size_t, const size_t, Matrix<Type>*&, Type = (Type)0);
+void CreateMatrixResource(const size_t, const size_t, Matrix<Type>*&, const Type& = (Type)0);
+Matrix<Type>* CreateMatrixResource(const size_t, const size_t, const MatrixSpl&);
 
 // Derivative of matrices (Reverse AD)
 Matrix<Type>* DervMatrix(const size_t, const size_t, const size_t, const size_t);
@@ -42,7 +43,8 @@ private:
   template <typename Z, typename... Argz> 
   friend SharedPtr<Z> Allocate(Argz&&...);
 
-  friend void CreateMatrixResource(const size_t, const size_t, Matrix<Type>*&, Type);
+  friend void CreateMatrixResource(const size_t, const size_t, Matrix<Type>*&, const Type&);
+  friend Matrix<Type>* CreateMatrixResource(const size_t, const size_t, const MatrixSpl&);
 
   // Special matrix constructor
   constexpr Matrix(size_t rows, size_t cols, MatrixSpl type) : m_rows{rows}, 
@@ -52,11 +54,11 @@ private:
 
 private:
   // Matrix row and column size
-  mutable size_t m_rows{0};
-  mutable size_t m_cols{0};
+  size_t m_rows{0};
+  size_t m_cols{0};
 
   // Type of matrix (Special matrices)
-  size_t m_type{(size_t)(-1)};
+  MatrixSpl m_type{(size_t)(-1)};
 
   // Collection of meta variable expressions
   Vector<MetaMatrix *> m_gh_vec{};
@@ -233,7 +235,8 @@ public:
   }
 
   /* Copy assignment for expression evaluation */
-  template <typename Z> Matrix &operator=(const IMatrix<Z> &expr) {
+  template <typename Z> 
+  Matrix &operator=(const IMatrix<Z> &expr) {
     // Clear buffer if not recursive expression not found
     if (static_cast<const Z &>(expr).findMe(this) == false) {
       m_gh_vec.clear();
@@ -285,6 +288,7 @@ public:
   constexpr Matrix(const Matrix &m) : m_rows{m.m_rows}, 
                                       m_cols{m.m_cols}, 
                                       m_type{m.m_type},
+                                      // rows and cols must be set before calling getNumElem
                                       mp_mat{new T[getNumElem()]{}}, 
                                       m_eval{m.m_eval}, 
                                       m_devalf{m.m_devalf},
@@ -312,6 +316,8 @@ public:
       if (nullptr != mp_mat) {
         delete[] mp_mat;
       }
+
+      // rows and cols must be set before calling getNumElem
       mp_mat = new T[getNumElem()]{};
       std::copy(EXECUTION_PAR m.mp_mat, m.mp_mat + getNumElem(), mp_mat);
 
@@ -462,7 +468,6 @@ public:
     return std::move(tmp);
   }
 
-
   // Get a row (Move)
   Matrix getRow(const size_t &i) && {
     ASSERT((i >= 0 && i < m_rows), "Row index out of bound");
@@ -576,7 +581,7 @@ public:
   }
 
   // Get type of matrix
-  size_t getMatType() const { 
+  MatrixSpl getMatType() const { 
     return m_type; 
   }
 
@@ -597,7 +602,8 @@ public:
         CreateMatrixResource(m_rows, m_cols, mp_result);
       }
     } else {
-      mp_result = this;
+      CreateMatrixResource(m_rows, m_cols, mp_result);
+      *mp_result = *this;
     }
 
     // If value not evaluated, compute it again
@@ -632,9 +638,9 @@ public:
     if constexpr (true == std::is_same_v<T, Type> ||
                   true == std::is_same_v<T, Parameter>) {
       #if defined(NAIVE_IMPL)
-        mp_dresult = CreateMatrixPtr<Type>(m_rows * xrows, m_cols * xcols, MatrixSpl::ZEROS);
+        mp_dresult = CreateMatrixResource(m_rows * xrows, m_cols * xcols, MatrixSpl::ZEROS);
       #else
-        mp_dresult = CreateMatrixPtr<Type>(m_rows * xrows, m_cols * xcols);
+        mp_dresult = CreateMatrixResource(m_rows * xrows, m_cols * xcols);
       #endif
     } else {
       if(nullptr != mp_mat) {

@@ -28,15 +28,15 @@ const Matrix<Type> *Eye(const size_t n) {
   static UnOrderedMap<size_t, Matrix<Type> *> eye_register;
 
   // Find in registry of special matrices
-  if (auto it = eye_register.find(n); it != eye_register.end()) {
+  if (auto it = eye_register.find(n); 
+           it != eye_register.end()) {
     return it->second;
   } else {
     Matrix<Type> *result = CreateMatrixPtr<Type>(n, n);
 
     // Vector of indices
     const auto idx = Range<size_t>(0, n);
-    std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
-                  [&](const size_t i) { (*result)(i, i) = (Type)(1); });
+    std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t i) { (*result)(i, i) = (Type)(1); });
 
     // Register and return result
     eye_register[n] = result;
@@ -50,7 +50,8 @@ const Matrix<Type> *Zeros(const size_t n, const size_t m) {
   static UnOrderedMap<Pair<size_t, size_t>, Matrix<Type> *> zeros_register;
 
   // Find in registry of special matrices
-  if (auto it = zeros_register.find({n, m}); it != zeros_register.end()) {
+  if (auto it = zeros_register.find({n, m}); 
+           it != zeros_register.end()) {
     return it->second;
   } else {
     Matrix<Type> *result = CreateMatrixPtr<Type>(n, m);
@@ -71,7 +72,8 @@ const Matrix<Type> *Ones(const size_t n, const size_t m) {
   static UnOrderedMap<Pair<size_t, size_t>, Matrix<Type> *> ones_register;
 
   // Find in registry of special matrices
-  if (auto it = ones_register.find({n, m}); it != ones_register.end()) {
+  if (auto it = ones_register.find({n, m}); 
+           it != ones_register.end()) {
     return it->second;
   } else {
     // Result matrix

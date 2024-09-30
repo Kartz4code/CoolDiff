@@ -44,9 +44,10 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericTan(T *u, Callables &&...call)
-      : mp_left{u}, m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {}
+  constexpr GenericTan(T *u, Callables &&...call) : mp_left{u}, 
+                                                    m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                    m_nidx{this->m_idx_count++} 
+  {}
 
   // Symbolic evaluation
   V_OVERRIDE(Variable *symEval()) {
@@ -61,8 +62,7 @@ public:
   V_OVERRIDE(Variable *symDeval(const Variable &var)) {
     // Static derivative computation
     if (auto it = this->mp_dtmp.find(var.m_nidx); it == this->mp_dtmp.end()) {
-      auto tmp = Allocate<Expression>(
-          ((Type)(1) + tan(EVAL_L()) * tan(EVAL_L())) * (DEVAL_L(var)));
+      auto tmp = Allocate<Expression>(((Type)(1) + tan(EVAL_L()) * tan(EVAL_L())) * (DEVAL_L(var)));
       this->mp_dtmp[var.m_nidx] = tmp.get();
     }
     return this->mp_dtmp[var.m_nidx];
@@ -80,7 +80,7 @@ public:
     // Return derivative of tan: ((1+tan(u)*tan(u))*ud
     const Type du = mp_left->devalF(var);
     const Type u = mp_left->eval();
-    return (((Type)1 + std::tan(u) * std::tan(u)) * du);
+    return (((Type)(1) + std::tan(u) * std::tan(u)) * du);
   }
 
   // Traverse run-time
@@ -146,27 +146,35 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair &getCache()) { return m_cache; }
+  V_OVERRIDE(OMPair &getCache()) { 
+    return m_cache; 
+  }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { UNARY_RESET(); }
+  V_OVERRIDE(void reset()) { 
+    UNARY_RESET(); 
+  }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { return "GenericTan"; }
+  V_OVERRIDE(std::string_view getType() const) { 
+    return "GenericTan"; 
+  }
 
   // Find me
-  V_OVERRIDE(bool findMe(void *v) const) { UNARY_FIND_ME(); }
+  V_OVERRIDE(bool findMe(void *v) const) { 
+    UNARY_FIND_ME(); 
+  }
 
   // Destructor
   V_DTR(~GenericTan()) = default;
 };
 
 // Generic tan with 1 typename callables
-template <typename T> using GenericTanT = GenericTan<T, OpType>;
+template <typename T> 
+using GenericTanT = GenericTan<T, OpType>;
 
 // Function for tan computation
 template <typename T> constexpr const auto &tan(const IVariable<T> &u) {
-  auto tmp = Allocate<GenericTanT<T>>(
-      const_cast<T *>(static_cast<const T *>(&u)), OpObj);
+  auto tmp = Allocate<GenericTanT<T>>(const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;
 }

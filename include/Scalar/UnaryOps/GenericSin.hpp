@@ -44,9 +44,10 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericSin(T *u, Callables &&...call)
-      : mp_left{u}, m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {}
+  constexpr GenericSin(T *u, Callables &&...call) : mp_left{u}, 
+                                                    m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                    m_nidx{this->m_idx_count++} 
+  {}
 
   // Symbolic evaluation
   V_OVERRIDE(Variable *symEval()) {
@@ -142,27 +143,35 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair &getCache()) { return m_cache; }
+  V_OVERRIDE(OMPair &getCache()) { 
+    return m_cache; 
+  }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { UNARY_RESET(); }
+  V_OVERRIDE(void reset()) { 
+    UNARY_RESET(); 
+  }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { return "GenericSin"; }
+  V_OVERRIDE(std::string_view getType() const) { 
+    return "GenericSin"; 
+  }
 
   // Find me
-  V_OVERRIDE(bool findMe(void *v) const) { UNARY_FIND_ME(); }
+  V_OVERRIDE(bool findMe(void *v) const) { 
+    UNARY_FIND_ME(); 
+  }
 
   // Destructor
   V_DTR(~GenericSin()) = default;
 };
 
 // Generic sin with 1 typename callables
-template <typename T> using GenericSinT = GenericSin<T, OpType>;
+template <typename T> 
+using GenericSinT = GenericSin<T, OpType>;
 
 // Function for sin computation
 template <typename T> constexpr const auto &sin(const IVariable<T> &u) {
-  auto tmp = Allocate<GenericSinT<T>>(
-      const_cast<T *>(static_cast<const T *>(&u)), OpObj);
+  auto tmp = Allocate<GenericSinT<T>>(const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;
 }

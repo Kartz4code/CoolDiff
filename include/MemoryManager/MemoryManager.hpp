@@ -24,6 +24,8 @@
 #include "MetaMatrix.hpp"
 #include "MetaVariable.hpp"
 
+#include "IMatrix.hpp"
+
 class MemoryManager {
 private:
   // Allocate friend function
@@ -31,11 +33,14 @@ private:
   friend SharedPtr<T> Allocate(Args &&...args);
 
   // Matrix resource generation
-  friend void CreateMatrixResource(const size_t, const size_t, Matrix<Type>*&, Type);
+  friend void CreateMatrixResource(const size_t, const size_t, Matrix<Type>*&, const Type&);
+  friend Matrix<Type>* CreateMatrixResource(const size_t, const size_t, const MatrixSpl&);
 
   // Vector of deleted or to be deleted resources
   inline static Vector<SharedPtr<MetaVariable>> m_del_ptr;
   inline static Vector<SharedPtr<MetaMatrix>> m_del_mat_ptr;
+
+  // A special vector for Matrix<Type> which is used dynamically throughout the process
   inline static Vector<SharedPtr<Matrix<Type>>> m_del_mat_type_ptr;
 
 public:
@@ -44,7 +49,8 @@ public:
 };
 
 // Delete resource
-template <typename T> void DelPtr(T *ptr) {
+template <typename T> 
+void DelPtr(T *ptr) {
   if (ptr != nullptr) {
     delete ptr;
     ptr = nullptr;
@@ -63,12 +69,13 @@ inline SharedPtr<T> Allocate(Args &&...args) {
   // Push the allocated object into stack to clear it later
   if constexpr (std::is_base_of_v<MetaVariable, T>) {
     MemoryManager::m_del_ptr.push_back(tmp);
-  } else if constexpr (std::is_base_of_v<MetaMatrix, T>) {
-    if constexpr (std::is_same_v<T, Matrix<Type>>) {
-     MemoryManager::m_del_mat_type_ptr.push_back(tmp);
-    } else {
-     MemoryManager::m_del_mat_ptr.push_back(tmp);
-    }
+  } 
+  else if constexpr (std::is_base_of_v<MetaMatrix, T>) {
+        if constexpr (std::is_same_v<T, Matrix<Type>>) {
+          MemoryManager::m_del_mat_type_ptr.push_back(tmp);
+        } else {
+          MemoryManager::m_del_mat_ptr.push_back(tmp);
+        }
   }
   return tmp;
 }

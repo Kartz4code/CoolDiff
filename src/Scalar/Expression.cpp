@@ -38,7 +38,17 @@ Expression &Expression::SymDiff(const Variable &var) {
   return *tmp;
 }
 
+Expression& Expression::ExpressionFactory::CreateExpression(const Type& val) {
+  // Allocate a temporary parameter
+  auto param = Allocate<Parameter>(val);
+  // Create expression
+  auto tmp = Allocate<Expression>(*param);
+  return *tmp;
+}
+
 // Get type
-std::string_view Expression::getType() const { return "Expression"; }
+std::string_view Expression::getType() const { 
+  return "Expression"; 
+}
 
 Expression::~Expression() = default;

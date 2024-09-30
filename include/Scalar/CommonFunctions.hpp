@@ -161,19 +161,3 @@ Matrix<Expression> &HessSym(Expression &, const Vector<Variable> &);
 // Symbolic Expression (Matrix)
 Matrix<Expression> &SymMatDiff(Expression &, const Matrix<Variable> &);
 
-// Create new expression
-template <typename T,
-          typename = std::enable_if_t<std::is_base_of_v<MetaVariable, T>>>
-Expression &CreateExpr(const T &exp) {
-  auto tmp = Allocate<Expression>(exp);
-  return *tmp;
-}
-
-// Free function for creating new expression
-Expression &CreateExpr(const Type & = 0);
-
-// Create new variable
-Variable &CreateVar(const Type &);
-
-// Create new parameter
-Parameter &CreateParam(const Type &);

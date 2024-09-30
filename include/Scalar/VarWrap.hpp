@@ -40,16 +40,16 @@ public:
   VarWrap &operator=(VarWrap &&) noexcept;
 
   // Set constructor
-  void setConstructor(Type);
+  void setConstructor(const Type&);
 
   // Getters and setters methods
   // Get/Set value
   const Type getValue() const;
-  void setValue(Type);
+  void setValue(const Type&);
 
   // Get/Set dvalue
   const Type getdValue() const;
-  void setdValue(Type);
+  void setdValue(const Type&);
 
   // Destructor
   ~VarWrap() = default;

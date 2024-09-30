@@ -25,14 +25,15 @@
 
 // Gaussian univariate distribution function
 Expression &Gaussian(const Variable &x, Type mu, Type sig) {
-  auto &gauss = CreateExpr(0);
+  auto &gauss = Expression::ExpressionFactory::CreateExpression(0);
   gauss = (1 / sqrt(2 * PI * pow(sig, 2))) *
           exp(-pow((x - mu), 2) / (2 * pow(sig, 2)));
   return gauss;
 }
 
 int main(int argc, char **argv) {
-  Variable x{10.34};
+  auto& x = Variable::VariableFactory::CreateVariable(10.34);
+
   Expression gauss = Gaussian(x, 1, 0.9);
 
   // Evaluate Gaussian function
