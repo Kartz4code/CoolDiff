@@ -281,24 +281,3 @@ Matrix<Expression> &SymMatDiff(Expression &exp, const Matrix<Variable> &m) {
   }
   return result;
 }
-
-// Free function for creating new expression
-Expression &CreateExpr(const Type &val) {
-  // Allocate a temporary parameter
-  auto param = Allocate<Parameter>(val);
-  // Create expression
-  auto tmp = Allocate<Expression>(*param);
-  return *tmp;
-}
-
-// Create new variable
-Variable &CreateVar(const Type &val) {
-  auto tmp = Allocate<Variable>(val);
-  return *tmp;
-}
-
-// Create new parameter
-Parameter &CreateParam(const Type &val) {
-  auto tmp = Allocate<Parameter>(val);
-  return *tmp;
-}

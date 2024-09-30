@@ -68,6 +68,20 @@ public:
   // Symbolic differentiation of expression
   Expression &SymDiff(const Variable &);
 
+  // Expression factory
+  class ExpressionFactory {
+    public:
+      // Create expression with value
+      static Expression &CreateExpression(const Type& = (Type)(0));
+
+      // Create new expression
+      template <typename T, typename = std::enable_if_t<std::is_base_of_v<MetaVariable, T>>>
+      static Expression &CreateExpression(const T &exp) {
+        auto tmp = Allocate<Expression>(exp);
+        return *tmp;
+      }
+  };
+
   // Get type
   V_OVERRIDE(std::string_view getType() const);
 

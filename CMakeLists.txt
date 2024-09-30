@@ -27,7 +27,7 @@ cmake_minimum_required(VERSION 3.20)
 # [Project name and description]
 project(
     CoolDiff
-    VERSION 1.0.0.0
+    VERSION 1.0.1.0
     DESCRIPTION "CoolDiff - Symbolic/Auto differentiation C++ tool"
     LANGUAGES C CXX)
 

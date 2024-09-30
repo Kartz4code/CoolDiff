@@ -80,6 +80,13 @@ public:
   // Find me
   V_OVERRIDE(bool findMe(void *) const);
 
+  // Parameter factory
+  class ParameterFactory {
+    public:      
+      // Create new parameter
+      static Parameter &CreateParameter(const Type& = (Type)(0));
+  };
+
   // Destructor
   V_DTR(~Parameter() = default);
 };

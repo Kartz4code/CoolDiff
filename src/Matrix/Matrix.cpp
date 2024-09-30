@@ -22,7 +22,7 @@
 #include "Matrix.hpp"
 #include "MemoryManager.hpp"
 
-void CreateMatrixResource(const size_t rows, const size_t cols, Matrix<Type>*& result, Type val) {
+void CreateMatrixResource(const size_t rows, const size_t cols, Matrix<Type>*& result, const Type& val) {
   // Function to check for free matrices
   const auto functor = [rows,cols](const auto& m) {
     if(m != nullptr) {
@@ -46,7 +46,7 @@ void CreateMatrixResource(const size_t rows, const size_t cols, Matrix<Type>*& r
   } else if ((rows != result->getNumRows()) || (cols != result->getNumColumns())) {
     if(auto it = std::find_if(EXECUTION_PAR mat_ptr.begin(), mat_ptr.end(), functor); 
             it != mat_ptr.end()) {
-      
+                
       Type* ptr = (*it)->getMatrixPtr();
       const size_t nelem = (*it)->getNumElem();
 
@@ -59,6 +59,28 @@ void CreateMatrixResource(const size_t rows, const size_t cols, Matrix<Type>*& r
     } else {
       result = CreateMatrixPtr<Type>(rows, cols, val);
     }
+  }
+}
+
+Matrix<Type>* CreateMatrixResource(const size_t rows, const size_t cols, const MatrixSpl& ms) {
+  // Function to check for free matrices
+  const auto functor = [rows,cols, ms](const auto& m) {
+    if(m != nullptr) {
+      return ((m->getNumRows() == rows)    && 
+              (m->getNumColumns() == cols) &&  
+              (m->getMatType() == ms));
+    } else {
+      return false;
+    } 
+  };
+
+  // Matrix<Type> database
+  auto& mat_ptr = MemoryManager::m_del_mat_type_ptr; 
+  if(auto it = std::find_if(EXECUTION_PAR mat_ptr.begin(), mat_ptr.end(), functor); 
+          it != mat_ptr.end()) {
+    return it->get();    
+  } else {
+    return CreateMatrixPtr<Type>(rows, cols, ms);
   }
 }
 

@@ -94,19 +94,35 @@ Variable *Parameter::symDeval(const Variable &var) {
 }
 
 // Evaluate derivative in forward mode
-Type Parameter::devalF(const Variable &) { return (Type)0; }
+Type Parameter::devalF(const Variable &) { 
+  return (Type)(0); 
+}
 
 // Deval in run-time for reverse derivative
-Type Parameter::devalR(const Variable &) { return (Type)0; }
+Type Parameter::devalR(const Variable &) { 
+  return (Type)(0); 
+}
 
 // Traverse tree
-void Parameter::traverse(OMPair *) { return; }
+void Parameter::traverse(OMPair *) { 
+  return; 
+}
 
 // Get the map of derivatives
-OMPair &Parameter::getCache() { return m_cache; }
+OMPair &Parameter::getCache() { 
+  return m_cache; 
+}
 
 // Get type
-std::string_view Parameter::getType() const { return "Parameter"; }
+std::string_view Parameter::getType() const { 
+  return "Parameter"; 
+}
+
+// Create new parameter
+Parameter& Parameter::ParameterFactory::CreateParameter(const Type &val) {
+  auto tmp = Allocate<Parameter>(val);
+  return *tmp;
+}
 
 // Find me
 bool Parameter::findMe(void *v) const {

@@ -166,10 +166,12 @@ class Parameter;
 class Expression;
 
 // Predeclare Matrix class
-template <typename> class Matrix;
+template <typename> 
+class Matrix;
 
 // Pair type
-template <typename T, typename U> using Pair = std::pair<T, U>;
+template <typename T, typename U> 
+using Pair = std::pair<T, U>;
 
 // Ordered map between size_t and Type
 #if defined(USE_ROBIN_HOOD_MAP)
@@ -190,16 +192,20 @@ template <typename T, typename U> using UnOrderedMap = std::unordered_map<T, U>;
 
 
 // A generic vector type
-template <typename T> using Vector = std::vector<T>;
+template <typename T> 
+using Vector = std::vector<T>;
 
 // A generic variadic tuple type
-template <typename... Args> using Tuples = std::tuple<Args...>;
+template <typename... Args> 
+using Tuples = std::tuple<Args...>;
 
 // A generic shared pointer
-template <typename T> using SharedPtr = std::shared_ptr<T>;
+template <typename T> 
+using SharedPtr = std::shared_ptr<T>;
 
 // A generic future
-template <typename T> using Future = std::future<T>;
+template <typename T> 
+using Future = std::future<T>;
 
 #if defined(USE_VIRTUAL_FUNCTIONS)
 #define V_OVERRIDE(X) X override
@@ -249,7 +255,8 @@ template <typename T> std::string ToString(const T &value) {
 }();
 
 // Range values from start to end
-template <typename T> class Range {
+template <typename T> 
+class Range {
 private:
   Vector<T> m_vec;
 
@@ -259,15 +266,20 @@ public:
     std::iota(m_vec.begin(), m_vec.end(), start);
   }
 
-  constexpr typename Vector<T>::const_iterator begin() const { return m_vec.cbegin(); }
+  constexpr typename Vector<T>::const_iterator begin() const { 
+    return m_vec.cbegin(); 
+  }
 
-  constexpr typename Vector<T>::const_iterator end() const { return m_vec.cend(); }
+  constexpr typename Vector<T>::const_iterator end() const { 
+    return m_vec.cend(); 
+  }
 
   ~Range() = default;
 };
 
 // Hashing function for Pair<size_t, size_t>
-template <> struct std::hash<Pair<size_t, size_t>> {
+template <> 
+struct std::hash<Pair<size_t, size_t>> {
   std::size_t operator()(const Pair<size_t, size_t> &k) const {
     std::size_t res = 17;
     res = res * 31 + std::hash<size_t>()(k.first);

@@ -45,10 +45,11 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericDiv(T1 *u, T2 *v, Callables &&...call)
-      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
-                                     std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {}
+  constexpr GenericDiv(T1 *u, T2 *v, Callables &&...call) : mp_left{u}, 
+                                                            mp_right{v}, 
+                                                            m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                            m_nidx{this->m_idx_count++} 
+  {}
 
   // Symbolic evaluation
   V_OVERRIDE(Variable *symEval()) {
@@ -194,16 +195,24 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair &getCache()) { return m_cache; }
+  V_OVERRIDE(OMPair &getCache()) { 
+    return m_cache; 
+  }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { BINARY_RESET(); }
+  V_OVERRIDE(void reset()) { 
+    BINARY_RESET(); 
+  }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { return "GenericDiv"; }
+  V_OVERRIDE(std::string_view getType() const) { 
+    return "GenericDiv"; 
+  }
 
   // Find me
-  V_OVERRIDE(bool findMe(void *v) const) { BINARY_FIND_ME(); }
+  V_OVERRIDE(bool findMe(void *v) const) { 
+    BINARY_FIND_ME(); 
+  }
 
   // Destructor
   V_DTR(~GenericDiv()) = default;
@@ -211,8 +220,7 @@ public:
 
 // Left side is a number
 template <typename T, typename... Callables>
-class GenericDiv<Type, T, Callables...>
-    : public IVariable<GenericDiv<Type, T, Callables...>> {
+class GenericDiv<Type, T, Callables...> : public IVariable<GenericDiv<Type, T, Callables...>> {
 private:
   // Resources
   Type mp_left{0};
@@ -232,10 +240,11 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericDiv(const Type &u, T *v, Callables &&...call)
-      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
-                                     std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {}
+  constexpr GenericDiv(const Type &u, T *v, Callables &&...call) : mp_left{u}, 
+                                                                   mp_right{v}, 
+                                                                   m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                                   m_nidx{this->m_idx_count++} 
+  {}
 
   // Symbolic evaluation
   V_OVERRIDE(Variable *symEval()) {
@@ -251,9 +260,8 @@ public:
   V_OVERRIDE(Variable *symDeval(const Variable &var)) {
     // Static derivative computation
     if (auto it = this->mp_dtmp.find(var.m_nidx); it == this->mp_dtmp.end()) {
-      auto tmp =
-          Allocate<Expression>(((Type)(-1) * ((DEVAL_R(var)) * (mp_left))) /
-                               ((EVAL_R() * EVAL_R())));
+      auto tmp = Allocate<Expression>(((Type)(-1) * ((DEVAL_R(var)) * (mp_left))) /
+                                                    ((EVAL_R() * EVAL_R())));
       this->mp_dtmp[var.m_nidx] = tmp.get();
     }
     return this->mp_dtmp[var.m_nidx];
@@ -271,7 +279,7 @@ public:
     // Return derivative of /: mp_left*vd
     const Type dv = mp_right->devalF(var);
     const Type v = mp_right->eval();
-    const Type inv_v = ((Type)1 / v);
+    const Type inv_v = ((Type)(1) / v);
     return (((Type)(-1) * (mp_left * dv)) * (inv_v * inv_v));
   }
 
@@ -341,16 +349,24 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair &getCache()) { return m_cache; }
+  V_OVERRIDE(OMPair &getCache()) { 
+    return m_cache; 
+  }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { BINARY_RIGHT_RESET(); }
+  V_OVERRIDE(void reset()) { 
+    BINARY_RIGHT_RESET(); 
+  }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { return "GenericDiv"; }
+  V_OVERRIDE(std::string_view getType() const) { 
+    return "GenericDiv"; 
+  }
 
   // Find me
-  V_OVERRIDE(bool findMe(void *v) const) { BINARY_RIGHT_FIND_ME(); }
+  V_OVERRIDE(bool findMe(void *v) const) { 
+    BINARY_RIGHT_FIND_ME(); 
+  }
 
   // Destructor
   V_DTR(~GenericDiv()) = default;
@@ -361,22 +377,21 @@ template <typename T1, typename T2>
 using GenericDivT1 = GenericDiv<T1, T2, OpType>;
 
 // GenericDiv with 1 typename callables
-template <typename T> using GenericDivT2 = GenericDiv<Type, T, OpType>;
+template <typename T> 
+using GenericDivT2 = GenericDiv<Type, T, OpType>;
 
 // Function for division computation
 template <typename T1, typename T2>
-constexpr const auto &operator/(const IVariable<T1> &u,
-                                      const IVariable<T2> &v) {
-  auto tmp = Allocate<GenericDivT1<T1, T2>>(
-      const_cast<T1 *>(static_cast<const T1 *>(&u)),
-      const_cast<T2 *>(static_cast<const T2 *>(&v)), OpObj);
+constexpr const auto &operator/(const IVariable<T1> &u, const IVariable<T2> &v) {
+  auto tmp = Allocate<GenericDivT1<T1, T2>>(const_cast<T1 *>(static_cast<const T1 *>(&u)),
+                                            const_cast<T2 *>(static_cast<const T2 *>(&v)), 
+                                            OpObj);
   return *tmp;
 }
 
 // Left side is a number (division)
 template <typename T>
 constexpr const auto &operator/(const Type &u, const IVariable<T> &v) {
-  auto tmp = Allocate<GenericDivT2<T>>(
-      u, const_cast<T *>(static_cast<const T *>(&v)), OpObj);
+  auto tmp = Allocate<GenericDivT2<T>>(u, const_cast<T *>(static_cast<const T *>(&v)), OpObj);
   return *tmp;
 }
