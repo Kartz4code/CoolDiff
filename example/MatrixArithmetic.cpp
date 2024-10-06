@@ -24,7 +24,10 @@
 #include "MatOperators.hpp"
 
 void func11() {
-  Matrix<Variable> X(2, 3);
+
+  
+
+  Matrix<Variable>& X = Matrix<Variable>::MatrixFactory::CreateMatrix(2,3);
   X(0, 0) = 1; X(0, 1) = 2; X(0, 2) = 3;
   X(1, 0) = 4; X(1, 1) = 5; X(1, 2) = 6;
 
@@ -46,6 +49,7 @@ void func11() {
 
   Matrix<Expression> Y2 = X*A*X2;
   
+  std::cout << Eval(Y2) << "\n";
   std::cout << Eval(Y2) << "\n";
   std::cout << DevalF(Y2,X) << "\n";
   std::cout << DevalF(Y2,X2) << "\n";
@@ -137,7 +141,7 @@ void func2() {
   x(1, 0) = 3;
   x(1, 1) = 20;
 
-  Matrix<Type> m = CreateMatrix<Type>(2, 2);
+  Matrix<Type> m = Matrix<Type>::MatrixFactory::CreateMatrix(2, 2);
   m(0, 0) = 1;
   m(0, 1) = 0;
   m(1, 0) = 0;
@@ -164,7 +168,7 @@ void func3() {
   x(1, 0) = 3;
   x(1, 1) = 4;
 
-  Matrix<Type> m = CreateMatrix<Type>(2, 2);
+  Matrix<Type> m = Matrix<Type>::MatrixFactory::CreateMatrix(2, 2);
   m(0, 0) = 1;
   m(0, 1) = 2;
   m(1, 0) = 3;
@@ -189,11 +193,11 @@ void func3() {
 }
 
 void func5() {
-  auto m1 = CreateMatrix<Variable>(2, 1);
+  auto m1 = Matrix<Variable>::MatrixFactory::CreateMatrix(2, 1);
   m1(0, 0) = 1;
   m1(1, 0) = 1;
 
-  Matrix<Type> m2 = CreateMatrix<Type>(2, 2);
+  Matrix<Type> m2 = Matrix<Type>::MatrixFactory::CreateMatrix(2, 2);
   m2(0, 0) = 1;
   m2(0, 1) = 2;
   m2(1, 0) = 3;
@@ -219,7 +223,7 @@ int main(int argc, char **argv) {
   x(0, 0) = 2;
   x(1, 0) = 3;
 
-  Matrix<Type> m = CreateMatrix<Type>(2, 2);
+  Matrix<Type> m =  Matrix<Type>::MatrixFactory::CreateMatrix(2, 2);
   m(0, 0) = 1;
   m(0, 1) = 2;
   m(1, 0) = 3;

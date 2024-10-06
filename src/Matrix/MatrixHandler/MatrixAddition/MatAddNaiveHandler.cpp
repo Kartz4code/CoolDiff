@@ -37,7 +37,7 @@ void MatAddNaiveHandler::handle(const Matrix<Type> *lhs,
   // Assert dimensions
   ASSERT((nrows == rrows) && (ncols == lcols), "Matrix addition dimensions mismatch");
   
-  CreateMatrixResource(nrows, ncols, result);
+  MatrixPool(nrows, ncols, result);
 
   // Get raw pointers to result, left and right matrices
   const Type *res = result->getMatrixPtr();

@@ -31,7 +31,7 @@ void AddEye(Type val, const Matrix<Type> * it, Matrix<Type> *&result) {
   const size_t nrows{it->getNumRows()};
   const size_t ncols{it->getNumColumns()};
 
-  CreateMatrixResource(nrows, ncols, result, val);
+  MatrixPool(nrows, ncols, result, val);
 
   // Diagonal indices (Modification)
   const auto diag_idx = Range<size_t>(0, nrows);

@@ -84,7 +84,7 @@ const Matrix<Type> *EyeMatAdd(const Matrix<Type> *lhs,
   // If both lhs and rhs matrices are zero matrices
   if (lhs->getMatType() == MatrixSpl::EYE &&
       rhs->getMatType() == MatrixSpl::EYE) {
-    return CreateMatrixPtr<Type>(lrows, rcols, MatrixSpl::EYE);
+    return MatrixPool(lrows, rcols, MatrixSpl::EYE);
   } else if (lhs->getMatType() == MatrixSpl::EYE) {
     return rhs;
   } else if (rhs->getMatType() == MatrixSpl::EYE) {
@@ -113,7 +113,7 @@ const Matrix<Type> *EyeMatSub(const Matrix<Type> *lhs,
   // If both lhs and rhs matrices are zero matrices
   if (lhs->getMatType() == MatrixSpl::EYE &&
       rhs->getMatType() == MatrixSpl::EYE) {
-    return CreateMatrixPtr<Type>(lrows, rcols, MatrixSpl::ZEROS);
+    return MatrixPool(lrows, rcols, MatrixSpl::ZEROS);
   } else if (lhs->getMatType() == MatrixSpl::EYE) {
     return rhs;
   } else if (rhs->getMatType() == MatrixSpl::EYE) {
@@ -133,7 +133,7 @@ const Matrix<Type> *EyeMatMul(const Matrix<Type> *lhs,
   // If both lhs and rhs matrices are zero matrices
   if (lhs->getMatType() == MatrixSpl::EYE &&
       rhs->getMatType() == MatrixSpl::EYE) {
-    return CreateMatrixPtr<Type>(lrows, rcols, MatrixSpl::EYE);
+    return MatrixPool(lrows, rcols, MatrixSpl::EYE);
   }
   // If lhs is a zero matrix
   else if (lhs->getMatType() == MatrixSpl::EYE) {
@@ -169,7 +169,7 @@ const Matrix<Type> *EyeMatKron(const Matrix<Type> *lhs,
   // If both lhs and rhs matrices are eye matrices
   if ((lhs->getMatType() == MatrixSpl::EYE) &&
       (rhs->getMatType() == MatrixSpl::EYE)) {
-    return CreateMatrixPtr<Type>(lr * rr, lc * rc, MatrixSpl::EYE);
+    return MatrixPool(lr * rr, lc * rc, MatrixSpl::EYE);
   } else if (lhs->getMatType() == MatrixSpl::EYE) {
     return rhs;
   } else if (rhs->getMatType() == MatrixSpl::EYE) {
@@ -191,7 +191,7 @@ const Matrix<Type> *EyeMatHadamard(const Matrix<Type> *lhs,
   // If both lhs and rhs matrices are zero matrices
   if (lhs->getMatType() == MatrixSpl::EYE &&
       rhs->getMatType() == MatrixSpl::EYE) {
-    return CreateMatrixPtr<Type>(lrows, rcols, MatrixSpl::EYE);
+    return MatrixPool(lrows, rcols, MatrixSpl::EYE);
   }
   // If lhs is a zero matrix
   else if (lhs->getMatType() == MatrixSpl::EYE) {
@@ -218,7 +218,7 @@ const Matrix<Type> *EyeMatAddNum(const Matrix<Type> *lhs,
   const bool rhs_bool = IsEyeMatrix(rhs);
 
   if (true == lhs_bool && true == rhs_bool) {
-    return CreateMatrixPtr<Type>(lrows, rcols, MatrixSpl::EYE);
+    return MatrixPool(lrows, rcols, MatrixSpl::EYE);
   } else if (lhs_bool == true) {
     return rhs;
   } else if (rhs_bool == true) {
@@ -250,7 +250,7 @@ const Matrix<Type> *EyeMatSubNum(const Matrix<Type> *lhs,
   const bool rhs_bool = IsEyeMatrix(rhs);
 
   if (true == lhs_bool && true == rhs_bool) {
-    return CreateMatrixPtr<Type>(lrows, rcols, MatrixSpl::ZEROS);
+    return MatrixPool(lrows, rcols, MatrixSpl::ZEROS);
   } else if (lhs_bool == true) {
     return rhs;
   } else if (rhs_bool == true) {
@@ -271,7 +271,7 @@ const Matrix<Type> *EyeMatMulNum(const Matrix<Type> *lhs,
   const bool lhs_bool = IsEyeMatrix(lhs);
   const bool rhs_bool = IsEyeMatrix(rhs);
   if (lhs_bool == true && rhs_bool == true) {
-    return CreateMatrixPtr<Type>(lrows, rcols, MatrixSpl::EYE);
+    return MatrixPool(lrows, rcols, MatrixSpl::EYE);
   } else if (lhs_bool == true) {
     return rhs;
   } else if (rhs_bool == true) {
@@ -305,7 +305,7 @@ const Matrix<Type> *EyeMatKronNum(const Matrix<Type> *lhs,
   const bool rhs_bool = IsEyeMatrix(rhs);
 
   if (lhs_bool == true && rhs_bool == true) {
-    return CreateMatrixPtr<Type>(lr * rr, lc * rc, MatrixSpl::EYE);
+    return MatrixPool(lr * rr, lc * rc, MatrixSpl::EYE);
   } else if (lhs_bool == true) {
     return rhs;
   } else if (rhs_bool == true) {
@@ -328,7 +328,7 @@ const Matrix<Type> *EyeMatHadamardNum(const Matrix<Type> *lhs,
   const bool lhs_bool = IsEyeMatrix(lhs);
   const bool rhs_bool = IsEyeMatrix(rhs);
   if (lhs_bool == true && rhs_bool == true) {
-    return CreateMatrixPtr<Type>(lrows, rcols, MatrixSpl::EYE);
+    return MatrixPool(lrows, rcols, MatrixSpl::EYE);
   } else if (lhs_bool == true) {
     return rhs;
   } else if (rhs_bool == true) {
