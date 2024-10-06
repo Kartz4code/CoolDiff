@@ -22,7 +22,7 @@
 #include "Matrix.hpp"
 #include "MemoryManager.hpp"
 
-void CreateMatrixResource(const size_t rows, const size_t cols, Matrix<Type>*& result, const Type& val) {
+Matrix<Type>* MatrixPool(const size_t rows, const size_t cols, Matrix<Type>*& result, const Type& val) {
   // Function to check for free matrices
   const auto functor = [rows,cols](const auto& m) {
     if(m != nullptr) {
@@ -40,29 +40,25 @@ void CreateMatrixResource(const size_t rows, const size_t cols, Matrix<Type>*& r
 
   // Dispatch matrix resource
   if (nullptr == result) {
-    result = CreateMatrixPtr<Type>(rows, cols, val);
-  } else if (-1 != result->getMatType()) {
-    result = CreateMatrixPtr<Type>(rows, cols, val);
+    result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(rows, cols, val);
   } else if ((rows != result->getNumRows()) || (cols != result->getNumColumns())) {
-    if(auto it = std::find_if(EXECUTION_PAR mat_ptr.begin(), mat_ptr.end(), functor); 
-            it != mat_ptr.end()) {
-                
+    if(auto it = std::find_if(EXECUTION_PAR mat_ptr.begin(), mat_ptr.end(), functor); it != mat_ptr.end()) {    
+      // Get underlying pointer
       Type* ptr = (*it)->getMatrixPtr();
-      const size_t nelem = (*it)->getNumElem();
-
-      // Fill n free
-      std::fill(EXECUTION_PAR ptr, ptr + nelem, val); 
+      // Fill 'n free
+      std::fill(EXECUTION_PAR ptr, ptr + (*it)->getNumElem(), val); 
       (*it)->m_free = false;
-
-      // Result pointer 
+      // Store result 
       result = it->get();     
     } else {
-      result = CreateMatrixPtr<Type>(rows, cols, val);
+      result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(rows, cols, val);
     }
   }
+
+  return result;
 }
 
-Matrix<Type>* CreateMatrixResource(const size_t rows, const size_t cols, const MatrixSpl& ms) {
+Matrix<Type>* MatrixPool(const size_t rows, const size_t cols, const MatrixSpl& ms) {
   // Function to check for free matrices
   const auto functor = [rows,cols, ms](const auto& m) {
     if(m != nullptr) {
@@ -76,18 +72,17 @@ Matrix<Type>* CreateMatrixResource(const size_t rows, const size_t cols, const M
 
   // Matrix<Type> database
   auto& mat_ptr = MemoryManager::m_del_mat_type_ptr; 
-  if(auto it = std::find_if(EXECUTION_PAR mat_ptr.begin(), mat_ptr.end(), functor); 
-          it != mat_ptr.end()) {
+  if(auto it = std::find_if(EXECUTION_PAR mat_ptr.begin(), mat_ptr.end(), functor); it != mat_ptr.end()) {
     return it->get();    
   } else {
-    return CreateMatrixPtr<Type>(rows, cols, ms);
+    return Matrix<Type>::MatrixFactory::CreateMatrixPtr(rows, cols, ms);
   }
 }
 
 Matrix<Type>* DervMatrix(const size_t frows, const size_t fcols, const size_t xrows, const size_t xcols) {
     const size_t drows = frows*xrows;
     const size_t dcols = fcols*xcols;
-    Matrix<Type>* dresult = CreateMatrixPtr<Type>(drows, dcols);
+    Matrix<Type>* dresult = Matrix<Type>::MatrixFactory::CreateMatrixPtr(drows, dcols);
 
     // Vector of indices in X matrix
     const auto idx = Range<size_t>(0, xrows*xcols);

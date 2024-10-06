@@ -32,7 +32,7 @@ void ZeroMatTransposeHandler::handle(const Matrix<Type> * mat, Matrix<Type> *& r
     const size_t ncols{mat->getNumColumns()};
 
     // Result matrix is transposed zero matrix
-    result = CreateMatrixPtr<Type>(ncols, nrows, MatrixSpl::ZEROS);
+    result = MatrixPool(ncols, nrows, MatrixSpl::ZEROS);
     return;
   }
 #endif

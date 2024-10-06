@@ -26,7 +26,7 @@ void MatTransposeNaiveHandler::handle(const Matrix<Type> * mat, Matrix<Type> *& 
   const size_t nrows{mat->getNumRows()};
   const size_t ncols{mat->getNumColumns()};
 
-  CreateMatrixResource(ncols, nrows, result);
+  MatrixPool(ncols, nrows, result);
 
   const auto idx = Range<size_t>(0, nrows * ncols);
   std::for_each(EXECUTION_PAR idx.begin(), idx.end(),

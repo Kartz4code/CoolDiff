@@ -51,7 +51,7 @@ const Matrix<Type> *ZeroMatAdd(const Matrix<Type> *lhs,
   // If both lhs and rhs matrices are zero matrices
   if (lhs->getMatType() == MatrixSpl::ZEROS &&
       rhs->getMatType() == MatrixSpl::ZEROS) {
-    return CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS);
+    return MatrixPool(nrows, ncols, MatrixSpl::ZEROS);
   }
   // If lhs is a zero matrix
   else if (lhs->getMatType() == MatrixSpl::ZEROS) {
@@ -72,11 +72,13 @@ const Matrix<Type> *ZeroMatScalarAdd(Type lhs, const Matrix<Type> * rhs) {
 
   // If both lhs and rhs matrices are zero matrices
   if ((lhs == (Type)(0)) && (rhs->getMatType() == MatrixSpl::ZEROS)) {
-    return CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS);
+    return MatrixPool(nrows, ncols, MatrixSpl::ZEROS);
   } else if(lhs == (Type)(0)) {
     return rhs;
   } else if(rhs->getMatType() == MatrixSpl::ZEROS) {
-    return CreateMatrixPtr<Type>(nrows, ncols, lhs);
+    Matrix<Type>* result{nullptr};
+    MatrixPool(nrows, ncols, result, lhs);
+    return result;
   } else {
     return nullptr;
   }
@@ -92,7 +94,7 @@ const Matrix<Type> *ZeroMatSub(const Matrix<Type> *lhs,
   // If both lhs and rhs matrices are zero matrices
   if (lhs->getMatType() == MatrixSpl::ZEROS &&
       rhs->getMatType() == MatrixSpl::ZEROS) {
-    return CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS);
+    return MatrixPool(nrows, ncols, MatrixSpl::ZEROS);
   }
   // If lhs is a zero matrix
   else if (lhs->getMatType() == MatrixSpl::ZEROS) {
@@ -115,7 +117,7 @@ const Matrix<Type> *ZeroMatMul(const Matrix<Type> *lhs,
   // If both lhs and rhs matrices are zero matrices
   if (lhs->getMatType() == MatrixSpl::ZEROS ||
       rhs->getMatType() == MatrixSpl::ZEROS) {
-    return CreateMatrixPtr<Type>(lr, rc, MatrixSpl::ZEROS);
+    return MatrixPool(lr, rc, MatrixSpl::ZEROS);
   }
   // If neither, then return nullptr
   else {
@@ -131,7 +133,7 @@ const Matrix<Type> *ZeroMatScalarMul(Type lhs, const Matrix<Type> * rhs) {
 
   // If both lhs and rhs matrices are zero matrices
   if ((lhs == (Type)(0)) || (rhs->getMatType() == MatrixSpl::ZEROS)) {
-    return CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS);
+    return MatrixPool(nrows, ncols, MatrixSpl::ZEROS);
   }
   else {
     return nullptr;
@@ -150,7 +152,7 @@ const Matrix<Type> *ZeroMatKron(const Matrix<Type> *lhs,
   // If both lhs and rhs matrices are zero matrices
   if (lhs->getMatType() == MatrixSpl::ZEROS ||
       rhs->getMatType() == MatrixSpl::ZEROS) {
-    return CreateMatrixPtr<Type>(lr * rr, lc * rc, MatrixSpl::ZEROS);
+    return MatrixPool(lr * rr, lc * rc, MatrixSpl::ZEROS);
   }
   // If neither, then return nullptr
   else {
@@ -168,7 +170,7 @@ const Matrix<Type> *ZeroMatHadamard(const Matrix<Type> *lhs,
   // If both lhs and rhs matrices are zero matrices
   if (lhs->getMatType() == MatrixSpl::ZEROS ||
       rhs->getMatType() == MatrixSpl::ZEROS) {
-    return CreateMatrixPtr<Type>(lr, rc, MatrixSpl::ZEROS);
+    return MatrixPool(lr, rc, MatrixSpl::ZEROS);
   }
   // If neither, then return nullptr
   else {
@@ -188,7 +190,7 @@ const Matrix<Type> *ZeroMatAddNum(const Matrix<Type> *lhs,
   const size_t ncols{rhs->getNumColumns()};
 
   if (lhs_bool == true && rhs_bool == true) {
-    return CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS);
+    return MatrixPool(nrows, ncols, MatrixSpl::ZEROS);
   } else if (lhs_bool == true) {
     return rhs;
   } else if (rhs_bool == true) {
@@ -208,11 +210,13 @@ const Matrix<Type> *ZeroMatScalarAddNum(Type lhs, const Matrix<Type> * rhs) {
   const bool rhs_bool = IsZeroMatrix(rhs);
 
   if ((lhs == (Type)(0)) && rhs_bool == true) {
-    return CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS);
+    return MatrixPool(nrows, ncols, MatrixSpl::ZEROS);
   } else if ((lhs == (Type)(0))) {
     return rhs;
   } else if (rhs_bool == true) {
-    return CreateMatrixPtr<Type>(nrows, ncols, lhs);
+    Matrix<Type>* result{nullptr};
+    MatrixPool(nrows, ncols, result, lhs);
+    return result;
   } else {
     return nullptr;
   }
@@ -230,7 +234,7 @@ const Matrix<Type> *ZeroMatSubNum(const Matrix<Type> *lhs,
   const size_t ncols{rhs->getNumColumns()};
 
   if (lhs_bool == true && rhs_bool == true) {
-    return CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS);
+    return MatrixPool(nrows, ncols, MatrixSpl::ZEROS);
   } else if (lhs_bool == true) {
     return rhs;
   } else if (rhs_bool == true) {
@@ -251,7 +255,7 @@ const Matrix<Type> *ZeroMatMulNum(const Matrix<Type> *lhs,
   const bool lhs_bool = IsZeroMatrix(lhs);
   const bool rhs_bool = IsZeroMatrix(rhs);
   if (lhs_bool == true || rhs_bool == true) {
-    return CreateMatrixPtr<Type>(lr, rc, MatrixSpl::ZEROS);
+    return MatrixPool(lr, rc, MatrixSpl::ZEROS);
   } else {
     return nullptr;
   }
@@ -266,7 +270,7 @@ const Matrix<Type> *ZeroMatScalarMulNum(Type lhs, const Matrix<Type> * rhs) {
   // Boolean check
   const bool rhs_bool = IsZeroMatrix(rhs);
   if ((lhs == (Type)(0)) || rhs_bool == true) {
-    return CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::ZEROS);
+    return MatrixPool(nrows, ncols, MatrixSpl::ZEROS);
   } else {
     return nullptr;
   }
@@ -285,7 +289,7 @@ const Matrix<Type> *ZeroMatKronNum(const Matrix<Type> *lhs,
   const bool lhs_bool = IsZeroMatrix(lhs);
   const bool rhs_bool = IsZeroMatrix(rhs);
   if (lhs_bool == true || rhs_bool == true) {
-    return CreateMatrixPtr<Type>(lr * rr, lc * rc, MatrixSpl::ZEROS);
+    return MatrixPool(lr * rr, lc * rc, MatrixSpl::ZEROS);
   } else {
     return nullptr;
   }
@@ -302,7 +306,7 @@ const Matrix<Type> *ZeroMatHadamardNum(const Matrix<Type> *lhs,
   const bool lhs_bool = IsZeroMatrix(lhs);
   const bool rhs_bool = IsZeroMatrix(rhs);
   if (lhs_bool == true || rhs_bool == true) {
-    return CreateMatrixPtr<Type>(lr, rc, MatrixSpl::ZEROS);
+    return MatrixPool(lr, rc, MatrixSpl::ZEROS);
   } else {
     return nullptr;
   }

@@ -31,7 +31,7 @@ void SubEyeRHS(const Matrix<Type> *it, Matrix<Type> *&result) {
   const size_t nrows{it->getNumRows()};
   const size_t ncols{it->getNumColumns()};
   
-  CreateMatrixResource(nrows, ncols, result);
+  MatrixPool(nrows, ncols, result);
 
   // Copy all LHS matrix value into result
   *result = *it;
@@ -52,7 +52,7 @@ void SubEyeLHS(const Matrix<Type> *it, Matrix<Type> *&result) {
   const size_t nrows{it->getNumRows()};
   const size_t ncols{it->getNumColumns()};
   
-  CreateMatrixResource(nrows, ncols, result);
+  MatrixPool(nrows, ncols, result);
 
   // Iteration elements
   const auto idx = Range<size_t>(0, nrows * ncols);

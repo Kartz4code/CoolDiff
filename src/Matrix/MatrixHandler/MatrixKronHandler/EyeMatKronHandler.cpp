@@ -34,7 +34,7 @@ void KronEyeLHS(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
   const size_t rr{rhs->getNumRows()};
   const size_t rc{rhs->getNumColumns()};
 
-  CreateMatrixResource((lr*rr), (lc*rc), result);
+  MatrixPool((lr*rr), (lc*rc), result);
 
   const auto lhs_idx = Range<size_t>(0, lr * lc);
   const auto rhs_idx = Range<size_t>(0, rr * rc);
@@ -70,7 +70,7 @@ void KronEyeRHS(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
   const size_t rr{rhs->getNumRows()};
   const size_t rc{rhs->getNumColumns()};
 
-  CreateMatrixResource((lr*rr), (lc*rc), result);
+  MatrixPool((lr*rr), (lc*rc), result);
 
   const auto lhs_idx = Range<size_t>(0, lr * lc);
   const auto rhs_idx = Range<size_t>(0, rr * rc);

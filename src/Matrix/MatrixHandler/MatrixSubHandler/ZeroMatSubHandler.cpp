@@ -31,7 +31,7 @@ void SubZero(const Matrix<Type> *it, Matrix<Type> *&result) {
   const size_t nrows{it->getNumRows()};
   const size_t ncols{it->getNumColumns()};
     
-  CreateMatrixResource(nrows, ncols, result);
+  MatrixPool(nrows, ncols, result);
 
   std::transform(EXECUTION_PAR it->getMatrixPtr(),
                  it->getMatrixPtr() + it->getNumElem(), result->getMatrixPtr(),

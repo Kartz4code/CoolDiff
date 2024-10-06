@@ -24,32 +24,47 @@
 #include "CommonFunctions.hpp"
 #include "IMatrix.hpp"
 
-// Factory function for matrix reference creation
-template <typename T, typename... Args> Matrix<T> &CreateMatrix(Args &&...);
-
-// Factory function for matrix pointer creation
-template <typename T, typename... Args> Matrix<T> *CreateMatrixPtr(Args &&...);
 
 // Matrix resource allocation
-void CreateMatrixResource(const size_t, const size_t, Matrix<Type>*&, const Type& = (Type)0);
-Matrix<Type>* CreateMatrixResource(const size_t, const size_t, const MatrixSpl&);
+Matrix<Type>* MatrixPool(const size_t, const size_t, Matrix<Type>*&, const Type& = (Type)0);
+Matrix<Type>* MatrixPool(const size_t, const size_t, const MatrixSpl&);
 
 // Derivative of matrices (Reverse AD)
 Matrix<Type>* DervMatrix(const size_t, const size_t, const size_t, const size_t);
 
 // Matrix class
-template <typename T> class Matrix : public IMatrix<Matrix<T>> {
+template <typename T> 
+class Matrix : public IMatrix<Matrix<T>> {
+public:
+  // Matrix factory
+  class MatrixFactory {
+    public:
+      // Create matrix as reference 
+      template<typename... Args> 
+      static Matrix<T>& CreateMatrix(Args&&... args) {
+        auto tmp = Allocate<Matrix<T>>(std::forward<Args>(args)...);
+        return *tmp;
+      }
+
+      // Create matrix as pointer
+      template<typename... Args>
+      static Matrix<T>* CreateMatrixPtr(Args &&...args) {
+        auto tmp = Allocate<Matrix<T>>(std::forward<Args>(args)...);
+        return tmp.get();
+      }
+  };
+
 private:
   template <typename Z, typename... Argz> 
   friend SharedPtr<Z> Allocate(Argz&&...);
 
-  friend void CreateMatrixResource(const size_t, const size_t, Matrix<Type>*&, const Type&);
-  friend Matrix<Type>* CreateMatrixResource(const size_t, const size_t, const MatrixSpl&);
+  friend Matrix<Type>* MatrixPool(const size_t, const size_t, Matrix<Type>*&, const Type&);
+  friend Matrix<Type>* MatrixPool(const size_t, const size_t, const MatrixSpl&);
 
   // Special matrix constructor
-  constexpr Matrix(size_t rows, size_t cols, MatrixSpl type) : m_rows{rows}, 
-                                                               m_cols{cols}, 
-                                                               m_type{type} 
+  constexpr Matrix(const size_t rows, const size_t cols, const MatrixSpl& type) : m_rows{rows}, 
+                                                                                  m_cols{cols}, 
+                                                                                  m_type{type} 
   {}
 
 private:
@@ -61,7 +76,7 @@ private:
   MatrixSpl m_type{(size_t)(-1)};
 
   // Collection of meta variable expressions
-  Vector<MetaMatrix *> m_gh_vec{};
+  Vector<MetaMatrix*> m_gh_vec{};
 
   // Free matrix resource
   bool m_free{false};
@@ -183,7 +198,9 @@ public:
   T *mp_mat{nullptr};
 
   // Boolean to verify evaluation/forward derivative values
-  bool m_eval{false}, m_devalf{false};
+  bool m_eval{false};
+  bool m_devalf{false};
+
   // Block index
   size_t m_nidx{};
   // Cache for reverse AD
@@ -202,9 +219,10 @@ public:
   {}
 
   // Initalize the matrix with rows and columns
-  constexpr Matrix(size_t rows, size_t cols) : m_rows{rows}, 
+  constexpr Matrix(const size_t rows, const size_t cols) : m_rows{rows}, 
                                                m_cols{cols}, 
-                                               m_type{(size_t)(-1)},
+                                               m_type{(size_t)(-1)}, 
+                                              // rows and cols must be set before calling getNumElem
                                                mp_mat{new T[getNumElem()]{}}, 
                                                mp_result{nullptr}, 
                                                mp_dresult{nullptr},
@@ -214,7 +232,7 @@ public:
   {}
 
   // Initalize the matrix with rows and columns with initial values
-  constexpr Matrix(size_t rows, size_t cols, const T& val) : Matrix(rows, cols) {
+  constexpr Matrix(const size_t rows, const size_t cols, const T& val) : Matrix(rows, cols) {
       std::fill(EXECUTION_PAR mp_mat, mp_mat + getNumElem(), val);  
   }
 
@@ -599,10 +617,10 @@ public:
     // Cache the mp_result value
     if constexpr (false == std::is_same_v<T, Type>) {
       if(nullptr != mp_mat) {
-        CreateMatrixResource(m_rows, m_cols, mp_result);
+        MatrixPool(m_rows, m_cols, mp_result);
       }
     } else {
-      CreateMatrixResource(m_rows, m_cols, mp_result);
+      MatrixPool(m_rows, m_cols, mp_result);
       *mp_result = *this;
     }
 
@@ -638,13 +656,13 @@ public:
     if constexpr (true == std::is_same_v<T, Type> ||
                   true == std::is_same_v<T, Parameter>) {
       #if defined(NAIVE_IMPL)
-        mp_dresult = CreateMatrixResource(m_rows * xrows, m_cols * xcols, MatrixSpl::ZEROS);
+        mp_dresult = MatrixPool(m_rows * xrows, m_cols * xcols, MatrixSpl::ZEROS);
       #else
-        mp_dresult = CreateMatrixResource(m_rows * xrows, m_cols * xcols);
+        mp_dresult = MatrixPool(m_rows * xrows, m_cols * xcols);
       #endif
     } else {
       if(nullptr != mp_mat) {
-        CreateMatrixResource(m_rows * xrows, m_cols * xcols, mp_dresult);
+        MatrixPool(m_rows * xrows, m_cols * xcols, mp_dresult);
       }
     }
 
@@ -795,17 +813,4 @@ public:
     }
   }
 };
-
-// Factory function for matrix creation
-template <typename T, typename... Args>
-Matrix<T> &CreateMatrix(Args &&...args) {
-  auto tmp = Allocate<Matrix<T>>(std::forward<Args>(args)...);
-  return *tmp;
-}
-
-template <typename T, typename... Args>
-Matrix<T> *CreateMatrixPtr(Args &&...args) {
-  auto tmp = Allocate<Matrix<T>>(std::forward<Args>(args)...);
-  return tmp.get();
-}
 

@@ -34,7 +34,7 @@ void EyeMatDervTransposeHandler::handle(const size_t nrows_f, const size_t ncols
     const size_t ncols{nrows_f*ncols_x};
 
     // Result transposed derivative matrix   
-    result = CreateMatrixPtr<Type>(nrows, ncols, MatrixSpl::EYE);
+    result = MatrixPool(nrows, ncols, MatrixSpl::EYE);
     return;
   }
 #endif
