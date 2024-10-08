@@ -24,11 +24,6 @@
 #include "CommonFunctions.hpp"
 #include "IMatrix.hpp"
 
-
-// Matrix resource allocation
-Matrix<Type>* MatrixPool(const size_t, const size_t, Matrix<Type>*&, const Type& = (Type)0);
-Matrix<Type>* MatrixPool(const size_t, const size_t, const MatrixSpl&);
-
 // Derivative of matrices (Reverse AD)
 Matrix<Type>* DervMatrix(const size_t, const size_t, const size_t, const size_t);
 
@@ -55,19 +50,24 @@ public:
   };
 
 private:
+  // Allocate friend function
   template <typename Z, typename... Argz> 
   friend SharedPtr<Z> Allocate(Argz&&...);
 
-  friend Matrix<Type>* MatrixPool(const size_t, const size_t, Matrix<Type>*&, const Type&);
-  friend Matrix<Type>* MatrixPool(const size_t, const size_t, const MatrixSpl&);
+  // Memory manager is a friend class
+  friend class MemoryManager;
 
-  // Special matrix constructor
+  // Matrices of template types is a friend class
+  template<typename Z>
+  friend class Matrix;
+
+  // Special matrix constructor (Privatized)
   constexpr Matrix(const size_t rows, const size_t cols, const MatrixSpl& type) : m_rows{rows}, 
                                                                                   m_cols{cols}, 
                                                                                   m_type{type} 
   {}
 
-private:
+
   // Matrix row and column size
   size_t m_rows{0};
   size_t m_cols{0};
@@ -75,30 +75,34 @@ private:
   // Type of matrix (Special matrices)
   MatrixSpl m_type{(size_t)(-1)};
 
+  // Matrix raw pointer of underlying type (Expression, Variable, Parameter, Type)
+  T *mp_mat{nullptr};
+
   // Collection of meta variable expressions
   Vector<MetaMatrix*> m_gh_vec{};
 
   // Free matrix resource
   bool m_free{false};
+  
+  // Boolean to verify evaluation/forward derivative values
+  bool m_eval{false};
+  bool m_devalf{false};
 
   // Matrix pointer for evaluation result (Type)
   Matrix<Type> *mp_result{nullptr};
   // Matrix pointer for forward derivative (Type)
   Matrix<Type> *mp_dresult{nullptr};
 
-
   // Set values for the result matrix
   inline void setEval() {
     // Set result matrix
-    if constexpr (false == std::is_same_v<T, Type>) {
-      if ((nullptr != mp_mat) && 
-          (nullptr != mp_result) &&
-          (nullptr != mp_result->mp_mat)) {
-        std::transform(EXECUTION_SEQ 
-                       mp_mat, mp_mat + getNumElem(),
-                       mp_result->mp_mat,
-                       [this](auto &v) { return Eval(v); });
-      }
+    if ((nullptr != mp_mat) && 
+        (nullptr != mp_result) &&
+        (nullptr != mp_result->mp_mat)) {
+      std::transform(EXECUTION_SEQ 
+                      mp_mat, mp_mat + getNumElem(),
+                      mp_result->mp_mat,
+                      [this](auto &v) { return Eval(v); });
     }
   }
 
@@ -119,7 +123,7 @@ private:
 
         // Vector of indices in current matrix
         const auto outer_idx = Range<size_t>(0, getNumElem());
-        const auto inner_idx = Range<size_t>(0, xrows * xcols);
+        const auto inner_idx = Range<size_t>(0, (xrows * xcols));
 
         // Logic for Kronecker product (Reverse mode differentiation)
         std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(),
@@ -132,8 +136,7 @@ private:
                                       inner_idx.end(), [&](const size_t n) {
                                         const size_t j = n % xcols;
                                         const size_t i = (n - j) / xcols;
-                                        (*mp_dresult)(l * xrows + i,
-                                                      k * xcols + j) =
+                                        (*mp_dresult)(l * xrows + i, k * xcols + j) =
                                             DevalR((*this)(l, k), X(i, j));
                                       });
                       });
@@ -194,13 +197,6 @@ private:
   }
 
 public:
-  // Matrix raw pointer of underlying type (Expression, Variable, Parameter, Type)
-  T *mp_mat{nullptr};
-
-  // Boolean to verify evaluation/forward derivative values
-  bool m_eval{false};
-  bool m_devalf{false};
-
   // Block index
   size_t m_nidx{};
   // Cache for reverse AD
@@ -246,6 +242,8 @@ public:
                                              m_eval{false}, 
                                              m_devalf{false}, 
                                              m_nidx{this->m_idx_count++ } {
+    // Static assert so that type T is an expression
+    static_assert(true == std::is_same_v<T,Expression>, "[ERROR] The type T is not an expression");
     // Reserve a buffer of Matrix expressions
     m_gh_vec.reserve(g_vec_init);
     // Emplace the expression in a generic holder
@@ -255,6 +253,8 @@ public:
   /* Copy assignment for expression evaluation */
   template <typename Z> 
   Matrix &operator=(const IMatrix<Z> &expr) {
+    // Static assert so that type T is an expression
+    static_assert(true == std::is_same_v<T,Expression>, "[ERROR] The type T is not an expression");
     // Clear buffer if not recursive expression not found
     if (static_cast<const Z &>(expr).findMe(this) == false) {
       m_gh_vec.clear();
@@ -617,11 +617,10 @@ public:
     // Cache the mp_result value
     if constexpr (false == std::is_same_v<T, Type>) {
       if(nullptr != mp_mat) {
-        MatrixPool(m_rows, m_cols, mp_result);
+        MemoryManager::MatrixPool(m_rows, m_cols, mp_result);
       }
     } else {
-      MatrixPool(m_rows, m_cols, mp_result);
-      *mp_result = *this;
+      MemoryManager::MatrixPool(m_rows, m_cols, mp_result);
     }
 
     // If value not evaluated, compute it again
@@ -656,13 +655,13 @@ public:
     if constexpr (true == std::is_same_v<T, Type> ||
                   true == std::is_same_v<T, Parameter>) {
       #if defined(NAIVE_IMPL)
-        mp_dresult = MatrixPool(m_rows * xrows, m_cols * xcols, MatrixSpl::ZEROS);
+        mp_dresult = MemoryManager::MatrixSplPool((m_rows * xrows), (m_cols * xcols), MatrixSpl::ZEROS);
       #else
-        mp_dresult = MatrixPool(m_rows * xrows, m_cols * xcols);
+         MemoryManager::MatrixPool((m_rows * xrows), (m_cols * xcols), mp_dresult);
       #endif
     } else {
       if(nullptr != mp_mat) {
-        MatrixPool(m_rows * xrows, m_cols * xcols, mp_dresult);
+         MemoryManager::MatrixPool((m_rows * xrows), (m_cols * xcols), mp_dresult);
       }
     }
 
@@ -814,3 +813,11 @@ public:
   }
 };
 
+// Variable matrix
+using MatVariable = Matrix<Variable>;
+// Parameter matrix
+using MatParameter = Matrix<Parameter>;
+// Expression matrix
+using MatExpression = Matrix<Expression>;
+// Type matrix
+using MatType = Matrix<Type>;

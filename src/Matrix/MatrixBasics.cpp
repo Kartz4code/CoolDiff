@@ -27,12 +27,15 @@ const Matrix<Type> *Eye(const size_t n) {
   // Eye matrix registry
   static UnOrderedMap<size_t, Matrix<Type> *> eye_register;
 
+  // Result matrix
+  Matrix<Type> *result{nullptr};
+
   // Find in registry of special matrices
   if (auto it = eye_register.find(n); it != eye_register.end()) {
     return it->second;
   } else {
-    Matrix<Type> *result{nullptr};
-    MatrixPool(n,n,result);
+    // Pool matrix
+    MemoryManager::MatrixPool(n,n,result);
 
     // Vector of indices
     const auto idx = Range<size_t>(0, n);
@@ -49,13 +52,15 @@ const Matrix<Type> *Zeros(const size_t n, const size_t m) {
   // Zeros matrix registry
   static UnOrderedMap<Pair<size_t, size_t>, Matrix<Type> *> zeros_register;
 
+  // Result matrix
+  Matrix<Type>* result{nullptr};
+    
   // Find in registry of special matrices
   if (auto it = zeros_register.find({n, m}); it != zeros_register.end()) {
     return it->second;
   } else {
-    Matrix<Type>* result{nullptr};
-    MatrixPool(n,m,result);
-
+    // Pool matrix
+    MemoryManager::MatrixPool(n,m,result);
     // Register and return result
     zeros_register[{n, m}] = result;
     return result;
@@ -72,13 +77,15 @@ const Matrix<Type> *Ones(const size_t n, const size_t m) {
   // Zeros matrix registry
   static UnOrderedMap<Pair<size_t, size_t>, Matrix<Type> *> ones_register;
 
+  // Result matrix
+  Matrix<Type> *result{nullptr};
+
   // Find in registry of special matrices
   if (auto it = ones_register.find({n, m}); it != ones_register.end()) {
     return it->second;
   } else {
-    // Result matrix
-    Matrix<Type> *result{nullptr};
-    MatrixPool(n,m,result,1); 
+    // Pool matrix
+    MemoryManager::MatrixPool(n,m,result,1); 
     // Register and return result
     ones_register[{n, m}] = result;
     return result;

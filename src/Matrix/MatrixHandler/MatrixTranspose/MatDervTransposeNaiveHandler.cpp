@@ -29,7 +29,8 @@ void MatDervTransposeNaiveHandler::handle(const size_t nrows_f, const size_t nco
   const size_t nrows{ncols_f*nrows_x};
   const size_t ncols{nrows_f*ncols_x};
 
-  MatrixPool(nrows, ncols, result);
+  // Pool matrix
+  MemoryManager::MatrixPool(nrows, ncols, result);
 
   const auto outer_idx = Range<size_t>(0, ncols_f*nrows_f);
   const auto inner_idx = Range<size_t>(0, ncols_x*nrows_x);

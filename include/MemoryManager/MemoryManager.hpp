@@ -32,10 +32,6 @@ private:
   template <typename T, typename... Args>
   friend SharedPtr<T> Allocate(Args &&...args);
 
-  // Matrix resource generation
-  friend Matrix<Type>* MatrixPool(const size_t, const size_t, Matrix<Type>*&, const Type&);
-  friend Matrix<Type>* MatrixPool(const size_t, const size_t, const MatrixSpl&);
-
   // Vector of deleted or to be deleted resources
   inline static Vector<SharedPtr<MetaVariable>> m_del_ptr;
   inline static Vector<SharedPtr<MetaMatrix>> m_del_mat_ptr;
@@ -46,6 +42,12 @@ private:
 public:
   // Get size of memory allocated
   static size_t size();
+ 
+  // Special matrix pool allocation
+  static Matrix<Type>* MatrixSplPool(const size_t, const size_t, const MatrixSpl&);
+  // Matrix pool allocation
+  static void MatrixPool(const size_t, const size_t, Matrix<Type>*&, const Type& = (Type)0);
+
 };
 
 // Delete resource

@@ -33,7 +33,9 @@ private:
   }
 
   // CRTP mutable
-  inline constexpr T &derived() { return static_cast<T &>(*this); }
+  inline constexpr T &derived() { 
+    return static_cast<T &>(*this); 
+  }
 
 protected:
   // Protected constructor
@@ -113,4 +115,5 @@ enum OpMat : size_t {
       void (*)(const size_t, const size_t, const size_t, const size_t, const Matrix<Type>*, Matrix<Type>*&)
 
 // Operation objects [Order matters!]
-#define OpMatObj MatrixAdd, MatrixMul, MatrixKron, MatrixSub, MatrixHadamard, MatrixScalarAdd, MatrixScalarMul, MatrixTranspose, MatrixDervTranspose
+#define OpMatObj MatrixAdd, MatrixMul, MatrixKron, MatrixSub, MatrixHadamard, MatrixScalarAdd, \
+                 MatrixScalarMul, MatrixTranspose, MatrixDervTranspose
