@@ -31,7 +31,8 @@ void MatScalarAddNaiveHandler::handle(Type lhs,
   const size_t nrows{rhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
   
-  MatrixPool(nrows, ncols, result);
+  // Pool matrix
+  MemoryManager::MatrixPool(nrows, ncols, result);
 
   // Get raw pointers to result, left and right matrices
   const Type *res = result->getMatrixPtr();

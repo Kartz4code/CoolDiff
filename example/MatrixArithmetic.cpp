@@ -25,9 +25,7 @@
 
 void func11() {
 
-  
-
-  Matrix<Variable>& X = Matrix<Variable>::MatrixFactory::CreateMatrix(2,3);
+  MatVariable& X = MatVariable::MatrixFactory::CreateMatrix(2,3);
   X(0, 0) = 1; X(0, 1) = 2; X(0, 2) = 3;
   X(1, 0) = 4; X(1, 1) = 5; X(1, 2) = 6;
 
@@ -35,6 +33,10 @@ void func11() {
   A(0,0) = 4; A(0,1) = 3; 
   A(1,0) = 2; A(1,1) = 1;
   A(2,0) = 37; A(2,1) = 43;
+
+  
+  Matrix<Expression> Ym = A*X*A;
+  std::cout << Eval(Ym) << "\n";
 
   Matrix<Expression> Y = sigma(transpose(X)*transpose(A));
   Y = Y*sigma(A*X);

@@ -45,8 +45,7 @@ public:
     }
   }
 
-  /* Copy assignment for expression evaluation - e.g.Variable x = x1 + x2 + x3;
-   */
+  // Copy assignment for expression evaluation - e.g.Variable x = x1 + x2 + x3;
   template <typename T> Expression &operator=(const IVariable<T> &expr) {
     if (auto rec = static_cast<const T &>(expr).findMe(this); rec == false) {
       m_gh_vec.clear();

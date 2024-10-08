@@ -34,7 +34,8 @@ void MatMulNaiveHandler::handle(const Matrix<Type> *lhs,
   // Assert dimensions
   ASSERT(lcols == rrows, "Matrix multiplication dimensions mismatch");
 
-  MatrixPool(lrows, rcols, result);
+  // Pool matrix
+  MemoryManager::MatrixPool(lrows, rcols, result);
 
   // Indices for outer loop and inner loop
   const auto outer_idx = Range<size_t>(0, lrows * rcols);

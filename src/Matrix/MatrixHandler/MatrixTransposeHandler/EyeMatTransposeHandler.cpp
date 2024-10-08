@@ -32,7 +32,7 @@ void EyeMatTransposeHandler::handle(const Matrix<Type> * mat, Matrix<Type> *& re
     const size_t ncols{mat->getNumColumns()};
     
     // Result matrix is transposed identity matrix   
-    result = MatrixPool(ncols, nrows, MatrixSpl::EYE);
+    result = MemoryManager::MatrixSplPool(ncols, nrows, MatrixSpl::EYE);
     return;
   }
 #endif
