@@ -54,3 +54,6 @@ public:
   // Destructor
   V_DTR(~MetaMatrix()) = default;
 };
+
+// Reset type matrix (Set the values of MatType to zero)
+void ResetZero(Matrix<Type>*);

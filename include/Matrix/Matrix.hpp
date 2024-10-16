@@ -389,8 +389,39 @@ public:
     return mp_mat[l];
   }
 
+  // Get block matrix
+  void getBlockMat(const Pair<size_t, size_t>& rows, const Pair<size_t, size_t>& cols, Matrix*& result) {
+    const size_t row_start = rows.first;
+    const size_t row_end = rows.second; 
+    const size_t col_start = cols.first; 
+    const size_t col_end = cols.second; 
+
+    // Assert for row start/end, column start/end and index out of bound checks
+    ASSERT((row_start >= 0 && row_start < m_rows), "Row starting index out of bound");
+    ASSERT((row_end >= 0 && row_end < m_rows), "Row ending index out of bound");
+    ASSERT((col_start >= 0 && col_start < m_cols), "Column starting index out of bound");
+    ASSERT((col_end >= 0 && col_end < m_cols), "Column ending index out of bound");
+    ASSERT((row_start <= row_end), "Row start greater than row ending");
+    ASSERT((col_start <= col_end), "Column start greater than row ending");
+
+    // Output matrix
+    MemoryManager::MatrixPool(row_end - row_start + 1, col_end - col_start + 1, result);
+    const auto outer_idx = Range<size_t>(row_start, row_end+1);
+    const auto inner_idx = Range<size_t>(col_start, col_end+1); 
+    std::for_each(EXECUTION_PAR 
+                  outer_idx.begin(), outer_idx.end(), 
+                  [this,&col_start,&row_start,&inner_idx,result] (const size_t i) {
+      std::for_each(EXECUTION_PAR 
+                    inner_idx.begin(), inner_idx.end(), 
+                    [i,this,&col_start,&row_start,&inner_idx,result] (const size_t j) {
+          (*result)(i-row_start,j-col_start) = (*this)(i,j);
+      });
+    });
+
+  }
+
   // Set block matrix
-  Matrix& operator()(const Pair<size_t, size_t>& rows, const Pair<size_t, size_t>& cols, const Matrix& m) {
+  void setBlockMat(const Pair<size_t, size_t>& rows, const Pair<size_t, size_t>& cols, const Matrix* m) {
     const size_t row_start = rows.first;
     const size_t row_end = rows.second; 
     const size_t col_start = cols.first; 
@@ -403,87 +434,29 @@ public:
     ASSERT((col_end >= 0 && col_end < m_cols), "Column ending index out of bound");
     ASSERT((row_start <= row_end), "Row start greater than row ending");
     ASSERT((col_start <= col_end), "Column start greater than row ending");
-    ASSERT((row_end-row_start+1 == m.getNumRows()), "Row mismatch for insertion matrix");
-    ASSERT((col_end-col_start+1 == m.getNumColumns()), "Column mismatch for insertion matrix");
+    ASSERT((row_end-row_start+1 == m->getNumRows()), "Row mismatch for insertion matrix");
+    ASSERT((col_end-col_start+1 == m->getNumColumns()), "Column mismatch for insertion matrix");
 
     // Output matrix
     const auto outer_idx = Range<size_t>(row_start, row_end+1);
     const auto inner_idx = Range<size_t>(col_start, col_end+1); 
     std::for_each(EXECUTION_PAR 
                   outer_idx.begin(), outer_idx.end(), 
-                  [this,&col_start,&row_start,&inner_idx,&m] (const size_t i) {
+                  [this,&col_start,&row_start,&inner_idx,m] (const size_t i) {
       std::for_each(EXECUTION_PAR 
                     inner_idx.begin(), inner_idx.end(), 
-                    [i,this,&col_start,&row_start,&inner_idx,&m] (const size_t j) {
-          (*this)(i,j) = m(i-row_start,j-col_start);
+                    [i,this,&col_start,&row_start,&inner_idx,m] (const size_t j) {
+          (*this)(i,j) = (*m)(i-row_start,j-col_start);
       });
     });
-
-    return *this;
   }
 
-  // Get block copy
-  Matrix operator()(const Pair<size_t, size_t>& rows, const Pair<size_t, size_t>& cols) const & {
-    const size_t row_start = rows.first;
-    const size_t row_end = rows.second; 
-    const size_t col_start = cols.first; 
-    const size_t col_end = cols.second; 
-
-    // Assert for row start/end, column start/end and index out of bound checks
-    ASSERT((row_start >= 0 && row_start < m_rows), "Row starting index out of bound");
-    ASSERT((row_end >= 0 && row_end < m_rows), "Row ending index out of bound");
-    ASSERT((col_start >= 0 && col_start < m_cols), "Column starting index out of bound");
-    ASSERT((col_end >= 0 && col_end < m_cols), "Column ending index out of bound");
-    ASSERT((row_start <= row_end), "Row start greater than row ending");
-    ASSERT((col_start <= col_end), "Column start greater than row ending");
-
-    // Output matrix
-    Matrix tmp(row_end - row_start + 1, col_end - col_start + 1);
-    const auto outer_idx = Range<size_t>(row_start, row_end+1);
-    const auto inner_idx = Range<size_t>(col_start, col_end+1); 
-    std::for_each(EXECUTION_PAR 
-                  outer_idx.begin(), outer_idx.end(), 
-                  [this,&col_start,&row_start,&inner_idx,&tmp] (const size_t i) {
-      std::for_each(EXECUTION_PAR 
-                    inner_idx.begin(), inner_idx.end(), 
-                    [i,this,&col_start,&row_start,&inner_idx,&tmp] (const size_t j) {
-          tmp(i-row_start,j-col_start) = (*this)(i,j);
-      });
-    });
-
-    return tmp;
-  }
-
-  // Get block move
-  Matrix  operator()(const Pair<size_t, size_t>& rows, const Pair<size_t, size_t>& cols) && {
-    const size_t row_start = rows.first;
-    const size_t row_end = rows.second; 
-    const size_t col_start = cols.first; 
-    const size_t col_end = cols.second; 
-
-    // Assert for row start/end, column start/end and index out of bound checks
-    ASSERT((row_start >= 0 && row_start < m_rows), "Row starting index out of bound");
-    ASSERT((row_end >= 0 && row_end < m_rows), "Row ending index out of bound");
-    ASSERT((col_start >= 0 && col_start < m_cols), "Column starting index out of bound");
-    ASSERT((col_end >= 0 && col_end < m_cols), "Column ending index out of bound");
-    ASSERT((row_start <= row_end), "Row start greater than row ending");
-    ASSERT((col_start <= col_end), "Column start greater than row ending");
-
-    // Output matrix
-    Matrix tmp(row_end - row_start + 1, col_end - col_start + 1);
-    const auto outer_idx = Range<size_t>(row_start, row_end+1);
-    const auto inner_idx = Range<size_t>(col_start, col_end+1); 
-    std::for_each(EXECUTION_PAR 
-                  outer_idx.begin(), outer_idx.end(), 
-                  [this,&col_start,&row_start,&inner_idx,&tmp] (const size_t i) {
-      std::for_each(EXECUTION_PAR 
-                    inner_idx.begin(), inner_idx.end(), 
-                    [i,this,&col_start,&row_start,&inner_idx,&tmp] (const size_t j) {
-          tmp(i-row_start,j-col_start) = (*this)(i,j);
-      });
-    });
-
-    return std::move(tmp);
+  // Add zero padding
+  void pad(const size_t r, const size_t c, Matrix*& result) {
+    MemoryManager::MatrixPool(m_rows + 2*r, m_cols + 2*c, result);
+    result->setBlockMat({r,r+m_rows-1},
+                        {c,c+m_cols-1},
+                        this);
   }
 
   // Get a row (Move)
@@ -812,12 +785,3 @@ public:
     }
   }
 };
-
-// Variable matrix
-using MatVariable = Matrix<Variable>;
-// Parameter matrix
-using MatParameter = Matrix<Parameter>;
-// Expression matrix
-using MatExpression = Matrix<Expression>;
-// Type matrix
-using MatType = Matrix<Type>;

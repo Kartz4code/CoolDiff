@@ -23,6 +23,32 @@
 #include "CoolDiff.hpp"
 #include "MatOperators.hpp"
 
+void func13() {
+  Matrix<Variable> X(2,2); 
+  Matrix<Variable> W(2,2), W2(2,2);
+
+  X(0,0) = -9; X(0,1) = 4;
+  X(1,0) = 1; X(1,1) = -7;
+
+  W(0,0) = 1; W(0,1) = 2;
+  W(1,0) = 3; W(1,1) = 4;
+ 
+  W2(0,0) = 3; W2(0,1) = 4;
+  W2(1,0) = 5; W2(1,1) = 6;
+ 
+  Matrix<Expression> exp = conv(conv(X,W,1,1,1,1),W2,2,2,1,1);
+  std::cout << DevalF(exp,W2) << "\n";
+  
+}
+
+void func12() {
+  Variable x1{2}, x2{5}; 
+  std::cout << Eval(x1*x2 + x1) << "\n";
+
+  std::cout << DevalF(x1*x2 + x1, x1) << "\n";  
+  std::cout << DevalR(x1, x1) << "\n";  
+}
+
 void func11() {
 
   MatVariable& X = MatVariable::MatrixFactory::CreateMatrix(2,3);
@@ -77,23 +103,6 @@ void func10() {
   A(0, 0) = 1; A(0, 1) = 2;
   A(1, 0) = 3; A(1, 1) = 4;
   A(2, 0) = 5; A(2, 1) = 6;
-  
-  auto Mz = A({1,2},{0,1});
-  std::cout << Mz << "\n";
-
-  Matrix<Type> L(4,4);
-  for(size_t i{}; i < 2; ++i) {
-    for(size_t j{}; j < 2; ++j) {
-      L({2*i,2*i+2-1},{2*j,2*j+2-1}, Mz);
-    }
-  }
-  std::cout << L << "\n";
-  auto Mz1 = A({1,2},{0,0});
-  std::cout << Mz1 << "\n";
-  L({1,2},{1,1}, Mz1);
-  std::cout << L << "\n";
-
-
 
   Matrix<Type> Z(2,1);
   Z(0,0) = 5; Z(1,0) = 6;
@@ -214,6 +223,8 @@ void func5() {
 }
 
 int main(int argc, char **argv) {
+  func13();
+  func12();
   func11();
   func10();
   func9();

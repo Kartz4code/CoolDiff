@@ -66,7 +66,7 @@ public:
                                                                    mp_right{v}, 
                                                                    m_caller{std::make_tuple(std::forward<Callables>(call)...)},
                                                                    m_nidx{this->m_idx_count++} {
-    std::fill_n(mp_arr, m_size, nullptr);                                                                  
+    std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);                                                                  
   }
 
   // Get number of rows
@@ -117,7 +117,7 @@ public:
 
     // L (X) I - Left matrix and identity Kronocker product (Policy design)
     MATRIX_KRON(left_mat, Ones(nrows, ncols), mp_arr[4]);
-    // R (X) I - Right matrix and identity Kronocke product (Policy design)
+    // R (X) I - Right matrix and identity Kronocker product (Policy design)
     MATRIX_KRON(right_mat, Ones(nrows, ncols), mp_arr[5]);
 
     // Hadamard product with left and right derivatives (Policy design)

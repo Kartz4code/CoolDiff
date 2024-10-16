@@ -24,7 +24,9 @@
 #include "MatrixZeroOps.hpp"
 
 
-void ZeroMatScalarMulHandler::handle(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
+void ZeroMatScalarMulHandler::handle(Type lhs, 
+                                     const Matrix<Type> *rhs, 
+                                     Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
   if (auto *it = ZeroMatScalarMul(lhs, rhs); nullptr != it) {

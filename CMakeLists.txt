@@ -108,6 +108,7 @@ set(SRC
     ${CMAKE_SOURCE_DIR}/src/Scalar/CommonFunctions.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/CommonMatFunctions.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatOperators.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MetaMatrix.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixBasics.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/Matrix.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixSplOps/MatrixZeroOps.cpp

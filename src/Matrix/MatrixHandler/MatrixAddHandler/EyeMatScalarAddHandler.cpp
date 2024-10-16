@@ -41,7 +41,8 @@ void AddEye(Type val, const Matrix<Type> * it, Matrix<Type> *&result) {
       [&](const size_t i) { (*result)(i, i) = (*result)(i, i) + (Type)(1); });
 }
 
-void EyeMatScalarAddHandler::handle(Type lhs, const Matrix<Type> *rhs,
+void EyeMatScalarAddHandler::handle(Type lhs, 
+                                    const Matrix<Type> *rhs,
                                     Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   /* Eye matrix special check */

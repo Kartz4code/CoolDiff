@@ -39,14 +39,14 @@ Type DevalFExp(Expression &exp, const Variable &x) {
 }
 
 // Main precomputation of reverse mode AD computation 1st
-void PreComp(Expression &exp) {
+void PreCompExp(Expression &exp) {
   // Reset visited flags in the tree
   exp.resetImpl();
   // Traverse tree
   exp.traverse();
 }
 // Main reverse mode AD table 1st
-OMPair &PreCompCache(Expression &exp) {
+OMPair &PreCompCacheExp(Expression &exp) {
   // Reset flags
   exp.resetImpl();
   // Traverse evaluation graph/tree
@@ -62,18 +62,9 @@ Expression &SymDiff(Expression &exp, const Variable &var) {
 }
 
 // Reverse mode algorithmic differentiation (Scalar)
-Type DevalR(Expression &exp, const Variable &x) {
+Type DevalRExp(Expression &exp, const Variable &x) {
   // Return reverse differentiation value
   return exp.devalR(x);
-}
-// Forward/Reverse derivative of expression (Scalar)
-Type Deval(Expression &exp, const Variable &x, ADMode ad) {
-  if (ad == ADMode::FORWARD) {
-    return DevalF(exp, x);
-  } else {
-    PreComp(exp);
-    return DevalR(exp, x);
-  }
 }
 
 // Forward mode algorithmic differentiation (Matrix)
