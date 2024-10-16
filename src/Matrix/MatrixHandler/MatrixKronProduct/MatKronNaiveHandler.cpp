@@ -35,7 +35,7 @@ void MatKronNaiveHandler::handle(const Matrix<Type> *lhs,
   
   // Pool matrix
   MemoryManager::MatrixPool((lr*rr), (lc*rc), result);
-
+  
   const auto lhs_idx = Range<size_t>(0, lr * lc);
   const auto rhs_idx = Range<size_t>(0, rr * rc);
   std::for_each(EXECUTION_PAR lhs_idx.begin(), lhs_idx.end(),

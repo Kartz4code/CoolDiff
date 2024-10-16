@@ -24,7 +24,8 @@
 #include "MatrixEyeOps.hpp"
 
 // When left matrix is special matrix of identity type
-void KronEyeLHS(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+void KronEyeLHS(const Matrix<Type> *lhs, 
+                const Matrix<Type> *rhs,
                 Matrix<Type> *&result) {
   /* Matrix-Matrix numerical Kronocker product */
   // Rows and columns of result matrix and if result is nullptr, then create a
@@ -61,7 +62,8 @@ void KronEyeLHS(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
 }
 
 // When right matrix is special matrix of identity type
-void KronEyeRHS(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+void KronEyeRHS(const Matrix<Type> *lhs, 
+                const Matrix<Type> *rhs,
                 Matrix<Type> *&result) {
   /* Matrix-Matrix numerical Kronocker product */
   // Rows and columns of result matrix and if result is nullptr, then create a
@@ -97,7 +99,8 @@ void KronEyeRHS(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
                 });
 }
 
-void EyeMatKronHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+void EyeMatKronHandler::handle(const Matrix<Type> *lhs, 
+                               const Matrix<Type> *rhs,
                                Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   /* Eye matrix special check */

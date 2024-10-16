@@ -39,6 +39,7 @@ void MatAddNaiveHandler::handle(const Matrix<Type> *lhs,
   
   // Pool matrix
   MemoryManager::MatrixPool(nrows, ncols, result);
+  
 
   // Get raw pointers to result, left and right matrices
   const Type *res = result->getMatrixPtr();

@@ -67,7 +67,7 @@ public:
                                                                mp_right{v}, 
                                                                m_caller{std::make_tuple(std::forward<Callables>(call)...)},
                                                                m_nidx{this->m_idx_count++} {
-    std::fill_n(mp_arr, m_size, nullptr);                                                            
+    std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);                                                            
   }
 
   // Get number of rows
@@ -160,7 +160,7 @@ public:
                                                                      mp_right{v}, 
                                                                      m_caller{std::make_tuple(std::forward<Callables>(call)...)},
                                                                      m_nidx{this->m_idx_count++} {
-    std::fill_n(mp_arr, m_size, nullptr);                                                                    
+    std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);                                                                    
   }
 
   // Get number of rows
@@ -241,7 +241,7 @@ public:
                                                                         mp_right{v}, 
                                                                         m_caller{std::make_tuple(std::forward<Callables>(call)...)},
                                                                         m_nidx{this->m_idx_count++} {
-    std::fill_n(mp_arr, m_size, nullptr);                                                                        
+    std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);                                                                        
   }
 
   // Get number of rows

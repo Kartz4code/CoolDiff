@@ -169,6 +169,15 @@ class Expression;
 template <typename> 
 class Matrix;
 
+// Predeclare Variable matrix
+using MatVariable = Matrix<Variable>;
+// Predeclare Parameter matrix
+using MatParameter = Matrix<Parameter>;
+// Predeclare Expression matrix
+using MatExpression = Matrix<Expression>;
+// Predeclare Type matrix
+using MatType = Matrix<Type>;
+
 // Pair type
 template <typename T, typename U> 
 using Pair = std::pair<T, U>;
@@ -188,8 +197,6 @@ using OMMatPair = std::unordered_map<Pair<size_t,size_t>, Matrix<Type> *>;
 // A generic unorderedmap
 template <typename T, typename U> using UnOrderedMap = std::unordered_map<T, U>;
 #endif
-
-
 
 // A generic vector type
 template <typename T> 

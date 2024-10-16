@@ -23,8 +23,19 @@
 #include "Matrix.hpp"
 #include "MatrixZeroOps.hpp"
 
-void ZeroMatMulHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+void ZeroMatMulHandler::handle(const Matrix<Type> *lhs, 
+                               const Matrix<Type> *rhs,
                                Matrix<Type> *&result) {
+
+// If result is nullptr, then create a new resource
+const size_t lrows{lhs->getNumRows()};
+const size_t lcols{lhs->getNumColumns()};
+const size_t rcols{rhs->getNumColumns()};
+const size_t rrows{rhs->getNumRows()};
+
+// Assert dimensions
+ASSERT(lcols == rrows, "Matrix multiplication dimensions mismatch");
+
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
   if (auto *it = ZeroMatMul(lhs, rhs); nullptr != it) {

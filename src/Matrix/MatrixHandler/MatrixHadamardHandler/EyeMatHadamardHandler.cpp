@@ -44,6 +44,15 @@ void HadamardEye(const Matrix<Type> *it, Matrix<Type> *&result) {
 void EyeMatHadamardHandler::handle(const Matrix<Type> *lhs,
                                    const Matrix<Type> *rhs,
                                    Matrix<Type> *&result) {
+
+const size_t nrows{lhs->getNumRows()};
+const size_t ncols{rhs->getNumColumns()};
+const size_t lcols{lhs->getNumColumns()};
+const size_t rrows{rhs->getNumRows()};
+
+// Assert dimensions
+ASSERT((nrows == rrows) && (ncols == lcols), "Matrix Hadamard product dimensions mismatch");
+
 #if defined(NAIVE_IMPL)
   /* Eye matrix special check */
   if (auto *it = EyeMatHadamard(lhs, rhs); nullptr != it) {

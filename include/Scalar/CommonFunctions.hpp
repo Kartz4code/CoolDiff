@@ -50,12 +50,20 @@
 #include "GenericTan.hpp"
 #include "GenericTanh.hpp"
 
-
 // Main evaluate expression function
 Type EvalExp(Expression &);
 
 // Main forward mode AD computation
 Type DevalFExp(Expression &, const Variable &);
+
+// Main reverse mode AD computation
+Type DevalRExp(Expression &, const Variable &);
+
+// Main precomputation of reverse mode AD computation
+void PreCompExp(Expression &);
+
+// Main reverse mode AD table
+OMPair &PreCompCacheExp(const Expression &);
 
 template<typename T>
 inline constexpr Type Eval(T& v) {
@@ -112,19 +120,69 @@ inline constexpr Type DevalF(T& v, const Variable& var) {
   }
 }
 
-// Main precomputation of reverse mode AD computation
-void PreComp(Expression &);
-// Main reverse mode AD table
-OMPair &PreCompCache(const Expression &);
+template<typename T>
+inline constexpr void PreComp(T& v) {
+  // If T is Expression
+  if constexpr(std::is_same_v<T,Expression> == true) {
+    PreCompExp(v);
+  } 
+  // If T is an expression template
+  else if constexpr(true == std::is_base_of_v<MetaVariable, T>) {
+    const_cast<std::decay_t<T>&>(v).reset();
+    const_cast<std::decay_t<T>&>(v).traverse();
+  }
+  // If unknown type, throw error 
+  else {
+    ASSERT(false, "Unknown type");
+  }
+}
+
+template<typename T>
+inline constexpr Type DevalR(T& v, const Variable& var) {
+  // If T is Expression
+  if constexpr (true == std::is_same_v<Expression, T>) {
+    return DevalRExp(v,var);
+  }
+  // If T is Variable
+  else if constexpr (true == std::is_same_v<T, Variable>) {
+    return ((v.m_nidx == var.m_nidx)?(Type)(1):(Type)(0));
+  }
+  // If T is Parameter
+  else if constexpr (true == std::is_same_v<T, Parameter> || 
+                     true == std::is_arithmetic_v<T> ||
+                     true == std::is_same_v<T,Type>) {
+    return (Type)(0);
+  } 
+  // If T is an expression template
+  else if constexpr (true == std::is_base_of_v<MetaVariable, T>) {
+    PreComp(v);
+    return const_cast<std::decay_t<T>&>(v).getCache()[var.m_nidx];
+  } 
+  // If unknown type, throw error 
+  else {
+    ASSERT(false, "Unknown type");
+  }
+}
+
+template<typename T>
+inline constexpr OMPair& PreCompCache(const T& v) {
+  if constexpr (true == std::is_same_v<Expression, T>) {
+    return PreCompCacheExp(v);
+  }
+  // If T is an expression template
+  else if constexpr(true == std::is_base_of_v<MetaVariable, T>) {
+    const_cast<std::decay_t<T>&>(v).reset();
+    const_cast<std::decay_t<T>&>(v).traverse();
+    return const_cast<std::decay_t<T>&>(v).getCache();
+  }
+  // If unknown type, throw error 
+  else {
+    ASSERT(false, "Unknown type");
+  }
+}
 
 // Symbolic Expression
 Expression &SymDiff(Expression &, const Variable &);
-
-
-// Main reverse mode AD computation
-Type DevalR(Expression &, const Variable &);
-// Derivative of expression
-Type Deval(Expression &, const Variable &, ADMode = ADMode::REVERSE);
 
 // Forward mode algorithmic differentiation (Matrix)
 Matrix<Type> &DevalF(Expression &, const Matrix<Variable> &, bool = false);

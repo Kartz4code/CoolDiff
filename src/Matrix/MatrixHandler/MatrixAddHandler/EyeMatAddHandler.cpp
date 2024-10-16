@@ -62,8 +62,18 @@ void Add2Eye(const Matrix<Type> *it, Matrix<Type> *&result) {
                 [&](const size_t i) { (*result)(i, i) = (Type)(2); });
 }
 
-void EyeMatAddHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+void EyeMatAddHandler::handle(const Matrix<Type> *lhs, 
+                              const Matrix<Type> *rhs,
                               Matrix<Type> *&result) {
+
+const size_t nrows{lhs->getNumRows()};
+const size_t ncols{rhs->getNumColumns()};
+const size_t lcols{lhs->getNumColumns()};
+const size_t rrows{rhs->getNumRows()};
+
+// Assert dimensions
+ASSERT((nrows == rrows) && (ncols == lcols), "Matrix addition dimensions mismatch");
+
 #if defined(NAIVE_IMPL)
   /* Eye matrix special check */
   if (auto *it = EyeMatAdd(lhs, rhs); nullptr != it) {

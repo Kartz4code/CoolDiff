@@ -69,8 +69,11 @@ void MemoryManager::MatrixPool(const size_t rows, const size_t cols, Matrix<Type
   // Dispatch matrix from pool
   if (nullptr == result) {
     result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(rows, cols, val);
+    return;
   } 
-  else if ((rows != result->getNumRows()) || (cols != result->getNumColumns())) {
+  else if ((rows != result->getNumRows()) || 
+           (cols != result->getNumColumns()) ||
+           -1    != result->getMatType()) {
     if(auto it = std::find_if(EXECUTION_PAR mat_ptr.begin(), mat_ptr.end(), functor); 
             it != mat_ptr.end()) {    
       // Get underlying pointer
@@ -81,9 +84,11 @@ void MemoryManager::MatrixPool(const size_t rows, const size_t cols, Matrix<Type
       (*it)->m_free = false;
       
       // Store result 
-      result = it->get();     
+      result = it->get(); 
+      return;    
     } else {
       result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(rows, cols, val);
+      return;
     }
   }
 }

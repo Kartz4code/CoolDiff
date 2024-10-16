@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/CommonMatFunctions.hpp
+ * @file src/Matrix/MetaMatrix.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,32 +19,14 @@
  * associated repository.
  */
 
-#pragma once
-
+#include "MetaMatrix.hpp"
 #include "Matrix.hpp"
-#include "MatrixBasics.hpp"
-#include "GenericMatHadamard.hpp"
-#include "GenericMatProduct.hpp"
-#include "GenericMatSub.hpp"
-#include "GenericMatSum.hpp"
-#include "GenericMatTranspose.hpp"
-#include "GenericMatSigma.hpp"
-#include "GenericMatConv.hpp"
 
-// Matrix evaluation
-template<typename T>
-Matrix<Type> &Eval(Matrix<T> &Mexp) {
-  // Reset graph/tree
-  Mexp.resetImpl();
-  // Return evaluation value
-  return *(Mexp.eval());
-}
-
-// Matrix-Matrix derivative evaluation
-template<typename T>
-Matrix<Type> &DevalF(Matrix<T> &Mexp, Matrix<Variable> &X) {
-  // Reset graph/tree
-  Mexp.resetImpl();
-  // Return evaluation value
-  return *(Mexp.devalF(X));
+// Reset type matrix (Set the values of MatType to zero)
+void ResetZero(Matrix<Type>* ptr) {
+    if((nullptr != ptr) && (-1 == ptr->getMatType())) {
+        const size_t size = ptr->getNumElem();
+        auto* mptr = ptr->getMatrixPtr();
+        std::fill(EXECUTION_PAR mptr, mptr + size, (Type)(0));
+    }
 }
