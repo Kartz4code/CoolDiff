@@ -43,6 +43,7 @@ private:
 
   // Verify dimensions of result matrix for convolution operation
   inline constexpr bool verifyDim() const {
+    // Dimension of the result of convolution operator must be strictly non-negative
     return ((int)getNumRows() > 0 || (int)getNumColumns() > 0);
   }
 
@@ -68,18 +69,22 @@ public:
                                                   m_pad_y{pad_y},
                                                   m_caller{std::make_tuple(std::forward<Callables>(call)...)},
                                                   m_nidx{this->m_idx_count++} {
-    ASSERT(((int)m_stride_x > 0) && ((int)m_stride_y > 0), "Stride is not strictly non-positive");
+    // Stride must be strictly non-negative
+    ASSERT(((int)m_stride_x > 0) && ((int)m_stride_y > 0), "Stride is not strictly non-negative");
+    // Padding must be positive
+    ASSERT(((int)pad_x >= 0) && ((int)pad_y >= 0), "Stride is not positive");
+    
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
-  // Get number of rows
+  // Get number of rows (After convolution)
   V_OVERRIDE(size_t getNumRows() const) { 
-    return ((mp_left->getNumRows() + 2*m_pad_x - mp_right->getNumRows())/m_stride_x) + 1; 
+    return (((mp_left->getNumRows() + 2*m_pad_x - mp_right->getNumRows())/m_stride_x) + 1); 
   }
 
-  // Get number of columns
+  // Get number of columns (After convolution)
   V_OVERRIDE(size_t getNumColumns() const) { 
-    return ((mp_left->getNumColumns() + 2*m_pad_y - mp_right->getNumColumns())/m_stride_y) + 1; 
+    return (((mp_left->getNumColumns() + 2*m_pad_y - mp_right->getNumColumns())/m_stride_y) + 1); 
   }
 
   // Find me
@@ -96,7 +101,7 @@ public:
     const size_t rows = getNumRows();
     const size_t cols = getNumColumns();
 
-    // Convolution matrix dimensions
+    // Convolution matrix dimensions (RHS)
     const size_t crows = mp_right->getNumRows();
     const size_t ccols = mp_right->getNumColumns();
 
@@ -116,7 +121,7 @@ public:
     for(size_t i{}; i < rows; ++i) {
         for(size_t j{}; j < cols; ++j) {
 
-            // Reset recurring matrix (#1 - #4)
+            // Reset to zero for the recurring matrices (#1 - #4)
             for(size_t k{1}; k <= 4; ++k) {
               ResetZero(mp_arr[k]);
             }
@@ -133,14 +138,8 @@ public:
             MATRIX_MUL(Ones(1, crows), mp_arr[2], mp_arr[3]);
             MATRIX_MUL(mp_arr[3], Ones(ccols, 1), mp_arr[4]);
 
-            // Set results
-            if(mp_arr[4]->getMatType() == MatrixSpl::ZEROS) {
-              (*mp_arr[5])(i,j) = (Type)(0); 
-            } else if(mp_arr[2]->getMatType() == MatrixSpl::EYE) {
-              (*mp_arr[5])(i,j) = (Type)(1);   
-            } else {
-              (*mp_arr[5])(i,j) = (*mp_arr[4])(0,0);
-            }
+            // Set block matrix
+            mp_arr[5]->setBlockMat({i,i}, {j,j}, mp_arr[4]);
         }
     }
 
@@ -175,8 +174,9 @@ public:
 
     // Pad left derivative matrix with required padding 
     dleft_mat->pad(m_pad_x*nrows_x, 
-                   m_pad_y*ncols_x, 
-                   mp_arr[6]);
+                  m_pad_y*ncols_x, 
+                  mp_arr[6]);
+
 
     // Pad left matrix with required padding 
     left_mat->pad(m_pad_x, 
@@ -189,7 +189,7 @@ public:
     for(size_t i{}; i < rows; ++i) {
         for(size_t j{}; j < cols; ++j) {
            
-            // Reset recurring matrix (#8 - #18)
+            // Reset to zero for the recurring matrices (#8 - #18)
             for(size_t k{8}; k <= 18; ++k) {
               ResetZero(mp_arr[k]);
             }
@@ -217,21 +217,16 @@ public:
             // Addition between left and right derivatives (Policy design)
             MATRIX_ADD(mp_arr[12], mp_arr[13], mp_arr[14]);
             
+            // Sigma funcion derivative
             MATRIX_KRON(Ones(1, crows), Eye(nrows_x), mp_arr[15]);
             MATRIX_KRON(Ones(ccols, 1), Eye(ncols_x), mp_arr[16]);
             MATRIX_MUL(mp_arr[15], mp_arr[14], mp_arr[17]);
             MATRIX_MUL(mp_arr[17], mp_arr[16], mp_arr[18]);   
 
-            if(mp_arr[18]->getMatType() == MatrixSpl::ZEROS) {  
-              mp_arr[19]->setBlockMat({i*nrows_x,(i+1)*nrows_x-1},
-                                      {j*ncols_x,(j+1)*ncols_x-1}, 
-                                      Zeros(nrows_x, ncols_x));
-            } 
-            else {
-              mp_arr[19]->setBlockMat({i*nrows_x,(i+1)*nrows_x-1},
-                                      {j*ncols_x,(j+1)*ncols_x-1}, 
-                                      mp_arr[18]);
-            }
+            // Set block matrix
+            mp_arr[19]->setBlockMat({i*nrows_x,(i+1)*nrows_x-1},
+                                    {j*ncols_x,(j+1)*ncols_x-1},
+                                    mp_arr[18]);
         }
      }
 

@@ -24,11 +24,12 @@
 #include "MatOperators.hpp"
 
 void func13() {
-  Matrix<Variable> X(2,2); 
+  Matrix<Type> X(3,3); 
   Matrix<Variable> W(2,2), W2(2,2);
 
-  X(0,0) = -9; X(0,1) = 4;
-  X(1,0) = 1; X(1,1) = -7;
+  X(0,0) = 1; X(0,1) = 2; X(0,2) = 3;
+  X(1,0) = 4; X(1,1) = 4; X(1,2) = 5;
+  X(2,0) = 6; X(2,1) = 7; X(2,2) = 8;
 
   W(0,0) = 1; W(0,1) = 2;
   W(1,0) = 3; W(1,1) = 4;
@@ -36,7 +37,7 @@ void func13() {
   W2(0,0) = 3; W2(0,1) = 4;
   W2(1,0) = 5; W2(1,1) = 6;
  
-  Matrix<Expression> exp = conv(conv(X,W,1,1,1,1),W2,2,2,1,1);
+  Matrix<Expression> exp = conv(conv(X,W,1,1,1,1),W2,1,1,1,1);
   std::cout << DevalF(exp,W2) << "\n";
   
 }
