@@ -404,24 +404,27 @@ public:
     ASSERT((row_start <= row_end), "Row start greater than row ending");
     ASSERT((col_start <= col_end), "Column start greater than row ending");
 
-    // Output matrix
-    MemoryManager::MatrixPool(row_end - row_start + 1, col_end - col_start + 1, result);
-    const auto outer_idx = Range<size_t>(row_start, row_end+1);
-    const auto inner_idx = Range<size_t>(col_start, col_end+1); 
-    std::for_each(EXECUTION_PAR 
-                  outer_idx.begin(), outer_idx.end(), 
-                  [this,&col_start,&row_start,&inner_idx,result] (const size_t i) {
+    // Special matrix embedding
+    if(getMatType() == MatrixSpl::ZEROS) {
+      result = MemoryManager::MatrixSplPool(row_end - row_start + 1, col_end - col_start + 1, MatrixSpl::ZEROS);
+    } else {
+      MemoryManager::MatrixPool(row_end - row_start + 1, col_end - col_start + 1, result);
+      const auto outer_idx = Range<size_t>(row_start, row_end+1);
+      const auto inner_idx = Range<size_t>(col_start, col_end+1); 
       std::for_each(EXECUTION_PAR 
-                    inner_idx.begin(), inner_idx.end(), 
-                    [i,this,&col_start,&row_start,&inner_idx,result] (const size_t j) {
-          (*result)(i-row_start,j-col_start) = (*this)(i,j);
+                    outer_idx.begin(), outer_idx.end(), 
+                    [this,&col_start,&row_start,&inner_idx,result] (const size_t i) {
+        std::for_each(EXECUTION_PAR 
+                      inner_idx.begin(), inner_idx.end(), 
+                      [i,this,&col_start,&row_start,&inner_idx,result] (const size_t j) {
+            (*result)(i-row_start,j-col_start) = (*this)(i,j);
+        });
       });
-    });
-
+    }
   }
 
   // Set block matrix
-  void setBlockMat(const Pair<size_t, size_t>& rows, const Pair<size_t, size_t>& cols, const Matrix* m) {
+  void setBlockMat(const Pair<size_t, size_t>& rows, const Pair<size_t, size_t>& cols, const Matrix* result) {
     const size_t row_start = rows.first;
     const size_t row_end = rows.second; 
     const size_t col_start = cols.first; 
@@ -434,29 +437,46 @@ public:
     ASSERT((col_end >= 0 && col_end < m_cols), "Column ending index out of bound");
     ASSERT((row_start <= row_end), "Row start greater than row ending");
     ASSERT((col_start <= col_end), "Column start greater than row ending");
-    ASSERT((row_end-row_start+1 == m->getNumRows()), "Row mismatch for insertion matrix");
-    ASSERT((col_end-col_start+1 == m->getNumColumns()), "Column mismatch for insertion matrix");
+    ASSERT((row_end-row_start+1 == result->getNumRows()), "Row mismatch for insertion matrix");
+    ASSERT((col_end-col_start+1 == result->getNumColumns()), "Column mismatch for insertion matrix");
 
-    // Output matrix
+    // Special matrix embedding
     const auto outer_idx = Range<size_t>(row_start, row_end+1);
     const auto inner_idx = Range<size_t>(col_start, col_end+1); 
-    std::for_each(EXECUTION_PAR 
-                  outer_idx.begin(), outer_idx.end(), 
-                  [this,&col_start,&row_start,&inner_idx,m] (const size_t i) {
+    if(result->getMatType() == MatrixSpl::ZEROS) {
+        std::for_each(EXECUTION_PAR 
+                    outer_idx.begin(), outer_idx.end(), 
+                    [this,&col_start,&row_start,&inner_idx,result] (const size_t i) {
+        std::for_each(EXECUTION_PAR 
+                      inner_idx.begin(), inner_idx.end(), 
+                      [i,this,&col_start,&row_start,&inner_idx,result] (const size_t j) {
+            (*this)(i,j) = (Type)(0);
+        });
+      });  
+    } 
+    else {  
       std::for_each(EXECUTION_PAR 
-                    inner_idx.begin(), inner_idx.end(), 
-                    [i,this,&col_start,&row_start,&inner_idx,m] (const size_t j) {
-          (*this)(i,j) = (*m)(i-row_start,j-col_start);
+                    outer_idx.begin(), outer_idx.end(), 
+                    [this,&col_start,&row_start,&inner_idx,result] (const size_t i) {
+        std::for_each(EXECUTION_PAR 
+                      inner_idx.begin(), inner_idx.end(), 
+                      [i,this,&col_start,&row_start,&inner_idx,result] (const size_t j) {
+            (*this)(i,j) = (*result)(i-row_start,j-col_start);
+        });
       });
-    });
+    }
   }
 
   // Add zero padding
   void pad(const size_t r, const size_t c, Matrix*& result) {
-    MemoryManager::MatrixPool(m_rows + 2*r, m_cols + 2*c, result);
-    result->setBlockMat({r,r+m_rows-1},
-                        {c,c+m_cols-1},
-                        this);
+    // Special matrix embedding
+    if(getMatType() == MatrixSpl::ZEROS) {
+      result = MemoryManager::MatrixSplPool(m_rows + 2*r, m_cols + 2*c, MatrixSpl::ZEROS);
+    } 
+    else {
+      MemoryManager::MatrixPool(m_rows + 2*r, m_cols + 2*c, result);
+      result->setBlockMat({r,r+m_rows-1}, {c,c+m_cols-1}, this);
+    }
   }
 
   // Get a row (Move)
