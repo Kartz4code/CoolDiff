@@ -25,7 +25,8 @@
 
 // Left/right side is a Matrix
 template <typename T, typename... Callables>
-class GenericMatTranspose : public IMatrix<GenericMatTranspose<T, Callables...>> {
+class GenericMatTranspose
+    : public IMatrix<GenericMatTranspose<T, Callables...>> {
 private:
   // Resources
   T *mp_right{nullptr};
@@ -39,35 +40,29 @@ private:
 
   // All matrices
   inline static constexpr const size_t m_size{2};
-  Matrix<Type>* mp_arr[m_size]{}; 
+  Matrix<Type> *mp_arr[m_size]{};
 
 public:
   // Block index
   const size_t m_nidx{};
 
   // Constructor
-  constexpr GenericMatTranspose(T *u, Callables &&...call) : mp_right{u}, 
-                                                             m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                             m_nidx{this->m_idx_count++} {
-     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);  
+  constexpr GenericMatTranspose(T *u, Callables &&...call)
+      : mp_right{u}, m_caller{std::make_tuple(
+                         std::forward<Callables>(call)...)},
+        m_nidx{this->m_idx_count++} {
+    std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
   // Get number of rows
-  V_OVERRIDE(size_t getNumRows() const) { 
-    return mp_right->getNumColumns();
-  }
+  V_OVERRIDE(size_t getNumRows() const) { return mp_right->getNumColumns(); }
 
   // Get number of columns
-  V_OVERRIDE(size_t getNumColumns() const) { 
-    return mp_right->getNumRows();  
-  }
+  V_OVERRIDE(size_t getNumColumns() const) { return mp_right->getNumRows(); }
 
   // Find me
-  bool findMe(void *v) const { 
-    BINARY_RIGHT_FIND_ME(); 
-  }
+  bool findMe(void *v) const { BINARY_RIGHT_FIND_ME(); }
 
-  
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type> *eval()) {
     // Get raw pointers to result and right matrices
@@ -90,22 +85,19 @@ public:
 
     // Right matrix derivative
     const Matrix<Type> *dright_mat = mp_right->devalF(X);
-  
-    MATRIX_DERV_TRANSPOSE(nrows_f, ncols_f, nrows_x, ncols_x, dright_mat, mp_arr[1]);
+
+    MATRIX_DERV_TRANSPOSE(nrows_f, ncols_f, nrows_x, ncols_x, dright_mat,
+                          mp_arr[1]);
 
     // Return result pointer
     return mp_arr[1];
   }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { 
-    BINARY_MAT_RIGHT_RESET();
-  }
+  V_OVERRIDE(void reset()) { BINARY_MAT_RIGHT_RESET(); }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) {
-    return "GenericMatTranspose";
-  }
+  V_OVERRIDE(std::string_view getType() const) { return "GenericMatTranspose"; }
 
   // Destructor
   V_DTR(~GenericMatTranspose()) = default;
@@ -116,8 +108,8 @@ template <typename T>
 using GenericMatTransposeT = GenericMatTranspose<T, OpMatType>;
 
 // Function for transpose computation
-template <typename T>
-constexpr const auto& transpose(const IMatrix<T> &u) {
-  auto tmp = Allocate<GenericMatTransposeT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpMatObj);
+template <typename T> constexpr const auto &transpose(const IMatrix<T> &u) {
+  auto tmp = Allocate<GenericMatTransposeT<T>>(
+      const_cast<T *>(static_cast<const T *>(&u)), OpMatObj);
   return *tmp;
 }

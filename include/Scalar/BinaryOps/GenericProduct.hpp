@@ -45,11 +45,10 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericProduct(T1 *u, T2 *v, Callables &&...call) : mp_left{u}, 
-                                                                mp_right{v}, 
-                                                                m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                                m_nidx{this->m_idx_count++} 
-  {}
+  constexpr GenericProduct(T1 *u, T2 *v, Callables &&...call)
+      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
+                                     std::forward<Callables>(call)...)},
+        m_nidx{this->m_idx_count++} {}
 
   V_OVERRIDE(Variable *symEval()) {
     // Evaluate variable in run-time
@@ -185,24 +184,16 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair &getCache()) { 
-    return m_cache; 
-  }
+  V_OVERRIDE(OMPair &getCache()) { return m_cache; }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { 
-    BINARY_RESET(); 
-  }
+  V_OVERRIDE(void reset()) { BINARY_RESET(); }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { 
-    return "GenericProduct"; 
-  }
+  V_OVERRIDE(std::string_view getType() const) { return "GenericProduct"; }
 
   // Find me
-  V_OVERRIDE(bool findMe(void *v) const) { 
-    BINARY_FIND_ME(); 
-  }
+  V_OVERRIDE(bool findMe(void *v) const) { BINARY_FIND_ME(); }
 
   // Destructor
   V_DTR(~GenericProduct()) = default;
@@ -210,7 +201,8 @@ public:
 
 // Left/Right side is a number
 template <typename T, typename... Callables>
-class GenericProduct<Type, T, Callables...> : public IVariable<GenericProduct<Type, T, Callables...>> {
+class GenericProduct<Type, T, Callables...>
+    : public IVariable<GenericProduct<Type, T, Callables...>> {
 private:
   // Resources
   Type mp_left{0};
@@ -230,11 +222,10 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericProduct(const Type &u, T *v, Callables &&...call) : mp_left{u}, 
-                                                                       mp_right{v}, 
-                                                                       m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                                       m_nidx{this->m_idx_count++} 
-  {}
+  constexpr GenericProduct(const Type &u, T *v, Callables &&...call)
+      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
+                                     std::forward<Callables>(call)...)},
+        m_nidx{this->m_idx_count++} {}
 
   V_OVERRIDE(Variable *symEval()) {
     // Evaluate variable in run-time
@@ -329,24 +320,16 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair &getCache()) { 
-    return m_cache; 
-  }
+  V_OVERRIDE(OMPair &getCache()) { return m_cache; }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { 
-    BINARY_RIGHT_RESET(); 
-  }
+  V_OVERRIDE(void reset()) { BINARY_RIGHT_RESET(); }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { 
-    return "GenericProduct"; 
-  }
+  V_OVERRIDE(std::string_view getType() const) { return "GenericProduct"; }
 
   // Find me
-  V_OVERRIDE(bool findMe(void *v) const) { 
-    BINARY_RIGHT_FIND_ME(); 
-  }
+  V_OVERRIDE(bool findMe(void *v) const) { BINARY_RIGHT_FIND_ME(); }
 
   // Destructor
   V_DTR(~GenericProduct()) = default;
@@ -357,35 +340,38 @@ template <typename T1, typename T2>
 using GenericProductT1 = GenericProduct<T1, T2, OpType>;
 
 // GenericProduct with 1 typename callables
-template <typename T> 
-using GenericProductT2 = GenericProduct<Type, T, OpType>;
+template <typename T> using GenericProductT2 = GenericProduct<Type, T, OpType>;
 
 // Function for product computation
 template <typename T1, typename T2>
-constexpr const auto &operator*(const IVariable<T1> &u, const IVariable<T2> &v) {
-  auto tmp = Allocate<GenericProductT1<T1, T2>>(const_cast<T1 *>(static_cast<const T1 *>(&u)),
-                                                const_cast<T2 *>(static_cast<const T2 *>(&v)), 
-                                                OpObj);
+constexpr const auto &operator*(const IVariable<T1> &u,
+                                const IVariable<T2> &v) {
+  auto tmp = Allocate<GenericProductT1<T1, T2>>(
+      const_cast<T1 *>(static_cast<const T1 *>(&u)),
+      const_cast<T2 *>(static_cast<const T2 *>(&v)), OpObj);
   return *tmp;
 }
 
 // Left side is a number (product)
 template <typename T>
 constexpr const auto &operator*(const Type &u, const IVariable<T> &v) {
-  auto tmp = Allocate<GenericProductT2<T>>(u, const_cast<T *>(static_cast<const T *>(&v)), OpObj);
+  auto tmp = Allocate<GenericProductT2<T>>(
+      u, const_cast<T *>(static_cast<const T *>(&v)), OpObj);
   return *tmp;
 }
 
 // Right side is a number (product)
 template <typename T>
 constexpr const auto &operator*(const IVariable<T> &u, const Type &v) {
-  auto tmp = Allocate<GenericProductT2<T>>(v, const_cast<T *>(static_cast<const T *>(&u)), OpObj);
+  auto tmp = Allocate<GenericProductT2<T>>(
+      v, const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;
 }
 
 // Right side is a number (division)
 template <typename T>
 constexpr const auto &operator/(const IVariable<T> &u, const Type &v) {
-  auto tmp = Allocate<GenericProductT2<T>>(((Type)(1) / v), const_cast<T *>(static_cast<const T *>(&u)), OpObj);
+  auto tmp = Allocate<GenericProductT2<T>>(
+      ((Type)(1) / v), const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;
 }

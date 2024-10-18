@@ -26,7 +26,8 @@
 
 // Left/right side is a Matrix
 template <typename T1, typename T2, typename... Callables>
-class GenericMatHadamard : public IMatrix<GenericMatHadamard<T1, T2, Callables...>> {
+class GenericMatHadamard
+    : public IMatrix<GenericMatHadamard<T1, T2, Callables...>> {
 private:
   // Resources
   T1 *mp_left{nullptr};
@@ -52,37 +53,31 @@ private:
     // Condition for Matrix-Matrix subtraction
     return ((lr == rr) && (lc == rc));
   }
-  
+
   // All matrices
   inline static constexpr const size_t m_size{6};
-  Matrix<Type>* mp_arr[m_size]{}; 
+  Matrix<Type> *mp_arr[m_size]{};
 
 public:
   // Block index
   const size_t m_nidx{};
 
   // Constructor
-  constexpr GenericMatHadamard(T1 *u, T2 *v, Callables &&...call): mp_left{u}, 
-                                                                   mp_right{v}, 
-                                                                   m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                                   m_nidx{this->m_idx_count++} {
-    std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);                                                                  
+  constexpr GenericMatHadamard(T1 *u, T2 *v, Callables &&...call)
+      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
+                                     std::forward<Callables>(call)...)},
+        m_nidx{this->m_idx_count++} {
+    std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
   // Get number of rows
-  V_OVERRIDE(size_t getNumRows() const) { 
-    return mp_left->getNumRows(); 
-  }
+  V_OVERRIDE(size_t getNumRows() const) { return mp_left->getNumRows(); }
 
   // Get number of columns
-  V_OVERRIDE(size_t getNumColumns() const) { 
-    return mp_right->getNumColumns(); 
-  }
+  V_OVERRIDE(size_t getNumColumns() const) { return mp_right->getNumColumns(); }
 
   // Find me
-  bool findMe(void *v) const { 
-    BINARY_FIND_ME(); 
-  }
+  bool findMe(void *v) const { BINARY_FIND_ME(); }
 
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type> *eval()) {
@@ -132,14 +127,10 @@ public:
   }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()){
-    BINARY_MAT_RESET();
-  }
+  V_OVERRIDE(void reset()) { BINARY_MAT_RESET(); }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) {
-    return "GenericMatHadamard";
-  }
+  V_OVERRIDE(std::string_view getType() const) { return "GenericMatHadamard"; }
 
   // Destructor
   V_DTR(~GenericMatHadamard()) = default;
@@ -151,7 +142,7 @@ using GenericMatHadamardT = GenericMatHadamard<T1, T2, OpMatType>;
 
 // Function for Hadamard product computation
 template <typename T1, typename T2>
-constexpr const auto& operator^(const IMatrix<T1> &u, const IMatrix<T2> &v) {
+constexpr const auto &operator^(const IMatrix<T1> &u, const IMatrix<T2> &v) {
   auto tmp = Allocate<GenericMatHadamardT<T1, T2>>(
       const_cast<T1 *>(static_cast<const T1 *>(&u)),
       const_cast<T2 *>(static_cast<const T2 *>(&v)), OpMatObj);

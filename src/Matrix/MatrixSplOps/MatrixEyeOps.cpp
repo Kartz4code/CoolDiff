@@ -59,8 +59,8 @@ bool IsEyeMatrix(const Matrix<Type> *m) {
 
   // Non-diagonal elements check (0's)
   const auto non_diag_idx = Range<size_t>(0, rows * cols);
-  if (auto it = std::find_if(EXECUTION_PAR 
-                       non_diag_idx.begin(), non_diag_idx.end(),
+  if (auto it =
+          std::find_if(EXECUTION_PAR non_diag_idx.begin(), non_diag_idx.end(),
                        [&m, rows, cols](const size_t n) {
                          const size_t j = n % cols;
                          const size_t i = (n - j) / cols;
@@ -95,7 +95,7 @@ const Matrix<Type> *EyeMatAdd(const Matrix<Type> *lhs,
 }
 
 // Eye matrix scalar addition
-const Matrix<Type> *EyeMatScalarAdd(Type lhs, const Matrix<Type> * rhs) {
+const Matrix<Type> *EyeMatScalarAdd(Type lhs, const Matrix<Type> *rhs) {
   if (rhs->getMatType() == MatrixSpl::EYE) {
     return rhs;
   } else {
@@ -149,12 +149,12 @@ const Matrix<Type> *EyeMatMul(const Matrix<Type> *lhs,
 }
 
 // Eye matrix scalar addition
-const Matrix<Type> *EyeMatScalarMul(Type lhs, const Matrix<Type> * rhs) {
-    if (rhs->getMatType() == MatrixSpl::EYE) {
-      return rhs;
-    } else {
-      return nullptr;
-    }  
+const Matrix<Type> *EyeMatScalarMul(Type lhs, const Matrix<Type> *rhs) {
+  if (rhs->getMatType() == MatrixSpl::EYE) {
+    return rhs;
+  } else {
+    return nullptr;
+  }
 }
 
 // Eye matrix Kronocker
@@ -229,7 +229,7 @@ const Matrix<Type> *EyeMatAddNum(const Matrix<Type> *lhs,
 }
 
 // Eye matrix scalar addition
-const Matrix<Type> *EyeMatScalarAddNum(Type lhs, const Matrix<Type> * rhs) {
+const Matrix<Type> *EyeMatScalarAddNum(Type lhs, const Matrix<Type> *rhs) {
   const bool rhs_bool = IsEyeMatrix(rhs);
   if (rhs_bool == true) {
     return rhs;
@@ -282,13 +282,13 @@ const Matrix<Type> *EyeMatMulNum(const Matrix<Type> *lhs,
 }
 
 // Zero matrix scalar multiplication numerics
-const Matrix<Type> *EyeMatScalarMulNum(Type type, const Matrix<Type> * rhs) {
-    const bool rhs_bool = IsEyeMatrix(rhs);
-    if (rhs_bool == true) {
-      return rhs;
-    } else {
-      return nullptr;
-    }  
+const Matrix<Type> *EyeMatScalarMulNum(Type type, const Matrix<Type> *rhs) {
+  const bool rhs_bool = IsEyeMatrix(rhs);
+  if (rhs_bool == true) {
+    return rhs;
+  } else {
+    return nullptr;
+  }
 }
 
 // Eye matrix Kronocker product numerics

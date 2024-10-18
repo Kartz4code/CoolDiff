@@ -62,7 +62,7 @@ public:
   V_OVERRIDE(Variable *symDeval(const Variable &var)) {
     // Static derivative computation
     if (auto it = this->mp_dtmp.find(var.m_nidx); it == this->mp_dtmp.end()) {
-      auto tmp = Allocate<Expression>(((Type)(1) / (sqrt((EVAL_L() * EVAL_L()) - (Type)(1)))) *(DEVAL_L(var)));
+      auto tmp = Allocate<Expression>(((Type)(1) / (sqrt((EVAL_L() * EVAL_L()) - (Type)(1)))) * (DEVAL_L(var)));
       this->mp_dtmp[var.m_nidx] = tmp.get();
     }
     return this->mp_dtmp[var.m_nidx];
@@ -126,8 +126,7 @@ public:
 
       /* IMPORTANT: The derivative is computed here */
       const Type left = mp_left->eval();
-      const Type ustar =
-          (((Type)(1) / (std::sqrt((left * left) - (Type)(1)))) * cCache);
+      const Type ustar = (((Type)(1) / (std::sqrt((left * left) - (Type)(1)))) * cCache);
       (*cache)[mp_left->m_nidx] += (ustar);
 
       // Modify cache for left node
@@ -175,7 +174,8 @@ template <typename T>
 using GenericACoshT = GenericACosh<T, OpType>;
 
 // Function for acosh computation
-template <typename T> constexpr const auto &acosh(const IVariable<T> &u) {
-  auto tmp = Allocate<GenericACoshT<T>>(const_cast<T *>(static_cast<const T *>(&u)), OpObj);
+template <typename T> 
+constexpr const auto &acosh(const IVariable<T> &u) {
+  auto tmp = Allocate<GenericACoshT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpObj);
   return *tmp;
 }

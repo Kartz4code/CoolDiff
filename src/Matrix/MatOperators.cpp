@@ -24,9 +24,9 @@
 
 // Special matrix addition
 #include "EyeMatAddHandler.hpp"
+#include "EyeMatScalarAddHandler.hpp"
 #include "ZeroMatAddHandler.hpp"
 #include "ZeroMatScalarAddHandler.hpp"
-#include "EyeMatScalarAddHandler.hpp"
 
 // Special matrix subtraction
 #include "EyeMatSubHandler.hpp"
@@ -34,9 +34,9 @@
 
 // Special matrix multiplication
 #include "EyeMatMulHandler.hpp"
+#include "EyeMatScalarMulHandler.hpp"
 #include "ZeroMatMulHandler.hpp"
 #include "ZeroMatScalarMulHandler.hpp"
-#include "EyeMatScalarMulHandler.hpp"
 
 // Special matrix Kronocker product
 #include "EyeMatKronHandler.hpp"
@@ -47,22 +47,22 @@
 #include "ZeroMatHadamardHandler.hpp"
 
 // Special matrix transpose product
-#include "EyeMatTransposeHandler.hpp"
-#include "ZeroMatTransposeHandler.hpp"
 #include "EyeMatDervTransposeHandler.hpp"
+#include "EyeMatTransposeHandler.hpp"
 #include "ZeroMatDervTransposeHandler.hpp"
-
+#include "ZeroMatTransposeHandler.hpp"
 
 // Matrix operations
 #include "MatAddNaiveHandler.hpp"
-#include "MatScalarAddNaiveHandler.hpp"
+#include "MatConvNaiveHandler.hpp"
+#include "MatDervTransposeNaiveHandler.hpp"
 #include "MatHadamardNaiveHandler.hpp"
 #include "MatKronNaiveHandler.hpp"
 #include "MatMulNaiveHandler.hpp"
+#include "MatScalarAddNaiveHandler.hpp"
 #include "MatScalarMulNaiveHandler.hpp"
 #include "MatSubNaiveHandler.hpp"
 #include "MatTransposeNaiveHandler.hpp"
-#include "MatDervTransposeNaiveHandler.hpp"
 
 // Matrix-Matrix addition - Left, Right, Result matrix pointer
 void MatrixAdd(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
@@ -168,9 +168,8 @@ void MatrixHadamard(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
   h3.handle(lhs, rhs, result);
 }
 
-
 // Matrix-Scalar addition
-void MatrixScalarAdd(Type lhs, const Matrix<Type> * rhs, Matrix<Type> *& result) {
+void MatrixScalarAdd(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
@@ -188,17 +187,16 @@ void MatrixScalarAdd(Type lhs, const Matrix<Type> * rhs, Matrix<Type> *& result)
   h3.handle(lhs, rhs, result);
 }
 
-
 // Matrix-Scalar multiplication
-void MatrixScalarMul(Type lhs, const Matrix<Type> * rhs, Matrix<Type> *& result) {
+void MatrixScalarMul(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-   /* Chain of responsibility (Order matters)
-      1) Eye matrix check
-      2) Zero matrix check
-      3) Matrix-Matrix Hadamard product
-  */
+  /* Chain of responsibility (Order matters)
+     1) Eye matrix check
+     2) Zero matrix check
+     3) Matrix-Matrix Hadamard product
+ */
 
   MatScalarMulNaiveHandler h1{nullptr};
   ZeroMatScalarMulHandler h2{&h1};
@@ -208,17 +206,16 @@ void MatrixScalarMul(Type lhs, const Matrix<Type> * rhs, Matrix<Type> *& result)
   h3.handle(lhs, rhs, result);
 }
 
-
 // Matrix transpose
-void MatrixTranspose(const Matrix<Type> * mat, Matrix<Type> *& result) {
+void MatrixTranspose(const Matrix<Type> *mat, Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(mat, "Matrix (mat) is a nullptr");
 
-   /* Chain of responsibility (Order matters)
-      1) Eye matrix check
-      2) Zero matrix check
-      3) Matrix transpose
-  */
+  /* Chain of responsibility (Order matters)
+     1) Eye matrix check
+     2) Zero matrix check
+     3) Matrix transpose
+ */
 
   MatTransposeNaiveHandler h1{nullptr};
   ZeroMatTransposeHandler h2{&h1};
@@ -229,9 +226,10 @@ void MatrixTranspose(const Matrix<Type> * mat, Matrix<Type> *& result) {
 }
 
 // Matrix derivative transpose
-void MatrixDervTranspose(const size_t nrows_f, const size_t ncols_f, const size_t nrows_x, const size_t ncols_x, 
-                         const Matrix<Type> * mat, Matrix<Type>*& result) {
-    // Null pointer check
+void MatrixDervTranspose(const size_t nrows_f, const size_t ncols_f,
+                         const size_t nrows_x, const size_t ncols_x,
+                         const Matrix<Type> *mat, Matrix<Type> *&result) {
+  // Null pointer check
   NULL_CHECK(mat, "Matrix (mat) is a nullptr");
 
   /* Chain of responsibility (Order matters)
@@ -241,9 +239,28 @@ void MatrixDervTranspose(const size_t nrows_f, const size_t ncols_f, const size_
   */
 
   MatDervTransposeNaiveHandler h1{nullptr};
-  ZeroMatDervTransposeHandler h2{&h1};                        
+  ZeroMatDervTransposeHandler h2{&h1};
   EyeMatDervTransposeHandler h3{&h2};
 
   // Handle Matrix transpose
   h3.handle(nrows_f, ncols_f, nrows_x, ncols_x, mat, result);
+}
+
+// Matrix convolution
+void MatrixConv(const size_t stride_x, const size_t stride_y,
+                const size_t pad_x, const size_t pad_y, const Matrix<Type> *lhs,
+                const Matrix<Type> *rhs, Matrix<Type> *&result) {
+  // Null pointer check
+  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+
+  /* Chain of responsibility (Order matters)
+      1) Eye matrix check
+      2) Zero matrix check
+      3) Matrix convolution
+  */
+  MatConvNaiveHandler h1{nullptr};
+
+  // Handle Matrix convolution
+  h1.handle(stride_x, stride_y, pad_x, pad_y, lhs, rhs, result);
 }

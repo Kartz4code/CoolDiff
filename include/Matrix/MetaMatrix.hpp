@@ -39,7 +39,7 @@ public:
 
   // Forward derivative
   V_PURE(Matrix<Type> *devalF(Matrix<Variable> &));
-  
+
   // Get number of rows and columns
   V_PURE(size_t getNumRows() const);
 
@@ -56,4 +56,4 @@ public:
 };
 
 // Reset type matrix (Set the values of MatType to zero)
-void ResetZero(Matrix<Type>*);
+void ResetZero(Matrix<Type> *);

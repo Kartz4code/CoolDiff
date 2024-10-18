@@ -1,5 +1,6 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixTransposeHandler/EyeMatDervTransposeHandler.hpp
+ * @file
+ * src/Matrix/MatrixHandler/MatrixTransposeHandler/EyeMatDervTransposeHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -27,7 +28,8 @@ class EyeMatDervTransposeHandler : public MatrixHandler {
 public:
   using MatrixHandler::MatrixHandler;
 
-  V_OVERRIDE(void handle(const size_t, const size_t, const size_t, const size_t, const Matrix<Type>*, Matrix<Type>*&));
+  V_OVERRIDE(void handle(const size_t, const size_t, const size_t, const size_t,
+                         const Matrix<Type> *, Matrix<Type> *&));
 
   // Destructor
   V_DTR(~EyeMatDervTransposeHandler() = default);

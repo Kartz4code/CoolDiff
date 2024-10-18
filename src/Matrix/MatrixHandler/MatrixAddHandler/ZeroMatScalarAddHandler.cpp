@@ -23,9 +23,7 @@
 #include "Matrix.hpp"
 #include "MatrixZeroOps.hpp"
 
-
-void ZeroMatScalarAddHandler::handle(Type lhs, 
-                                     const Matrix<Type> *rhs, 
+void ZeroMatScalarAddHandler::handle(Type lhs, const Matrix<Type> *rhs,
                                      Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
@@ -38,7 +36,7 @@ void ZeroMatScalarAddHandler::handle(Type lhs,
     result = const_cast<Matrix<Type> *>(it);
     return;
   }
-#endif 
+#endif
 
   // Chain of responsibility
   MatrixHandler::handle(lhs, rhs, result);

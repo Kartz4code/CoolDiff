@@ -193,24 +193,16 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair &getCache()) { 
-    return m_cache; 
-  }
+  V_OVERRIDE(OMPair &getCache()) { return m_cache; }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { 
-    BINARY_RESET(); 
-  }
+  V_OVERRIDE(void reset()) { BINARY_RESET(); }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { 
-    return "GenericPow"; 
-  }
+  V_OVERRIDE(std::string_view getType() const) { return "GenericPow"; }
 
   // Find me
-  V_OVERRIDE(bool findMe(void *v) const) { 
-    BINARY_FIND_ME(); 
-  }
+  V_OVERRIDE(bool findMe(void *v) const) { BINARY_FIND_ME(); }
 
   // Destructor
   V_DTR(~GenericPow()) = default;
@@ -218,7 +210,8 @@ public:
 
 // Left/Right side is a number
 template <typename T, typename... Callables>
-class GenericPow<Type, T, Callables...> : public IVariable<GenericPow<Type, T, Callables...>> {
+class GenericPow<Type, T, Callables...>
+    : public IVariable<GenericPow<Type, T, Callables...>> {
 private:
   // Resources
   Type mp_left{0};
@@ -238,11 +231,10 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericPow(const Type &u, T *v, Callables &&...call) : mp_left{u}, 
-                                                                   mp_right{v}, 
-                                                                   m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                                   m_nidx{this->m_idx_count++} 
-  {}
+  constexpr GenericPow(const Type &u, T *v, Callables &&...call)
+      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
+                                     std::forward<Callables>(call)...)},
+        m_nidx{this->m_idx_count++} {}
 
   // Symbolic evaluation
   V_OVERRIDE(Variable *symEval()) {
@@ -341,24 +333,16 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair &getCache()) { 
-    return m_cache; 
-  }
+  V_OVERRIDE(OMPair &getCache()) { return m_cache; }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { 
-    BINARY_RIGHT_RESET(); 
-  }
+  V_OVERRIDE(void reset()) { BINARY_RIGHT_RESET(); }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { 
-    return "GenericPow"; 
-  }
+  V_OVERRIDE(std::string_view getType() const) { return "GenericPow"; }
 
   // Find me
-  V_OVERRIDE(bool findMe(void *v) const) { 
-    BINARY_RIGHT_FIND_ME(); 
-  }
+  V_OVERRIDE(bool findMe(void *v) const) { BINARY_RIGHT_FIND_ME(); }
 
   // Destructor
   V_DTR(~GenericPow()) = default;
@@ -366,7 +350,8 @@ public:
 
 // Right side is an expression
 template <typename T, typename... Callables>
-class GenericPow<T, Type, Callables...> : public IVariable<GenericPow<T, Type, Callables...>> {
+class GenericPow<T, Type, Callables...>
+    : public IVariable<GenericPow<T, Type, Callables...>> {
 private:
   // Resources
   T *mp_left{nullptr};
@@ -386,11 +371,10 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericPow(T *u, const Type &v, Callables &&...call) : mp_left{u}, 
-                                                                   mp_right{v}, 
-                                                                   m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                                   m_nidx{this->m_idx_count++} 
-  {}
+  constexpr GenericPow(T *u, const Type &v, Callables &&...call)
+      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
+                                     std::forward<Callables>(call)...)},
+        m_nidx{this->m_idx_count++} {}
 
   // Symbolic evaluation
   V_OVERRIDE(Variable *symEval()) {
@@ -469,7 +453,8 @@ public:
 
       /* IMPORTANT: The derivative is computed here */
       const Type u = mp_left->eval();
-      const Type ustar = (mp_right * (Type)std::pow(u, mp_right - (Type)1)) * cCache;
+      const Type ustar =
+          (mp_right * (Type)std::pow(u, mp_right - (Type)1)) * cCache;
       (*cache)[mp_left->m_nidx] += (ustar);
 
       // Modify cache for left node
@@ -490,24 +475,16 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair &getCache()) { 
-    return m_cache; 
-  }
+  V_OVERRIDE(OMPair &getCache()) { return m_cache; }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { 
-    BINARY_LEFT_RESET(); 
-  }
+  V_OVERRIDE(void reset()) { BINARY_LEFT_RESET(); }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { 
-    return "GenericPow"; 
-  }
+  V_OVERRIDE(std::string_view getType() const) { return "GenericPow"; }
 
   // Find me
-  V_OVERRIDE(bool findMe(void *v) const) { 
-    BINARY_LEFT_FIND_ME(); 
-  }
+  V_OVERRIDE(bool findMe(void *v) const) { BINARY_LEFT_FIND_ME(); }
 
   // Virtual Destructor
   V_DTR(~GenericPow()) = default;
@@ -518,31 +495,31 @@ template <typename T1, typename T2>
 using GenericPowT1 = GenericPow<T1, T2, OpType>;
 
 // Variable sum with 1 typename callables
-template <typename T> 
-using GenericPowT2 = GenericPow<Type, T, OpType>;
+template <typename T> using GenericPowT2 = GenericPow<Type, T, OpType>;
 
-template <typename T> 
-using GenericPowT3 = GenericPow<T, Type, OpType>;
+template <typename T> using GenericPowT3 = GenericPow<T, Type, OpType>;
 
 // Function for power computation
 template <typename T1, typename T2>
 constexpr const auto &pow(const IVariable<T1> &u, const IVariable<T2> &v) {
-  auto tmp = Allocate<GenericPowT1<T1, T2>>(const_cast<T1 *>(static_cast<const T1 *>(&u)),
-                                            const_cast<T2 *>(static_cast<const T2 *>(&v)), 
-                                            OpObj);
+  auto tmp = Allocate<GenericPowT1<T1, T2>>(
+      const_cast<T1 *>(static_cast<const T1 *>(&u)),
+      const_cast<T2 *>(static_cast<const T2 *>(&v)), OpObj);
   return *tmp;
 }
 
 // Left side is a number (power)
 template <typename T>
 constexpr const auto &pow(const Type &u, const IVariable<T> &v) {
-  auto tmp = Allocate<GenericPowT2<T>>(u, const_cast<T *>(static_cast<const T *>(&v)), OpObj);
+  auto tmp = Allocate<GenericPowT2<T>>(
+      u, const_cast<T *>(static_cast<const T *>(&v)), OpObj);
   return *tmp;
 }
 
 // Right side is a number (power)
 template <typename T>
 constexpr const auto &pow(const IVariable<T> &u, const Type &v) {
-  auto tmp = Allocate<GenericPowT3<T>>(const_cast<T *>(static_cast<const T *>(&u)), v, OpObj);
+  auto tmp = Allocate<GenericPowT3<T>>(
+      const_cast<T *>(static_cast<const T *>(&u)), v, OpObj);
   return *tmp;
 }

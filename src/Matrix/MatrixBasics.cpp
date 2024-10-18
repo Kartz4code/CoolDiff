@@ -35,11 +35,12 @@ const Matrix<Type> *Eye(const size_t n) {
     return it->second;
   } else {
     // Pool matrix
-    MemoryManager::MatrixPool(n,n,result);
+    MemoryManager::MatrixPool(n, n, result);
 
     // Vector of indices
     const auto idx = Range<size_t>(0, n);
-    std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t i) { (*result)(i, i) = (Type)(1); });
+    std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
+                  [&](const size_t i) { (*result)(i, i) = (Type)(1); });
 
     // Register and return result
     eye_register[n] = result;
@@ -53,14 +54,14 @@ const Matrix<Type> *Zeros(const size_t n, const size_t m) {
   static UnOrderedMap<Pair<size_t, size_t>, Matrix<Type> *> zeros_register;
 
   // Result matrix
-  Matrix<Type>* result{nullptr};
-    
+  Matrix<Type> *result{nullptr};
+
   // Find in registry of special matrices
   if (auto it = zeros_register.find({n, m}); it != zeros_register.end()) {
     return it->second;
   } else {
     // Pool matrix
-    MemoryManager::MatrixPool(n,m,result);
+    MemoryManager::MatrixPool(n, m, result);
     // Register and return result
     zeros_register[{n, m}] = result;
     return result;
@@ -68,9 +69,7 @@ const Matrix<Type> *Zeros(const size_t n, const size_t m) {
 }
 
 // Numerical Zeros square matrix
-const Matrix<Type> *Zeros(const size_t n) { 
-  return Zeros(n, n); 
-}
+const Matrix<Type> *Zeros(const size_t n) { return Zeros(n, n); }
 
 // Numerical Ones matrix
 const Matrix<Type> *Ones(const size_t n, const size_t m) {
@@ -85,7 +84,7 @@ const Matrix<Type> *Ones(const size_t n, const size_t m) {
     return it->second;
   } else {
     // Pool matrix
-    MemoryManager::MatrixPool(n,m,result,1); 
+    MemoryManager::MatrixPool(n, m, result, 1);
     // Register and return result
     ones_register[{n, m}] = result;
     return result;
@@ -93,6 +92,4 @@ const Matrix<Type> *Ones(const size_t n, const size_t m) {
 }
 
 // Numerical Ones square matrix
-const Matrix<Type> *Ones(const size_t n) { 
-  return Ones(n, n); 
-}
+const Matrix<Type> *Ones(const size_t n) { return Ones(n, n); }

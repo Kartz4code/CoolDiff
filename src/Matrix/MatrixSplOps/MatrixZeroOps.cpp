@@ -65,20 +65,20 @@ const Matrix<Type> *ZeroMatAdd(const Matrix<Type> *lhs,
 }
 
 // Zero matrix scalar addition
-const Matrix<Type> *ZeroMatScalarAdd(Type lhs, const Matrix<Type> * rhs) {
+const Matrix<Type> *ZeroMatScalarAdd(Type lhs, const Matrix<Type> *rhs) {
   // Rows and columns of result matrix
   const size_t nrows{rhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
 
   // Result matrix
-  Matrix<Type>* result{nullptr};
+  Matrix<Type> *result{nullptr};
 
   // If both lhs and rhs matrices are zero matrices
   if ((lhs == (Type)(0)) && (rhs->getMatType() == MatrixSpl::ZEROS)) {
     return MemoryManager::MatrixSplPool(nrows, ncols, MatrixSpl::ZEROS);
-  } else if(lhs == (Type)(0)) {
+  } else if (lhs == (Type)(0)) {
     return rhs;
-  } else if(rhs->getMatType() == MatrixSpl::ZEROS) {
+  } else if (rhs->getMatType() == MatrixSpl::ZEROS) {
     // Pool matrix
     MemoryManager::MatrixPool(nrows, ncols, result, lhs);
     return result;
@@ -129,7 +129,7 @@ const Matrix<Type> *ZeroMatMul(const Matrix<Type> *lhs,
 }
 
 // Zero matrix scalar multiplication
-const Matrix<Type> *ZeroMatScalarMul(Type lhs, const Matrix<Type> * rhs) {
+const Matrix<Type> *ZeroMatScalarMul(Type lhs, const Matrix<Type> *rhs) {
   // Rows and columns of result matrix
   const size_t nrows{rhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
@@ -137,8 +137,7 @@ const Matrix<Type> *ZeroMatScalarMul(Type lhs, const Matrix<Type> * rhs) {
   // If both lhs and rhs matrices are zero matrices
   if ((lhs == (Type)(0)) || (rhs->getMatType() == MatrixSpl::ZEROS)) {
     return MemoryManager::MatrixSplPool(nrows, ncols, MatrixSpl::ZEROS);
-  }
-  else {
+  } else {
     return nullptr;
   }
 }
@@ -204,16 +203,16 @@ const Matrix<Type> *ZeroMatAddNum(const Matrix<Type> *lhs,
 }
 
 // Zero matrix scalar addition numerics
-const Matrix<Type> *ZeroMatScalarAddNum(Type lhs, const Matrix<Type> * rhs) {
+const Matrix<Type> *ZeroMatScalarAddNum(Type lhs, const Matrix<Type> *rhs) {
   // Rows and columns of result matrix
   const size_t nrows{rhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
-  
+
   // Boolean check
   const bool rhs_bool = IsZeroMatrix(rhs);
 
   // Result matrix
-  Matrix<Type>* result{nullptr};
+  Matrix<Type> *result{nullptr};
 
   if ((lhs == (Type)(0)) && rhs_bool == true) {
     return MemoryManager::MatrixSplPool(nrows, ncols, MatrixSpl::ZEROS);
@@ -268,11 +267,11 @@ const Matrix<Type> *ZeroMatMulNum(const Matrix<Type> *lhs,
 }
 
 // Zero matrix scalar multiplication numerics
-const Matrix<Type> *ZeroMatScalarMulNum(Type lhs, const Matrix<Type> * rhs) {
+const Matrix<Type> *ZeroMatScalarMulNum(Type lhs, const Matrix<Type> *rhs) {
   // Rows and columns of result matrix
   const size_t nrows{rhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
-  
+
   // Boolean check
   const bool rhs_bool = IsZeroMatrix(rhs);
   if ((lhs == (Type)(0)) || rhs_bool == true) {

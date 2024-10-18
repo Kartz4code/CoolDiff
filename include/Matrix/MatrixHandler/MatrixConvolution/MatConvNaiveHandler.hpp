@@ -1,6 +1,5 @@
 /**
- * @file
- * src/Matrix/MatrixHandler/MatrixTransposeHandler/ZeroMatTransposeHandler.hpp
+ * @file src/Matrix/MatrixHandler/MatrixConvolution/MatConvNaiveHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -24,12 +23,22 @@
 
 #include "MatrixHandler.hpp"
 
-class ZeroMatTransposeHandler : public MatrixHandler {
+class MatConvNaiveHandler : public MatrixHandler {
+private:
+  // All matrices
+  inline static constexpr const size_t m_size{5};
+  Matrix<Type> *mp_arr[m_size]{};
+
+  // Boolean check for initialization
+  bool m_initialized{false};
+
 public:
   using MatrixHandler::MatrixHandler;
 
-  V_OVERRIDE(void handle(const Matrix<Type> *, Matrix<Type> *&));
+  V_OVERRIDE(void handle(const size_t, const size_t, const size_t, const size_t,
+                         const Matrix<Type> *, const Matrix<Type> *,
+                         Matrix<Type> *&));
 
   // Destructor
-  V_DTR(~ZeroMatTransposeHandler() = default);
+  V_DTR(~MatConvNaiveHandler() = default);
 };

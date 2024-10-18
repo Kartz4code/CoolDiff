@@ -71,7 +71,8 @@ Type DevalRExp(Expression &exp, const Variable &x) {
 Matrix<Type> &DevalF(Expression &exp, const Matrix<Variable> &m,
                      bool serial_exec) {
   const size_t n = m.getNumElem();
-  auto &result = Matrix<Type>::MatrixFactory::CreateMatrix(m.getNumRows(), m.getNumColumns());
+  auto &result = Matrix<Type>::MatrixFactory::CreateMatrix(m.getNumRows(),
+                                                           m.getNumColumns());
 
   if (true == exp.isRecursive() || true == serial_exec) {
     std::transform(EXECUTION_SEQ m.getMatrixPtr(), m.getMatrixPtr() + n,
@@ -93,7 +94,8 @@ Matrix<Type> &DevalF(Expression &exp, const Matrix<Variable> &m,
 // Reverse mode algorithmic differentiation (Matrix)
 Matrix<Type> &DevalR(Expression &exp, const Matrix<Variable> &m) {
   const size_t n = m.getNumElem();
-  auto &result = Matrix<Type>::MatrixFactory::CreateMatrix(m.getNumRows(), m.getNumColumns());
+  auto &result = Matrix<Type>::MatrixFactory::CreateMatrix(m.getNumRows(),
+                                                           m.getNumColumns());
 
   // Precompute (By design, the operation is serial)
   PreComp(exp);
@@ -105,14 +107,14 @@ Matrix<Type> &DevalR(Expression &exp, const Matrix<Variable> &m) {
   return result;
 }
 
-void DevalR(Expression& exp, const Matrix<Variable>& X, Matrix<Type>*& result) {
+void DevalR(Expression &exp, const Matrix<Variable> &X, Matrix<Type> *&result) {
   const size_t lrows = X.getNumRows();
   const size_t rcols = X.getNumColumns();
- 
+
   if (nullptr == result) {
     result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(lrows, rcols);
   } else if ((lrows != result->getNumRows()) ||
-             (rcols != result->getNumColumns())) {          
+             (rcols != result->getNumColumns())) {
     result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(lrows, rcols);
   }
 
@@ -181,7 +183,7 @@ Matrix<Type> &Jacob(Expression &exp, const Vector<Variable> &vec, ADMode ad) {
 // Symbolic Jacobian of expression (Vector)
 Matrix<Expression> &JacobSym(Expression &exp, const Vector<Variable> &vec) {
   const size_t rows = vec.size();
-  auto &result =  Matrix<Expression>::MatrixFactory::CreateMatrix(rows, 1);
+  auto &result = Matrix<Expression>::MatrixFactory::CreateMatrix(rows, 1);
   for (size_t i{}; i < rows; ++i) {
     result(i, 1) = SymDiff(exp, vec[i]);
   }
@@ -266,7 +268,8 @@ Matrix<Expression> &HessSym(Expression &exp, const Vector<Variable> &vec) {
 // Symbolic Expression (Matrix)
 Matrix<Expression> &SymMatDiff(Expression &exp, const Matrix<Variable> &m) {
   const size_t n = m.getNumElem();
-  auto &result = Matrix<Expression>::MatrixFactory::CreateMatrix(m.getNumRows(), m.getNumColumns());
+  auto &result = Matrix<Expression>::MatrixFactory::CreateMatrix(
+      m.getNumRows(), m.getNumColumns());
   for (size_t i{}; i < n; ++i) {
     result[i] = SymDiff(exp, m[i]);
   }

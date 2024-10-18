@@ -41,34 +41,34 @@
 #define NAIVE_IMPL
 
 #ifndef BUILD_TYPE
-  #define SCALAR_TYPE double
-  #define USE_COMPLEX_MATH
-  #define USE_ROBIN_HOOD_MAP
-  #define USE_VIRTUAL_FUNCTIONS
-  #define USE_PARALLEL_POLICY
+#define SCALAR_TYPE double
+#define USE_COMPLEX_MATH
+#define USE_ROBIN_HOOD_MAP
+#define USE_VIRTUAL_FUNCTIONS
+#define USE_PARALLEL_POLICY
 #endif
 
 // Use parallel policy
 #if defined(USE_PARALLEL_POLICY)
-  #include <execution>
-  #define EXECUTION_PAR std::execution::par,
-  #define EXECUTION_SEQ std::execution::seq,
-  inline static constexpr const std::string_view g_execution_par = "Parallel";
-  inline static constexpr const std::string_view g_execution_seq = "Sequential";
+#include <execution>
+#define EXECUTION_PAR std::execution::par,
+#define EXECUTION_SEQ std::execution::seq,
+inline static constexpr const std::string_view g_execution_par = "Parallel";
+inline static constexpr const std::string_view g_execution_seq = "Sequential";
 #endif
 
 // Enable/disable copy/move operators
 #ifndef ENABLE_COPY_MOVE
-  #define DISABLE_COPY(X)                                                        \
-    X(const X &) = delete;                                                       \
-    X &operator=(const X &) = delete;
+#define DISABLE_COPY(X)                                                        \
+  X(const X &) = delete;                                                       \
+  X &operator=(const X &) = delete;
 
-  #define DISABLE_MOVE(X)                                                        \
-    X(X &&) noexcept = delete;                                                   \
-    X &operator=(X &&) noexcept = delete;
+#define DISABLE_MOVE(X)                                                        \
+  X(X &&) noexcept = delete;                                                   \
+  X &operator=(X &&) noexcept = delete;
 #else
-  #define DISABLE_COPY(X)
-  #define DISABLE_MOVE(X)
+#define DISABLE_COPY(X)
+#define DISABLE_MOVE(X)
 #endif
 
 // Eval/Deval left operator
@@ -135,29 +135,29 @@ constexpr const inline size_t g_vec_init{32};
 using Real = SCALAR_TYPE;
 
 #if defined(USE_COMPLEX_MATH)
-  #include <complex>
-  
-  using Type = std::complex<Real>;
+#include <complex>
 
-  Type operator+(Real, const Type &);
-  Type operator+(const Type &, Real);
+using Type = std::complex<Real>;
 
-  Type operator-(Real, const Type &);
-  Type operator-(const Type &, Real);
+Type operator+(Real, const Type &);
+Type operator+(const Type &, Real);
 
-  Type operator*(Real, const Type &);
-  Type operator*(const Type &, Real);
+Type operator-(Real, const Type &);
+Type operator-(const Type &, Real);
 
-  Type operator/(Real, const Type &);
-  Type operator/(const Type &, Real);
+Type operator*(Real, const Type &);
+Type operator*(const Type &, Real);
 
-  bool operator!=(const Type &, Real);
-  bool operator!=(Real, const Type &);
+Type operator/(Real, const Type &);
+Type operator/(const Type &, Real);
 
-  bool operator==(const Type &, Real);
-  bool operator==(Real, const Type &);
+bool operator!=(const Type &, Real);
+bool operator!=(Real, const Type &);
+
+bool operator==(const Type &, Real);
+bool operator==(Real, const Type &);
 #else
-  using Type = Real;
+using Type = Real;
 #endif
 
 // Predeclare a few classes (Scalar)
@@ -167,8 +167,7 @@ class Parameter;
 class Expression;
 
 // Predeclare Matrix class
-template <typename> 
-class Matrix;
+template <typename> class Matrix;
 
 // Predeclare Variable matrix
 using MatVariable = Matrix<Variable>;
@@ -180,47 +179,42 @@ using MatExpression = Matrix<Expression>;
 using MatType = Matrix<Type>;
 
 // Pair type
-template <typename T, typename U> 
-using Pair = std::pair<T, U>;
+template <typename T, typename U> using Pair = std::pair<T, U>;
 
 // Ordered map between size_t and Type
 #if defined(USE_ROBIN_HOOD_MAP)
-  #include <robin_hood.h>
-  using OMPair = robin_hood::unordered_flat_map<size_t, Type>;
-  using OMMatPair = robin_hood::unordered_flat_map<Pair<size_t,size_t>, Matrix<Type> *>;
-  // A generic unorderedmap
-  template <typename T, typename U>
-  using UnOrderedMap = robin_hood::unordered_flat_map<T, U>;
+#include <robin_hood.h>
+using OMPair = robin_hood::unordered_flat_map<size_t, Type>;
+using OMMatPair =
+    robin_hood::unordered_flat_map<Pair<size_t, size_t>, Matrix<Type> *>;
+// A generic unorderedmap
+template <typename T, typename U>
+using UnOrderedMap = robin_hood::unordered_flat_map<T, U>;
 #else
-  #include <unordered_map>  
-  using OMPair = std::unordered_map<size_t, Type>;
-  using OMMatPair = std::unordered_map<Pair<size_t,size_t>, Matrix<Type> *>;
-  // A generic unorderedmap
-  template <typename T, typename U> 
-  using UnOrderedMap = std::unordered_map<T, U>;
+#include <unordered_map>
+using OMPair = std::unordered_map<size_t, Type>;
+using OMMatPair = std::unordered_map<Pair<size_t, size_t>, Matrix<Type> *>;
+// A generic unorderedmap
+template <typename T, typename U> using UnOrderedMap = std::unordered_map<T, U>;
 #endif
 
 // A generic vector type
-template <typename T> 
-using Vector = std::vector<T>;
+template <typename T> using Vector = std::vector<T>;
 
 // A generic variadic tuple type
-template <typename... Args> 
-using Tuples = std::tuple<Args...>;
+template <typename... Args> using Tuples = std::tuple<Args...>;
 
 // A generic shared pointer
-template <typename T> 
-using SharedPtr = std::shared_ptr<T>;
+template <typename T> using SharedPtr = std::shared_ptr<T>;
 
 // A generic future
-template <typename T> 
-using Future = std::future<T>;
+template <typename T> using Future = std::future<T>;
 
 #if defined(USE_VIRTUAL_FUNCTIONS)
-  #define V_OVERRIDE(X) X override
-  #define V_UNPURE(X) virtual X
-  #define V_DTR(X) virtual X
-  #define V_PURE(X) virtual X = 0
+#define V_OVERRIDE(X) X override
+#define V_UNPURE(X) virtual X
+#define V_DTR(X) virtual X
+#define V_PURE(X) virtual X = 0
 #endif
 
 // Enum classes
@@ -239,32 +233,33 @@ template <typename T> std::string ToString(const T &value) {
 }
 
 // Null pointer check
-#define NULL_CHECK(PTR, MSG) [ptr = PTR, msg = MSG]() {\
-  if (nullptr == ptr) {\
-    std::ostringstream oss;\
-    oss << "[ERROR MSG]: " << msg << "\n"\
-        << "[FILENAME]: " << __FILE__ << "\n"\
-        << "[LINE NO]: " << __LINE__ << "\n";\
-    std::cout << oss.str() << "\n";\
-    assert(false);\
-  }\
-}();
+#define NULL_CHECK(PTR, MSG)                                                   \
+  [ptr = PTR, msg = MSG]() {                                                   \
+    if (nullptr == ptr) {                                                      \
+      std::ostringstream oss;                                                  \
+      oss << "[ERROR MSG]: " << msg << "\n"                                    \
+          << "[FILENAME]: " << __FILE__ << "\n"                                \
+          << "[LINE NO]: " << __LINE__ << "\n";                                \
+      std::cout << oss.str() << "\n";                                          \
+      assert(false);                                                           \
+    }                                                                          \
+  }();
 
 // Check boolean
-#define ASSERT(X, MSG) [x = X, msg = MSG]() {\
-  if (false == x) {\
-    std::ostringstream oss;\
-    oss << "[ERROR MSG]: " << msg << "\n"\
-        << "[FILENAME]: " << __FILE__ << "\n"\
-        << "[LINE NO]: " << __LINE__ << "\n";\
-    std::cout << oss.str() << "\n";\
-    assert(false);\
-  }\
-}();
+#define ASSERT(X, MSG)                                                         \
+  [x = X, msg = MSG]() {                                                       \
+    if (false == x) {                                                          \
+      std::ostringstream oss;                                                  \
+      oss << "[ERROR MSG]: " << msg << "\n"                                    \
+          << "[FILENAME]: " << __FILE__ << "\n"                                \
+          << "[LINE NO]: " << __LINE__ << "\n";                                \
+      std::cout << oss.str() << "\n";                                          \
+      assert(false);                                                           \
+    }                                                                          \
+  }();
 
 // Range values from start to end
-template <typename T> 
-class Range {
+template <typename T> class Range {
 private:
   Vector<T> m_vec;
 
@@ -274,20 +269,19 @@ public:
     std::iota(m_vec.begin(), m_vec.end(), start);
   }
 
-  constexpr typename Vector<T>::const_iterator begin() const { 
-    return m_vec.cbegin(); 
+  constexpr typename Vector<T>::const_iterator begin() const {
+    return m_vec.cbegin();
   }
 
-  constexpr typename Vector<T>::const_iterator end() const { 
-    return m_vec.cend(); 
+  constexpr typename Vector<T>::const_iterator end() const {
+    return m_vec.cend();
   }
 
   ~Range() = default;
 };
 
 // Hashing function for Pair<size_t, size_t>
-template <> 
-struct std::hash<Pair<size_t, size_t>> {
+template <> struct std::hash<Pair<size_t, size_t>> {
   std::size_t operator()(const Pair<size_t, size_t> &k) const {
     std::size_t res = 17;
     res = res * 31 + std::hash<size_t>()(k.first);

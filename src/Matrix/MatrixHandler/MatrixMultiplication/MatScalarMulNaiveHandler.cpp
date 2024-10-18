@@ -1,5 +1,6 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixMultiplication/MatScalarMulNaiveHandler.cpp
+ * @file
+ * src/Matrix/MatrixHandler/MatrixMultiplication/MatScalarMulNaiveHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -22,8 +23,7 @@
 #include "MatScalarMulNaiveHandler.hpp"
 #include "Matrix.hpp"
 
-void MatScalarMulNaiveHandler::handle(Type lhs, 
-                                      const Matrix<Type> *rhs, 
+void MatScalarMulNaiveHandler::handle(Type lhs, const Matrix<Type> *rhs,
                                       Matrix<Type> *&result) {
   /* Matrix-Scalar numerical multiplication */
   // Rows and columns of result matrix and if result is nullptr, then create a
@@ -41,5 +41,5 @@ void MatScalarMulNaiveHandler::handle(Type lhs,
   const size_t size{nrows * ncols};
   // For each element, perform addition
   std::transform(EXECUTION_PAR right, right + size, res,
-                [&lhs](const Type value) { return lhs*value; });
+                 [&lhs](const Type value) { return lhs * value; });
 }

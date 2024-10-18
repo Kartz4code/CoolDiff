@@ -30,8 +30,8 @@ void SubZero(const Matrix<Type> *it, Matrix<Type> *&result) {
   */
   const size_t nrows{it->getNumRows()};
   const size_t ncols{it->getNumColumns()};
-    
-  // Pool matrix  
+
+  // Pool matrix
   MemoryManager::MatrixPool(nrows, ncols, result);
 
   std::transform(EXECUTION_PAR it->getMatrixPtr(),
@@ -39,19 +39,19 @@ void SubZero(const Matrix<Type> *it, Matrix<Type> *&result) {
                  [](const auto &i) { return (Type)(-1) * i; });
 }
 
-void ZeroMatSubHandler::handle(const Matrix<Type> *lhs, 
-                               const Matrix<Type> *rhs,
+void ZeroMatSubHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
                                Matrix<Type> *&result) {
 
-// Rows and columns of result matrix and if result is nullptr, then create a
-// new resource
-const size_t nrows{lhs->getNumRows()};
-const size_t ncols{rhs->getNumColumns()};
-const size_t lcols{lhs->getNumColumns()};
-const size_t rrows{rhs->getNumRows()};
+  // Rows and columns of result matrix and if result is nullptr, then create a
+  // new resource
+  const size_t nrows{lhs->getNumRows()};
+  const size_t ncols{rhs->getNumColumns()};
+  const size_t lcols{lhs->getNumColumns()};
+  const size_t rrows{rhs->getNumRows()};
 
-// Assert dimensions
-ASSERT((nrows == rrows) && (ncols == lcols), "Matrix subtraction dimensions mismatch");
+  // Assert dimensions
+  ASSERT((nrows == rrows) && (ncols == lcols),
+         "Matrix subtraction dimensions mismatch");
 
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */

@@ -29,6 +29,15 @@ class Variable : public IVariable<Variable> {
 protected:
   // Underlying symbolic variable
   VarWrap m_var{};
+
+  // Static variable for one seed
+  static Variable t1;
+  // Static variable for zero seed
+  static Variable t0;
+  
+  // Friend class Parameter
+  friend class Parameter;
+
   // Type real-time value
   SharedPtr<Type> m_value_var{std::make_shared<Type>()};
 
@@ -39,11 +48,6 @@ protected:
   Expression SymDiff(const Variable &);
 
 public:
-  // Static variable for one seed
-  static Variable t1;
-  // Static variable for zero seed
-  static Variable t0;
-
   // Block index
   size_t m_nidx{};
   // Cache for reverse 1st AD
@@ -73,11 +77,11 @@ public:
 
   // Getters and setters
   // Get/Set value
-  void setValue(const Type&);
+  void setValue(const Type &);
   Type getValue() const;
 
   // Get/Set dvalue
-  void setdValue(const Type&);
+  void setdValue(const Type &);
   Type getdValue() const;
 
   // Evaluate value and derivative value in run-time
@@ -105,9 +109,9 @@ public:
 
   // Variable factory
   class VariableFactory {
-    public:      
-      // Create new variable
-      static Variable &CreateVariable(const Type& = (Type)(0));
+  public:
+    // Create new variable
+    static Variable &CreateVariable(const Type & = (Type)(0));
   };
 
   // Destructor

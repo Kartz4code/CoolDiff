@@ -21,19 +21,18 @@
 
 #pragma once
 
-#include "Matrix.hpp"
-#include "MatrixBasics.hpp"
+#include "GenericMatConv.hpp"
 #include "GenericMatHadamard.hpp"
 #include "GenericMatProduct.hpp"
+#include "GenericMatSigma.hpp"
 #include "GenericMatSub.hpp"
 #include "GenericMatSum.hpp"
 #include "GenericMatTranspose.hpp"
-#include "GenericMatSigma.hpp"
-#include "GenericMatConv.hpp"
+#include "Matrix.hpp"
+#include "MatrixBasics.hpp"
 
 // Matrix evaluation
-template<typename T>
-Matrix<Type> &Eval(Matrix<T> &Mexp) {
+template <typename T> Matrix<Type> &Eval(Matrix<T> &Mexp) {
   // Reset graph/tree
   Mexp.resetImpl();
   // Return evaluation value
@@ -41,7 +40,7 @@ Matrix<Type> &Eval(Matrix<T> &Mexp) {
 }
 
 // Matrix-Matrix derivative evaluation
-template<typename T>
+template <typename T>
 Matrix<Type> &DevalF(Matrix<T> &Mexp, Matrix<Variable> &X) {
   // Reset graph/tree
   Mexp.resetImpl();
