@@ -32,7 +32,7 @@ Expression &Gaussian(const Variable &x, Type mu, Type sig) {
 }
 
 int main(int argc, char **argv) {
-  auto& x = Variable::VariableFactory::CreateVariable(10.34);
+  auto &x = Variable::VariableFactory::CreateVariable(10.34);
 
   Expression gauss = Gaussian(x, 1, 0.9);
 

@@ -32,8 +32,7 @@ private:
 public:
   Expression();
 
-  template <typename T> 
-  constexpr Expression(const IVariable<T> &expr) {
+  template <typename T> constexpr Expression(const IVariable<T> &expr) {
     Variable::m_nidx = this->m_idx_count++;
     // Reserve a buffer of expressions
     Variable::m_gh_vec.reserve(g_vec_init);
@@ -69,16 +68,17 @@ public:
 
   // Expression factory
   class ExpressionFactory {
-    public:
-      // Create expression with value
-      static Expression &CreateExpression(const Type& = (Type)(0));
+  public:
+    // Create expression with value
+    static Expression &CreateExpression(const Type & = (Type)(0));
 
-      // Create new expression
-      template <typename T, typename = std::enable_if_t<std::is_base_of_v<MetaVariable, T>>>
-      static Expression &CreateExpression(const T &exp) {
-        auto tmp = Allocate<Expression>(exp);
-        return *tmp;
-      }
+    // Create new expression
+    template <typename T,
+              typename = std::enable_if_t<std::is_base_of_v<MetaVariable, T>>>
+    static Expression &CreateExpression(const T &exp) {
+      auto tmp = Allocate<Expression>(exp);
+      return *tmp;
+    }
   };
 
   // Get type

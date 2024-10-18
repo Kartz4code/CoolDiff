@@ -1,5 +1,6 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixMultiplication/MatScalarMulNaiveHandler.hpp
+ * @file
+ * src/Matrix/MatrixHandler/MatrixMultiplication/MatScalarMulNaiveHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

@@ -24,8 +24,7 @@
 #include "MatrixEyeOps.hpp"
 
 // When left matrix is special matrix of identity type
-void KronEyeLHS(const Matrix<Type> *lhs, 
-                const Matrix<Type> *rhs,
+void KronEyeLHS(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
                 Matrix<Type> *&result) {
   /* Matrix-Matrix numerical Kronocker product */
   // Rows and columns of result matrix and if result is nullptr, then create a
@@ -36,7 +35,7 @@ void KronEyeLHS(const Matrix<Type> *lhs,
   const size_t rc{rhs->getNumColumns()};
 
   // Pool matrix
-  MemoryManager::MatrixPool((lr*rr), (lc*rc), result);
+  MemoryManager::MatrixPool((lr * rr), (lc * rc), result);
 
   const auto lhs_idx = Range<size_t>(0, lr * lc);
   const auto rhs_idx = Range<size_t>(0, rr * rc);
@@ -62,8 +61,7 @@ void KronEyeLHS(const Matrix<Type> *lhs,
 }
 
 // When right matrix is special matrix of identity type
-void KronEyeRHS(const Matrix<Type> *lhs, 
-                const Matrix<Type> *rhs,
+void KronEyeRHS(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
                 Matrix<Type> *&result) {
   /* Matrix-Matrix numerical Kronocker product */
   // Rows and columns of result matrix and if result is nullptr, then create a
@@ -74,7 +72,7 @@ void KronEyeRHS(const Matrix<Type> *lhs,
   const size_t rc{rhs->getNumColumns()};
 
   // Pool matrix
-  MemoryManager::MatrixPool((lr*rr), (lc*rc), result);
+  MemoryManager::MatrixPool((lr * rr), (lc * rc), result);
 
   const auto lhs_idx = Range<size_t>(0, lr * lc);
   const auto rhs_idx = Range<size_t>(0, rr * rc);
@@ -99,8 +97,7 @@ void KronEyeRHS(const Matrix<Type> *lhs,
                 });
 }
 
-void EyeMatKronHandler::handle(const Matrix<Type> *lhs, 
-                               const Matrix<Type> *rhs,
+void EyeMatKronHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
                                Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   /* Eye matrix special check */

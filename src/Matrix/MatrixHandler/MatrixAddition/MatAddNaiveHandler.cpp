@@ -35,11 +35,11 @@ void MatAddNaiveHandler::handle(const Matrix<Type> *lhs,
   const size_t rrows{rhs->getNumRows()};
 
   // Assert dimensions
-  ASSERT((nrows == rrows) && (ncols == lcols), "Matrix addition dimensions mismatch");
-  
+  ASSERT((nrows == rrows) && (ncols == lcols),
+         "Matrix addition dimensions mismatch");
+
   // Pool matrix
   MemoryManager::MatrixPool(nrows, ncols, result);
-  
 
   // Get raw pointers to result, left and right matrices
   const Type *res = result->getMatrixPtr();
@@ -49,6 +49,6 @@ void MatAddNaiveHandler::handle(const Matrix<Type> *lhs,
   const size_t size{nrows * ncols};
   // For each element, perform addition
   std::transform(EXECUTION_PAR left, left + size, right, res,
-                [](const Type a, const Type b) { return a + b; });
+                 [](const Type a, const Type b) { return a + b; });
   return;
 }

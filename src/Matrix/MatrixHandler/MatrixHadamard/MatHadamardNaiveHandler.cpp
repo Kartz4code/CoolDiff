@@ -34,7 +34,8 @@ void MatHadamardNaiveHandler::handle(const Matrix<Type> *lhs,
   const size_t rrows{rhs->getNumRows()};
 
   // Assert dimensions
-  ASSERT((nrows == rrows) && (ncols == lcols), "Matrix Hadamard product dimensions mismatch");
+  ASSERT((nrows == rrows) && (ncols == lcols),
+         "Matrix Hadamard product dimensions mismatch");
 
   // Pool matrix
   MemoryManager::MatrixPool(nrows, ncols, result);

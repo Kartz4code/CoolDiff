@@ -33,9 +33,7 @@ private:
   }
 
   // CRTP mutable
-  inline constexpr T &derived() { 
-    return static_cast<T &>(*this); 
-  }
+  inline constexpr T &derived() { return static_cast<T &>(*this); }
 
 protected:
   // Protected constructor
@@ -54,18 +52,25 @@ public:
   this->m_visited = false;                                                     \
   mp_left->reset();                                                            \
   mp_right->reset();                                                           \
-  std::for_each(EXECUTION_PAR mp_arr, mp_arr+m_size, [](Matrix<Type>* m) { if(nullptr != m) {m->free();} });
+  std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type> *m) {   \
+    if (nullptr != m) {                                                        \
+      m->free();                                                               \
+    }                                                                          \
+  });
 
 #define BINARY_MAT_RIGHT_RESET()                                               \
   this->m_visited = false;                                                     \
   mp_right->reset();                                                           \
-  std::for_each(EXECUTION_PAR mp_arr, mp_arr+m_size, [](Matrix<Type>* m) { if(nullptr != m) {m->free();} });
+  std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type> *m) {   \
+    if (nullptr != m) {                                                        \
+      m->free();                                                               \
+    }                                                                          \
+  });
 
-
-template<typename T>
-using ExpType =  std::enable_if_t<std::is_base_of_v<MetaVariable, T> && 
-                                  false == std::is_arithmetic_v<T>   &&  
-                                  false == std::is_same_v<Type, T>>;
+template <typename T>
+using ExpType = std::enable_if_t<std::is_base_of_v<MetaVariable, T> &&
+                                 false == std::is_arithmetic_v<T> &&
+                                 false == std::is_same_v<Type, T>>;
 
 // Special matrices
 enum MatrixSpl : size_t {
@@ -87,6 +92,7 @@ enum OpMat : size_t {
   MUL_SCALAR_MAT,
   TRANSPOSE_MAT,
   TRANSPOSE_DERV_MAT,
+  CONV_MAT,
   COUNT_MAT
 };
 
@@ -95,12 +101,17 @@ enum OpMat : size_t {
 #define MATRIX_MUL(X, Y, Z) std::get<OpMat::MUL_MAT>(m_caller)(X, Y, Z)
 #define MATRIX_KRON(X, Y, Z) std::get<OpMat::KRON_MAT>(m_caller)(X, Y, Z)
 #define MATRIX_SUB(X, Y, Z) std::get<OpMat::SUB_MAT>(m_caller)(X, Y, Z)
-#define MATRIX_HADAMARD(X, Y, Z) std::get<OpMat::HADAMARD_MAT>(m_caller)(X, Y, Z)
-#define MATRIX_SCALAR_ADD(X, Y, Z) std::get<OpMat::ADD_SCALAR_MAT>(m_caller)(X, Y, Z)
-#define MATRIX_SCALAR_MUL(X, Y, Z) std::get<OpMat::MUL_SCALAR_MAT>(m_caller)(X, Y, Z)
+#define MATRIX_HADAMARD(X, Y, Z)                                               \
+  std::get<OpMat::HADAMARD_MAT>(m_caller)(X, Y, Z)
+#define MATRIX_SCALAR_ADD(X, Y, Z)                                             \
+  std::get<OpMat::ADD_SCALAR_MAT>(m_caller)(X, Y, Z)
+#define MATRIX_SCALAR_MUL(X, Y, Z)                                             \
+  std::get<OpMat::MUL_SCALAR_MAT>(m_caller)(X, Y, Z)
 #define MATRIX_TRANSPOSE(X, Y) std::get<OpMat::TRANSPOSE_MAT>(m_caller)(X, Y)
-#define MATRIX_DERV_TRANSPOSE(X1, X2, X3, X4, X5, X6) std::get<OpMat::TRANSPOSE_DERV_MAT>(m_caller)(X1, X2, X3, X4, X5, X6)
-
+#define MATRIX_DERV_TRANSPOSE(X1, X2, X3, X4, X5, X6)                          \
+  std::get<OpMat::TRANSPOSE_DERV_MAT>(m_caller)(X1, X2, X3, X4, X5, X6)
+#define MATRIX_CONV(X1, X2, X3, X4, X5, X6, X7)                                \
+  std::get<OpMat::CONV_MAT>(m_caller)(X1, X2, X3, X4, X5, X6, X7)
 
 // Operation type [Order matters!]
 #define OpMatType                                                              \
@@ -112,8 +123,13 @@ enum OpMat : size_t {
       void (*)(Type, const Matrix<Type> *, Matrix<Type> *&),                   \
       void (*)(Type, const Matrix<Type> *, Matrix<Type> *&),                   \
       void (*)(const Matrix<Type> *, Matrix<Type> *&),                         \
-      void (*)(const size_t, const size_t, const size_t, const size_t, const Matrix<Type>*, Matrix<Type>*&)
+      void (*)(const size_t, const size_t, const size_t, const size_t,         \
+               const Matrix<Type> *, Matrix<Type> *&),                         \
+      void (*)(const size_t, const size_t, const size_t, const size_t,         \
+               const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&)
 
 // Operation objects [Order matters!]
-#define OpMatObj MatrixAdd, MatrixMul, MatrixKron, MatrixSub, MatrixHadamard, MatrixScalarAdd, \
-                 MatrixScalarMul, MatrixTranspose, MatrixDervTranspose
+#define OpMatObj                                                               \
+  MatrixAdd, MatrixMul, MatrixKron, MatrixSub, MatrixHadamard,                 \
+      MatrixScalarAdd, MatrixScalarMul, MatrixTranspose, MatrixDervTranspose,  \
+      MatrixConv

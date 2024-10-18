@@ -1,5 +1,6 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixTransposeHandler/ZeroMatTransposeHandler.cpp
+ * @file
+ * src/Matrix/MatrixHandler/MatrixTransposeHandler/ZeroMatTransposeHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -23,10 +24,11 @@
 #include "Matrix.hpp"
 #include "MatrixZeroOps.hpp"
 
-void ZeroMatTransposeHandler::handle(const Matrix<Type> * mat, Matrix<Type> *& result) {
+void ZeroMatTransposeHandler::handle(const Matrix<Type> *mat,
+                                     Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
-  if(true == IsZeroMatrix(mat)) {
+  if (true == IsZeroMatrix(mat)) {
     // Rows and columns of result matrix
     const size_t nrows{mat->getNumRows()};
     const size_t ncols{mat->getNumColumns()};

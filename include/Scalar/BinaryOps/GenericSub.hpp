@@ -46,11 +46,10 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericSub(T1 *u, T2 *v, Callables &&...call) : mp_left{u}, 
-                                                            mp_right{v}, 
-                                                            m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                            m_nidx{this->m_idx_count++} 
-  {}
+  constexpr GenericSub(T1 *u, T2 *v, Callables &&...call)
+      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
+                                     std::forward<Callables>(call)...)},
+        m_nidx{this->m_idx_count++} {}
 
   // Symbolic evaluation
   V_OVERRIDE(Variable *symEval()) {
@@ -174,24 +173,16 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair &getCache()) { 
-    return m_cache; 
-  }
+  V_OVERRIDE(OMPair &getCache()) { return m_cache; }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { 
-    BINARY_RESET(); 
-  }
+  V_OVERRIDE(void reset()) { BINARY_RESET(); }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { 
-    return "GenericSub"; 
-  }
+  V_OVERRIDE(std::string_view getType() const) { return "GenericSub"; }
 
   // Find me
-  V_OVERRIDE(bool findMe(void *v) const) { 
-    BINARY_FIND_ME(); 
-  }
+  V_OVERRIDE(bool findMe(void *v) const) { BINARY_FIND_ME(); }
 
   // Destructor
   V_DTR(~GenericSub()) = default;
@@ -203,21 +194,22 @@ using GenericSubT1 = GenericSub<T1, T2, OpType>;
 
 // Function for subtraction computation
 template <typename T1, typename T2>
-constexpr const auto &operator-(const IVariable<T1> &u, const IVariable<T2> &v) {
-  auto tmp = Allocate<GenericSubT1<T1, T2>>(const_cast<T1 *>(static_cast<const T1 *>(&u)),
-                                            const_cast<T2 *>(static_cast<const T2 *>(&v)), 
-                                            OpObj);
+constexpr const auto &operator-(const IVariable<T1> &u,
+                                const IVariable<T2> &v) {
+  auto tmp = Allocate<GenericSubT1<T1, T2>>(
+      const_cast<T1 *>(static_cast<const T1 *>(&u)),
+      const_cast<T2 *>(static_cast<const T2 *>(&v)), OpObj);
   return *tmp;
 }
 
 // Left side is a number (subtraction)
 template <typename T>
 constexpr const auto &operator-(const Type &u, const IVariable<T> &v) {
-  return (u + (Type)(-1)*(v));
+  return (u + (Type)(-1) * (v));
 }
 
 // Right side is a number (subtraction)
-template <typename T> 
+template <typename T>
 constexpr const auto &operator-(const IVariable<T> &v, const Type &u) {
-  return (v + (Type)(-1)*(u));  
+  return (v + (Type)(-1) * (u));
 }

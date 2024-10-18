@@ -23,7 +23,7 @@
 #include "Matrix.hpp"
 #include "MatrixEyeOps.hpp"
 
-void AddEye(Type val, const Matrix<Type> * it, Matrix<Type> *&result) {
+void AddEye(Type val, const Matrix<Type> *it, Matrix<Type> *&result) {
   /*
     Rows and columns of result matrix and if result is nullptr or if dimensions
     mismatch, then create a new matrix resource
@@ -41,8 +41,7 @@ void AddEye(Type val, const Matrix<Type> * it, Matrix<Type> *&result) {
       [&](const size_t i) { (*result)(i, i) = (*result)(i, i) + (Type)(1); });
 }
 
-void EyeMatScalarAddHandler::handle(Type lhs, 
-                                    const Matrix<Type> *rhs,
+void EyeMatScalarAddHandler::handle(Type lhs, const Matrix<Type> *rhs,
                                     Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   /* Eye matrix special check */

@@ -49,7 +49,6 @@ const Matrix<Type> *EyeMatAddNum(const Matrix<Type> *, const Matrix<Type> *);
 // Eye matrix scalar addition
 const Matrix<Type> *EyeMatScalarAddNum(Type, const Matrix<Type> *);
 
-
 // Eye matrix subtraction numerics
 const Matrix<Type> *EyeMatSubNum(const Matrix<Type> *, const Matrix<Type> *);
 
@@ -58,8 +57,8 @@ const Matrix<Type> *EyeMatMulNum(const Matrix<Type> *, const Matrix<Type> *);
 // Zero matrix scalar multiplication numerics
 const Matrix<Type> *EyeMatScalarMulNum(Type, const Matrix<Type> *);
 
-
 // Eye matrix Kronocker product numerics
 const Matrix<Type> *EyeMatKronNum(const Matrix<Type> *, const Matrix<Type> *);
 // Eye matrix Hadamard product numerics
-const Matrix<Type> *EyeMatHadamardNum(const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type> *EyeMatHadamardNum(const Matrix<Type> *,
+                                      const Matrix<Type> *);

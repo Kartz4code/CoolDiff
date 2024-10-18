@@ -40,14 +40,14 @@ public:
   // Copy constructor
   Parameter(const Parameter &);
 
-  // Move constructor 
-  Parameter(Parameter&&) noexcept;
+  // Move constructor
+  Parameter(Parameter &&) noexcept;
 
   // Copy assignment
   Parameter &operator=(const Parameter &);
 
-  // Move assignment 
-  Parameter& operator=(Parameter&&) noexcept;
+  // Move assignment
+  Parameter &operator=(Parameter &&) noexcept;
 
   // Assignment to Type
   Parameter &operator=(const Type &);
@@ -82,9 +82,9 @@ public:
 
   // Parameter factory
   class ParameterFactory {
-    public:      
-      // Create new parameter
-      static Parameter &CreateParameter(const Type& = (Type)(0));
+  public:
+    // Create new parameter
+    static Parameter &CreateParameter(const Type & = (Type)(0));
   };
 
   // Destructor

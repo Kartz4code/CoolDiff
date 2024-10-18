@@ -1,5 +1,6 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixTransposeHandler/EyeMatDervTransposeHandler.cpp
+ * @file
+ * src/Matrix/MatrixHandler/MatrixTransposeHandler/EyeMatDervTransposeHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -23,17 +24,17 @@
 #include "Matrix.hpp"
 #include "MatrixEyeOps.hpp"
 
-void EyeMatDervTransposeHandler::handle(const size_t nrows_f, const size_t ncols_f, 
-                                        const size_t nrows_x, const size_t ncols_x, 
-                                        const Matrix<Type> * mat, Matrix<Type>*& result) {
+void EyeMatDervTransposeHandler::handle(
+    const size_t nrows_f, const size_t ncols_f, const size_t nrows_x,
+    const size_t ncols_x, const Matrix<Type> *mat, Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
-  if(true == IsEyeMatrix(mat)) {
+  if (true == IsEyeMatrix(mat)) {
     // Result matrix dimensions
-    const size_t nrows{ncols_f*nrows_x};
-    const size_t ncols{nrows_f*ncols_x};
+    const size_t nrows{ncols_f * nrows_x};
+    const size_t ncols{nrows_f * ncols_x};
 
-    // Result transposed derivative matrix   
+    // Result transposed derivative matrix
     result = MemoryManager::MatrixSplPool(nrows, ncols, MatrixSpl::EYE);
     return;
   }

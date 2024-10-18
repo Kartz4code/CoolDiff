@@ -25,48 +25,43 @@
 #include "IMatrix.hpp"
 
 // Derivative of matrices (Reverse AD)
-Matrix<Type>* DervMatrix(const size_t, const size_t, const size_t, const size_t);
+Matrix<Type> *DervMatrix(const size_t, const size_t, const size_t,
+                         const size_t);
 
 // Matrix class
-template <typename T> 
-class Matrix : public IMatrix<Matrix<T>> {
+template <typename T> class Matrix : public IMatrix<Matrix<T>> {
 public:
   // Matrix factory
   class MatrixFactory {
-    public:
-      // Create matrix as reference 
-      template<typename... Args> 
-      static Matrix<T>& CreateMatrix(Args&&... args) {
-        auto tmp = Allocate<Matrix<T>>(std::forward<Args>(args)...);
-        return *tmp;
-      }
+  public:
+    // Create matrix as reference
+    template <typename... Args> static Matrix<T> &CreateMatrix(Args &&...args) {
+      auto tmp = Allocate<Matrix<T>>(std::forward<Args>(args)...);
+      return *tmp;
+    }
 
-      // Create matrix as pointer
-      template<typename... Args>
-      static Matrix<T>* CreateMatrixPtr(Args &&...args) {
-        auto tmp = Allocate<Matrix<T>>(std::forward<Args>(args)...);
-        return tmp.get();
-      }
+    // Create matrix as pointer
+    template <typename... Args>
+    static Matrix<T> *CreateMatrixPtr(Args &&...args) {
+      auto tmp = Allocate<Matrix<T>>(std::forward<Args>(args)...);
+      return tmp.get();
+    }
   };
 
 private:
   // Allocate friend function
-  template <typename Z, typename... Argz> 
-  friend SharedPtr<Z> Allocate(Argz&&...);
+  template <typename Z, typename... Argz>
+  friend SharedPtr<Z> Allocate(Argz &&...);
 
   // Memory manager is a friend class
   friend class MemoryManager;
 
   // Matrices of template types is a friend class
-  template<typename Z>
-  friend class Matrix;
+  template <typename Z> friend class Matrix;
 
   // Special matrix constructor (Privatized)
-  constexpr Matrix(const size_t rows, const size_t cols, const MatrixSpl& type) : m_rows{rows}, 
-                                                                                  m_cols{cols}, 
-                                                                                  m_type{type} 
-  {}
-
+  constexpr Matrix(const size_t rows, const size_t cols, const MatrixSpl &type)
+      : m_rows{rows}, m_cols{cols}, m_type{type} {}
 
   // Matrix row and column size
   size_t m_rows{0};
@@ -75,15 +70,16 @@ private:
   // Type of matrix (Special matrices)
   MatrixSpl m_type{(size_t)(-1)};
 
-  // Matrix raw pointer of underlying type (Expression, Variable, Parameter, Type)
+  // Matrix raw pointer of underlying type (Expression, Variable, Parameter,
+  // Type)
   T *mp_mat{nullptr};
 
   // Collection of meta variable expressions
-  Vector<MetaMatrix*> m_gh_vec{};
+  Vector<MetaMatrix *> m_gh_vec{};
 
   // Free matrix resource
   bool m_free{false};
-  
+
   // Boolean to verify evaluation/forward derivative values
   bool m_eval{false};
   bool m_devalf{false};
@@ -96,13 +92,10 @@ private:
   // Set values for the result matrix
   inline void setEval() {
     // Set result matrix
-    if ((nullptr != mp_mat) && 
-        (nullptr != mp_result) &&
+    if ((nullptr != mp_mat) && (nullptr != mp_result) &&
         (nullptr != mp_result->mp_mat)) {
-      std::transform(EXECUTION_SEQ 
-                      mp_mat, mp_mat + getNumElem(),
-                      mp_result->mp_mat,
-                      [this](auto &v) { return Eval(v); });
+      std::transform(EXECUTION_SEQ mp_mat, mp_mat + getNumElem(),
+                     mp_result->mp_mat, [this](auto &v) { return Eval(v); });
     }
   }
 
@@ -110,8 +103,7 @@ private:
   inline void setDevalF(const Matrix<Variable> &X) {
     // If the matrix type is Expression
     if constexpr (true == std::is_same_v<T, Expression>) {
-      if ((nullptr != mp_mat) && 
-          (nullptr != mp_dresult) &&
+      if ((nullptr != mp_mat) && (nullptr != mp_dresult) &&
           (nullptr != mp_dresult->mp_mat)) {
         // Precompute the reverse derivatives
         std::for_each(EXECUTION_SEQ mp_mat, mp_mat + getNumElem(),
@@ -136,7 +128,8 @@ private:
                                       inner_idx.end(), [&](const size_t n) {
                                         const size_t j = n % xcols;
                                         const size_t i = (n - j) / xcols;
-                                        (*mp_dresult)(l * xrows + i, k * xcols + j) =
+                                        (*mp_dresult)(l * xrows + i,
+                                                      k * xcols + j) =
                                             DevalR((*this)(l, k), X(i, j));
                                       });
                       });
@@ -144,9 +137,8 @@ private:
     }
     // If the matrix type is Variable
     else if constexpr (true == std::is_same_v<T, Variable>) {
-      if ((nullptr != mp_mat) && 
-          (nullptr != mp_dresult) &&
-          (nullptr != mp_dresult->mp_mat) && 
+      if ((nullptr != mp_mat) && (nullptr != mp_dresult) &&
+          (nullptr != mp_dresult->mp_mat) &&
           // Important condition to delineate Matrix<Variable>
           (m_nidx == X.m_nidx)) {
         // Get dimensions of X variable matrix
@@ -165,8 +157,7 @@ private:
                       });
       }
       // If the Matrix is Variable, but of different form
-      else if ((nullptr != mp_mat) && 
-               (nullptr != mp_dresult) &&
+      else if ((nullptr != mp_mat) && (nullptr != mp_dresult) &&
                (nullptr != mp_dresult->mp_mat)) {
         // Get dimensions of X variable matrix
         const size_t xrows = X.getNumRows();
@@ -189,7 +180,9 @@ private:
                               const size_t j = n % xcols;
                               const size_t i = (n - j) / xcols;
                               (*mp_dresult)(l * xrows + i, k * xcols + j) =
-                                  (((*this)(l, k).m_nidx == X(i, j).m_nidx) ? (Type)(1) : (Type)(0));
+                                  (((*this)(l, k).m_nidx == X(i, j).m_nidx)
+                                       ? (Type)(1)
+                                       : (Type)(0));
                             });
                       });
       }
@@ -203,47 +196,33 @@ public:
   OMMatPair m_cache{};
 
   // Default constructor
-  constexpr Matrix() : m_rows{0}, 
-                       m_cols{0}, 
-                       m_type{(size_t)(-1)}, 
-                       mp_mat{new T[1]{}},
-                       mp_result{nullptr}, 
-                       mp_dresult{nullptr}, 
-                       m_eval{false}, 
-                       m_devalf{false},
-                       m_nidx{this->m_idx_count++} 
-  {}
+  constexpr Matrix()
+      : m_rows{0}, m_cols{0}, m_type{(size_t)(-1)}, mp_mat{new T[1]{}},
+        mp_result{nullptr}, mp_dresult{nullptr}, m_eval{false}, m_devalf{false},
+        m_nidx{this->m_idx_count++} {}
 
   // Initalize the matrix with rows and columns
-  constexpr Matrix(const size_t rows, const size_t cols) : m_rows{rows}, 
-                                               m_cols{cols}, 
-                                               m_type{(size_t)(-1)}, 
-                                              // rows and cols must be set before calling getNumElem
-                                               mp_mat{new T[getNumElem()]{}}, 
-                                               mp_result{nullptr}, 
-                                               mp_dresult{nullptr},
-                                               m_eval{false}, 
-                                               m_devalf{false}, 
-                                               m_nidx{this->m_idx_count++} 
-  {}
+  constexpr Matrix(const size_t rows, const size_t cols)
+      : m_rows{rows}, m_cols{cols}, m_type{(size_t)(-1)},
+        // rows and cols must be set before calling getNumElem
+        mp_mat{new T[getNumElem()]{}}, mp_result{nullptr}, mp_dresult{nullptr},
+        m_eval{false}, m_devalf{false}, m_nidx{this->m_idx_count++} {}
 
   // Initalize the matrix with rows and columns with initial values
-  constexpr Matrix(const size_t rows, const size_t cols, const T& val) : Matrix(rows, cols) {
-      std::fill(EXECUTION_PAR mp_mat, mp_mat + getNumElem(), val);  
+  constexpr Matrix(const size_t rows, const size_t cols, const T &val)
+      : Matrix(rows, cols) {
+    std::fill(EXECUTION_PAR mp_mat, mp_mat + getNumElem(), val);
   }
 
   // Matrix expressions constructor
   template <typename Z>
-  constexpr Matrix(const IMatrix<Z> &expr) : m_rows{expr.getNumRows()}, 
-                                             m_cols{expr.getNumColumns()},
-                                             m_type{(size_t)(-1)}, 
-                                             mp_result{nullptr}, 
-                                             mp_dresult{nullptr},
-                                             m_eval{false}, 
-                                             m_devalf{false}, 
-                                             m_nidx{this->m_idx_count++ } {
+  constexpr Matrix(const IMatrix<Z> &expr)
+      : m_rows{expr.getNumRows()}, m_cols{expr.getNumColumns()},
+        m_type{(size_t)(-1)}, mp_result{nullptr}, mp_dresult{nullptr},
+        m_eval{false}, m_devalf{false}, m_nidx{this->m_idx_count++} {
     // Static assert so that type T is an expression
-    static_assert(true == std::is_same_v<T,Expression>, "[ERROR] The type T is not an expression");
+    static_assert(true == std::is_same_v<T, Expression>,
+                  "[ERROR] The type T is not an expression");
     // Reserve a buffer of Matrix expressions
     m_gh_vec.reserve(g_vec_init);
     // Emplace the expression in a generic holder
@@ -251,10 +230,10 @@ public:
   }
 
   /* Copy assignment for expression evaluation */
-  template <typename Z> 
-  Matrix &operator=(const IMatrix<Z> &expr) {
+  template <typename Z> Matrix &operator=(const IMatrix<Z> &expr) {
     // Static assert so that type T is an expression
-    static_assert(true == std::is_same_v<T,Expression>, "[ERROR] The type T is not an expression");
+    static_assert(true == std::is_same_v<T, Expression>,
+                  "[ERROR] The type T is not an expression");
     // Clear buffer if not recursive expression not found
     if (static_cast<const Z &>(expr).findMe(this) == false) {
       m_gh_vec.clear();
@@ -265,17 +244,18 @@ public:
   }
 
   // Move constructor
-  constexpr Matrix(Matrix &&m) noexcept : m_rows{std::exchange(m.m_rows, -1)}, 
-                                          m_cols{std::exchange(m.m_cols, -1)},
-                                          m_type{std::exchange(m.m_type, -1)}, 
-                                          mp_mat{std::exchange(m.mp_mat, nullptr)},
-                                          mp_result{std::exchange(m.mp_result, nullptr)},
-                                          mp_dresult{std::exchange(m.mp_dresult, nullptr)},
-                                          m_eval{std::exchange(m.m_eval, false)}, 
-                                          m_devalf{std::exchange(m.m_devalf, false)},
-                                          m_cache{std::move(m.m_cache)},
-                                          m_gh_vec{std::exchange(m.m_gh_vec, {})}, 
-                                          m_nidx{std::exchange(m.m_nidx, -1)}
+  constexpr Matrix(Matrix &&m) noexcept
+      : m_rows{std::exchange(m.m_rows, -1)}, m_cols{std::exchange(m.m_cols,
+                                                                  -1)},
+        m_type{std::exchange(m.m_type, -1)}, mp_mat{std::exchange(m.mp_mat,
+                                                                  nullptr)},
+        mp_result{std::exchange(m.mp_result, nullptr)},
+        mp_dresult{std::exchange(m.mp_dresult, nullptr)}, m_eval{std::exchange(
+                                                              m.m_eval, false)},
+        m_devalf{std::exchange(m.m_devalf, false)}, m_cache{std::move(
+                                                        m.m_cache)},
+        m_gh_vec{std::exchange(m.m_gh_vec, {})}, m_nidx{std::exchange(m.m_nidx,
+                                                                      -1)}
 
   {}
 
@@ -303,16 +283,11 @@ public:
   }
 
   // Copy constructor
-  constexpr Matrix(const Matrix &m) : m_rows{m.m_rows}, 
-                                      m_cols{m.m_cols}, 
-                                      m_type{m.m_type},
-                                      // rows and cols must be set before calling getNumElem
-                                      mp_mat{new T[getNumElem()]{}}, 
-                                      m_eval{m.m_eval}, 
-                                      m_devalf{m.m_devalf},
-                                      m_cache{m.m_cache},
-                                      m_nidx{m.m_nidx}, 
-                                      m_gh_vec{m.m_gh_vec} {
+  constexpr Matrix(const Matrix &m)
+      : m_rows{m.m_rows}, m_cols{m.m_cols}, m_type{m.m_type},
+        // rows and cols must be set before calling getNumElem
+        mp_mat{new T[getNumElem()]{}}, m_eval{m.m_eval}, m_devalf{m.m_devalf},
+        m_cache{m.m_cache}, m_nidx{m.m_nidx}, m_gh_vec{m.m_gh_vec} {
     // Copy values
     std::copy(EXECUTION_PAR m.mp_mat, m.mp_mat + getNumElem(), mp_mat);
   }
@@ -352,16 +327,12 @@ public:
     // Return this reference
     return *this;
   }
-  
+
   // Get matrix pointer const
-  const T *getMatrixPtr() const { 
-    return mp_mat; 
-  }
+  const T *getMatrixPtr() const { return mp_mat; }
 
   // Get matrix pointer
-  T *getMatrixPtr() { 
-    return mp_mat; 
-  }
+  T *getMatrixPtr() { return mp_mat; }
 
   // Matrix 2D access using operator()()
   T &operator()(const size_t i, const size_t j) {
@@ -390,92 +361,103 @@ public:
   }
 
   // Get block matrix
-  void getBlockMat(const Pair<size_t, size_t>& rows, const Pair<size_t, size_t>& cols, Matrix*& result) {
+  void getBlockMat(const Pair<size_t, size_t> &rows,
+                   const Pair<size_t, size_t> &cols, Matrix *&result) const {
     const size_t row_start = rows.first;
-    const size_t row_end = rows.second; 
-    const size_t col_start = cols.first; 
-    const size_t col_end = cols.second; 
+    const size_t row_end = rows.second;
+    const size_t col_start = cols.first;
+    const size_t col_end = cols.second;
 
     // Assert for row start/end, column start/end and index out of bound checks
-    ASSERT((row_start >= 0 && row_start < m_rows), "Row starting index out of bound");
+    ASSERT((row_start >= 0 && row_start < m_rows),
+           "Row starting index out of bound");
     ASSERT((row_end >= 0 && row_end < m_rows), "Row ending index out of bound");
-    ASSERT((col_start >= 0 && col_start < m_cols), "Column starting index out of bound");
-    ASSERT((col_end >= 0 && col_end < m_cols), "Column ending index out of bound");
+    ASSERT((col_start >= 0 && col_start < m_cols),
+           "Column starting index out of bound");
+    ASSERT((col_end >= 0 && col_end < m_cols),
+           "Column ending index out of bound");
     ASSERT((row_start <= row_end), "Row start greater than row ending");
     ASSERT((col_start <= col_end), "Column start greater than row ending");
 
     // Special matrix embedding
-    if(getMatType() == MatrixSpl::ZEROS) {
-      result = MemoryManager::MatrixSplPool(row_end - row_start + 1, col_end - col_start + 1, MatrixSpl::ZEROS);
+    if (getMatType() == MatrixSpl::ZEROS) {
+      result = MemoryManager::MatrixSplPool(
+          row_end - row_start + 1, col_end - col_start + 1, MatrixSpl::ZEROS);
     } else {
-      MemoryManager::MatrixPool(row_end - row_start + 1, col_end - col_start + 1, result);
-      const auto outer_idx = Range<size_t>(row_start, row_end+1);
-      const auto inner_idx = Range<size_t>(col_start, col_end+1); 
-      std::for_each(EXECUTION_PAR 
-                    outer_idx.begin(), outer_idx.end(), 
-                    [this,&col_start,&row_start,&inner_idx,result] (const size_t i) {
-        std::for_each(EXECUTION_PAR 
-                      inner_idx.begin(), inner_idx.end(), 
-                      [i,this,&col_start,&row_start,&inner_idx,result] (const size_t j) {
-            (*result)(i-row_start,j-col_start) = (*this)(i,j);
-        });
-      });
+      MemoryManager::MatrixPool(row_end - row_start + 1,
+                                col_end - col_start + 1, result);
+      const auto outer_idx = Range<size_t>(row_start, row_end + 1);
+      const auto inner_idx = Range<size_t>(col_start, col_end + 1);
+      std::for_each(
+          EXECUTION_PAR outer_idx.begin(), outer_idx.end(),
+          [this, &col_start, &row_start, &inner_idx, result](const size_t i) {
+            std::for_each(EXECUTION_PAR inner_idx.begin(), inner_idx.end(),
+                          [i, this, &col_start, &row_start, &inner_idx,
+                           result](const size_t j) {
+                            (*result)(i - row_start, j - col_start) =
+                                (*this)(i, j);
+                          });
+          });
     }
   }
 
   // Set block matrix
-  void setBlockMat(const Pair<size_t, size_t>& rows, const Pair<size_t, size_t>& cols, const Matrix* result) {
+  void setBlockMat(const Pair<size_t, size_t> &rows,
+                   const Pair<size_t, size_t> &cols, const Matrix *result) {
     const size_t row_start = rows.first;
-    const size_t row_end = rows.second; 
-    const size_t col_start = cols.first; 
-    const size_t col_end = cols.second; 
+    const size_t row_end = rows.second;
+    const size_t col_start = cols.first;
+    const size_t col_end = cols.second;
 
     // Assert for row start/end, column start/end and index out of bound checks
-    ASSERT((row_start >= 0 && row_start < m_rows), "Row starting index out of bound");
+    ASSERT((row_start >= 0 && row_start < m_rows),
+           "Row starting index out of bound");
     ASSERT((row_end >= 0 && row_end < m_rows), "Row ending index out of bound");
-    ASSERT((col_start >= 0 && col_start < m_cols), "Column starting index out of bound");
-    ASSERT((col_end >= 0 && col_end < m_cols), "Column ending index out of bound");
+    ASSERT((col_start >= 0 && col_start < m_cols),
+           "Column starting index out of bound");
+    ASSERT((col_end >= 0 && col_end < m_cols),
+           "Column ending index out of bound");
     ASSERT((row_start <= row_end), "Row start greater than row ending");
     ASSERT((col_start <= col_end), "Column start greater than row ending");
-    ASSERT((row_end-row_start+1 == result->getNumRows()), "Row mismatch for insertion matrix");
-    ASSERT((col_end-col_start+1 == result->getNumColumns()), "Column mismatch for insertion matrix");
+    ASSERT((row_end - row_start + 1 == result->getNumRows()),
+           "Row mismatch for insertion matrix");
+    ASSERT((col_end - col_start + 1 == result->getNumColumns()),
+           "Column mismatch for insertion matrix");
 
     // Special matrix embedding
-    const auto outer_idx = Range<size_t>(row_start, row_end+1);
-    const auto inner_idx = Range<size_t>(col_start, col_end+1); 
-    if(result->getMatType() == MatrixSpl::ZEROS) {
-        std::for_each(EXECUTION_PAR 
-                    outer_idx.begin(), outer_idx.end(), 
-                    [this,&col_start,&row_start,&inner_idx,result] (const size_t i) {
-        std::for_each(EXECUTION_PAR 
-                      inner_idx.begin(), inner_idx.end(), 
-                      [i,this,&col_start,&row_start,&inner_idx,result] (const size_t j) {
-            (*this)(i,j) = (Type)(0);
-        });
-      });  
-    } 
-    else {  
-      std::for_each(EXECUTION_PAR 
-                    outer_idx.begin(), outer_idx.end(), 
-                    [this,&col_start,&row_start,&inner_idx,result] (const size_t i) {
-        std::for_each(EXECUTION_PAR 
-                      inner_idx.begin(), inner_idx.end(), 
-                      [i,this,&col_start,&row_start,&inner_idx,result] (const size_t j) {
-            (*this)(i,j) = (*result)(i-row_start,j-col_start);
-        });
-      });
+    const auto outer_idx = Range<size_t>(row_start, row_end + 1);
+    const auto inner_idx = Range<size_t>(col_start, col_end + 1);
+    if (result->getMatType() == MatrixSpl::ZEROS) {
+      std::for_each(
+          EXECUTION_PAR outer_idx.begin(), outer_idx.end(),
+          [this, &col_start, &row_start, &inner_idx, result](const size_t i) {
+            std::for_each(EXECUTION_PAR inner_idx.begin(), inner_idx.end(),
+                          [i, this, &col_start, &row_start, &inner_idx, result](
+                              const size_t j) { (*this)(i, j) = (Type)(0); });
+          });
+    } else {
+      std::for_each(
+          EXECUTION_PAR outer_idx.begin(), outer_idx.end(),
+          [this, &col_start, &row_start, &inner_idx, result](const size_t i) {
+            std::for_each(EXECUTION_PAR inner_idx.begin(), inner_idx.end(),
+                          [i, this, &col_start, &row_start, &inner_idx,
+                           result](const size_t j) {
+                            (*this)(i, j) =
+                                (*result)(i - row_start, j - col_start);
+                          });
+          });
     }
   }
 
   // Add zero padding
-  void pad(const size_t r, const size_t c, Matrix*& result) {
+  void pad(const size_t r, const size_t c, Matrix *&result) const {
     // Special matrix embedding
-    if(getMatType() == MatrixSpl::ZEROS) {
-      result = MemoryManager::MatrixSplPool(m_rows + 2*r, m_cols + 2*c, MatrixSpl::ZEROS);
-    } 
-    else {
-      MemoryManager::MatrixPool(m_rows + 2*r, m_cols + 2*c, result);
-      result->setBlockMat({r,r+m_rows-1}, {c,c+m_cols-1}, this);
+    if (getMatType() == MatrixSpl::ZEROS) {
+      result = MemoryManager::MatrixSplPool(m_rows + 2 * r, m_cols + 2 * c,
+                                            MatrixSpl::ZEROS);
+    } else {
+      MemoryManager::MatrixPool(m_rows + 2 * r, m_cols + 2 * c, result);
+      result->setBlockMat({r, r + m_rows - 1}, {c, c + m_cols - 1}, this);
     }
   }
 
@@ -534,19 +516,13 @@ public:
   }
 
   // Get number of rows
-  V_OVERRIDE(size_t getNumRows() const) { 
-    return m_rows; 
-  }
+  V_OVERRIDE(size_t getNumRows() const) { return m_rows; }
 
   // Get number of columns
-  V_OVERRIDE(size_t getNumColumns() const) { 
-    return m_cols; 
-  }
+  V_OVERRIDE(size_t getNumColumns() const) { return m_cols; }
 
   // Get total elements
-  size_t getNumElem() const { 
-    return (m_rows * m_cols); 
-  }
+  size_t getNumElem() const { return (m_rows * m_cols); }
 
   // Get final number of rows (Expression)
   size_t getFinalNumRows() const {
@@ -560,7 +536,7 @@ public:
         }
       } else {
         rows = getNumRows();
-      } 
+      }
     } else {
       rows = getNumRows();
     }
@@ -592,9 +568,7 @@ public:
   }
 
   // Get type of matrix
-  MatrixSpl getMatType() const { 
-    return m_type; 
-  }
+  MatrixSpl getMatType() const { return m_type; }
 
   // Find me
   bool findMe(void *v) const {
@@ -609,7 +583,7 @@ public:
   V_OVERRIDE(Matrix<Type> *eval()) {
     // Cache the mp_result value
     if constexpr (false == std::is_same_v<T, Type>) {
-      if(nullptr != mp_mat) {
+      if (nullptr != mp_mat) {
         MemoryManager::MatrixPool(m_rows, m_cols, mp_result);
       }
     } else {
@@ -647,14 +621,16 @@ public:
     const size_t xcols = X.getNumColumns();
     if constexpr (true == std::is_same_v<T, Type> ||
                   true == std::is_same_v<T, Parameter>) {
-      #if defined(NAIVE_IMPL)
-        mp_dresult = MemoryManager::MatrixSplPool((m_rows * xrows), (m_cols * xcols), MatrixSpl::ZEROS);
-      #else
-         MemoryManager::MatrixPool((m_rows * xrows), (m_cols * xcols), mp_dresult);
-      #endif
+#if defined(NAIVE_IMPL)
+      mp_dresult = MemoryManager::MatrixSplPool(
+          (m_rows * xrows), (m_cols * xcols), MatrixSpl::ZEROS);
+#else
+      MemoryManager::MatrixPool((m_rows * xrows), (m_cols * xcols), mp_dresult);
+#endif
     } else {
-      if(nullptr != mp_mat) {
-         MemoryManager::MatrixPool((m_rows * xrows), (m_cols * xcols), mp_dresult);
+      if (nullptr != mp_mat) {
+        MemoryManager::MatrixPool((m_rows * xrows), (m_cols * xcols),
+                                  mp_dresult);
       }
     }
 
@@ -683,12 +659,10 @@ public:
     // Return derivative result
     return mp_dresult;
   }
-  
-  // Free resources 
-  void free() {
-    m_free = true;
-  }
-  
+
+  // Free resources
+  void free() { m_free = true; }
+
   // Reset all visited flags
   V_OVERRIDE(void reset()) {
     if (true == this->m_visited) {
@@ -709,12 +683,12 @@ public:
     this->m_visited = false;
 
     // Free all results
-    if(mp_result != nullptr) {
+    if (mp_result != nullptr) {
       mp_result->free();
     }
 
     // Free all derivative results
-    if(mp_dresult != nullptr) {
+    if (mp_dresult != nullptr) {
       mp_dresult->free();
     }
 
@@ -734,12 +708,12 @@ public:
     m_devalf = false;
 
     // Free all results
-    if(mp_result != nullptr) {
+    if (mp_result != nullptr) {
       mp_result->free();
     }
 
     // Free all derivative results
-    if(mp_dresult != nullptr) {
+    if (mp_dresult != nullptr) {
       mp_dresult->free();
     }
 
@@ -755,9 +729,7 @@ public:
   }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { 
-    return "Matrix"; 
-  }
+  V_OVERRIDE(std::string_view getType() const) { return "Matrix"; }
 
   // To output stream
   friend std::ostream &operator<<(std::ostream &os, Matrix &mat) {
@@ -780,20 +752,18 @@ public:
         }
       }
       return os;
-    } 
-    else if constexpr (true == std::is_arithmetic_v<T>) {
-        // Serial print
-        for (size_t i{}; i < rows; ++i) {
-          for (size_t j{}; j < cols; ++j) {
-            os << mat(i, j) << " ";
-          }
-          os << "\n";
+    } else if constexpr (true == std::is_arithmetic_v<T>) {
+      // Serial print
+      for (size_t i{}; i < rows; ++i) {
+        for (size_t j{}; j < cols; ++j) {
+          os << mat(i, j) << " ";
         }
-        return os;
-    }
-    else {
+        os << "\n";
+      }
+      return os;
+    } else {
       ASSERT(false, "Matrix not in printable format");
-     } 
+    }
   }
 
   // Destructor

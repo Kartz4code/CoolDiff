@@ -126,8 +126,7 @@ public:
 
       /* IMPORTANT: The derivative is computed here */
       const Type left = mp_left->eval();
-      const Type ustar =
-          (((Type)(-1) / (std::sqrt((Type)(1) - (left * left)))) * cCache);
+      const Type ustar = (((Type)(-1) / (std::sqrt((Type)(1) - (left * left)))) * cCache);
       (*cache)[mp_left->m_nidx] += (ustar);
 
       // Modify cache for left node
@@ -175,7 +174,8 @@ template <typename T>
 using GenericACosT = GenericACos<T, OpType>;
 
 // Function for acos computation
-template <typename T> constexpr const auto &acos(const IVariable<T> &u) {
-  auto tmp = Allocate<GenericACosT<T>>(const_cast<T *>(static_cast<const T *>(&u)), OpObj);
+template <typename T> 
+constexpr const auto &acos(const IVariable<T> &u) {
+  auto tmp = Allocate<GenericACosT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpObj);
   return *tmp;
 }

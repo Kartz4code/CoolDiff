@@ -39,33 +39,28 @@ private:
 
   // All matrices
   inline static constexpr const size_t m_size{6};
-  Matrix<Type>* mp_arr[m_size]{}; 
+  Matrix<Type> *mp_arr[m_size]{};
 
 public:
   // Block index
   const size_t m_nidx{};
 
   // Constructor
-  constexpr GenericMatSigma(T *u, Callables &&...call) : mp_right{u}, 
-                                                         m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                         m_nidx{this->m_idx_count++} {
-    std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);                                                        
-  }  
+  constexpr GenericMatSigma(T *u, Callables &&...call)
+      : mp_right{u}, m_caller{std::make_tuple(
+                         std::forward<Callables>(call)...)},
+        m_nidx{this->m_idx_count++} {
+    std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
+  }
 
   // Get number of rows
-  V_OVERRIDE(size_t getNumRows() const) { 
-    return 1;
-  }
+  V_OVERRIDE(size_t getNumRows() const) { return 1; }
 
   // Get number of columns
-  V_OVERRIDE(size_t getNumColumns() const) { 
-    return 1;  
-  }
+  V_OVERRIDE(size_t getNumColumns() const) { return 1; }
 
   // Find me
-  bool findMe(void *v) const { 
-    BINARY_RIGHT_FIND_ME(); 
-  }
+  bool findMe(void *v) const { BINARY_RIGHT_FIND_ME(); }
 
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type> *eval()) {
@@ -81,47 +76,42 @@ public:
     return mp_arr[0];
   }
 
-    // Matrix devalF computation
+  // Matrix devalF computation
   V_OVERRIDE(Matrix<Type> *devalF(Matrix<Variable> &X)) {
     // Rows and columns of function and variable
     const size_t nrows_x = X.getNumRows();
     const size_t ncols_x = X.getNumColumns();
     const size_t nrows_f = mp_right->getNumRows();
     const size_t ncols_f = mp_right->getNumColumns();
-    
+
     // Right matrix derivative
-    const Matrix<Type>* drhs = mp_right->devalF(X);
+    const Matrix<Type> *drhs = mp_right->devalF(X);
 
     MATRIX_KRON(Ones(1, nrows_f), Eye(nrows_x), mp_arr[3]);
     MATRIX_KRON(Ones(ncols_f, 1), Eye(ncols_x), mp_arr[4]);
     MATRIX_MUL(mp_arr[3], drhs, mp_arr[5]);
     MATRIX_MUL(mp_arr[5], mp_arr[4], mp_arr[1]);
-   
+
     // Return result pointer
     return mp_arr[1];
   }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { 
-    BINARY_MAT_RIGHT_RESET();
-  }
+  V_OVERRIDE(void reset()) { BINARY_MAT_RIGHT_RESET(); }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) {
-    return "GenericMatSigma";
-  }
+  V_OVERRIDE(std::string_view getType() const) { return "GenericMatSigma"; }
 
   // Destructor
   V_DTR(~GenericMatSigma()) = default;
 };
 
 // GenericMatSigma with 1 typename and callables
-template <typename T>
-using GenericMatSigmaT = GenericMatSigma<T, OpMatType>;
+template <typename T> using GenericMatSigmaT = GenericMatSigma<T, OpMatType>;
 
 // Function for sigma computation
-template <typename T>
-constexpr const auto& sigma(const IMatrix<T> &u) {
-  auto tmp = Allocate<GenericMatSigmaT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpMatObj);
+template <typename T> constexpr const auto &sigma(const IMatrix<T> &u) {
+  auto tmp = Allocate<GenericMatSigmaT<T>>(
+      const_cast<T *>(static_cast<const T *>(&u)), OpMatObj);
   return *tmp;
 }

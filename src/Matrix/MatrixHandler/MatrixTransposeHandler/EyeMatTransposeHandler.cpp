@@ -1,5 +1,6 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixTransposeHandler/EyeMatTransposeHandler.cpp
+ * @file
+ * src/Matrix/MatrixHandler/MatrixTransposeHandler/EyeMatTransposeHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -23,15 +24,16 @@
 #include "Matrix.hpp"
 #include "MatrixEyeOps.hpp"
 
-void EyeMatTransposeHandler::handle(const Matrix<Type> * mat, Matrix<Type> *& result) {
+void EyeMatTransposeHandler::handle(const Matrix<Type> *mat,
+                                    Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
-  if(true == IsEyeMatrix(mat)) {
+  if (true == IsEyeMatrix(mat)) {
     // Rows and columns of result matrix
     const size_t nrows{mat->getNumRows()};
     const size_t ncols{mat->getNumColumns()};
-    
-    // Result matrix is transposed identity matrix   
+
+    // Result matrix is transposed identity matrix
     result = MemoryManager::MatrixSplPool(ncols, nrows, MatrixSpl::EYE);
     return;
   }

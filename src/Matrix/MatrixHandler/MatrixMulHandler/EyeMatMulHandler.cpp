@@ -23,18 +23,17 @@
 #include "Matrix.hpp"
 #include "MatrixEyeOps.hpp"
 
-void EyeMatMulHandler::handle(const Matrix<Type> *lhs, 
-                              const Matrix<Type> *rhs,
+void EyeMatMulHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
                               Matrix<Type> *&result) {
-                                
-// If result is nullptr, then create a new resource
-const size_t lrows{lhs->getNumRows()};
-const size_t lcols{lhs->getNumColumns()};
-const size_t rcols{rhs->getNumColumns()};
-const size_t rrows{rhs->getNumRows()};
 
-// Assert dimensions
-ASSERT(lcols == rrows, "Matrix multiplication dimensions mismatch");
+  // If result is nullptr, then create a new resource
+  const size_t lrows{lhs->getNumRows()};
+  const size_t lcols{lhs->getNumColumns()};
+  const size_t rcols{rhs->getNumColumns()};
+  const size_t rrows{rhs->getNumRows()};
+
+  // Assert dimensions
+  ASSERT(lcols == rrows, "Matrix multiplication dimensions mismatch");
 
 #if defined(NAIVE_IMPL)
   /* Eye matrix special check */

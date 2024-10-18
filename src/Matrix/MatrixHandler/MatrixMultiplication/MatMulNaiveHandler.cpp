@@ -25,7 +25,7 @@
 void MatMulNaiveHandler::handle(const Matrix<Type> *lhs,
                                 const Matrix<Type> *rhs,
                                 Matrix<Type> *&result) {
-                                  
+
   // If result is nullptr, then create a new resource
   const size_t lrows{lhs->getNumRows()};
   const size_t lcols{lhs->getNumColumns()};

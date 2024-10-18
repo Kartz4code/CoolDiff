@@ -24,94 +24,123 @@
 #include "MatOperators.hpp"
 
 void func13() {
-  Matrix<Type> X(3,3); 
-  Matrix<Variable> W(2,2), W2(2,2);
+  Matrix<Type> X(3, 3);
+  Matrix<Variable> W(2, 2), W2(2, 2);
 
-  X(0,0) = 1; X(0,1) = 2; X(0,2) = 3;
-  X(1,0) = 4; X(1,1) = 4; X(1,2) = 5;
-  X(2,0) = 6; X(2,1) = 7; X(2,2) = 8;
+  X(0, 0) = 1;
+  X(0, 1) = 2;
+  X(0, 2) = 3;
+  X(1, 0) = 4;
+  X(1, 1) = 4;
+  X(1, 2) = 5;
+  X(2, 0) = 6;
+  X(2, 1) = 7;
+  X(2, 2) = 8;
 
-  W(0,0) = 1; W(0,1) = 2;
-  W(1,0) = 3; W(1,1) = 4;
- 
-  W2(0,0) = 3; W2(0,1) = 4;
-  W2(1,0) = 5; W2(1,1) = 6;
- 
-  Matrix<Expression> exp = conv(conv(X,W,1,1,1,1),W2,1,1,1,1);
-  std::cout << DevalF(exp,W2) << "\n";
-  
+  W(0, 0) = 1;
+  W(0, 1) = 2;
+  W(1, 0) = 3;
+  W(1, 1) = 4;
+
+  W2(0, 0) = 3;
+  W2(0, 1) = 4;
+  W2(1, 0) = 5;
+  W2(1, 1) = 6;
+
+  Matrix<Expression> exp = conv(conv(X, W, 1, 1, 1, 1), W2, 1, 1, 1, 1);
+  std::cout << Eval(exp) << "\n";
 }
 
 void func12() {
-  Variable x1{2}, x2{5}; 
-  std::cout << Eval(x1*x2 + x1) << "\n";
+  Variable x1{2}, x2{5};
+  std::cout << Eval(x1 * x2 + x1) << "\n";
 
-  std::cout << DevalF(x1*x2 + x1, x1) << "\n";  
-  std::cout << DevalR(x1, x1) << "\n";  
+  std::cout << DevalF(x1 * x2 + x1, x1) << "\n";
+  std::cout << DevalR(x1, x1) << "\n";
 }
 
 void func11() {
 
-  MatVariable& X = MatVariable::MatrixFactory::CreateMatrix(2,3);
-  X(0, 0) = 1; X(0, 1) = 2; X(0, 2) = 3;
-  X(1, 0) = 4; X(1, 1) = 5; X(1, 2) = 6;
+  MatVariable &X = MatVariable::MatrixFactory::CreateMatrix(2, 3);
+  X(0, 0) = 1;
+  X(0, 1) = 2;
+  X(0, 2) = 3;
+  X(1, 0) = 4;
+  X(1, 1) = 5;
+  X(1, 2) = 6;
 
-  Matrix<Type> A(3,2);
-  A(0,0) = 4; A(0,1) = 3; 
-  A(1,0) = 2; A(1,1) = 1;
-  A(2,0) = 37; A(2,1) = 43;
+  Matrix<Type> A(3, 2);
+  A(0, 0) = 4;
+  A(0, 1) = 3;
+  A(1, 0) = 2;
+  A(1, 1) = 1;
+  A(2, 0) = 37;
+  A(2, 1) = 43;
 
-  
-  Matrix<Expression> Ym = A*X*A;
+  Matrix<Expression> Ym = A * X * A;
   std::cout << Eval(Ym) << "\n";
 
-  Matrix<Expression> Y = sigma(transpose(X)*transpose(A));
-  Y = Y*sigma(A*X);
+  Matrix<Expression> Y = sigma(transpose(X) * transpose(A));
+  Y = Y * sigma(A * X);
 
   Matrix<Type> A1(2, 3);
-  A1(0, 0) = 1; A1(0, 1) = 2; A1(0, 2) = 3;
-  A1(1, 0) = 4; A1(1, 1) = 5; A1(1, 2) = 6;
+  A1(0, 0) = 1;
+  A1(0, 1) = 2;
+  A1(0, 2) = 3;
+  A1(1, 0) = 4;
+  A1(1, 1) = 5;
+  A1(1, 2) = 6;
 
-  Matrix<Variable> X2(2,4);
-  X2(0, 0) = 1; X2(0, 1) = 2; X2(0, 2) = 3; X2(0, 3) = 7;
-  X2(1, 0) = 4; X2(1, 1) = 5; X2(1, 2) = 6; X2(1, 3) = 8;
+  Matrix<Variable> X2(2, 4);
+  X2(0, 0) = 1;
+  X2(0, 1) = 2;
+  X2(0, 2) = 3;
+  X2(0, 3) = 7;
+  X2(1, 0) = 4;
+  X2(1, 1) = 5;
+  X2(1, 2) = 6;
+  X2(1, 3) = 8;
 
-  Matrix<Expression> Y2 = X*A*X2;
-  
+  Matrix<Expression> Y2 = X * A * X2;
+
   std::cout << Eval(Y2) << "\n";
   std::cout << Eval(Y2) << "\n";
-  std::cout << DevalF(Y2,X) << "\n";
-  std::cout << DevalF(Y2,X2) << "\n";
+  std::cout << DevalF(Y2, X) << "\n";
+  std::cout << DevalF(Y2, X2) << "\n";
 
-  std::cout << DevalF(Y2,X) << "\n";
+  std::cout << DevalF(Y2, X) << "\n";
 
   std::cout << Eval(Y) << "\n";
-  std::cout << DevalF(Y,X) << "\n";
+  std::cout << DevalF(Y, X) << "\n";
 }
 
 void func10() {
   Matrix<Variable> X(2, 1);
-  X(0, 0) = 2.3; 
-  X(1, 0) = 3; 
+  X(0, 0) = 2.3;
+  X(1, 0) = 3;
 
-  std::cout << Eval(X(0,0)*X(0,0) + X(0,0)) << "\n";
-  X(0,0) = 3;
-  std::cout << Eval(X(0,0)*X(0,0) + X(0,0)) << "\n";
-  std::cout << DevalF(X(0,0)*X(0,0) + X(0,0), X(0,0)) << "\n";
-  //std::cout << DevalR(X(0,0)*X(0,0), X(0,0)) << "\n";
+  std::cout << Eval(X(0, 0) * X(0, 0) + X(0, 0)) << "\n";
+  X(0, 0) = 3;
+  std::cout << Eval(X(0, 0) * X(0, 0) + X(0, 0)) << "\n";
+  std::cout << DevalF(X(0, 0) * X(0, 0) + X(0, 0), X(0, 0)) << "\n";
+  // std::cout << DevalR(X(0,0)*X(0,0), X(0,0)) << "\n";
 
   Matrix<Type> A(3, 2);
-  A(0, 0) = 1; A(0, 1) = 2;
-  A(1, 0) = 3; A(1, 1) = 4;
-  A(2, 0) = 5; A(2, 1) = 6;
+  A(0, 0) = 1;
+  A(0, 1) = 2;
+  A(1, 0) = 3;
+  A(1, 1) = 4;
+  A(2, 0) = 5;
+  A(2, 1) = 6;
 
-  Matrix<Type> Z(2,1);
-  Z(0,0) = 5; Z(1,0) = 6;
+  Matrix<Type> Z(2, 1);
+  Z(0, 0) = 5;
+  Z(1, 0) = 6;
 
-  Matrix<Expression> M3 = transpose(A*X)*(A*X);
+  Matrix<Expression> M3 = transpose(A * X) * (A * X);
 
   std::cout << Eval(M3) << "\n";
-  std::cout << DevalF(M3,X) << "\n";
+  std::cout << DevalF(M3, X) << "\n";
 }
 
 void func9() {
@@ -121,8 +150,8 @@ void func9() {
   X(1, 0) = 3;
   X(1, 1) = 4;
 
-  Matrix<Variable> Z(2,2);
-  Z(1,1) = X(0,0);
+  Matrix<Variable> Z(2, 2);
+  Z(1, 1) = X(0, 0);
 
   Matrix<Type> A(2, 2);
   A(0, 0) = 1;
@@ -130,15 +159,15 @@ void func9() {
   A(1, 0) = 3;
   A(1, 1) = 4;
 
-  Matrix<Expression> Y(2,2);
-  Y(0,0) = X(0,0) + X(0,1);
-  Y(0,1) = X(0,0)*X(0,1)-X(1,0);
-  Y(1,0) = X(0,1)-X(0,0)+X(1,0);
-  Y(1,1) = X(0,1)/X(1,1); 
+  Matrix<Expression> Y(2, 2);
+  Y(0, 0) = X(0, 0) + X(0, 1);
+  Y(0, 1) = X(0, 0) * X(0, 1) - X(1, 0);
+  Y(1, 0) = X(0, 1) - X(0, 0) + X(1, 0);
+  Y(1, 1) = X(0, 1) / X(1, 1);
 
   Parameter p{2};
-  Expression s = X(0,0);
-  Matrix<Expression> S = X*s - X(0,0);
+  Expression s = X(0, 0);
+  Matrix<Expression> S = X * s - X(0, 0);
 
   std::cout << Eval(S) << "\n";
   p = 3;
@@ -237,7 +266,7 @@ int main(int argc, char **argv) {
   x(0, 0) = 2;
   x(1, 0) = 3;
 
-  Matrix<Type> m =  Matrix<Type>::MatrixFactory::CreateMatrix(2, 2);
+  Matrix<Type> m = Matrix<Type>::MatrixFactory::CreateMatrix(2, 2);
   m(0, 0) = 1;
   m(0, 1) = 2;
   m(1, 0) = 3;
