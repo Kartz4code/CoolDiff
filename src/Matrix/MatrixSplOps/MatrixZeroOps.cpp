@@ -180,6 +180,22 @@ const Matrix<Type> *ZeroMatHadamard(const Matrix<Type> *lhs,
   }
 }
 
+
+// Zero matrix convolution
+const Matrix<Type> *ZeroMatConv(const size_t rows, const size_t cols,
+                                const Matrix<Type>* lhs, const Matrix<Type>* rhs) {
+
+    // If both lhs and rhs matrices are zero matrices
+  if (lhs->getMatType() == MatrixSpl::ZEROS ||
+      rhs->getMatType() == MatrixSpl::ZEROS) {
+    return MemoryManager::MatrixSplPool(rows, cols, MatrixSpl::ZEROS);
+  }
+  // If neither, then return nullptr
+  else {
+    return nullptr;
+  }                         
+}
+
 // Zero matrix addition numerical check
 const Matrix<Type> *ZeroMatAddNum(const Matrix<Type> *lhs,
                                   const Matrix<Type> *rhs) {
@@ -315,4 +331,18 @@ const Matrix<Type> *ZeroMatHadamardNum(const Matrix<Type> *lhs,
   } else {
     return nullptr;
   }
+}
+
+
+// Zero matrix convolution numerics
+const Matrix<Type> *ZeroMatConvNum(const size_t rows, const size_t cols,
+                                   const Matrix<Type>* lhs, const Matrix<Type>* rhs) {
+  // Boolean check
+  const bool lhs_bool = IsZeroMatrix(lhs);
+  const bool rhs_bool = IsZeroMatrix(rhs);
+  if (lhs_bool == true || rhs_bool == true) {
+    return MemoryManager::MatrixSplPool(rows, cols, MatrixSpl::ZEROS);
+  } else {
+    return nullptr;
+  }                                  
 }

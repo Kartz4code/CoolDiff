@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixKronProduct/MatKronNaiveHandler.hpp
+ * @file include/Matrix/MatrixHandler/MatrixKronProduct/MatKronNaiveHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

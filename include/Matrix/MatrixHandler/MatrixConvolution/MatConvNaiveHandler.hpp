@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixConvolution/MatConvNaiveHandler.hpp
+ * @file include/Matrix/MatrixHandler/MatrixConvolution/MatConvNaiveHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

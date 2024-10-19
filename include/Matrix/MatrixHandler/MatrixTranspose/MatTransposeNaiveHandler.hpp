@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatTranspose/MatTransposeNaiveHandler.hpp
+ * @file include/Matrix/MatrixHandler/MatTranspose/MatTransposeNaiveHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

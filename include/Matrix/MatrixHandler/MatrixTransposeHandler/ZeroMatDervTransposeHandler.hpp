@@ -1,6 +1,5 @@
 /**
- * @file
- * src/Matrix/MatrixHandler/MatrixTransposeHandler/ZeroMatDervTransposeHandler.hpp
+ * @file include/Matrix/MatrixHandler/MatrixTransposeHandler/ZeroMatDervTransposeHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

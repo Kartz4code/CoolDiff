@@ -1,6 +1,5 @@
 /**
- * @file
- * src/Matrix/MatrixHandler/MatrixHadamardHandler/ZeroMatHadamardHandler.hpp
+ * @file include/Matrix/MatrixHandler/MatrixHadamardHandler/ZeroMatHadamardHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

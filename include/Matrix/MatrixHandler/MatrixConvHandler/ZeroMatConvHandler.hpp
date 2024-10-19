@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/MatrixHandler/MatrixMultiplication/MatMulNaiveHandler.hpp
+ * @file include/Matrix/MatrixHandler/MatrixConvHandler/ZeroMatConvHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -23,13 +23,15 @@
 
 #include "MatrixHandler.hpp"
 
-class MatMulNaiveHandler : public MatrixHandler {
+class ZeroMatConvHandler : public MatrixHandler {
 public:
   using MatrixHandler::MatrixHandler;
 
-  V_OVERRIDE(void handle(const Matrix<Type> *, const Matrix<Type> *,
-                         Matrix<Type> *&));
+  V_OVERRIDE(void handle(const size_t, const size_t,
+                         const size_t, const size_t,
+                         const Matrix<Type>*, const Matrix<Type>*,
+                         Matrix<Type>*&));
 
   // Destructor
-  V_DTR(~MatMulNaiveHandler() = default);
+  V_DTR(~ZeroMatConvHandler() = default);
 };
