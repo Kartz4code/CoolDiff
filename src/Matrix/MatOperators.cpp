@@ -52,6 +52,9 @@
 #include "ZeroMatDervTransposeHandler.hpp"
 #include "ZeroMatTransposeHandler.hpp"
 
+// Special matrix convolution
+#include "ZeroMatConvHandler.hpp"
+
 // Matrix operations
 #include "MatAddNaiveHandler.hpp"
 #include "MatConvNaiveHandler.hpp"
@@ -260,7 +263,8 @@ void MatrixConv(const size_t stride_x, const size_t stride_y,
       3) Matrix convolution
   */
   MatConvNaiveHandler h1{nullptr};
+  ZeroMatConvHandler h2{&h1};
 
   // Handle Matrix convolution
-  h1.handle(stride_x, stride_y, pad_x, pad_y, lhs, rhs, result);
+  h2.handle(stride_x, stride_y, pad_x, pad_y, lhs, rhs, result);
 }

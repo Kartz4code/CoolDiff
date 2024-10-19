@@ -44,6 +44,11 @@ const Matrix<Type> *ZeroMatKron(const Matrix<Type> *, const Matrix<Type> *);
 // Zero matrix Hadamard product
 const Matrix<Type> *ZeroMatHadamard(const Matrix<Type> *, const Matrix<Type> *);
 
+// Zero matrix convolution
+const Matrix<Type> *ZeroMatConv(const size_t, const size_t,
+                                const Matrix<Type>*, const Matrix<Type>*);
+
+
 // Zero matrix addition numerics
 const Matrix<Type> *ZeroMatAddNum(const Matrix<Type> *, const Matrix<Type> *);
 // Zero matrix scalar addition numerics
@@ -59,6 +64,12 @@ const Matrix<Type> *ZeroMatScalarMulNum(Type, const Matrix<Type> *);
 
 // Zero matrix kronocker product numerics
 const Matrix<Type> *ZeroMatKronNum(const Matrix<Type> *, const Matrix<Type> *);
-// Zero matrix Hadamard product
+// Zero matrix Hadamard product numerics
 const Matrix<Type> *ZeroMatHadamardNum(const Matrix<Type> *,
                                        const Matrix<Type> *);
+
+// Zero matrix convolution numerics
+const Matrix<Type> *ZeroMatConvNum(const size_t, const size_t,
+                                   const Matrix<Type>*, const Matrix<Type>*);
+
+                                    
