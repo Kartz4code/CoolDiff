@@ -46,11 +46,10 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericPow(T1 *u, T2 *v, Callables &&...call) : mp_left{u}, 
-                                                            mp_right{v}, 
-                                                            m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                            m_nidx{this->m_idx_count++} 
-  {}
+  constexpr GenericPow(T1 *u, T2 *v, Callables &&...call)
+      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
+                                     std::forward<Callables>(call)...)},
+        m_nidx{this->m_idx_count++} {}
 
   // Symbolic evaluation
   V_OVERRIDE(Variable *symEval()) {

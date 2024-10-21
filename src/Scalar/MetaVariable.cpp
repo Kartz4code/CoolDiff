@@ -20,7 +20,6 @@
  */
 
 #include "MetaVariable.hpp"
-
 #include "Variable.hpp"
 
 // Reset temporaries

@@ -24,10 +24,9 @@
 
 Matrix<Type> *DervMatrix(const size_t frows, const size_t fcols,
                          const size_t xrows, const size_t xcols) {
-  const size_t drows = frows * xrows;
-  const size_t dcols = fcols * xcols;
-  Matrix<Type> *dresult =
-      Matrix<Type>::MatrixFactory::CreateMatrixPtr(drows, dcols);
+                         const size_t drows = frows * xrows;
+                         const size_t dcols = fcols * xcols;
+  Matrix<Type> *dresult = Matrix<Type>::MatrixFactory::CreateMatrixPtr(drows, dcols);
 
   // Vector of indices in X matrix
   const auto idx = Range<size_t>(0, xrows * xcols);

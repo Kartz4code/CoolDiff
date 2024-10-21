@@ -26,9 +26,9 @@
 
 void MatConvNaiveHandler::handle(const size_t stride_x, const size_t stride_y,
                                  const size_t pad_x, const size_t pad_y,
-                                 const Matrix<Type> *lhs,
-                                 const Matrix<Type> *rhs,
-                                 Matrix<Type> *&result) {
+                                 const Matrix<Type>* lhs,
+                                 const Matrix<Type>* rhs,
+                                 Matrix<Type>*& result) {
 
   // Stride must be strictly non-negative
   ASSERT(((int)stride_x > 0) && ((int)stride_y > 0), "Stride is not strictly non-negative");
@@ -68,8 +68,8 @@ void MatConvNaiveHandler::handle(const size_t stride_x, const size_t stride_y,
       }
 
       // Get block matrix
-      mp_arr[0]->getBlockMat({i * stride_x, i * stride_x + crows - 1},
-                             {j * stride_y, j * stride_y + ccols - 1},
+      mp_arr[0]->getBlockMat({(i * stride_x), (i * stride_x) + crows - 1},
+                             {(j * stride_y), (j * stride_y) + ccols - 1},
                              mp_arr[1]);
 
       // Hadamard product
@@ -85,7 +85,7 @@ void MatConvNaiveHandler::handle(const size_t stride_x, const size_t stride_y,
   }
 
   // Free resources
-  std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type> *m) {
+  std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type>* m) {
     if (nullptr != m) {
       m->free();
     }

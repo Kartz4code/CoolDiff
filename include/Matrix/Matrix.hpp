@@ -29,13 +29,15 @@ Matrix<Type> *DervMatrix(const size_t, const size_t, const size_t,
                          const size_t);
 
 // Matrix class
-template <typename T> class Matrix : public IMatrix<Matrix<T>> {
+template <typename T> 
+class Matrix : public IMatrix<Matrix<T>> {
 public:
   // Matrix factory
   class MatrixFactory {
   public:
     // Create matrix as reference
-    template <typename... Args> static Matrix<T> &CreateMatrix(Args &&...args) {
+    template <typename... Args> 
+    static Matrix<T> &CreateMatrix(Args &&...args) {
       auto tmp = Allocate<Matrix<T>>(std::forward<Args>(args)...);
       return *tmp;
     }
@@ -57,11 +59,13 @@ private:
   friend class MemoryManager;
 
   // Matrices of template types is a friend class
-  template <typename Z> friend class Matrix;
+  template <typename Z> 
+  friend class Matrix;
 
   // Special matrix constructor (Privatized)
-  constexpr Matrix(const size_t rows, const size_t cols, const MatrixSpl &type)
-      : m_rows{rows}, m_cols{cols}, m_type{type} {}
+  constexpr Matrix(const size_t rows, const size_t cols, const MatrixSpl &type) : m_rows{rows}, 
+                                                                                  m_cols{cols}, 
+                                                                                  m_type{type} {}
 
   // Matrix row and column size
   size_t m_rows{0};
@@ -70,8 +74,7 @@ private:
   // Type of matrix (Special matrices)
   MatrixSpl m_type{(size_t)(-1)};
 
-  // Matrix raw pointer of underlying type (Expression, Variable, Parameter,
-  // Type)
+  // Matrix raw pointer of underlying type (Expression, Variable, Parameter, Type)
   T *mp_mat{nullptr};
 
   // Collection of meta variable expressions
@@ -196,33 +199,47 @@ public:
   OMMatPair m_cache{};
 
   // Default constructor
-  constexpr Matrix()
-      : m_rows{0}, m_cols{0}, m_type{(size_t)(-1)}, mp_mat{new T[1]{}},
-        mp_result{nullptr}, mp_dresult{nullptr}, m_eval{false}, m_devalf{false},
-        m_nidx{this->m_idx_count++} {}
+  constexpr Matrix() : m_rows{0}, 
+                       m_cols{0}, 
+                       m_type{(size_t)(-1)}, 
+                       mp_mat{new T[1]{}},
+                       mp_result{nullptr}, 
+                       mp_dresult{nullptr}, 
+                       m_eval{false}, 
+                       m_devalf{false},
+                       m_nidx{this->m_idx_count++} 
+  {}
 
   // Initalize the matrix with rows and columns
-  constexpr Matrix(const size_t rows, const size_t cols)
-      : m_rows{rows}, m_cols{cols}, m_type{(size_t)(-1)},
-        // rows and cols must be set before calling getNumElem
-        mp_mat{new T[getNumElem()]{}}, mp_result{nullptr}, mp_dresult{nullptr},
-        m_eval{false}, m_devalf{false}, m_nidx{this->m_idx_count++} {}
+  constexpr Matrix(const size_t rows, const size_t cols) : m_rows{rows}, 
+                                                           m_cols{cols}, 
+                                                           m_type{(size_t)(-1)},
+                                                           // rows and cols must be set before calling getNumElem
+                                                           mp_mat{new T[getNumElem()]{}}, 
+                                                           mp_result{nullptr}, 
+                                                           mp_dresult{nullptr},
+                                                           m_eval{false}, 
+                                                           m_devalf{false}, 
+                                                           m_nidx{this->m_idx_count++} 
+  {}
 
   // Initalize the matrix with rows and columns with initial values
-  constexpr Matrix(const size_t rows, const size_t cols, const T &val)
-      : Matrix(rows, cols) {
+  constexpr Matrix(const size_t rows, const size_t cols, const T &val) : Matrix(rows, cols) {
     std::fill(EXECUTION_PAR mp_mat, mp_mat + getNumElem(), val);
   }
 
   // Matrix expressions constructor
   template <typename Z>
-  constexpr Matrix(const IMatrix<Z> &expr)
-      : m_rows{expr.getNumRows()}, m_cols{expr.getNumColumns()},
-        m_type{(size_t)(-1)}, mp_result{nullptr}, mp_dresult{nullptr},
-        m_eval{false}, m_devalf{false}, m_nidx{this->m_idx_count++} {
+  constexpr Matrix(const IMatrix<Z> &expr) : m_rows{expr.getNumRows()}, 
+                                             m_cols{expr.getNumColumns()},
+                                             m_type{(size_t)(-1)}, 
+                                             mp_result{nullptr}, 
+                                             mp_dresult{nullptr},
+                                             m_eval{false}, 
+                                             m_devalf{false}, 
+                                             m_nidx{this->m_idx_count++} {
     // Static assert so that type T is an expression
-    static_assert(true == std::is_same_v<T, Expression>,
-                  "[ERROR] The type T is not an expression");
+    static_assert(true == std::is_same_v<T, Expression>, "[ERROR] The type T is not an expression");
     // Reserve a buffer of Matrix expressions
     m_gh_vec.reserve(g_vec_init);
     // Emplace the expression in a generic holder
@@ -232,8 +249,7 @@ public:
   /* Copy assignment for expression evaluation */
   template <typename Z> Matrix &operator=(const IMatrix<Z> &expr) {
     // Static assert so that type T is an expression
-    static_assert(true == std::is_same_v<T, Expression>,
-                  "[ERROR] The type T is not an expression");
+    static_assert(true == std::is_same_v<T, Expression>, "[ERROR] The type T is not an expression");
     // Clear buffer if not recursive expression not found
     if (static_cast<const Z &>(expr).findMe(this) == false) {
       m_gh_vec.clear();
@@ -244,19 +260,17 @@ public:
   }
 
   // Move constructor
-  constexpr Matrix(Matrix &&m) noexcept
-      : m_rows{std::exchange(m.m_rows, -1)}, m_cols{std::exchange(m.m_cols,
-                                                                  -1)},
-        m_type{std::exchange(m.m_type, -1)}, mp_mat{std::exchange(m.mp_mat,
-                                                                  nullptr)},
-        mp_result{std::exchange(m.mp_result, nullptr)},
-        mp_dresult{std::exchange(m.mp_dresult, nullptr)}, m_eval{std::exchange(
-                                                              m.m_eval, false)},
-        m_devalf{std::exchange(m.m_devalf, false)}, m_cache{std::move(
-                                                        m.m_cache)},
-        m_gh_vec{std::exchange(m.m_gh_vec, {})}, m_nidx{std::exchange(m.m_nidx,
-                                                                      -1)}
-
+  constexpr Matrix(Matrix &&m) noexcept : m_rows{std::exchange(m.m_rows, -1)}, 
+                                          m_cols{std::exchange(m.m_cols,-1)},
+                                          m_type{std::exchange(m.m_type, -1)}, 
+                                          mp_mat{std::exchange(m.mp_mat, nullptr)},
+                                          mp_result{std::exchange(m.mp_result, nullptr)},
+                                          mp_dresult{std::exchange(m.mp_dresult, nullptr)}, 
+                                          m_eval{std::exchange(m.m_eval, false)},
+                                          m_devalf{std::exchange(m.m_devalf, false)}, 
+                                          m_cache{std::move(m.m_cache)},
+                                          m_gh_vec{std::exchange(m.m_gh_vec, {})}, 
+                                          m_nidx{std::exchange(m.m_nidx,-1)}
   {}
 
   // Move assignment operator
@@ -283,11 +297,16 @@ public:
   }
 
   // Copy constructor
-  constexpr Matrix(const Matrix &m)
-      : m_rows{m.m_rows}, m_cols{m.m_cols}, m_type{m.m_type},
-        // rows and cols must be set before calling getNumElem
-        mp_mat{new T[getNumElem()]{}}, m_eval{m.m_eval}, m_devalf{m.m_devalf},
-        m_cache{m.m_cache}, m_nidx{m.m_nidx}, m_gh_vec{m.m_gh_vec} {
+  constexpr Matrix(const Matrix &m) : m_rows{m.m_rows}, 
+                                      m_cols{m.m_cols}, 
+                                      m_type{m.m_type},
+                                      // rows and cols must be set before calling getNumElem
+                                      mp_mat{new T[getNumElem()]{}}, 
+                                      m_eval{m.m_eval}, 
+                                      m_devalf{m.m_devalf},
+                                      m_cache{m.m_cache}, 
+                                      m_nidx{m.m_nidx}, 
+                                      m_gh_vec{m.m_gh_vec} {
     // Copy values
     std::copy(EXECUTION_PAR m.mp_mat, m.mp_mat + getNumElem(), mp_mat);
   }
@@ -329,10 +348,14 @@ public:
   }
 
   // Get matrix pointer const
-  const T *getMatrixPtr() const { return mp_mat; }
+  const T *getMatrixPtr() const { 
+    return mp_mat; 
+  }
 
   // Get matrix pointer
-  T *getMatrixPtr() { return mp_mat; }
+  T *getMatrixPtr() { 
+    return mp_mat; 
+  }
 
   // Matrix 2D access using operator()()
   T &operator()(const size_t i, const size_t j) {
@@ -362,7 +385,8 @@ public:
 
   // Get block matrix
   void getBlockMat(const Pair<size_t, size_t> &rows,
-                   const Pair<size_t, size_t> &cols, Matrix *&result) const {
+                   const Pair<size_t, size_t> &cols, 
+                   Matrix *&result) const {
     const size_t row_start = rows.first;
     const size_t row_end = rows.second;
     const size_t col_start = cols.first;
@@ -403,7 +427,8 @@ public:
 
   // Set block matrix
   void setBlockMat(const Pair<size_t, size_t> &rows,
-                   const Pair<size_t, size_t> &cols, const Matrix *result) {
+                   const Pair<size_t, size_t> &cols, 
+                   const Matrix *result) {
     const size_t row_start = rows.first;
     const size_t row_end = rows.second;
     const size_t col_start = cols.first;
@@ -450,7 +475,9 @@ public:
   }
 
   // Add zero padding
-  void pad(const size_t r, const size_t c, Matrix *&result) const {
+  void pad(const size_t r, 
+           const size_t c, 
+           Matrix *&result) const {
     // Special matrix embedding
     if (getMatType() == MatrixSpl::ZEROS) {
       result = MemoryManager::MatrixSplPool(m_rows + 2 * r, m_cols + 2 * c,
@@ -516,13 +543,19 @@ public:
   }
 
   // Get number of rows
-  V_OVERRIDE(size_t getNumRows() const) { return m_rows; }
+  V_OVERRIDE(size_t getNumRows() const) { 
+    return m_rows; 
+  }
 
   // Get number of columns
-  V_OVERRIDE(size_t getNumColumns() const) { return m_cols; }
+  V_OVERRIDE(size_t getNumColumns() const) { 
+    return m_cols; 
+  }
 
   // Get total elements
-  size_t getNumElem() const { return (m_rows * m_cols); }
+  size_t getNumElem() const { 
+    return (m_rows * m_cols); 
+  }
 
   // Get final number of rows (Expression)
   size_t getFinalNumRows() const {
@@ -568,7 +601,9 @@ public:
   }
 
   // Get type of matrix
-  MatrixSpl getMatType() const { return m_type; }
+  MatrixSpl getMatType() const { 
+    return m_type; 
+  }
 
   // Find me
   bool findMe(void *v) const {
@@ -661,7 +696,9 @@ public:
   }
 
   // Free resources
-  void free() { m_free = true; }
+  void free() { 
+    m_free = true; 
+  }
 
   // Reset all visited flags
   V_OVERRIDE(void reset()) {
@@ -729,7 +766,9 @@ public:
   }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { return "Matrix"; }
+  V_OVERRIDE(std::string_view getType() const) { 
+    return "Matrix"; 
+  }
 
   // To output stream
   friend std::ostream &operator<<(std::ostream &os, Matrix &mat) {

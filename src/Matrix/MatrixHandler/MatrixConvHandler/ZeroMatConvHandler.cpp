@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/MatrixHandler/MatrixAddition/MatAddNaiveHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixConvHandler/ZeroMatConvHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -25,38 +25,42 @@
 
 void ZeroMatConvHandler::handle(const size_t stride_x, const size_t stride_y,
                                 const size_t pad_x, const size_t pad_y,
-                                const Matrix<Type>* lhs, const Matrix<Type>* rhs,
-                                Matrix<Type>*& result) {
+                                const Matrix<Type> *lhs,
+                                const Matrix<Type> *rhs,
+                                Matrix<Type> *&result) {
+  // Stride must be strictly non-negative
+  ASSERT(((int)stride_x > 0) && ((int)stride_y > 0),
+         "Stride is not strictly non-negative");
+  // Padding must be positive
+  ASSERT(((int)pad_x >= 0) && ((int)pad_y >= 0), "Stride is not positive");
 
-    // Stride must be strictly non-negative
-    ASSERT(((int)stride_x > 0) && ((int)stride_y > 0), "Stride is not strictly non-negative");
-    // Padding must be positive
-    ASSERT(((int)pad_x >= 0) && ((int)pad_y >= 0), "Stride is not positive");
+  // Convolution matrix dimensions (RHS)
+  const size_t crows = rhs->getNumRows();
+  const size_t ccols = rhs->getNumColumns();
 
-    // Convolution matrix dimensions (RHS)
-    const size_t crows = rhs->getNumRows();
-    const size_t ccols = rhs->getNumColumns();
+  // Result matrix dimensions
+  const size_t rows = (((lhs->getNumRows() + (2 * pad_x) - crows) / stride_x) + 1);
+  const size_t cols = (((lhs->getNumColumns() + (2 * pad_y) - ccols) / stride_y) + 1);
 
-    // Result matrix dimensions
-    const size_t rows = (((lhs->getNumRows() + (2 * pad_x) - crows) / stride_x) + 1);
-    const size_t cols = (((lhs->getNumColumns() + (2 * pad_y) - ccols) / stride_y) + 1);
+  // Matrix-Matrix convolution result dimensions must be strictly non-negative
+  ASSERT(((int)rows > 0 || (int)cols > 0), "Matrix-Matrix convolution dimensions invalid");
 
-    // Matrix-Matrix convolution result dimensions must be strictly non-negative
-    ASSERT(((int)rows > 0 || (int)cols > 0), "Matrix-Matrix convolution dimensions invalid");       
+#if defined(NAIVE_IMPL)
+  /* Zero matrix special check */
+  if (auto *it = ZeroMatConv(rows, cols, lhs, rhs); nullptr != it) {
+    result = const_cast<Matrix<Type> *>(it);
+    return;
+  }
+  /* Zero matrix numerical check */
+  else if (auto *it = ZeroMatConvNum(rows, cols, lhs, rhs); nullptr != it) {
+    result = const_cast<Matrix<Type> *>(it);
+    return;
+  }
+#endif
 
-    #if defined(NAIVE_IMPL)
-        /* Zero matrix special check */
-        if (auto *it = ZeroMatConv(rows, cols, lhs, rhs); nullptr != it) {
-            result = const_cast<Matrix<Type>*>(it);
-            return;
-        }
-        /* Zero matrix numerical check */
-        else if (auto *it = ZeroMatConvNum(rows, cols, lhs, rhs); nullptr != it) {
-            result = const_cast<Matrix<Type>*>(it);
-            return;
-        }
-    #endif
-
-    // Chain of responsibility
-    MatrixHandler::handle(stride_x, stride_y, pad_x, pad_y, lhs, rhs, result);
+  // Chain of responsibility
+  MatrixHandler::handle(stride_x, stride_y, 
+                        pad_x, pad_y, 
+                        lhs, rhs, 
+                        result);
 }

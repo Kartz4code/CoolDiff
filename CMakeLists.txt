@@ -154,8 +154,10 @@ set(SRC
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixTranspose/MatTransposeNaiveHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixTranspose/MatDervTransposeNaiveHandler.cpp
     # MatrixConvolution folder
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvHandler/ZeroMatConvHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvolution/MatDervConvNaiveHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvolution/MatConvNaiveHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvHandler/ZeroMatConvHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvHandler/ZeroMatDervConvHandler.cpp
     # Memory manager folder
     ${CMAKE_SOURCE_DIR}/src/MemoryManager/MemoryManager.cpp)
 

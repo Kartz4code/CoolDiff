@@ -46,8 +46,13 @@ const Matrix<Type> *ZeroMatHadamard(const Matrix<Type> *, const Matrix<Type> *);
 
 // Zero matrix convolution
 const Matrix<Type> *ZeroMatConv(const size_t, const size_t,
-                                const Matrix<Type>*, const Matrix<Type>*);
+                                const Matrix<Type> *, const Matrix<Type> *);
 
+
+// Zero matrix derivative convolution
+const Matrix<Type>* ZeroMatDervConv(const size_t, const size_t,
+                                    const Matrix<Type>*, const Matrix<Type>*,
+                                    const Matrix<Type>*, const Matrix<Type>*);
 
 // Zero matrix addition numerics
 const Matrix<Type> *ZeroMatAddNum(const Matrix<Type> *, const Matrix<Type> *);
@@ -70,6 +75,12 @@ const Matrix<Type> *ZeroMatHadamardNum(const Matrix<Type> *,
 
 // Zero matrix convolution numerics
 const Matrix<Type> *ZeroMatConvNum(const size_t, const size_t,
-                                   const Matrix<Type>*, const Matrix<Type>*);
+                                   const Matrix<Type> *, const Matrix<Type> *);
 
-                                    
+
+// Zero matrix derivative convolution numerics
+const Matrix<Type>* ZeroMatDervConvNum(const size_t, const size_t,
+                                       const Matrix<Type>*, const Matrix<Type>*,
+                                       const Matrix<Type>*, const Matrix<Type>*);
+
+

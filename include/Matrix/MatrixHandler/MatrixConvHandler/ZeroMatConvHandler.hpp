@@ -27,7 +27,7 @@ class ZeroMatConvHandler : public MatrixHandler {
 public:
   using MatrixHandler::MatrixHandler;
 
-  V_OVERRIDE(void handle(const size_t, const size_t,
+  V_OVERRIDE(void handle(const size_t, const size_t, 
                          const size_t, const size_t,
                          const Matrix<Type>*, const Matrix<Type>*,
                          Matrix<Type>*&));

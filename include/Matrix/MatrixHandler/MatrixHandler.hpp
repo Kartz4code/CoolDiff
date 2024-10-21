@@ -39,11 +39,20 @@ public:
 
   V_UNPURE(void handle(const Matrix<Type> *, Matrix<Type> *&));
 
-  V_UNPURE(void handle(const size_t, const size_t, const size_t, const size_t,
+  V_UNPURE(void handle(const size_t, const size_t, 
+                       const size_t, const size_t,
                        const Matrix<Type> *, Matrix<Type> *&));
 
-  V_UNPURE(void handle(const size_t, const size_t, const size_t, const size_t,
+  V_UNPURE(void handle(const size_t, const size_t, 
+                       const size_t, const size_t,
                        const Matrix<Type> *, const Matrix<Type> *,
+                       Matrix<Type> *&));
+
+  V_UNPURE(void handle(const size_t, const size_t, 
+                       const size_t, const size_t,
+                       const size_t, const size_t, 
+                       const Matrix<Type> *, const Matrix<Type> *, 
+                       const Matrix<Type> *, const Matrix<Type> *, 
                        Matrix<Type> *&));
 
   // Destructor
