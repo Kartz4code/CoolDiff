@@ -1,6 +1,6 @@
 /**
  * @file
- * include/Matrix/MatrixHandler/MatrixHadamardHandler/EyeMatHadamardHandler.hpp
+ * include/Matrix/MatrixHandler/MatrixConvolution/MatDervConvNaiveHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -24,13 +24,25 @@
 
 #include "MatrixHandler.hpp"
 
-class EyeMatHadamardHandler : public MatrixHandler {
+class MatDervConvNaiveHandler : public MatrixHandler {
+private:
+  // All matrices
+  inline static constexpr const size_t m_size{13};
+  Matrix<Type>* mp_arr[m_size]{};
+
+  // Boolean check for initialization
+  bool m_initialized{false};
+
 public:
   using MatrixHandler::MatrixHandler;
 
-  V_OVERRIDE(void handle(const Matrix<Type> *, const Matrix<Type> *,
-                         Matrix<Type> *&));
-
+  V_OVERRIDE(void handle(const size_t, const size_t,
+                         const size_t, const size_t,
+                         const size_t, const size_t,
+                         const Matrix<Type>*, const Matrix<Type>*,
+                         const Matrix<Type>*, const Matrix<Type>*,
+                         Matrix<Type>*&));
+  
   // Destructor
-  V_DTR(~EyeMatHadamardHandler() = default);
+  V_DTR(~MatDervConvNaiveHandler() = default);
 };

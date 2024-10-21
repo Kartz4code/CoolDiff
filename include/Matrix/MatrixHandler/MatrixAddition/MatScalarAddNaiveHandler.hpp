@@ -1,5 +1,6 @@
 /**
- * @file include/Matrix/MatrixHandler/MatrixAddition/MatScalarAddNaiveHandler.hpp
+ * @file
+ * include/Matrix/MatrixHandler/MatrixAddition/MatScalarAddNaiveHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

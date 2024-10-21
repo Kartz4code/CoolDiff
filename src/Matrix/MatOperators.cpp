@@ -54,10 +54,12 @@
 
 // Special matrix convolution
 #include "ZeroMatConvHandler.hpp"
+#include "ZeroMatDervConvHandler.hpp"
 
 // Matrix operations
 #include "MatAddNaiveHandler.hpp"
 #include "MatConvNaiveHandler.hpp"
+#include "MatDervConvNaiveHandler.hpp"
 #include "MatDervTransposeNaiveHandler.hpp"
 #include "MatHadamardNaiveHandler.hpp"
 #include "MatKronNaiveHandler.hpp"
@@ -266,5 +268,40 @@ void MatrixConv(const size_t stride_x, const size_t stride_y,
   ZeroMatConvHandler h2{&h1};
 
   // Handle Matrix convolution
-  h2.handle(stride_x, stride_y, pad_x, pad_y, lhs, rhs, result);
+  h2.handle(stride_x, stride_y, 
+            pad_x, pad_y, 
+            lhs, rhs, 
+            result);
+}
+
+// Matrix derivative convolution
+void MatrixDervConv(const size_t nrows_x, const size_t ncols_x,
+                    const size_t stride_x, const size_t stride_y, 
+                    const size_t pad_x, const size_t pad_y, 
+                    const Matrix<Type> *lhs, const Matrix<Type> *dlhs, 
+                    const Matrix<Type> *rhs, const Matrix<Type> *drhs,
+                    Matrix<Type> *&result) {
+  // Null pointer check
+  NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+
+  NULL_CHECK(dlhs, "LHS Derivative Matrix (lhs) is a nullptr");
+  NULL_CHECK(drhs, "RHS Derivative Matrix (rhs) is a nullptr");
+
+  /* Chain of responsibility (Order matters)
+      1) Eye matrix check
+      2) Zero matrix check
+      3) Matrix convolution derivative
+  */
+
+  MatDervConvNaiveHandler h1{nullptr};
+  ZeroMatDervConvHandler h2{&h1};
+ 
+  // Handle Matrix convolution derivative
+  h2.handle(nrows_x, ncols_x, 
+            stride_x, stride_y, 
+            pad_x, pad_y, 
+            lhs, dlhs, 
+            rhs, drhs,
+            result);
 }

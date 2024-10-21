@@ -55,3 +55,11 @@ void MatrixDervTranspose(const size_t, const size_t, const size_t, const size_t,
 // Matrix convolution
 void MatrixConv(const size_t, const size_t, const size_t, const size_t,
                 const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&);
+
+// Matrix derivative convolution
+void MatrixDervConv(const size_t, const size_t, 
+                    const size_t, const size_t,
+                    const size_t, const size_t, 
+                    const Matrix<Type> *, const Matrix<Type> *, 
+                    const Matrix<Type> *, const Matrix<Type> *, 
+                    Matrix<Type> *&);

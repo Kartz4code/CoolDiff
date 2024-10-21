@@ -1,5 +1,6 @@
 /**
- * @file include/Matrix/MatrixHandler/MatrixTransposeHandler/EyeMatTransposeHandler.hpp
+ * @file
+ * include/Matrix/MatrixHandler/MatrixTransposeHandler/EyeMatTransposeHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

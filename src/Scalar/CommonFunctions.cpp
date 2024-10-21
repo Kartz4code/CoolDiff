@@ -23,7 +23,7 @@
 #include "Matrix.hpp"
 
 // Evaluate function (Scalar)
-Type EvalExp(Expression &exp) {
+Type EvalExp(Expression& exp) {
   // Reset graph/tree
   exp.resetImpl();
   // Return evaluation value
@@ -31,7 +31,7 @@ Type EvalExp(Expression &exp) {
 }
 
 // Forward mode algorithmic differentiation (Scalar)
-Type DevalFExp(Expression &exp, const Variable &x) {
+Type DevalFExp(Expression& exp, const Variable& x) {
   // Reset visited flags in the tree
   exp.resetImpl();
   // Return forward differentiation value
@@ -39,14 +39,14 @@ Type DevalFExp(Expression &exp, const Variable &x) {
 }
 
 // Main precomputation of reverse mode AD computation 1st
-void PreCompExp(Expression &exp) {
+void PreCompExp(Expression& exp) {
   // Reset visited flags in the tree
   exp.resetImpl();
   // Traverse tree
   exp.traverse();
 }
 // Main reverse mode AD table 1st
-OMPair &PreCompCacheExp(Expression &exp) {
+OMPair& PreCompCacheExp(Expression& exp) {
   // Reset flags
   exp.resetImpl();
   // Traverse evaluation graph/tree
@@ -56,23 +56,21 @@ OMPair &PreCompCacheExp(Expression &exp) {
 }
 
 // Symbolic Expression
-Expression &SymDiff(Expression &exp, const Variable &var) {
+Expression& SymDiff(Expression& exp, const Variable& var) {
   // Reset graph/tree
   return exp.SymDiff(var);
 }
 
 // Reverse mode algorithmic differentiation (Scalar)
-Type DevalRExp(Expression &exp, const Variable &x) {
+Type DevalRExp(Expression& exp, const Variable& x) {
   // Return reverse differentiation value
   return exp.devalR(x);
 }
 
 // Forward mode algorithmic differentiation (Matrix)
-Matrix<Type> &DevalF(Expression &exp, const Matrix<Variable> &m,
-                     bool serial_exec) {
+Matrix<Type>& DevalF(Expression& exp, const Matrix<Variable>& m, bool serial_exec) {
   const size_t n = m.getNumElem();
-  auto &result = Matrix<Type>::MatrixFactory::CreateMatrix(m.getNumRows(),
-                                                           m.getNumColumns());
+  auto &result = Matrix<Type>::MatrixFactory::CreateMatrix(m.getNumRows(), m.getNumColumns());
 
   if (true == exp.isRecursive() || true == serial_exec) {
     std::transform(EXECUTION_SEQ m.getMatrixPtr(), m.getMatrixPtr() + n,

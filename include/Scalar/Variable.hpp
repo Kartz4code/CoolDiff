@@ -34,7 +34,7 @@ protected:
   static Variable t1;
   // Static variable for zero seed
   static Variable t0;
-  
+
   // Friend class Parameter
   friend class Parameter;
 
