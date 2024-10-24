@@ -49,9 +49,7 @@ void MatrixHandler::handle(const size_t nrows_f, const size_t ncols_f,
                            const Matrix<Type> *mat, Matrix<Type> *&result) {
   ASSERT(this != mp_handler, "The handle is recursive");
   if (nullptr != mp_handler) {
-    mp_handler->handle(nrows_f, ncols_f, 
-                       nrows_x, ncols_x, 
-                       mat, result);
+    mp_handler->handle(nrows_f, ncols_f, nrows_x, ncols_x, mat, result);
   }
 }
 
@@ -61,26 +59,19 @@ void MatrixHandler::handle(const size_t stride_x, const size_t stride_y,
                            Matrix<Type> *&result) {
   ASSERT(this != mp_handler, "The handle is recursive");
   if (nullptr != mp_handler) {
-    mp_handler->handle(stride_x, stride_y, 
-                       pad_x, pad_y, 
-                       lhs, rhs, 
-                       result);
+    mp_handler->handle(stride_x, stride_y, pad_x, pad_y, lhs, rhs, result);
   }
 }
 
 void MatrixHandler::handle(const size_t nrows_x, const size_t ncols_x,
-                           const size_t stride_x, const size_t stride_y, 
-                           const size_t pad_x, const size_t pad_y, 
-                           const Matrix<Type> *lhs, const Matrix<Type> *dlhs, 
+                           const size_t stride_x, const size_t stride_y,
+                           const size_t pad_x, const size_t pad_y,
+                           const Matrix<Type> *lhs, const Matrix<Type> *dlhs,
                            const Matrix<Type> *rhs, const Matrix<Type> *drhs,
                            Matrix<Type> *&result) {
   ASSERT(this != mp_handler, "The handle is recursive");
   if (nullptr != mp_handler) {
-    mp_handler->handle(nrows_x, ncols_x, 
-                       stride_x, stride_y, 
-                       pad_x, pad_y, 
-                       lhs, dlhs, 
-                       rhs, drhs, 
-                       result);
-  }                          
+    mp_handler->handle(nrows_x, ncols_x, stride_x, stride_y, pad_x, pad_y, lhs,
+                       dlhs, rhs, drhs, result);
+  }
 }

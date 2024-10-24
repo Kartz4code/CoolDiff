@@ -196,28 +196,33 @@ const Matrix<Type> *ZeroMatConv(const size_t rows, const size_t cols,
   }
 }
 
-
 // Zero matrix derivative convolution
-const Matrix<Type>* ZeroMatDervConv(const size_t rows, const size_t cols,
-                                    const Matrix<Type>* lhs, const Matrix<Type>* dlhs,
-                                    const Matrix<Type>* rhs, const Matrix<Type>* drhs) {
+const Matrix<Type> *ZeroMatDervConv(const size_t rows, const size_t cols,
+                                    const Matrix<Type> *lhs,
+                                    const Matrix<Type> *dlhs,
+                                    const Matrix<Type> *rhs,
+                                    const Matrix<Type> *drhs) {
   // If both (lhs,drhs) and (dlhs,rhs) matrices are zero matrices
-  if ((lhs->getMatType() == MatrixSpl::ZEROS || drhs->getMatType() == MatrixSpl::ZEROS) &&
-      (dlhs->getMatType() == MatrixSpl::ZEROS || rhs->getMatType() == MatrixSpl::ZEROS)) {
+  if ((lhs->getMatType() == MatrixSpl::ZEROS ||
+       drhs->getMatType() == MatrixSpl::ZEROS) &&
+      (dlhs->getMatType() == MatrixSpl::ZEROS ||
+       rhs->getMatType() == MatrixSpl::ZEROS)) {
     return MemoryManager::MatrixSplPool(rows, cols, MatrixSpl::ZEROS);
-  } 
+  }
   // If (lhs,drhs) matrices are zero matrices
-  else if((lhs->getMatType() == MatrixSpl::ZEROS || drhs->getMatType() == MatrixSpl::ZEROS)) {
+  else if ((lhs->getMatType() == MatrixSpl::ZEROS ||
+            drhs->getMatType() == MatrixSpl::ZEROS)) {
     return rhs;
   }
   // If (dlhs,rhs) matrices are zero matrices
-  else if((dlhs->getMatType() == MatrixSpl::ZEROS || rhs->getMatType() == MatrixSpl::ZEROS)) {
+  else if ((dlhs->getMatType() == MatrixSpl::ZEROS ||
+            rhs->getMatType() == MatrixSpl::ZEROS)) {
     return lhs;
   }
   // If neither, then return nullptr
   else {
     return nullptr;
-  }                                    
+  }
 }
 
 // Zero matrix addition numerical check
@@ -371,32 +376,33 @@ const Matrix<Type> *ZeroMatConvNum(const size_t rows, const size_t cols,
   }
 }
 
-
 // Zero matrix derivative convolution numerics
-const Matrix<Type>* ZeroMatDervConvNum(const size_t rows, const size_t cols,
-                                       const Matrix<Type>* lhs, const Matrix<Type>* dlhs,
-                                       const Matrix<Type>* rhs, const Matrix<Type>* drhs) {
+const Matrix<Type> *ZeroMatDervConvNum(const size_t rows, const size_t cols,
+                                       const Matrix<Type> *lhs,
+                                       const Matrix<Type> *dlhs,
+                                       const Matrix<Type> *rhs,
+                                       const Matrix<Type> *drhs) {
   // Boolean check
   const bool lhs_bool = IsZeroMatrix(lhs);
   const bool dlhs_bool = IsZeroMatrix(dlhs);
   const bool rhs_bool = IsZeroMatrix(rhs);
-  const bool drhs_bool = IsZeroMatrix(drhs);          
+  const bool drhs_bool = IsZeroMatrix(drhs);
 
   // If both (lhs,drhs) and (dlhs,rhs) matrices are zero matrices
   if ((lhs_bool == true || drhs_bool == true) &&
       (dlhs_bool == true || rhs_bool == true)) {
     return MemoryManager::MatrixSplPool(rows, cols, MatrixSpl::ZEROS);
-  } 
+  }
   // If (lhs,drhs) matrices are zero matrices
-  else if((lhs_bool == true || drhs_bool == true)) {
+  else if ((lhs_bool == true || drhs_bool == true)) {
     return rhs;
   }
   // If (dlhs,rhs) matrices are zero matrices
-  else if((dlhs_bool == true || rhs_bool == true)) {
+  else if ((dlhs_bool == true || rhs_bool == true)) {
     return lhs;
   }
   // If neither, then return nullptr
   else {
     return nullptr;
-  }                          
+  }
 }

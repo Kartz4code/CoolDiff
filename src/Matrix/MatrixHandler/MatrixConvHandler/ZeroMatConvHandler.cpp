@@ -39,11 +39,14 @@ void ZeroMatConvHandler::handle(const size_t stride_x, const size_t stride_y,
   const size_t ccols = rhs->getNumColumns();
 
   // Result matrix dimensions
-  const size_t rows = (((lhs->getNumRows() + (2 * pad_x) - crows) / stride_x) + 1);
-  const size_t cols = (((lhs->getNumColumns() + (2 * pad_y) - ccols) / stride_y) + 1);
+  const size_t rows =
+      (((lhs->getNumRows() + (2 * pad_x) - crows) / stride_x) + 1);
+  const size_t cols =
+      (((lhs->getNumColumns() + (2 * pad_y) - ccols) / stride_y) + 1);
 
   // Matrix-Matrix convolution result dimensions must be strictly non-negative
-  ASSERT(((int)rows > 0 || (int)cols > 0), "Matrix-Matrix convolution dimensions invalid");
+  ASSERT(((int)rows > 0 || (int)cols > 0),
+         "Matrix-Matrix convolution dimensions invalid");
 
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
@@ -59,8 +62,5 @@ void ZeroMatConvHandler::handle(const size_t stride_x, const size_t stride_y,
 #endif
 
   // Chain of responsibility
-  MatrixHandler::handle(stride_x, stride_y, 
-                        pad_x, pad_y, 
-                        lhs, rhs, 
-                        result);
+  MatrixHandler::handle(stride_x, stride_y, pad_x, pad_y, lhs, rhs, result);
 }

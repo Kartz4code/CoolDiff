@@ -48,8 +48,8 @@ void func13() {
   W2(1, 1) = 6;
 
   Matrix<Expression> exp = conv(conv(X, W, 1, 1, 1, 1), W2, 1, 1, 1, 1);
-  std::cout << DevalF(exp,W) << "\n";
-  std::cout << DevalF(exp,W2) << "\n";
+  std::cout << DevalF(exp, W) << "\n";
+  std::cout << DevalF(exp, W2) << "\n";
 }
 
 void func12() {
