@@ -49,6 +49,7 @@
 #include "GenericSqrt.hpp"
 #include "GenericTan.hpp"
 #include "GenericTanh.hpp"
+#include "GenericUnaryC1Function.hpp"
 
 // Main evaluate expression function
 Type EvalExp(Expression &);

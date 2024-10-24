@@ -21,23 +21,18 @@
 
 #include "VarWrap.hpp"
 
-VarWrap::VarWrap(Type val) : m_value{val}, 
-                             m_dvalue{(Type)(0)} 
-{}
+VarWrap::VarWrap(Type val) : m_value{val}, m_dvalue{(Type)(0)} {}
 
-VarWrap::VarWrap() : m_value{(Type)(0)}, 
-                     m_dvalue{(Type)(0)} 
-{}
+VarWrap::VarWrap() : m_value{(Type)(0)}, m_dvalue{(Type)(0)} {}
 
 // Copy constructor
-VarWrap::VarWrap(const VarWrap &vw) : m_value{vw.m_value}, 
-                                      m_dvalue{vw.m_dvalue} 
-{}
+VarWrap::VarWrap(const VarWrap &vw)
+    : m_value{vw.m_value}, m_dvalue{vw.m_dvalue} {}
 
 // Move constructor
-VarWrap::VarWrap(VarWrap &&vw) noexcept : m_value{std::exchange(vw.m_value, {})}, 
-                                          m_dvalue{std::exchange(vw.m_dvalue, {})} 
-{}
+VarWrap::VarWrap(VarWrap &&vw) noexcept
+    : m_value{std::exchange(vw.m_value, {})}, m_dvalue{std::exchange(
+                                                  vw.m_dvalue, {})} {}
 
 // Copy assignment
 VarWrap &VarWrap::operator=(const VarWrap &vw) {
@@ -59,18 +54,10 @@ void VarWrap::setConstructor(const Type &val) {
   m_dvalue = {(Type)(0)};
 }
 
-const Type VarWrap::getValue() const { 
-  return m_value; 
-}
+const Type VarWrap::getValue() const { return m_value; }
 
-void VarWrap::setValue(const Type &val) { 
-  m_value = val; 
-}
+void VarWrap::setValue(const Type &val) { m_value = val; }
 
-const Type VarWrap::getdValue() const { 
-  return m_dvalue; 
-}
+const Type VarWrap::getdValue() const { return m_dvalue; }
 
-void VarWrap::setdValue(const Type &val) { 
-  m_dvalue = val; 
-}
+void VarWrap::setdValue(const Type &val) { m_dvalue = val; }

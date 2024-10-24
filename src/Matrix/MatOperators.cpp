@@ -268,17 +268,14 @@ void MatrixConv(const size_t stride_x, const size_t stride_y,
   ZeroMatConvHandler h2{&h1};
 
   // Handle Matrix convolution
-  h2.handle(stride_x, stride_y, 
-            pad_x, pad_y, 
-            lhs, rhs, 
-            result);
+  h2.handle(stride_x, stride_y, pad_x, pad_y, lhs, rhs, result);
 }
 
 // Matrix derivative convolution
 void MatrixDervConv(const size_t nrows_x, const size_t ncols_x,
-                    const size_t stride_x, const size_t stride_y, 
-                    const size_t pad_x, const size_t pad_y, 
-                    const Matrix<Type> *lhs, const Matrix<Type> *dlhs, 
+                    const size_t stride_x, const size_t stride_y,
+                    const size_t pad_x, const size_t pad_y,
+                    const Matrix<Type> *lhs, const Matrix<Type> *dlhs,
                     const Matrix<Type> *rhs, const Matrix<Type> *drhs,
                     Matrix<Type> *&result) {
   // Null pointer check
@@ -296,12 +293,8 @@ void MatrixDervConv(const size_t nrows_x, const size_t ncols_x,
 
   MatDervConvNaiveHandler h1{nullptr};
   ZeroMatDervConvHandler h2{&h1};
- 
+
   // Handle Matrix convolution derivative
-  h2.handle(nrows_x, ncols_x, 
-            stride_x, stride_y, 
-            pad_x, pad_y, 
-            lhs, dlhs, 
-            rhs, drhs,
-            result);
+  h2.handle(nrows_x, ncols_x, stride_x, stride_y, pad_x, pad_y, lhs, dlhs, rhs,
+            drhs, result);
 }

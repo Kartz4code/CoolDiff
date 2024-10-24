@@ -1,5 +1,6 @@
 /**
- * @file include/Matrix/MatrixHandler/MatrixConvHandler/ZeroMatDervConvHandler.hpp
+ * @file
+ * include/Matrix/MatrixHandler/MatrixConvHandler/ZeroMatDervConvHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -25,20 +26,13 @@
 
 class ZeroMatDervConvHandler : public MatrixHandler {
 private:
-  void handleLHS(const size_t, const size_t,
-                 const size_t, const size_t, 
-                 const size_t, const size_t, 
-                 const size_t, const size_t, 
-                 const Matrix<Type>*, const Matrix<Type>*,
-                 Matrix<Type>*&);
+  void handleLHS(const size_t, const size_t, const size_t, const size_t,
+                 const size_t, const size_t, const size_t, const size_t,
+                 const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&);
 
-  
-  void handleRHS(const size_t, const size_t,
-                 const size_t, const size_t, 
-                 const size_t, const size_t,
-                 const size_t, const size_t, 
-                 const Matrix<Type>*, const Matrix<Type>*,
-                 Matrix<Type>*&);
+  void handleRHS(const size_t, const size_t, const size_t, const size_t,
+                 const size_t, const size_t, const size_t, const size_t,
+                 const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&);
 
   // All matrices
   inline static constexpr const size_t m_size{8};
@@ -50,12 +44,10 @@ private:
 public:
   using MatrixHandler::MatrixHandler;
 
-  V_OVERRIDE(void handle(const size_t, const size_t,
-                         const size_t, const size_t,
-                         const size_t, const size_t,
-                         const Matrix<Type>*, const Matrix<Type>*,
-                         const Matrix<Type>*, const Matrix<Type>*,
-                         Matrix<Type>*&));
+  V_OVERRIDE(void handle(const size_t, const size_t, const size_t, const size_t,
+                         const size_t, const size_t, const Matrix<Type> *,
+                         const Matrix<Type> *, const Matrix<Type> *,
+                         const Matrix<Type> *, Matrix<Type> *&));
 
   // Destructor
   V_DTR(~ZeroMatDervConvHandler() = default);

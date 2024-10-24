@@ -26,12 +26,13 @@
 
 void MatConvNaiveHandler::handle(const size_t stride_x, const size_t stride_y,
                                  const size_t pad_x, const size_t pad_y,
-                                 const Matrix<Type>* lhs,
-                                 const Matrix<Type>* rhs,
-                                 Matrix<Type>*& result) {
+                                 const Matrix<Type> *lhs,
+                                 const Matrix<Type> *rhs,
+                                 Matrix<Type> *&result) {
 
   // Stride must be strictly non-negative
-  ASSERT(((int)stride_x > 0) && ((int)stride_y > 0), "Stride is not strictly non-negative");
+  ASSERT(((int)stride_x > 0) && ((int)stride_y > 0),
+         "Stride is not strictly non-negative");
   // Padding must be positive
   ASSERT(((int)pad_x >= 0) && ((int)pad_y >= 0), "Stride is not positive");
 
@@ -46,11 +47,14 @@ void MatConvNaiveHandler::handle(const size_t stride_x, const size_t stride_y,
   const size_t ccols = rhs->getNumColumns();
 
   // Result matrix dimensions
-  const size_t rows = (((lhs->getNumRows() + (2 * pad_x) - crows) / stride_x) + 1);
-  const size_t cols = (((lhs->getNumColumns() + (2 * pad_y) - ccols) / stride_y) + 1);
+  const size_t rows =
+      (((lhs->getNumRows() + (2 * pad_x) - crows) / stride_x) + 1);
+  const size_t cols =
+      (((lhs->getNumColumns() + (2 * pad_y) - ccols) / stride_y) + 1);
 
   // Matrix-Matrix convolution result dimensions must be strictly non-negative
-  ASSERT(((int)rows > 0 || (int)cols > 0), "Matrix-Matrix convolution dimensions invalid");
+  ASSERT(((int)rows > 0 || (int)cols > 0),
+         "Matrix-Matrix convolution dimensions invalid");
 
   // Pad left matrix with the required padding
   lhs->pad(pad_x, pad_y, mp_arr[0]);
@@ -85,7 +89,7 @@ void MatConvNaiveHandler::handle(const size_t stride_x, const size_t stride_y,
   }
 
   // Free resources
-  std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type>* m) {
+  std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type> *m) {
     if (nullptr != m) {
       m->free();
     }
