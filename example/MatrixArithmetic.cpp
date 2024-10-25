@@ -23,6 +23,7 @@
 #include "CoolDiff.hpp"
 #include "MatOperators.hpp"
 
+
 void func13() {
   Matrix<Type> X(3, 3);
   Matrix<Variable> W(2, 2), W2(2, 2);
@@ -50,6 +51,7 @@ void func13() {
   Matrix<Expression> exp = conv(conv(X, W, 1, 1, 1, 1), W2, 1, 1, 1, 1);
   std::cout << DevalF(exp, W) << "\n";
   std::cout << DevalF(exp, W2) << "\n";
+  
 }
 
 void func12() {
