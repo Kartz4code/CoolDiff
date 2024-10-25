@@ -31,6 +31,7 @@
 #include "GenericProduct.hpp"
 #include "GenericSub.hpp"
 #include "GenericSum.hpp"
+#include "GenericBinaryC0Function.hpp"
 
 // Unary operator
 #include "GenericACos.hpp"
@@ -49,7 +50,7 @@
 #include "GenericSqrt.hpp"
 #include "GenericTan.hpp"
 #include "GenericTanh.hpp"
-#include "GenericUnaryC1Function.hpp"
+#include "GenericUnaryC0Function.hpp"
 
 // Main evaluate expression function
 Type EvalExp(Expression &);

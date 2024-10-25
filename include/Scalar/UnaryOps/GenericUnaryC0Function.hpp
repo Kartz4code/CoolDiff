@@ -31,8 +31,12 @@ inline constexpr Type Eval(T&);
 template <typename T>
 inline constexpr Type DevalF(T&, const Variable&);
 
+// Function computation
+template <typename Func1, typename Func2> 
+constexpr const auto& UnaryC0Function(Func1, Func2);
+
 template <typename Func1, typename Func2>
-class GenericUnaryC1Function : public IVariable<GenericUnaryC1Function<Func1, Func2>> {
+class GenericUnaryC0Function : public IVariable<GenericUnaryC0Function<Func1, Func2>> {
 private:
   // Resources
   mutable Expression* mp_left{nullptr};
@@ -41,9 +45,13 @@ private:
   Func1 m_f1;
   Func2 m_f2;
 
-  template <typename T, typename = std::enable_if_t<std::is_base_of_v<MetaVariable, T>>>
+  template <typename T, typename = std::enable_if_t<is_valid_v<T>>> 
   constexpr const auto& setOperand(const T& x) const {
-    mp_left = Allocate<Expression>(x).get();
+    if constexpr (true == is_numeric_v<T>) {
+       mp_left = Allocate<Expression>(*Allocate<Parameter>(x)).get();
+    } else {
+      mp_left = Allocate<Expression>(x).get();
+    }
     return *this;
   }
 
@@ -54,14 +62,14 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericUnaryC1Function(Func1 f1, Func2 f2) : m_f1{f1},
-                                                        m_f2{f2},
-                                                        m_nidx{this->m_idx_count++} 
+  constexpr GenericUnaryC0Function(Func1 f1, Func2 f2) : m_f1{f1},
+                                                         m_f2{f2},
+                                                         m_nidx{this->m_idx_count++} 
   {}
 
-  template <typename T, typename = std::enable_if_t<std::is_base_of_v<MetaVariable, T>>> 
+  template <typename T, typename = std::enable_if_t<is_valid_v<T>>> 
   constexpr const auto& operator()(const T& x) const {
-    return UnaryC1Function(m_f1, m_f2).setOperand(x);
+    return UnaryC0Function(m_f1, m_f2).setOperand(x);
   }
 
   // Symbolic evaluation
@@ -160,7 +168,7 @@ public:
 
   // Get type
   V_OVERRIDE(std::string_view getType() const) { 
-    return "GenericUnaryC1Function"; 
+    return "GenericUnaryC0Function"; 
   }
 
   // Find me
@@ -169,14 +177,14 @@ public:
   }
 
   // Destructor
-  V_DTR(~GenericUnaryC1Function()) = default;
+  V_DTR(~GenericUnaryC0Function()) = default;
 };
 
 // Function computation
 template <typename Func1, typename Func2> 
-constexpr const auto& UnaryC1Function(Func1 f1, Func2 f2) {
+constexpr const auto& UnaryC0Function(Func1 f1, Func2 f2) {
   static_assert(std::is_invocable_v<Func1, Type> == true, "Eval function is not invocable");
   static_assert(std::is_invocable_v<Func2, Type> == true, "Deval function is not invocable");
-  auto tmp = Allocate<GenericUnaryC1Function<Func1, Func2>>(f1,f2);
+  auto tmp = Allocate<GenericUnaryC0Function<Func1, Func2>>(f1,f2);
   return *tmp;
 }

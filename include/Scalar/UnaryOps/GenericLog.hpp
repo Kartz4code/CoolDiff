@@ -61,7 +61,7 @@ public:
   V_OVERRIDE(Variable *symDeval(const Variable &var)) {
     // Static derivative computation
     if (auto it = this->mp_dtmp.find(var.m_nidx); it == this->mp_dtmp.end()) {
-      auto tmp = Allocate<Expression>(((Type)1 / EVAL_L()) * (DEVAL_L(var)));
+      auto tmp = Allocate<Expression>(((Type)(1) / EVAL_L()) * (DEVAL_L(var)));
       this->mp_dtmp[var.m_nidx] = tmp.get();
     }
     return this->mp_dtmp[var.m_nidx];
@@ -99,7 +99,7 @@ public:
       }
 
       /* IMPORTANT: The derivative is computed here */
-      const Type u = ((Type)1 / (mp_left->eval()));
+      const Type u = ((Type)(1) / (mp_left->eval()));
       (*cache)[mp_left->m_nidx] += (u);
 
       // Modify cache for left node
@@ -121,7 +121,7 @@ public:
       }
 
       /* IMPORTANT: The derivative is computed here */
-      const Type ustar = (((Type)1 / (mp_left->eval())) * cCache);
+      const Type ustar = (((Type)(1) / (mp_left->eval())) * cCache);
       (*cache)[mp_left->m_nidx] += (ustar);
 
       // Modify cache for left node

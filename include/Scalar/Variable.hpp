@@ -37,9 +37,12 @@ protected:
 
   // Friend class Parameter
   friend class Parameter;
-  // Friend class GenericUnaryC1Function
+  // Friend class GenericUnaryC0Function
   template <typename Func1, typename Func2>
-  friend class GenericUnaryC1Function;
+  friend class GenericUnaryC0Function;
+  // Friend class GenericBinaryC0Function
+  template <typename Func, typename FuncLHS, typename FuncRHS>
+  friend class GenericBinaryC0Function;
 
   // Type real-time value
   SharedPtr<Type> m_value_var{std::make_shared<Type>()};
