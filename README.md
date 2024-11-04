@@ -2,24 +2,24 @@
 ---
 * **CoolDiff** is a C++ 17 library dedicated to compute both automatic as well as symbolic differentiation of mathematical expressions. 
 
-* **CoolDiff** APIs provide an easy and simple way of modeling and computing scalar mathematical expression values, forward/reverse (adjoint) mode derivatives and symbolic derivatives (objects). 
-
-By default, the numerical type for computation is *complex numbers* and this allows the tool to perform complex analysis as well.   
-
+* **CoolDiff** APIs provide an easy and simple way of modeling and evaluating scalar and matrix expressions, computing forward/reverse(adjoint) mode derivatives and symbolic derivatives (objects). 
+  
 ---
 ## Building the CoolDiff library :white_check_mark:
 
-Firstly, the **CoolDiff** library needs to be build. The following steps will build the library  
+The following steps will build the library  
 
-1. Clone the git repository -
+1. Clone the git repository using
  - `git clone https://github.com/Kartz4code/CoolDiff.git`
-2. Build the library using following steps - 
+2. Build the library using following steps 
 - `cmake -S . -B build`
 - `cmake --build build -j16 `
-3. Run the Gaussian example to verify the success of the build - 
+3. Execute the Gaussian example to verify the success of the build
 - `./build/example/Gaussian`
 
-Link the generated **CoolDiff** library with your project and include the header `CoolDiff.hpp` to utilize the **CoolDiff** APIs. The example folder has few examples to exhibit the use case of the library.  
+Link the generated **CoolDiff** library with your project and include the header `CoolDiff.hpp` to utilize the **CoolDiff** APIs. 
+
+The example folder has few examples to exhibit the use case of the library.  
 
 ---
 ## Classes & Types :white_check_mark:

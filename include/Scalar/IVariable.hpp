@@ -102,11 +102,12 @@ struct __XOXO__ {};
 #define OpType __XOXO__
 #define OpObj OpType()
 
-
 // Numeric here indicates both arithmetic and Type
-template<typename T>
-constexpr inline static const bool is_numeric_v = (std::is_arithmetic_v<T> || std::is_same_v<T,Type>);
+template <typename T>
+constexpr inline static const bool is_numeric_v = (std::is_arithmetic_v<T> ||
+                                                   std::is_same_v<T, Type>);
 
-// Is a valid type for operator() 
-template<typename T> 
-constexpr inline static const bool is_valid_v = (std::is_base_of_v<MetaVariable, T> || is_numeric_v<T>);
+// Is a valid type for operator()
+template <typename T>
+constexpr inline static const bool
+    is_valid_v = (std::is_base_of_v<MetaVariable, T> || is_numeric_v<T>);

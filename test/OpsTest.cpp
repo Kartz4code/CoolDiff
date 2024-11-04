@@ -420,7 +420,7 @@ TEST(OpsTest, LogOps) {
 
   // Split test
   Expression y =
-      2.3 + log(-1 * x1 * x2) * exp(log(x3 * x5)) - sin(x2) * tan(x4);
+      2.3 + log(-x1 * x2) * exp(log(x3 * x5)) - sin(x2) * tan(x4);
   y = x2 * y * x4 * cos(x3);
 
   Variable *tmp[5] = {&x1, &x2, &x3, &x4, &x5};
@@ -457,7 +457,7 @@ TEST(OpsTest, LogOpsHessian) {
 
   // Split test
   Expression y =
-      2.3 + log(-1 * x1 * x2) * exp(log(x3 * x5)) - sin(x2) * tan(x4);
+      2.3 + log(-x1 * x2) * exp(log(x3 * x5)) - sin(x2) * tan(x4);
   y = x2 * y * x4 * cos(x3);
 
   Variable *tmp[5] = {&x1, &x2, &x3, &x4, &x5};

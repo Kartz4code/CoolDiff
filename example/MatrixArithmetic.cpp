@@ -23,6 +23,22 @@
 #include "CoolDiff.hpp"
 #include "MatOperators.hpp"
 
+void func14() {
+  Matrix<Type> A(3,3);
+  Matrix<Variable> X(3, 3);
+
+  A(0, 0) = 1; A(0, 1) = 2; A(0, 2) = 3;
+  A(1, 0) = 4; A(1, 1) = 5; A(1, 2) = 6;
+  A(2, 0) = 7; A(2, 1) = 8; A(2, 2) = 9;
+
+  X(0, 0) = 1; X(0, 1) = 2; X(0, 2) = 3;
+  X(1, 0) = 4; X(1, 1) = 5; X(1, 2) = 6;
+  X(2, 0) = 7; X(2, 1) = 8; X(2, 2) = 9;
+
+  Matrix<Expression> exp = trace(A*X);
+  std::cout << DevalF(exp,X) << "\n";
+  
+}
 
 void func13() {
   Matrix<Type> X(3, 3);
@@ -51,7 +67,6 @@ void func13() {
   Matrix<Expression> exp = conv(conv(X, W, 1, 1, 1, 1), W2, 1, 1, 1, 1);
   std::cout << DevalF(exp, W) << "\n";
   std::cout << DevalF(exp, W2) << "\n";
-  
 }
 
 void func12() {
@@ -256,6 +271,7 @@ void func5() {
 }
 
 int main(int argc, char **argv) {
+  func14();
   func13();
   func12();
   func11();
