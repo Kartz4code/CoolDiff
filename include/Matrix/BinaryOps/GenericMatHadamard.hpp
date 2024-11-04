@@ -40,7 +40,7 @@ private:
   DISABLE_COPY(GenericMatHadamard)
   DISABLE_MOVE(GenericMatHadamard)
 
-  // Verify dimensions of result matrix for subtraction operation
+  // Verify dimensions of result matrix for Hadamard product operation
   inline constexpr bool verifyDim() const {
     // Left matrix rows
     const int lr = mp_left->getNumRows();
@@ -63,21 +63,27 @@ public:
   const size_t m_nidx{};
 
   // Constructor
-  constexpr GenericMatHadamard(T1 *u, T2 *v, Callables &&...call)
-      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
-                                     std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {
+  constexpr GenericMatHadamard(T1 *u, T2 *v, Callables &&...call) : mp_left{u}, 
+                                                                    mp_right{v}, 
+                                                                    m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                                    m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
   // Get number of rows
-  V_OVERRIDE(size_t getNumRows() const) { return mp_left->getNumRows(); }
+  V_OVERRIDE(size_t getNumRows() const) { 
+    return mp_left->getNumRows(); 
+  }
 
   // Get number of columns
-  V_OVERRIDE(size_t getNumColumns() const) { return mp_right->getNumColumns(); }
+  V_OVERRIDE(size_t getNumColumns() const) { 
+    return mp_right->getNumColumns(); 
+  }
 
   // Find me
-  bool findMe(void *v) const { BINARY_FIND_ME(); }
+  bool findMe(void *v) const { 
+    BINARY_FIND_ME(); 
+  }
 
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type> *eval()) {
@@ -107,13 +113,13 @@ public:
     const Matrix<Type> *left_mat = mp_left->eval();
     const Matrix<Type> *right_mat = mp_right->eval();
 
-    const size_t nrows = X.getNumRows();
-    const size_t ncols = X.getNumColumns();
+    const size_t nrows_x = X.getNumRows();
+    const size_t ncols_x = X.getNumColumns();
 
     // L (X) I - Left matrix and identity Kronocker product (Policy design)
-    MATRIX_KRON(left_mat, Ones(nrows, ncols), mp_arr[4]);
+    MATRIX_KRON(left_mat, Ones(nrows_x, ncols_x), mp_arr[4]);
     // R (X) I - Right matrix and identity Kronocker product (Policy design)
-    MATRIX_KRON(right_mat, Ones(nrows, ncols), mp_arr[5]);
+    MATRIX_KRON(right_mat, Ones(nrows_x, ncols_x), mp_arr[5]);
 
     // Hadamard product with left and right derivatives (Policy design)
     MATRIX_HADAMARD(mp_arr[4], dright_mat, mp_arr[2]);
@@ -127,10 +133,14 @@ public:
   }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { BINARY_MAT_RESET(); }
+  V_OVERRIDE(void reset()) { 
+    BINARY_MAT_RESET(); 
+  }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { return "GenericMatHadamard"; }
+  V_OVERRIDE(std::string_view getType() const) { 
+    return "GenericMatHadamard"; 
+  }
 
   // Destructor
   V_DTR(~GenericMatHadamard()) = default;

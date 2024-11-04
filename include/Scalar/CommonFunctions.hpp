@@ -26,12 +26,12 @@
 #include "Variable.hpp"
 
 // Binary operators
+#include "GenericBinaryC0Function.hpp"
 #include "GenericDiv.hpp"
 #include "GenericPow.hpp"
 #include "GenericProduct.hpp"
 #include "GenericSub.hpp"
 #include "GenericSum.hpp"
-#include "GenericBinaryC0Function.hpp"
 
 // Unary operator
 #include "GenericACos.hpp"

@@ -28,11 +28,11 @@
 template <typename T> 
 inline constexpr Type Eval(T&);
 // Predeclare DevalF function
-template <typename T>
+template <typename T> 
 inline constexpr Type DevalF(T&, const Variable&);
 
-// Function computation
-template <typename Func1, typename Func2> 
+// Function computation (Found in bottom)
+template <typename Func1, typename Func2>
 constexpr const auto& UnaryC0Function(Func1, Func2);
 
 template <typename Func1, typename Func2>
@@ -45,10 +45,10 @@ private:
   Func1 m_f1;
   Func2 m_f2;
 
-  template <typename T, typename = std::enable_if_t<is_valid_v<T>>> 
+  template <typename T, typename = std::enable_if_t<is_valid_v<T>>>
   constexpr const auto& setOperand(const T& x) const {
     if constexpr (true == is_numeric_v<T>) {
-       mp_left = Allocate<Expression>(*Allocate<Parameter>(x)).get();
+      mp_left = Allocate<Expression>(*Allocate<Parameter>(x)).get();
     } else {
       mp_left = Allocate<Expression>(x).get();
     }
@@ -62,24 +62,24 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericUnaryC0Function(Func1 f1, Func2 f2) : m_f1{f1},
-                                                         m_f2{f2},
+  constexpr GenericUnaryC0Function(Func1 f1, Func2 f2) : m_f1{f1}, 
+                                                         m_f2{f2}, 
                                                          m_nidx{this->m_idx_count++} 
   {}
 
-  template <typename T, typename = std::enable_if_t<is_valid_v<T>>> 
+  template <typename T, typename = std::enable_if_t<is_valid_v<T>>>
   constexpr const auto& operator()(const T& x) const {
     return UnaryC0Function(m_f1, m_f2).setOperand(x);
   }
 
   // Symbolic evaluation
-  V_OVERRIDE(Variable *symEval()) {
-    return &Variable::t0;
+  V_OVERRIDE(Variable* symEval()) { 
+    return &Variable::t0; 
   }
 
   // Symbolic Differentiation
-  V_OVERRIDE(Variable *symDeval(const Variable&)) {
-    return &Variable::t0;
+  V_OVERRIDE(Variable* symDeval(const Variable&)) { 
+    return &Variable::t0; 
   }
 
   // Eval in run-time
@@ -90,15 +90,15 @@ public:
   }
 
   // Deval in run-time for forward derivative
-  V_OVERRIDE(Type devalF(const Variable &var)) {
+  V_OVERRIDE(Type devalF(const Variable& var)) {
     // Return derivative
-    const Type du = DevalF(*mp_left,var);
+    const Type du = DevalF(*mp_left, var);
     const Type u = Eval(*mp_left);
     return (m_f2(u) * du);
   }
 
   // Traverse run-time
-  V_OVERRIDE(void traverse(OMPair *cache = nullptr)) {
+  V_OVERRIDE(void traverse(OMPair* cache = nullptr)) {
     // If cache is nullptr, i.e. for the first step
     if (cache == nullptr) {
       // cache is m_cache
@@ -157,7 +157,7 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair &getCache()) { 
+  V_OVERRIDE(OMPair& getCache()) { 
     return m_cache; 
   }
 
@@ -167,12 +167,12 @@ public:
   }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { 
-    return "GenericUnaryC0Function"; 
+  V_OVERRIDE(std::string_view getType() const) {
+    return "GenericUnaryC0Function";
   }
 
   // Find me
-  V_OVERRIDE(bool findMe(void *v) const) { 
+  V_OVERRIDE(bool findMe(void* v) const) { 
     UNARY_FIND_ME(); 
   }
 
@@ -181,10 +181,10 @@ public:
 };
 
 // Function computation
-template <typename Func1, typename Func2> 
-constexpr const auto& UnaryC0Function(Func1 f1, Func2 f2) {
-  static_assert(std::is_invocable_v<Func1, Type> == true, "Eval function is not invocable");
-  static_assert(std::is_invocable_v<Func2, Type> == true, "Deval function is not invocable");
-  auto tmp = Allocate<GenericUnaryC0Function<Func1, Func2>>(f1,f2);
+template <typename Func1, typename Func2>
+constexpr const auto &UnaryC0Function(Func1 f1, Func2 f2) {
+  static_assert(true == std::is_invocable_v<Func1, Type>, "Eval function is not invocable");
+  static_assert(true == std::is_invocable_v<Func2, Type>, "Deval function is not invocable");
+  auto tmp = Allocate<GenericUnaryC0Function<Func1, Func2>>(f1, f2);
   return *tmp;
 }

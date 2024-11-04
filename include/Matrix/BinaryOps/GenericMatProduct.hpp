@@ -26,8 +26,7 @@
 
 // Left/right side is a Matrix
 template <typename T1, typename T2, typename... Callables>
-class GenericMatProduct
-    : public IMatrix<GenericMatProduct<T1, T2, Callables...>> {
+class GenericMatProduct : public IMatrix<GenericMatProduct<T1, T2, Callables...>> {
 private:
   // Resources
   T1 *mp_left{nullptr};
@@ -42,14 +41,10 @@ private:
 
   // Verify dimensions of result matrix for multiplication operation
   inline constexpr bool verifyDim() const {
-    // Left matrix rows
-    const int lr = mp_left->getNumRows();
     // Right matrix rows
     const int rr = mp_right->getNumRows();
     // Left matrix columns
     const int lc = mp_left->getNumColumns();
-    // Right matrix columns
-    const int rc = mp_right->getNumColumns();
     // Condition for Matrix-Matrix multiplication
     return ((lc == rr));
   }
@@ -63,21 +58,27 @@ public:
   const size_t m_nidx{};
 
   // Constructor
-  constexpr GenericMatProduct(T1 *u, T2 *v, Callables &&...call)
-      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
-                                     std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {
+  constexpr GenericMatProduct(T1 *u, T2 *v, Callables &&...call) : mp_left{u}, 
+                                                                   mp_right{v}, 
+                                                                   m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                                   m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
   // Get number of rows
-  V_OVERRIDE(size_t getNumRows() const) { return mp_left->getNumRows(); }
+  V_OVERRIDE(size_t getNumRows() const) { 
+    return mp_left->getNumRows(); 
+  }
 
   // Get number of columns
-  V_OVERRIDE(size_t getNumColumns() const) { return mp_right->getNumColumns(); }
+  V_OVERRIDE(size_t getNumColumns() const) { 
+    return mp_right->getNumColumns(); 
+  }
 
   // Find me
-  bool findMe(void *v) const { BINARY_FIND_ME(); }
+  bool findMe(void *v) const { 
+    BINARY_FIND_ME(); 
+  }
 
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type> *eval()) {
@@ -127,10 +128,14 @@ public:
   }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { BINARY_MAT_RESET(); }
+  V_OVERRIDE(void reset()) { 
+    BINARY_MAT_RESET(); 
+  }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { return "GenericMatProduct"; }
+  V_OVERRIDE(std::string_view getType() const) { 
+    return "GenericMatProduct"; 
+  }
 
   // Destructor
   V_DTR(~GenericMatProduct()) = default;
@@ -138,8 +143,7 @@ public:
 
 // Left is Type and right is a matrix
 template <typename T, typename... Callables>
-class GenericMatScalarProduct
-    : public IMatrix<GenericMatScalarProduct<T, Callables...>> {
+class GenericMatScalarProduct : public IMatrix<GenericMatScalarProduct<T, Callables...>> {
 private:
   // Resources
   Type m_left{};
@@ -161,21 +165,27 @@ public:
   const size_t m_nidx{};
 
   // Constructor
-  constexpr GenericMatScalarProduct(Type u, T *v, Callables &&...call)
-      : m_left{u}, mp_right{v}, m_caller{std::make_tuple(
-                                    std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {
+  constexpr GenericMatScalarProduct(Type u, T *v, Callables &&...call) : m_left{u},
+                                                                         mp_right{v}, 
+                                                                         m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                                         m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
   // Get number of rows
-  V_OVERRIDE(size_t getNumRows() const) { return mp_right->getNumRows(); }
+  V_OVERRIDE(size_t getNumRows() const) { 
+    return mp_right->getNumRows(); 
+  }
 
   // Get number of columns
-  V_OVERRIDE(size_t getNumColumns() const) { return mp_right->getNumColumns(); }
+  V_OVERRIDE(size_t getNumColumns() const) { 
+    return mp_right->getNumColumns(); 
+  }
 
   // Find me
-  bool findMe(void *v) const { BINARY_RIGHT_FIND_ME(); }
+  bool findMe(void *v) const { 
+    BINARY_RIGHT_FIND_ME(); 
+  }
 
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type> *eval()) {
@@ -203,7 +213,9 @@ public:
   }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { BINARY_MAT_RIGHT_RESET(); }
+  V_OVERRIDE(void reset()) { 
+    BINARY_MAT_RIGHT_RESET(); 
+  }
 
   // Get type
   V_OVERRIDE(std::string_view getType() const) {
@@ -216,8 +228,7 @@ public:
 
 // Left is Expression/Variable/Parameter and right is a matrix
 template <typename T1, typename T2, typename... Callables>
-class GenericMatScalarProductExp
-    : public IMatrix<GenericMatScalarProductExp<T1, T2, Callables...>> {
+class GenericMatScalarProductExp : public IMatrix<GenericMatScalarProductExp<T1, T2, Callables...>> {
 private:
   // Resources
   Expression m_left;
@@ -239,21 +250,27 @@ public:
   const size_t m_nidx{};
 
   // Constructor
-  constexpr GenericMatScalarProductExp(T1 *u, T2 *v, Callables &&...call)
-      : m_left{*u}, mp_right{v}, m_caller{std::make_tuple(
-                                     std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {
+  constexpr GenericMatScalarProductExp(T1 *u, T2 *v, Callables &&...call) : m_left{*u}, 
+                                                                            mp_right{v}, 
+                                                                            m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                                            m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
   // Get number of rows
-  V_OVERRIDE(size_t getNumRows() const) { return mp_right->getNumRows(); }
+  V_OVERRIDE(size_t getNumRows() const) { 
+    return mp_right->getNumRows(); 
+  }
 
   // Get number of columns
-  V_OVERRIDE(size_t getNumColumns() const) { return mp_right->getNumColumns(); }
+  V_OVERRIDE(size_t getNumColumns() const) { 
+    return mp_right->getNumColumns(); 
+  }
 
   // Find me
-  bool findMe(void *v) const { BINARY_RIGHT_FIND_ME(); }
+  bool findMe(void *v) const { 
+    BINARY_RIGHT_FIND_ME(); 
+  }
 
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type> *eval()) {
@@ -300,7 +317,9 @@ public:
   }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { BINARY_MAT_RIGHT_RESET(); }
+  V_OVERRIDE(void reset()) { 
+    BINARY_MAT_RIGHT_RESET(); 
+  }
 
   // Get type
   V_OVERRIDE(std::string_view getType() const) {
@@ -327,9 +346,9 @@ using GenericMatScalarProductExpT =
 // Function for product computation
 template <typename T1, typename T2>
 constexpr const auto &operator*(const IMatrix<T1> &u, const IMatrix<T2> &v) {
-  auto tmp = Allocate<GenericMatProductT<T1, T2>>(
-      const_cast<T1 *>(static_cast<const T1 *>(&u)),
-      const_cast<T2 *>(static_cast<const T2 *>(&v)), OpMatObj);
+  auto tmp = Allocate<GenericMatProductT<T1, T2>>(const_cast<T1 *>(static_cast<const T1 *>(&u)),
+                                                  const_cast<T2 *>(static_cast<const T2 *>(&v)), 
+                                                  OpMatObj);
   return *tmp;
 }
 

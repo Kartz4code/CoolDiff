@@ -44,8 +44,7 @@ private:
 
   // Verify dimensions of result matrix for convolution operation
   inline constexpr bool verifyDim() const {
-    // Dimension of the result of convolution operator must be strictly
-    // non-negative
+    // Dimension of the result of convolution operator must be strictly non-negative
     return ((int)getNumRows() > 0 || (int)getNumColumns() > 0);
   }
 
@@ -58,16 +57,16 @@ public:
   const size_t m_nidx{};
 
   // Constructor
-  constexpr GenericMatConv(T1 *u, T2 *v, const size_t stride_x,
-                           const size_t stride_y, const size_t pad_x,
-                           const size_t pad_y, Callables &&...call)
-      : mp_left{u}, mp_right{v}, m_stride_x{stride_x}, m_stride_y{stride_y},
-        m_pad_x{pad_x}, m_pad_y{pad_y}, m_caller{std::make_tuple(
-                                            std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {
+  constexpr GenericMatConv(T1 *u, T2 *v, 
+                           const size_t stride_x, const size_t stride_y, 
+                           const size_t pad_x, const size_t pad_y, 
+                           Callables &&...call) : mp_left{u}, mp_right{v}, 
+                                                  m_stride_x{stride_x}, m_stride_y{stride_y},
+                                                  m_pad_x{pad_x}, m_pad_y{pad_y}, 
+                                                  m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                  m_nidx{this->m_idx_count++} {
     // Stride must be strictly non-negative
-    ASSERT(((int)m_stride_x > 0) && ((int)m_stride_y > 0),
-           "Stride is not strictly non-negative");
+    ASSERT(((int)m_stride_x > 0) && ((int)m_stride_y > 0), "Stride is not strictly non-negative");
     // Padding must be positive
     ASSERT(((int)pad_x >= 0) && ((int)pad_y >= 0), "Stride is not positive");
 
@@ -77,21 +76,18 @@ public:
 
   // Get number of rows (After convolution)
   V_OVERRIDE(size_t getNumRows() const) {
-    return (((mp_left->getNumRows() + (2 * m_pad_x) - mp_right->getNumRows()) /
-             m_stride_x) +
-            1);
+    return (((mp_left->getNumRows() + (2 * m_pad_x) - mp_right->getNumRows()) / m_stride_x) + 1);
   }
 
   // Get number of columns (After convolution)
   V_OVERRIDE(size_t getNumColumns() const) {
-    return (((mp_left->getNumColumns() + (2 * m_pad_y) -
-              mp_right->getNumColumns()) /
-             m_stride_y) +
-            1);
+    return (((mp_left->getNumColumns() + (2 * m_pad_y) - mp_right->getNumColumns()) / m_stride_y) + 1);
   }
 
   // Find me
-  bool findMe(void *v) const { BINARY_FIND_ME(); }
+  bool findMe(void *v) const { 
+    BINARY_FIND_ME(); 
+  }
 
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type> *eval()) {
@@ -103,8 +99,7 @@ public:
     Matrix<Type> *right_mat = mp_right->eval();
 
     // Matrix convolution
-    MATRIX_CONV(m_stride_x, m_stride_y, m_pad_x, m_pad_y, left_mat, right_mat,
-                mp_arr[0]);
+    MATRIX_CONV(m_stride_x, m_stride_y, m_pad_x, m_pad_y, left_mat, right_mat, mp_arr[0]);
 
     // Return result pointer
     return mp_arr[0];
@@ -135,10 +130,14 @@ public:
   }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { BINARY_MAT_RESET(); }
+  V_OVERRIDE(void reset()) { 
+    BINARY_MAT_RESET(); 
+  }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { return "GenericMatConv"; }
+  V_OVERRIDE(std::string_view getType() const) { 
+    return "GenericMatConv"; 
+  }
 
   // Destructor
   V_DTR(~GenericMatConv()) = default;
@@ -153,9 +152,8 @@ template <typename T1, typename T2>
 constexpr const auto &conv(const IMatrix<T1> &u, const IMatrix<T2> &v,
                            const size_t stride_x = 1, const size_t stride_y = 1,
                            const size_t pad_x = 0, const size_t pad_y = 0) {
-  auto tmp = Allocate<GenericMatConvT<T1, T2>>(
-      const_cast<T1 *>(static_cast<const T1 *>(&u)),
-      const_cast<T2 *>(static_cast<const T2 *>(&v)), stride_x, stride_y, pad_x,
-      pad_y, OpMatObj);
+  auto tmp = Allocate<GenericMatConvT<T1, T2>>(const_cast<T1 *>(static_cast<const T1 *>(&u)),
+                                               const_cast<T2*>(static_cast<const T2 *>(&v)), 
+                                               stride_x, stride_y, pad_x, pad_y, OpMatObj);
   return *tmp;
 }
