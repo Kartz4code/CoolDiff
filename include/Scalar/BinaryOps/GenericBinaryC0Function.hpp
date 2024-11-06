@@ -25,22 +25,23 @@
 #include "Variable.hpp"
 
 // Predeclare Eval function
-template <typename T> inline constexpr Type Eval(T &);
+template <typename T> 
+inline constexpr Type Eval(T&);
 // Predeclare DevalF function
-template <typename T> inline constexpr Type DevalF(T &, const Variable &);
+template <typename T> 
+inline constexpr Type DevalF(T&, const Variable&);
 
 // Function computation
 template <typename Func, typename FuncLHS, typename FuncRHS>
-constexpr const auto &BinaryC0Function(Func, FuncLHS, FuncRHS);
+constexpr const auto& BinaryC0Function(Func, FuncLHS, FuncRHS);
 
 // Left/right side is an expression
 template <typename Func, typename FuncLHS, typename FuncRHS>
-class GenericBinaryC0Function
-    : public IVariable<GenericBinaryC0Function<Func, FuncLHS, FuncRHS>> {
+class GenericBinaryC0Function : public IVariable<GenericBinaryC0Function<Func, FuncLHS, FuncRHS>> {
 private:
   // Resources
-  mutable Expression *mp_left{nullptr};
-  mutable Expression *mp_right{nullptr};
+  mutable Expression* mp_left{nullptr};
+  mutable Expression* mp_right{nullptr};
 
   // Callables
   Func m_f;
@@ -48,7 +49,7 @@ private:
   FuncRHS m_frhs;
 
   template <typename T1, typename T2, typename = std::enable_if_t<is_valid_v<T1> && is_valid_v<T2>>>
-  constexpr const auto &setOperand(const T1 &x1, const T2 &x2) const {
+  constexpr const auto &setOperand(const T1& x1, const T2& x2) const {
     // Set left operand
     if constexpr (true == is_numeric_v<T1>) {
       mp_left = Allocate<Expression>(*Allocate<Parameter>(x1)).get();
@@ -80,17 +81,17 @@ public:
   {}
 
   template <typename T1, typename T2, typename = std::enable_if_t<is_valid_v<T1> && is_valid_v<T2>>>
-  constexpr const auto &operator()(const T1 &x1, const T2 &x2) const {
+  constexpr const auto& operator()(const T1& x1, const T2& x2) const {
     return BinaryC0Function(m_f, m_flhs, m_frhs).setOperand(x1, x2);
   }
 
   // Symbolic evaluation
-  V_OVERRIDE(Variable *symEval()) { 
+  V_OVERRIDE(Variable* symEval()) { 
     return &Variable::t0; 
   }
 
   // Symbolic Differentiation
-  V_OVERRIDE(Variable *symDeval(const Variable &var)) { 
+  V_OVERRIDE(Variable* symDeval(const Variable& var)) { 
     return &Variable::t0; 
   }
 
@@ -103,7 +104,7 @@ public:
   }
 
   // Deval 1st in run-time for forward derivative
-  V_OVERRIDE(Type devalF(const Variable &var)) {
+  V_OVERRIDE(Type devalF(const Variable& var)) {
     // Return derivative
     const Type du = DevalF(*mp_left, var);
     const Type dv = DevalF(*mp_right, var);
@@ -115,7 +116,7 @@ public:
   }
 
   // Traverse run-time
-  V_OVERRIDE(void traverse(OMPair *cache = nullptr)) {
+  V_OVERRIDE(void traverse(OMPair* cache = nullptr)) {
     // If cache is nullptr, i.e. for the first step
     if (cache == nullptr) {
       // cache is m_cache
@@ -209,7 +210,7 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair &getCache()) { 
+  V_OVERRIDE(OMPair& getCache()) { 
     return m_cache; 
   }
 
@@ -224,7 +225,7 @@ public:
   }
 
   // Find me
-  V_OVERRIDE(bool findMe(void *v) const) { 
+  V_OVERRIDE(bool findMe(void* v) const) { 
     BINARY_FIND_ME(); 
   }
 
@@ -234,7 +235,7 @@ public:
 
 // Function computation
 template <typename Func, typename FuncLHS, typename FuncRHS>
-constexpr const auto &BinaryC0Function(Func f, FuncLHS flhs, FuncRHS frhs) {
+constexpr const auto& BinaryC0Function(Func f, FuncLHS flhs, FuncRHS frhs) {
   static_assert(std::is_invocable_v<Func, Type, Type> == true, "Eval function is not invocable");
   static_assert(std::is_invocable_v<FuncLHS, Type, Type> == true, "Deval left function is not invocable");
   static_assert(std::is_invocable_v<FuncRHS, Type, Type> == true, "Deval right function is not invocable");

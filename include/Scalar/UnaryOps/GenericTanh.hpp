@@ -28,7 +28,7 @@ template <typename T, typename... Callables>
 class GenericTanh : public IVariable<GenericTanh<T, Callables...>> {
 private:
   // Resources
-  T *mp_left{nullptr};
+  T* mp_left{nullptr};
 
   // Callables
   Tuples<Callables...> m_caller;
@@ -44,13 +44,13 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericTanh(T *u, Callables &&...call) : mp_left{u}, 
+  constexpr GenericTanh(T* u, Callables&&... call) : mp_left{u}, 
                                                      m_caller{std::make_tuple(std::forward<Callables>(call)...)},
                                                      m_nidx{this->m_idx_count++} 
   {}
 
   // Symbolic evaluation
-  V_OVERRIDE(Variable *symEval()) {
+  V_OVERRIDE(Variable* symEval()) {
     if (nullptr == this->mp_tmp) {
       auto tmp = Allocate<Expression>(tanh(EVAL_L()));
       this->mp_tmp = tmp.get();
@@ -59,7 +59,7 @@ public:
   }
 
   // Symbolic Differentiation
-  V_OVERRIDE(Variable *symDeval(const Variable &var)) {
+  V_OVERRIDE(Variable* symDeval(const Variable& var)) {
     // Static derivative computation
     if (auto it = this->mp_dtmp.find(var.m_nidx); it == this->mp_dtmp.end()) {
       auto tmp = Allocate<Expression>(((Type)(1) - (tanh(EVAL_L()) * tanh(EVAL_L()))) * (DEVAL_L(var)));
@@ -76,7 +76,7 @@ public:
   }
 
   // Deval in run-time for forward derivative
-  V_OVERRIDE(Type devalF(const Variable &var)) {
+  V_OVERRIDE(Type devalF(const Variable& var)) {
     // Return derivative of tanh: (1-tanh(u)*tanh(u))*ud
     const Type du = mp_left->devalF(var);
     const Type u = mp_left->eval();
@@ -84,7 +84,7 @@ public:
   }
 
   // Traverse run-time
-  V_OVERRIDE(void traverse(OMPair *cache = nullptr)) {
+  V_OVERRIDE(void traverse(OMPair* cache = nullptr)) {
     // If cache is nullptr, i.e. for the first step
     if (cache == nullptr) {
       // cache is m_cache
@@ -146,7 +146,7 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair &getCache()) { 
+  V_OVERRIDE(OMPair& getCache()) { 
     return m_cache; 
   }
 
@@ -161,7 +161,7 @@ public:
   }
 
   // Find me
-  V_OVERRIDE(bool findMe(void *v) const) { 
+  V_OVERRIDE(bool findMe(void* v) const) { 
     UNARY_FIND_ME(); 
   }
 
@@ -176,6 +176,6 @@ using GenericTanhT = GenericTanh<T, OpType>;
 // Function for tanh computation
 template <typename T> 
 constexpr const auto& tanh(const IVariable<T>& u) {
-  auto tmp = Allocate<GenericTanhT<T>>(const_cast<T *>(static_cast<const T*>(&u)), OpObj);
+  auto tmp = Allocate<GenericTanhT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpObj);
   return *tmp;
 }

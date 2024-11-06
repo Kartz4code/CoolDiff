@@ -41,7 +41,7 @@ void MatSubNaiveHandler::handle(const Matrix<Type> *lhs,
   MemoryManager::MatrixPool(nrows, ncols, result);
 
   // Get raw pointers to result, left and right matrices
-  const Type *res = result->getMatrixPtr();
+  Type *res = result->getMatrixPtr();
   const Type *left = lhs->getMatrixPtr();
   const Type *right = rhs->getMatrixPtr();
 

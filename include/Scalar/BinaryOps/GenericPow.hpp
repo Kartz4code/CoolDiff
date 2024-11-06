@@ -29,8 +29,8 @@ template <typename T1, typename T2, typename... Callables>
 class GenericPow : public IVariable<GenericPow<T1, T2, Callables...>> {
 private:
   // Resources
-  T1 *mp_left{nullptr};
-  T2 *mp_right{nullptr};
+  T1* mp_left{nullptr};
+  T2* mp_right{nullptr};
 
   // Callables
   Tuples<Callables...> m_caller;
@@ -46,13 +46,14 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericPow(T1 *u, T2 *v, Callables &&...call)
-      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
-                                     std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {}
+  constexpr GenericPow(T1* u, T2* v, Callables&&... call) : mp_left{u}, 
+                                                            mp_right{v}, 
+                                                            m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                            m_nidx{this->m_idx_count++} 
+  {}
 
   // Symbolic evaluation
-  V_OVERRIDE(Variable *symEval()) {
+  V_OVERRIDE(Variable* symEval()) {
     if (nullptr == this->mp_tmp) {
       auto tmp = Allocate<Expression>(pow(EVAL_L(), EVAL_R()));
       this->mp_tmp = tmp.get();
@@ -61,12 +62,10 @@ public:
   }
 
   // Symbolic differentiation
-  V_OVERRIDE(Variable *symDeval(const Variable &var)) {
+  V_OVERRIDE(Variable* symDeval(const Variable& var)) {
     // Static derivative computation
     if (auto it = this->mp_dtmp.find(var.m_nidx); it == this->mp_dtmp.end()) {
-      auto tmp = Allocate<Expression>(pow(EVAL_L(), EVAL_R()) *
-                                      (((EVAL_R() / EVAL_L()) * DEVAL_L(var)) +
-                                       (DEVAL_R(var) * log(EVAL_L()))));
+      auto tmp = Allocate<Expression>(pow(EVAL_L(), EVAL_R()) * (((EVAL_R() / EVAL_L()) * DEVAL_L(var)) + (DEVAL_R(var) * log(EVAL_L()))));
       this->mp_dtmp[var.m_nidx] = tmp.get();
     }
     return this->mp_dtmp[var.m_nidx];
@@ -81,7 +80,7 @@ public:
   }
 
   // Deval in run-time for forward derivative
-  V_OVERRIDE(Type devalF(const Variable &var)) {
+  V_OVERRIDE(Type devalF(const Variable& var)) {
     // Return derivative of pow: pow(u,v)*(ud*v/u + vd*log(u))
     const Type du = mp_left->devalF(var);
     const Type dv = mp_right->devalF(var);
@@ -91,7 +90,7 @@ public:
   }
 
   // Traverse run-time
-  V_OVERRIDE(void traverse(OMPair *cache = nullptr)) {
+  V_OVERRIDE(void traverse(OMPair* cache = nullptr)) {
     // If cache is nullptr, i.e. for the first step
     if (cache == nullptr) {
       // cache is m_cache
@@ -192,16 +191,24 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair &getCache()) { return m_cache; }
+  V_OVERRIDE(OMPair& getCache()) { 
+    return m_cache; 
+  }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { BINARY_RESET(); }
+  V_OVERRIDE(void reset()) { 
+    BINARY_RESET(); 
+  }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { return "GenericPow"; }
+  V_OVERRIDE(std::string_view getType() const) { 
+    return "GenericPow"; 
+  }
 
   // Find me
-  V_OVERRIDE(bool findMe(void *v) const) { BINARY_FIND_ME(); }
+  V_OVERRIDE(bool findMe(void* v) const) { 
+    BINARY_FIND_ME(); 
+  }
 
   // Destructor
   V_DTR(~GenericPow()) = default;
@@ -209,12 +216,11 @@ public:
 
 // Left/Right side is a number
 template <typename T, typename... Callables>
-class GenericPow<Type, T, Callables...>
-    : public IVariable<GenericPow<Type, T, Callables...>> {
+class GenericPow<Type, T, Callables...> : public IVariable<GenericPow<Type, T, Callables...>> {
 private:
   // Resources
   Type mp_left{0};
-  T *mp_right{nullptr};
+  T* mp_right{nullptr};
 
   // Callables
   Tuples<Callables...> m_caller;
@@ -230,13 +236,14 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericPow(const Type &u, T *v, Callables &&...call)
-      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
-                                     std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {}
+  constexpr GenericPow(const Type& u, T* v, Callables&&... call) : mp_left{u}, 
+                                                                   mp_right{v}, 
+                                                                   m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                                   m_nidx{this->m_idx_count++} 
+  {}
 
   // Symbolic evaluation
-  V_OVERRIDE(Variable *symEval()) {
+  V_OVERRIDE(Variable* symEval()) {
     if (nullptr == this->mp_tmp) {
       auto tmp = Allocate<Expression>(pow(mp_left, EVAL_R()));
       this->mp_tmp = tmp.get();
@@ -245,11 +252,10 @@ public:
   }
 
   // Symbolic differentiation
-  V_OVERRIDE(Variable *symDeval(const Variable &var)) {
+  V_OVERRIDE(Variable* symDeval(const Variable& var)) {
     // Static derivative computation
     if (auto it = this->mp_dtmp.find(var.m_nidx); it == this->mp_dtmp.end()) {
-      auto tmp = Allocate<Expression>(pow(mp_left, EVAL_R()) * DEVAL_R(var) *
-                                      log(mp_left));
+      auto tmp = Allocate<Expression>(pow(mp_left, EVAL_R()) * DEVAL_R(var) * log(mp_left));
       this->mp_dtmp[var.m_nidx] = tmp.get();
     }
     return this->mp_dtmp[var.m_nidx];
@@ -262,7 +268,7 @@ public:
   }
 
   // Deval in run-time for forward derivative
-  V_OVERRIDE(Type devalF(const Variable &var)) {
+  V_OVERRIDE(Type devalF(const Variable& var)) {
     // Return derivative of pow: pow(u,v)*vd*log(u)
     const Type dv = mp_right->devalF(var);
     const Type v = mp_right->eval();
@@ -270,7 +276,7 @@ public:
   }
 
   // Traverse run-time
-  V_OVERRIDE(void traverse(OMPair *cache = nullptr)) {
+  V_OVERRIDE(void traverse(OMPair* cache = nullptr)) {
     // If cache is nullptr, i.e. for the first step
     if (cache == nullptr) {
       // cache is m_cache
@@ -332,16 +338,24 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair &getCache()) { return m_cache; }
+  V_OVERRIDE(OMPair& getCache()) { 
+    return m_cache; 
+  }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { BINARY_RIGHT_RESET(); }
+  V_OVERRIDE(void reset()) { 
+    BINARY_RIGHT_RESET(); 
+  }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { return "GenericPow"; }
+  V_OVERRIDE(std::string_view getType() const) { 
+    return "GenericPow"; 
+  }
 
   // Find me
-  V_OVERRIDE(bool findMe(void *v) const) { BINARY_RIGHT_FIND_ME(); }
+  V_OVERRIDE(bool findMe(void* v) const) { 
+    BINARY_RIGHT_FIND_ME(); 
+  }
 
   // Destructor
   V_DTR(~GenericPow()) = default;
@@ -349,11 +363,10 @@ public:
 
 // Right side is an expression
 template <typename T, typename... Callables>
-class GenericPow<T, Type, Callables...>
-    : public IVariable<GenericPow<T, Type, Callables...>> {
+class GenericPow<T, Type, Callables...> : public IVariable<GenericPow<T, Type, Callables...>> {
 private:
   // Resources
-  T *mp_left{nullptr};
+  T* mp_left{nullptr};
   Type mp_right{0};
 
   // Callables
@@ -370,13 +383,14 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericPow(T *u, const Type &v, Callables &&...call)
-      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
-                                     std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {}
+  constexpr GenericPow(T* u, const Type& v, Callables&&... call) : mp_left{u}, 
+                                                                   mp_right{v}, 
+                                                                   m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                                   m_nidx{this->m_idx_count++} 
+  {}
 
   // Symbolic evaluation
-  V_OVERRIDE(Variable *symEval()) {
+  V_OVERRIDE(Variable* symEval()) {
     if (nullptr == this->mp_tmp) {
       auto tmp = Allocate<Expression>(pow(EVAL_L(), mp_right));
       this->mp_tmp = tmp.get();
@@ -385,11 +399,10 @@ public:
   }
 
   // Symbolic differentiation
-  V_OVERRIDE(Variable *symDeval(const Variable &var)) {
+  V_OVERRIDE(Variable* symDeval(const Variable& var)) {
     // Static derivative computation
     if (auto it = this->mp_dtmp.find(var.m_nidx); it == this->mp_dtmp.end()) {
-      auto tmp = Allocate<Expression>(
-          (mp_right * pow(EVAL_L(), mp_right - (Type)(1)) * DEVAL_L(var)));
+      auto tmp = Allocate<Expression>((mp_right * pow(EVAL_L(), mp_right - (Type)(1)) * DEVAL_L(var)));
       this->mp_dtmp[var.m_nidx] = tmp.get();
     }
     return this->mp_dtmp[var.m_nidx];
@@ -403,7 +416,7 @@ public:
   }
 
   // Deval in run-time for forward derivative
-  V_OVERRIDE(Type devalF(const Variable &var)) {
+  V_OVERRIDE(Type devalF(const Variable& var)) {
     // Return derivative of pow: v*pow(u,v-1)*du
     const Type du = mp_left->devalF(var);
     const Type u = mp_left->eval();
@@ -411,7 +424,7 @@ public:
   }
 
   // Traverse run-time
-  V_OVERRIDE(void traverse(OMPair *cache = nullptr)) {
+  V_OVERRIDE(void traverse(OMPair* cache = nullptr)) {
     // If cache is nullptr, i.e. for the first step
     if (cache == nullptr) {
       // cache is m_cache
@@ -452,8 +465,7 @@ public:
 
       /* IMPORTANT: The derivative is computed here */
       const Type u = mp_left->eval();
-      const Type ustar =
-          (mp_right * (Type)std::pow(u, mp_right - (Type)1)) * cCache;
+      const Type ustar = (mp_right * (Type)std::pow(u, mp_right - (Type)1)) * cCache;
       (*cache)[mp_left->m_nidx] += (ustar);
 
       // Modify cache for left node
@@ -474,16 +486,24 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair &getCache()) { return m_cache; }
+  V_OVERRIDE(OMPair& getCache()) { 
+    return m_cache; 
+  }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { BINARY_LEFT_RESET(); }
+  V_OVERRIDE(void reset()) { 
+    BINARY_LEFT_RESET(); 
+  }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { return "GenericPow"; }
+  V_OVERRIDE(std::string_view getType() const) { 
+    return "GenericPow"; 
+  }
 
   // Find me
-  V_OVERRIDE(bool findMe(void *v) const) { BINARY_LEFT_FIND_ME(); }
+  V_OVERRIDE(bool findMe(void* v) const) { 
+    BINARY_LEFT_FIND_ME(); 
+  }
 
   // Virtual Destructor
   V_DTR(~GenericPow()) = default;
@@ -494,31 +514,31 @@ template <typename T1, typename T2>
 using GenericPowT1 = GenericPow<T1, T2, OpType>;
 
 // Variable sum with 1 typename callables
-template <typename T> using GenericPowT2 = GenericPow<Type, T, OpType>;
+template <typename T> 
+using GenericPowT2 = GenericPow<Type, T, OpType>;
 
-template <typename T> using GenericPowT3 = GenericPow<T, Type, OpType>;
+template <typename T> 
+using GenericPowT3 = GenericPow<T, Type, OpType>;
 
 // Function for power computation
 template <typename T1, typename T2>
-constexpr const auto &pow(const IVariable<T1> &u, const IVariable<T2> &v) {
-  auto tmp = Allocate<GenericPowT1<T1, T2>>(
-      const_cast<T1 *>(static_cast<const T1 *>(&u)),
-      const_cast<T2 *>(static_cast<const T2 *>(&v)), OpObj);
+constexpr const auto& pow(const IVariable<T1>& u, const IVariable<T2>& v) {
+  auto tmp = Allocate<GenericPowT1<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&u)),
+                                            const_cast<T2*>(static_cast<const T2*>(&v)), 
+                                            OpObj);
   return *tmp;
 }
 
 // Left side is a number (power)
 template <typename T>
-constexpr const auto &pow(const Type &u, const IVariable<T> &v) {
-  auto tmp = Allocate<GenericPowT2<T>>(
-      u, const_cast<T *>(static_cast<const T *>(&v)), OpObj);
+constexpr const auto& pow(const Type& u, const IVariable<T>& v) {
+  auto tmp = Allocate<GenericPowT2<T>>(u, const_cast<T*>(static_cast<const T*>(&v)), OpObj);
   return *tmp;
 }
 
 // Right side is a number (power)
 template <typename T>
-constexpr const auto &pow(const IVariable<T> &u, const Type &v) {
-  auto tmp = Allocate<GenericPowT3<T>>(
-      const_cast<T *>(static_cast<const T *>(&u)), v, OpObj);
+constexpr const auto &pow(const IVariable<T>& u, const Type& v) {
+  auto tmp = Allocate<GenericPowT3<T>>(const_cast<T*>(static_cast<const T*>(&u)), v, OpObj);
   return *tmp;
 }

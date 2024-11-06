@@ -22,15 +22,15 @@
 #include "MemoryManager.hpp"
 #include "Matrix.hpp"
 
-size_t MemoryManager::size() { return m_del_ptr.size(); }
+size_t MemoryManager::size() { 
+  return m_del_ptr.size(); 
+}
 
-Matrix<Type> *MemoryManager::MatrixSplPool(const size_t rows, const size_t cols,
-                                           const MatrixSpl &ms) {
+Matrix<Type>* MemoryManager::MatrixSplPool(const size_t rows, const size_t cols, const MatrixSpl& ms) {
   // Function to check for free matrices
-  const auto functor = [rows, cols, ms](const auto &m) {
+  const auto functor = [rows, cols, ms](const auto& m) {
     if (nullptr != m) {
-      return ((m->getNumRows() == rows) && (m->getNumColumns() == cols) &&
-              (m->getMatType() == ms));
+      return ((m->getNumRows() == rows) && (m->getNumColumns() == cols) && (m->getMatType() == ms));
     } else {
       return false;
     }
@@ -40,22 +40,18 @@ Matrix<Type> *MemoryManager::MatrixSplPool(const size_t rows, const size_t cols,
   auto &mat_ptr = MemoryManager::m_del_mat_type_ptr;
 
   // Dispatch matrix from pool
-  if (auto it =
-          std::find_if(EXECUTION_PAR mat_ptr.begin(), mat_ptr.end(), functor);
-      it != mat_ptr.end()) {
+  if (auto it = std::find_if(EXECUTION_PAR mat_ptr.begin(), mat_ptr.end(), functor); it != mat_ptr.end()) {
     return it->get();
   } else {
     return Matrix<Type>::MatrixFactory::CreateMatrixPtr(rows, cols, ms);
   }
 }
 
-void MemoryManager::MatrixPool(const size_t rows, const size_t cols,
-                               Matrix<Type> *&result, const Type &val) {
+void MemoryManager::MatrixPool(const size_t rows, const size_t cols, Matrix<Type>*& result, const Type& val) {
   // Function to check for free matrices
-  const auto functor = [rows, cols](const auto &m) {
-    if (m != nullptr) {
-      return ((m->getNumRows() == rows) && (m->getNumColumns() == cols) &&
-              (m->getMatType() == -1) && (m->m_free == true));
+  const auto functor = [rows, cols](const auto& m) {
+    if (nullptr != m) {
+      return ((m->getNumRows() == rows) && (m->getNumColumns() == cols) && (m->getMatType() == -1) && (m->m_free == true));
     } else {
       return false;
     }
@@ -68,13 +64,10 @@ void MemoryManager::MatrixPool(const size_t rows, const size_t cols,
   if (nullptr == result) {
     result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(rows, cols, val);
     return;
-  } else if ((rows != result->getNumRows()) ||
-             (cols != result->getNumColumns()) || -1 != result->getMatType()) {
-    if (auto it =
-            std::find_if(EXECUTION_PAR mat_ptr.begin(), mat_ptr.end(), functor);
-        it != mat_ptr.end()) {
+  } else if ((rows != result->getNumRows()) || (cols != result->getNumColumns()) || -1 != result->getMatType()) {
+    if (auto it = std::find_if(EXECUTION_PAR mat_ptr.begin(), mat_ptr.end(), functor); it != mat_ptr.end()) {
       // Get underlying pointer
-      const Type *ptr = (*it)->getMatrixPtr();
+      Type *ptr = (*it)->getMatrixPtr();
 
       // Fill n free
       std::fill(EXECUTION_PAR ptr, ptr + (*it)->getNumElem(), val);

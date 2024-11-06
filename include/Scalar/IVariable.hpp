@@ -25,7 +25,8 @@
 #include "MetaVariable.hpp"
 
 // IVariable class to enforce expression templates for lazy evaluation
-template <typename T> class IVariable : public MetaVariable {
+template <typename T> 
+class IVariable : public MetaVariable {
 protected:
   // Protected constructor
   IVariable() = default;
@@ -74,26 +75,10 @@ protected:
 
 // Operations enum [Order matters!]
 enum Op : size_t {
-  ADD = 0,
-  MUL,
-  SUB,
-  DIV,
-  POW,
-  SIN,
-  COS,
-  TAN,
-  SINH,
-  COSH,
-  TANH,
-  ASIN,
-  ACOS,
-  ATAN,
-  ASINH,
-  ACOSH,
-  ATANH,
-  SQRT,
-  EXP,
-  LOG,
+  ADD = 0, MUL, SUB, DIV, POW,
+  SIN, COS, TAN, SINH, COSH,
+  TANH, ASIN, ACOS, ATAN, ASINH,
+  ACOSH, ATANH, SQRT, EXP, LOG,
   COUNT
 };
 
@@ -104,10 +89,8 @@ struct __XOXO__ {};
 
 // Numeric here indicates both arithmetic and Type
 template <typename T>
-constexpr inline static const bool is_numeric_v = (std::is_arithmetic_v<T> ||
-                                                   std::is_same_v<T, Type>);
+constexpr inline static const bool is_numeric_v = (std::is_arithmetic_v<T> || std::is_same_v<T, Type>);
 
 // Is a valid type for operator()
 template <typename T>
-constexpr inline static const bool
-    is_valid_v = (std::is_base_of_v<MetaVariable, T> || is_numeric_v<T>);
+constexpr inline static const bool is_valid_v = (std::is_base_of_v<MetaVariable, T> || is_numeric_v<T>);

@@ -59,7 +59,7 @@ public:
   }
 
   // Symbolic Differentiation
-  V_OVERRIDE(Variable *symDeval(const Variable& var)) {
+  V_OVERRIDE(Variable* symDeval(const Variable& var)) {
     // Static derivative computation
     if (auto it = this->mp_dtmp.find(var.m_nidx); it == this->mp_dtmp.end()) {
       auto tmp = Allocate<Expression>(((Type)(-1) / (sqrt((Type)(1) - (EVAL_L() * EVAL_L())))) * (DEVAL_L(var)));

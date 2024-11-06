@@ -226,7 +226,7 @@ public:
     // Reserve a buffer of Matrix expressions
     m_gh_vec.reserve(g_vec_init);
     // Emplace the expression in a generic holder
-    m_gh_vec.emplace_back(&static_cast<const Z &>(expr));
+    m_gh_vec.push_back((Matrix<Expression>*)&expr);
   }
 
   /* Copy assignment for expression evaluation */
@@ -239,7 +239,7 @@ public:
       m_gh_vec.clear();
     }
     // Emplace the expression in a generic holder
-    m_gh_vec.emplace_back(&static_cast<const Z &>(expr));
+    m_gh_vec.push_back((Matrix<Expression>*)&expr);
     return *this;
   }
 

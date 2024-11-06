@@ -29,8 +29,8 @@ template <typename T1, typename T2, typename... Callables>
 class GenericSum : public IVariable<GenericSum<T1, T2, Callables...>> {
 private:
   // Resources
-  T1 *mp_left{nullptr};
-  T2 *mp_right{nullptr};
+  T1* mp_left{nullptr};
+  T2* mp_right{nullptr};
 
   // Callables
   Tuples<Callables...> m_caller;
@@ -46,13 +46,14 @@ public:
   OMPair m_cache{};
 
   // Constructor
-  constexpr GenericSum(T1 *u, T2 *v, Callables &&...call)
-      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
-                                     std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {}
+  constexpr GenericSum(T1* u, T2* v, Callables&&... call) : mp_left{u}, 
+                                                            mp_right{v}, 
+                                                            m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                            m_nidx{this->m_idx_count++} 
+  {}
 
   // Symbolic evaluation
-  V_OVERRIDE(Variable *symEval()) {
+  V_OVERRIDE(Variable* symEval()) {
     if (nullptr == this->mp_tmp) {
       auto tmp = Allocate<Expression>((EVAL_L()) + (EVAL_R()));
       this->mp_tmp = tmp.get();
@@ -61,7 +62,7 @@ public:
   }
 
   // Symbolic Differentiation
-  V_OVERRIDE(Variable *symDeval(const Variable &var)) {
+  V_OVERRIDE(Variable* symDeval(const Variable& var)) {
     // Static derivative computation
     if (auto it = this->mp_dtmp.find(var.m_nidx); it == this->mp_dtmp.end()) {
       auto tmp = Allocate<Expression>((DEVAL_L(var)) + (DEVAL_R(var)));
@@ -79,7 +80,7 @@ public:
   }
 
   // Deval 1st in run-time for forward derivative
-  V_OVERRIDE(Type devalF(const Variable &var)) {
+  V_OVERRIDE(Type devalF(const Variable& var)) {
     // Return derivative of +: ud + vd
     const Type du = mp_left->devalF(var);
     const Type dv = mp_right->devalF(var);
@@ -87,7 +88,7 @@ public:
   }
 
   // Traverse run-time
-  V_OVERRIDE(void traverse(OMPair *cache = nullptr)) {
+  V_OVERRIDE(void traverse(OMPair* cache = nullptr)) {
     // If cache is nullptr, i.e. for the first step
     if (cache == nullptr) {
       // cache is m_cache
@@ -175,16 +176,24 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair &getCache()) { return m_cache; }
+  V_OVERRIDE(OMPair& getCache()) { 
+    return m_cache; 
+  }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { BINARY_RESET(); }
+  V_OVERRIDE(void reset()) { 
+    BINARY_RESET(); 
+  }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { return "GenericSum"; }
+  V_OVERRIDE(std::string_view getType() const) { 
+    return "GenericSum"; 
+  }
 
   // Find me
-  V_OVERRIDE(bool findMe(void *v) const) { BINARY_FIND_ME(); }
+  V_OVERRIDE(bool findMe(void* v) const) { 
+    BINARY_FIND_ME(); 
+  }
 
   // Destructor
   V_DTR(~GenericSum()) = default;
@@ -192,12 +201,11 @@ public:
 
 // Left/right side is a number
 template <typename T, typename... Callables>
-class GenericSum<Type, T, Callables...>
-    : public IVariable<GenericSum<Type, T, Callables...>> {
+class GenericSum<Type, T, Callables...> : public IVariable<GenericSum<Type, T, Callables...>> {
 private:
   // Resources
   Type mp_left{0};
-  T *mp_right{nullptr};
+  T* mp_right{nullptr};
 
   // Callables
   Tuples<Callables...> m_caller;
@@ -213,13 +221,14 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericSum(const Type &u, T *v, Callables &&...call)
-      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
-                                     std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {}
+  constexpr GenericSum(const Type& u, T* v, Callables&&... call) : mp_left{u}, 
+                                                                   mp_right{v}, 
+                                                                   m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                                   m_nidx{this->m_idx_count++} 
+  {}
 
   // Symbolic evaluation
-  V_OVERRIDE(Variable *symEval()) {
+  V_OVERRIDE(Variable* symEval()) {
     // Evaluate variable in run-time
     if (nullptr == this->mp_tmp) {
       auto tmp = Allocate<Expression>((mp_left) + (EVAL_R()));
@@ -229,7 +238,7 @@ public:
   }
 
   // Symbolic Differentiation
-  V_OVERRIDE(Variable *symDeval(const Variable &var)) {
+  V_OVERRIDE(Variable* symDeval(const Variable& var)) {
     // Static derivative computation
     if (auto it = this->mp_dtmp.find(var.m_nidx); it == this->mp_dtmp.end()) {
       auto tmp = Allocate<Expression>((DEVAL_R(var)));
@@ -246,14 +255,14 @@ public:
   }
 
   // Deval 1st in run-time for forward derivative
-  V_OVERRIDE(Type devalF(const Variable &var)) {
+  V_OVERRIDE(Type devalF(const Variable& var)) {
     // Return derivative of sum : vd
     const Type dv = mp_right->devalF(var);
     return dv;
   }
 
   // Traverse run-time
-  V_OVERRIDE(void traverse(OMPair *cache = nullptr)) {
+  V_OVERRIDE(void traverse(OMPair* cache = nullptr)) {
     // If cache is nullptr, i.e. for the first step
     if (cache == nullptr) {
       // cache is m_cache
@@ -313,16 +322,24 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair &getCache()) { return m_cache; }
+  V_OVERRIDE(OMPair &getCache()) { 
+    return m_cache; 
+  }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { BINARY_RIGHT_RESET(); }
+  V_OVERRIDE(void reset()) { 
+    BINARY_RIGHT_RESET(); 
+  }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { return "GenericSum"; }
+  V_OVERRIDE(std::string_view getType() const) { 
+    return "GenericSum"; 
+  }
 
   // Find me
-  V_OVERRIDE(bool findMe(void *v) const) { BINARY_RIGHT_FIND_ME(); }
+  V_OVERRIDE(bool findMe(void* v) const) { 
+    BINARY_RIGHT_FIND_ME(); 
+  }
 
   // Destructor
   V_DTR(~GenericSum()) = default;
@@ -333,30 +350,28 @@ template <typename T1, typename T2>
 using GenericSumT1 = GenericSum<T1, T2, OpType>;
 
 // GenericSum with 1 typename callables
-template <typename T> using GenericSumT2 = GenericSum<Type, T, OpType>;
+template <typename T> 
+using GenericSumT2 = GenericSum<Type, T, OpType>;
 
 // Function for sum computation
 template <typename T1, typename T2>
-constexpr const auto &operator+(const IVariable<T1> &u,
-                                const IVariable<T2> &v) {
-  auto tmp = Allocate<GenericSumT1<T1, T2>>(
-      const_cast<T1 *>(static_cast<const T1 *>(&u)),
-      const_cast<T2 *>(static_cast<const T2 *>(&v)), OpObj);
+constexpr const auto& operator+(const IVariable<T1>& u, const IVariable<T2>& v) {
+  auto tmp = Allocate<GenericSumT1<T1, T2>>(const_cast<T1 *>(static_cast<const T1 *>(&u)),
+                                            const_cast<T2 *>(static_cast<const T2 *>(&v)), 
+                                            OpObj);
   return *tmp;
 }
 
 // Left side is a number (sum)
 template <typename T>
-constexpr const auto &operator+(const Type &u, const IVariable<T> &v) {
-  auto tmp = Allocate<GenericSumT2<T>>(
-      u, const_cast<T *>(static_cast<const T *>(&v)), OpObj);
+constexpr const auto &operator+(const Type& u, const IVariable<T>& v) {
+  auto tmp = Allocate<GenericSumT2<T>>(u, const_cast<T*>(static_cast<const T*>(&v)), OpObj);
   return *tmp;
 }
 
 // Right side is a number (sum)
 template <typename T>
-constexpr const auto &operator+(const IVariable<T> &u, const Type &v) {
-  auto tmp = Allocate<GenericSumT2<T>>(
-      v, const_cast<T *>(static_cast<const T *>(&u)), OpObj);
+constexpr const auto &operator+(const IVariable<T>& u, const Type& v) {
+  auto tmp = Allocate<GenericSumT2<T>>(v, const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;
 }

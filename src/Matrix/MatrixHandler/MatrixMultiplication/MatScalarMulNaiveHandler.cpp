@@ -35,11 +35,11 @@ void MatScalarMulNaiveHandler::handle(Type lhs, const Matrix<Type> *rhs,
   MemoryManager::MatrixPool(nrows, ncols, result);
 
   // Get raw pointers to result, left and right matrices
-  const Type *res = result->getMatrixPtr();
+  Type *res = result->getMatrixPtr();
   const Type *right = rhs->getMatrixPtr();
 
   const size_t size{nrows * ncols};
   // For each element, perform addition
   std::transform(EXECUTION_PAR right, right + size, res,
-                 [&lhs](const Type value) { return lhs * value; });
+                 [&lhs](Type value) { return lhs * value; });
 }

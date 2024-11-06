@@ -34,7 +34,7 @@ void MatScalarAddNaiveHandler::handle(Type lhs, const Matrix<Type> *rhs,
   MemoryManager::MatrixPool(nrows, ncols, result);
 
   // Get raw pointers to result, left and right matrices
-  const Type *res = result->getMatrixPtr();
+  Type *res = result->getMatrixPtr();
   const Type *right = rhs->getMatrixPtr();
 
   const size_t size{nrows * ncols};

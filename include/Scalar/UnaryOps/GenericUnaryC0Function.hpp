@@ -182,7 +182,7 @@ public:
 
 // Function computation
 template <typename Func1, typename Func2>
-constexpr const auto &UnaryC0Function(Func1 f1, Func2 f2) {
+constexpr const auto& UnaryC0Function(Func1 f1, Func2 f2) {
   static_assert(true == std::is_invocable_v<Func1, Type>, "Eval function is not invocable");
   static_assert(true == std::is_invocable_v<Func2, Type>, "Deval function is not invocable");
   auto tmp = Allocate<GenericUnaryC0Function<Func1, Func2>>(f1, f2);
