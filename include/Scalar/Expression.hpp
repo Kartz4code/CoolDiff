@@ -27,35 +27,40 @@
 
 class Expression : public Variable {
 private:
+  // Is expression recursive?
   bool m_recursive_exp{false};
 
 public:
+  // Default constructor
   Expression();
 
-  template <typename T> constexpr Expression(const IVariable<T> &expr) {
+  template <typename T> 
+  constexpr Expression(const IVariable<T>& expr) {
     Variable::m_nidx = this->m_idx_count++;
     // Reserve a buffer of expressions
     Variable::m_gh_vec.reserve(g_vec_init);
     // Emplace the expression in a generic holder
     if constexpr (true == std::is_same_v<T, Expression>) {
-      Variable::m_gh_vec.emplace_back(&expr);
+      Variable::m_gh_vec.push_back((Expression*)(&expr));
     } else {
-      Variable::m_gh_vec.emplace_back(&(expr * (Type)(1)));
+      Variable::m_gh_vec.push_back((Expression*)(&(expr * (Type)(1))));
     }
   }
 
   // Copy assignment for expression evaluation - e.g.Variable x = x1 + x2 + x3;
-  template <typename T> Expression &operator=(const IVariable<T> &expr) {
-    if (auto rec = static_cast<const T &>(expr).findMe(this); rec == false) {
+  template <typename T> 
+  Expression& operator=(const IVariable<T>& expr) {
+    if (auto rec = static_cast<const T&>(expr).findMe(this); rec == false) {
       m_gh_vec.clear();
     } else {
       m_recursive_exp = rec;
     }
+
     // Emplace the expression in a generic holder
     if constexpr (true == std::is_same_v<T, Expression>) {
-      Variable::m_gh_vec.emplace_back(&expr);
+      Variable::m_gh_vec.push_back((Expression*)(&expr));
     } else {
-      Variable::m_gh_vec.emplace_back(&(expr * (Type)(1)));
+      Variable::m_gh_vec.push_back((Expression*)(&(expr * (Type)(1))));
     }
     return *this;
   }
@@ -64,20 +69,20 @@ public:
   bool isRecursive() const;
 
   // Symbolic differentiation of expression
-  Expression &SymDiff(const Variable &);
+  Expression& SymDiff(const Variable&);
 
   // Expression factory
   class ExpressionFactory {
   public:
-    // Create expression with value
-    static Expression &CreateExpression(const Type & = (Type)(0));
-
-    // Create new expression
-    template <typename T,
-              typename = std::enable_if_t<std::is_base_of_v<MetaVariable, T>>>
-    static Expression &CreateExpression(const T &exp) {
-      auto tmp = Allocate<Expression>(exp);
-      return *tmp;
+    template <typename T, typename = std::enable_if_t<is_valid_v<T>>>
+    constexpr inline static Expression& CreateExpression(const T& exp) {
+      if constexpr (true == is_numeric_v<T>) {
+        auto tmp = Allocate<Expression>(*Allocate<Parameter>(exp)).get();
+        return *tmp;
+      } else {
+        auto tmp = Allocate<Expression>(exp);
+        return *tmp;
+      }
     }
   };
 

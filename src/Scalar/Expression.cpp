@@ -34,17 +34,9 @@ bool Expression::isRecursive() const {
   return m_recursive_exp; 
 }
 
-Expression &Expression::SymDiff(const Variable &var) {
+Expression& Expression::SymDiff(const Variable& var) {
   auto tmp = Allocate<Expression>();
   *tmp = Variable::SymDiff(var);
-  return *tmp;
-}
-
-Expression &Expression::ExpressionFactory::CreateExpression(const Type &val) {
-  // Allocate a temporary parameter
-  auto param = Allocate<Parameter>(val);
-  // Create expression
-  auto tmp = Allocate<Expression>(*param);
   return *tmp;
 }
 

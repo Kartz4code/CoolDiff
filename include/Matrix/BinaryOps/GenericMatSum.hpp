@@ -147,7 +147,7 @@ private:
   DISABLE_MOVE(GenericMatScalarSum)
 
   // All matrices
-  inline static constexpr const size_t m_size{1};
+  inline static constexpr const size_t m_size{2};
   Matrix<Type> *mp_arr[m_size]{};
 
 public:
@@ -192,10 +192,9 @@ public:
   // Matrix devalF computation
   V_OVERRIDE(Matrix<Type> *devalF(Matrix<Variable> &X)) {
     // Right matrix derivative
-    const Matrix<Type> *dright_mat = mp_right->devalF(X);
-
+    mp_arr[1] = mp_right->devalF(X);
     // Return result pointer
-    return dright_mat;
+    return mp_arr[1];
   }
 
   // Reset visit run-time

@@ -53,21 +53,22 @@
 #include "GenericUnaryC0Function.hpp"
 
 // Main evaluate expression function
-Type EvalExp(Expression &);
+Type EvalExp(Expression&);
 
 // Main forward mode AD computation
-Type DevalFExp(Expression &, const Variable &);
+Type DevalFExp(Expression&, const Variable&);
 
 // Main reverse mode AD computation
-Type DevalRExp(Expression &, const Variable &);
+Type DevalRExp(Expression&, const Variable&);
 
 // Main precomputation of reverse mode AD computation
-void PreCompExp(Expression &);
+void PreCompExp(Expression&);
 
 // Main reverse mode AD table
-OMPair &PreCompCacheExp(const Expression &);
+OMPair& PreCompCacheExp(const Expression&);
 
-template <typename T> inline constexpr Type Eval(T &v) {
+template <typename T> 
+inline constexpr Type Eval(T& v) {
   // If T is Expression
   if constexpr (true == std::is_same_v<Expression, T>) {
     return EvalExp(v);
@@ -82,11 +83,10 @@ template <typename T> inline constexpr Type Eval(T &v) {
   }
   // If T is an expression template
   else if constexpr (true == std::is_base_of_v<MetaVariable, T>) {
-    return const_cast<std::decay_t<T> &>(v).eval();
+    return const_cast<std::decay_t<T>&>(v).eval();
   }
   // If T is Type or arithmetic
-  else if constexpr (std::is_arithmetic_v<T> == true ||
-                     std::is_same_v<T, Type> == true) {
+  else if constexpr (std::is_arithmetic_v<T> == true || std::is_same_v<T, Type> == true) {
     return (Type)(v);
   }
   // If unknown type, throw error
@@ -95,7 +95,8 @@ template <typename T> inline constexpr Type Eval(T &v) {
   }
 }
 
-template <typename T> inline constexpr Type DevalF(T &v, const Variable &var) {
+template <typename T> 
+inline constexpr Type DevalF(T& v, const Variable& var) {
   // If T is Expression
   if constexpr (true == std::is_same_v<Expression, T>) {
     return DevalFExp(v, var);
@@ -105,14 +106,12 @@ template <typename T> inline constexpr Type DevalF(T &v, const Variable &var) {
     return ((v.m_nidx == var.m_nidx) ? (Type)(1) : (Type)(0));
   }
   // If T is Parameter
-  else if constexpr (true == std::is_same_v<T, Parameter> ||
-                     true == std::is_arithmetic_v<T> ||
-                     true == std::is_same_v<T, Type>) {
+  else if constexpr (true == std::is_same_v<T, Parameter> || true == std::is_arithmetic_v<T> || true == std::is_same_v<T, Type>) {
     return (Type)(0);
   }
   // If T is an expression template
   else if constexpr (true == std::is_base_of_v<MetaVariable, T>) {
-    return const_cast<std::decay_t<T> &>(v).devalF(var);
+    return const_cast<std::decay_t<T>&>(v).devalF(var);
   }
   // If unknown type, throw error
   else {
@@ -120,9 +119,10 @@ template <typename T> inline constexpr Type DevalF(T &v, const Variable &var) {
   }
 }
 
-template <typename T> inline constexpr void PreComp(T &v) {
+template <typename T> 
+inline constexpr void PreComp(T& v) {
   // If T is Expression
-  if constexpr (std::is_same_v<T, Expression> == true) {
+  if constexpr (true == std::is_same_v<T, Expression>) {
     PreCompExp(v);
   }
   // If T is an expression template
@@ -136,7 +136,8 @@ template <typename T> inline constexpr void PreComp(T &v) {
   }
 }
 
-template <typename T> inline constexpr Type DevalR(T &v, const Variable &var) {
+template <typename T> 
+inline constexpr Type DevalR(T& v, const Variable& var) {
   // If T is Expression
   if constexpr (true == std::is_same_v<Expression, T>) {
     return DevalRExp(v, var);
@@ -146,15 +147,13 @@ template <typename T> inline constexpr Type DevalR(T &v, const Variable &var) {
     return ((v.m_nidx == var.m_nidx) ? (Type)(1) : (Type)(0));
   }
   // If T is Parameter
-  else if constexpr (true == std::is_same_v<T, Parameter> ||
-                     true == std::is_arithmetic_v<T> ||
-                     true == std::is_same_v<T, Type>) {
+  else if constexpr (true == std::is_same_v<T, Parameter> || true == std::is_arithmetic_v<T> || true == std::is_same_v<T, Type>) {
     return (Type)(0);
   }
   // If T is an expression template
   else if constexpr (true == std::is_base_of_v<MetaVariable, T>) {
     PreComp(v);
-    return const_cast<std::decay_t<T> &>(v).getCache()[var.m_nidx];
+    return const_cast<std::decay_t<T>&>(v).getCache()[var.m_nidx];
   }
   // If unknown type, throw error
   else {
@@ -162,15 +161,16 @@ template <typename T> inline constexpr Type DevalR(T &v, const Variable &var) {
   }
 }
 
-template <typename T> inline constexpr OMPair &PreCompCache(const T &v) {
+template <typename T> 
+inline constexpr OMPair& PreCompCache(const T& v) {
   if constexpr (true == std::is_same_v<Expression, T>) {
     return PreCompCacheExp(v);
   }
   // If T is an expression template
   else if constexpr (true == std::is_base_of_v<MetaVariable, T>) {
-    const_cast<std::decay_t<T> &>(v).reset();
-    const_cast<std::decay_t<T> &>(v).traverse();
-    return const_cast<std::decay_t<T> &>(v).getCache();
+    const_cast<std::decay_t<T>&>(v).reset();
+    const_cast<std::decay_t<T>&>(v).traverse();
+    return const_cast<std::decay_t<T>&>(v).getCache();
   }
   // If unknown type, throw error
   else {
@@ -179,7 +179,7 @@ template <typename T> inline constexpr OMPair &PreCompCache(const T &v) {
 }
 
 // Symbolic Expression
-Expression &SymDiff(Expression &, const Variable &);
+Expression &SymDiff(Expression&, const Variable&);
 
 // Forward mode algorithmic differentiation (Matrix)
 Matrix<Type> &DevalF(Expression &, const Matrix<Variable> &, bool = false);

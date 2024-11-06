@@ -36,7 +36,7 @@ find_package(Threads REQUIRED)
 
 # [Custom flags]
 # Build type: Debug or Release
-set(BUILD_TYPE Debug)
+set(BUILD_TYPE Release)
 
 option(BUILD_TEST "Building unit test executables" ON)
 option(BUILD_EXAMPLE "Building example executables" ON)
@@ -50,6 +50,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 # Include CMake scripts

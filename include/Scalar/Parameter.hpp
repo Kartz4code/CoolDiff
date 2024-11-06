@@ -35,29 +35,29 @@ public:
   Parameter();
 
   // Constructors for Type values
-  Parameter(const Type &);
+  Parameter(const Type&);
 
   // Copy constructor
-  Parameter(const Parameter &);
+  Parameter(const Parameter&);
 
   // Move constructor
-  Parameter(Parameter &&) noexcept;
+  Parameter(Parameter&&) noexcept;
 
   // Copy assignment
-  Parameter &operator=(const Parameter &);
+  Parameter& operator=(const Parameter&);
 
   // Move assignment
-  Parameter &operator=(Parameter &&) noexcept;
+  Parameter& operator=(Parameter&&) noexcept;
 
   // Assignment to Type
-  Parameter &operator=(const Type &);
+  Parameter& operator=(const Type&);
 
   // Deval in run-time for reverse derivative
-  Type devalR(const Variable &);
+  Type devalR(const Variable&);
 
   // Evaluate variable and its derivative value in run-time
-  V_OVERRIDE(Variable *symEval());
-  V_OVERRIDE(Variable *symDeval(const Variable &));
+  V_OVERRIDE(Variable* symEval());
+  V_OVERRIDE(Variable* symDeval(const Variable&));
 
   // Evaluate value and derivative value in run-time
   V_OVERRIDE(Type eval());
@@ -66,25 +66,25 @@ public:
   V_OVERRIDE(void reset());
 
   // Evaluate derivative in forward mode
-  V_OVERRIDE(Type devalF(const Variable &));
+  V_OVERRIDE(Type devalF(const Variable&));
 
   // Traverse tree
-  V_OVERRIDE(void traverse(OMPair * = nullptr));
+  V_OVERRIDE(void traverse(OMPair* = nullptr));
 
   // Get the map of derivatives
-  V_OVERRIDE(OMPair &getCache());
+  V_OVERRIDE(OMPair& getCache());
 
   // Get type
   V_OVERRIDE(std::string_view getType() const);
 
   // Find me
-  V_OVERRIDE(bool findMe(void *) const);
+  V_OVERRIDE(bool findMe(void*) const);
 
   // Parameter factory
   class ParameterFactory {
   public:
     // Create new parameter
-    static Parameter &CreateParameter(const Type & = (Type)(0));
+    static Parameter& CreateParameter(const Type& = (Type)(0));
   };
 
   // Destructor

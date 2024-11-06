@@ -38,6 +38,7 @@ void func14() {
   Matrix<Expression> exp = trace(A*X);
   std::cout << DevalF(exp,X) << "\n";
   
+  
 }
 
 void func13() {

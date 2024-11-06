@@ -37,8 +37,11 @@ protected:
 
   // Friend class Parameter
   friend class Parameter;
+  
   // Friend class GenericUnaryC0Function
-  template <typename Func1, typename Func2> friend class GenericUnaryC0Function;
+  template <typename Func1, typename Func2> 
+  friend class GenericUnaryC0Function;
+
   // Friend class GenericBinaryC0Function
   template <typename Func, typename FuncLHS, typename FuncRHS>
   friend class GenericBinaryC0Function;
@@ -47,10 +50,10 @@ protected:
   SharedPtr<Type> m_value_var{std::make_shared<Type>()};
 
   // Collection of meta variable expressions
-  Vector<MetaVariable *> m_gh_vec{};
+  Vector<MetaVariable*> m_gh_vec{};
 
   // Exposed to user to compute symbolic differentiation
-  Expression SymDiff(const Variable &);
+  Expression SymDiff(const Variable&);
 
 public:
   // Block index
@@ -61,47 +64,47 @@ public:
   // Constructors
   Variable();
   // Copy constructor
-  Variable(const Variable &);
+  Variable(const Variable&);
   // Move constructor
-  Variable(Variable &&) noexcept;
+  Variable(Variable&&) noexcept;
   // Copy assignment from one variable to another variable
-  Variable &operator=(const Variable &);
+  Variable& operator=(const Variable&);
   // Move assignment from one variable to another variable
-  Variable &operator=(Variable &&) noexcept;
+  Variable& operator=(Variable&&) noexcept;
 
   // Constructors for Type values
-  Variable(const Type &);
+  Variable(const Type&);
   // Assignment to Type
-  Variable &operator=(const Type &);
+  Variable& operator=(const Type&);
 
   // Reset impl
   void resetImpl();
 
   // Deval in run-time for reverse derivative
-  Type devalR(const Variable &);
+  Type devalR(const Variable&);
 
   // Getters and setters
   // Get/Set value
-  void setValue(const Type &);
+  void setValue(const Type&);
   Type getValue() const;
 
   // Get/Set dvalue
-  void setdValue(const Type &);
+  void setdValue(const Type&);
   Type getdValue() const;
 
   // Evaluate value and derivative value in run-time
   V_OVERRIDE(Type eval());
   // Evaluate 1st derivative in forward mode
-  V_OVERRIDE(Type devalF(const Variable &));
+  V_OVERRIDE(Type devalF(const Variable&));
 
   // Traverse tree
-  V_OVERRIDE(void traverse(OMPair * = nullptr));
+  V_OVERRIDE(void traverse(OMPair* = nullptr));
   // Get the map of derivatives
-  V_OVERRIDE(OMPair &getCache());
+  V_OVERRIDE(OMPair& getCache());
 
   // Evaluate variable and its derivative value in run-time
-  V_OVERRIDE(Variable *symEval());
-  V_OVERRIDE(Variable *symDeval(const Variable &));
+  V_OVERRIDE(Variable* symEval());
+  V_OVERRIDE(Variable* symDeval(const Variable&));
 
   // Reset all visited flags
   V_OVERRIDE(void reset());
@@ -110,13 +113,13 @@ public:
   V_OVERRIDE(std::string_view getType() const);
 
   // Find me
-  V_OVERRIDE(bool findMe(void *) const);
+  V_OVERRIDE(bool findMe(void*) const);
 
   // Variable factory
   class VariableFactory {
   public:
     // Create new variable
-    static Variable &CreateVariable(const Type & = (Type)(0));
+    static Variable& CreateVariable(const Type& = (Type)(0));
   };
 
   // Destructor
