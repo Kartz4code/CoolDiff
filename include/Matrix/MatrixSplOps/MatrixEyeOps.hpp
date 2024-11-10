@@ -24,41 +24,40 @@
 #include "CommonHeader.hpp"
 
 // Is the matrix identity?
-bool IsEyeMatrix(const Matrix<Type> *);
+bool IsEyeMatrix(const Matrix<Type>*);
 
 // Eye matrix addition
-const Matrix<Type> *EyeMatAdd(const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type>* EyeMatAdd(const Matrix<Type>*, const Matrix<Type>*);
 // Eye matrix scalar addition
-const Matrix<Type> *EyeMatScalarAdd(Type, const Matrix<Type> *);
+const Matrix<Type>* EyeMatScalarAdd(Type, const Matrix<Type>*);
 
 // Eye matrix subtraction
-const Matrix<Type> *EyeMatSub(const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type>* EyeMatSub(const Matrix<Type>*, const Matrix<Type>*);
 
 // Eye matrix multiplication
-const Matrix<Type> *EyeMatMul(const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type>* EyeMatMul(const Matrix<Type>*, const Matrix<Type>*);
 // Eye matrix scalar addition
-const Matrix<Type> *EyeMatScalarMul(Type, const Matrix<Type> *);
+const Matrix<Type>* EyeMatScalarMul(Type, const Matrix<Type>*);
 
 // Eye matrix Kronocker product
-const Matrix<Type> *EyeMatKron(const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type>* EyeMatKron(const Matrix<Type>*, const Matrix<Type>*);
 // Eye matrix Hadamard product
-const Matrix<Type> *EyeMatHadamard(const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type>* EyeMatHadamard(const Matrix<Type>*, const Matrix<Type>*);
 
 // Eye matrix addition numerics
-const Matrix<Type> *EyeMatAddNum(const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type>* EyeMatAddNum(const Matrix<Type>*, const Matrix<Type>*);
 // Eye matrix scalar addition
-const Matrix<Type> *EyeMatScalarAddNum(Type, const Matrix<Type> *);
+const Matrix<Type>* EyeMatScalarAddNum(Type, const Matrix<Type>*);
 
 // Eye matrix subtraction numerics
-const Matrix<Type> *EyeMatSubNum(const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type>* EyeMatSubNum(const Matrix<Type>*, const Matrix<Type>*);
 
 // Eye matrix multiplication numerics
-const Matrix<Type> *EyeMatMulNum(const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type>* EyeMatMulNum(const Matrix<Type>*, const Matrix<Type>*);
 // Zero matrix scalar multiplication numerics
-const Matrix<Type> *EyeMatScalarMulNum(Type, const Matrix<Type> *);
+const Matrix<Type>* EyeMatScalarMulNum(Type, const Matrix<Type>*);
 
 // Eye matrix Kronocker product numerics
-const Matrix<Type> *EyeMatKronNum(const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type>* EyeMatKronNum(const Matrix<Type>*, const Matrix<Type>*);
 // Eye matrix Hadamard product numerics
-const Matrix<Type> *EyeMatHadamardNum(const Matrix<Type> *,
-                                      const Matrix<Type> *);
+const Matrix<Type>* EyeMatHadamardNum(const Matrix<Type>*, const Matrix<Type>*);

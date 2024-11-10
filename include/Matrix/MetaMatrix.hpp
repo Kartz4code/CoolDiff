@@ -35,10 +35,10 @@ public:
   MetaMatrix() = default;
 
   // Evaluate run-time
-  V_PURE(Matrix<Type> *eval());
+  V_PURE(Matrix<Type>* eval());
 
   // Forward derivative
-  V_PURE(Matrix<Type> *devalF(Matrix<Variable> &));
+  V_PURE(Matrix<Type>* devalF(Matrix<Variable>&));
 
   // Get number of rows and columns
   V_PURE(size_t getNumRows() const);
@@ -56,4 +56,4 @@ public:
 };
 
 // Reset type matrix (Set the values of MatType to zero)
-void ResetZero(Matrix<Type> *);
+void ResetZero(Matrix<Type>*);

@@ -61,7 +61,7 @@ void DelPtr(T* ptr) {
 
 // Scalar allocator
 template <typename T, typename... Args>
-inline SharedPtr<T> Allocate(Args &&...args) {
+inline SharedPtr<T> Allocate(Args&&... args) {
   const size_t size = sizeof(T);
   const size_t align = 0;
 

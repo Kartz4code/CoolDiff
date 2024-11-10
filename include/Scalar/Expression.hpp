@@ -30,6 +30,13 @@ private:
   // Is expression recursive?
   bool m_recursive_exp{false};
 
+  // Friend function
+  template<typename T>
+  friend inline constexpr Expression& SymDiff(T&, const Variable&);
+
+  static Expression t0;
+  static Expression t1;
+
 public:
   // Default constructor
   Expression();

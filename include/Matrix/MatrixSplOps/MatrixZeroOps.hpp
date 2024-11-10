@@ -24,61 +24,57 @@
 #include "CommonHeader.hpp"
 
 // Is the matrix zero?
-bool IsZeroMatrix(const Matrix<Type> *);
+bool IsZeroMatrix(const Matrix<Type>*);
 
 // Zero matrix addition
-const Matrix<Type> *ZeroMatAdd(const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type>* ZeroMatAdd(const Matrix<Type>*, const Matrix<Type>*);
 // Zero matrix scalar addition
-const Matrix<Type> *ZeroMatScalarAdd(Type, const Matrix<Type> *);
+const Matrix<Type>* ZeroMatScalarAdd(Type, const Matrix<Type>*);
 
 // Zero matrix subtraction
-const Matrix<Type> *ZeroMatSub(const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type>* ZeroMatSub(const Matrix<Type>*, const Matrix<Type>*);
 
 // Zero matrix multiplication
-const Matrix<Type> *ZeroMatMul(const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type>* ZeroMatMul(const Matrix<Type>*, const Matrix<Type>*);
 // Zero matrix scalar multiplication
-const Matrix<Type> *ZeroMatScalarMul(Type, const Matrix<Type> *);
+const Matrix<Type>* ZeroMatScalarMul(Type, const Matrix<Type>*);
 
 // Zero matrix Kronocker product
-const Matrix<Type> *ZeroMatKron(const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type>* ZeroMatKron(const Matrix<Type>*, const Matrix<Type>*);
 // Zero matrix Hadamard product
-const Matrix<Type> *ZeroMatHadamard(const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type>* ZeroMatHadamard(const Matrix<Type>*, const Matrix<Type>*);
 
 // Zero matrix convolution
-const Matrix<Type> *ZeroMatConv(const size_t, const size_t,
-                                const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type>* ZeroMatConv(const size_t, const size_t,
+                                const Matrix<Type>*, const Matrix<Type>*);
 
 // Zero matrix derivative convolution
-const Matrix<Type> *ZeroMatDervConv(const size_t, const size_t,
-                                    const Matrix<Type> *, const Matrix<Type> *,
-                                    const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type>* ZeroMatDervConv(const size_t, const size_t,
+                                    const Matrix<Type>*, const Matrix<Type>*,
+                                    const Matrix<Type>*, const Matrix<Type>*);
 
 // Zero matrix addition numerics
-const Matrix<Type> *ZeroMatAddNum(const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type>* ZeroMatAddNum(const Matrix<Type>*, const Matrix<Type>*);
 // Zero matrix scalar addition numerics
-const Matrix<Type> *ZeroMatScalarAddNum(Type, const Matrix<Type> *);
+const Matrix<Type>* ZeroMatScalarAddNum(Type, const Matrix<Type>*);
 
 // Zero matrix subtraction numerics
-const Matrix<Type> *ZeroMatSubNum(const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type>* ZeroMatSubNum(const Matrix<Type>*, const Matrix<Type>*);
 
 // Zero matrix multiplication numerics
-const Matrix<Type> *ZeroMatMulNum(const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type>* ZeroMatMulNum(const Matrix<Type>*, const Matrix<Type>*);
 // Zero matrix scalar multiplication numerics
-const Matrix<Type> *ZeroMatScalarMulNum(Type, const Matrix<Type> *);
+const Matrix<Type>* ZeroMatScalarMulNum(Type, const Matrix<Type>*);
 
 // Zero matrix kronocker product numerics
-const Matrix<Type> *ZeroMatKronNum(const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type>* ZeroMatKronNum(const Matrix<Type>*, const Matrix<Type>*);
 // Zero matrix Hadamard product numerics
-const Matrix<Type> *ZeroMatHadamardNum(const Matrix<Type> *,
-                                       const Matrix<Type> *);
+const Matrix<Type>* ZeroMatHadamardNum(const Matrix<Type>*, const Matrix<Type>*);
 
 // Zero matrix convolution numerics
-const Matrix<Type> *ZeroMatConvNum(const size_t, const size_t,
-                                   const Matrix<Type> *, const Matrix<Type> *);
+const Matrix<Type>* ZeroMatConvNum(const size_t, const size_t,
+                                   const Matrix<Type>*, const Matrix<Type>*);
 
 // Zero matrix derivative convolution numerics
 const Matrix<Type> *ZeroMatDervConvNum(const size_t, const size_t,
-                                       const Matrix<Type> *,
-                                       const Matrix<Type> *,
-                                       const Matrix<Type> *,
-                                       const Matrix<Type> *);
+                                       const Matrix<Type>*, const Matrix<Type>*, const Matrix<Type>*, const Matrix<Type>*);

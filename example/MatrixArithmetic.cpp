@@ -23,6 +23,30 @@
 #include "CoolDiff.hpp"
 #include "MatOperators.hpp"
 
+void func15() {
+  Variable x{2};
+  Expression y = x*x + 2*x + 1; 
+
+  Expression yx = SymDiff(y,x);
+  Expression yxx = SymDiff(yx,x);
+  Expression z = SymDiff(x,x);
+
+
+  std::cout << Eval(y) << "\n";
+  std::cout << DevalF(y,x) << "\n";
+
+  std::cout << Eval(yx) << "\n";
+  std::cout << DevalF(yx,x) << "\n";
+
+  std::cout << Eval(yxx) << "\n";
+  std::cout << DevalF(yxx,x) << "\n";
+
+  std::cout << Eval(z) << "\n";
+  std::cout << DevalF(z,x) << "\n";
+
+
+}
+
 void func14() {
   Matrix<Type> A(3,3);
   Matrix<Variable> X(3, 3);
@@ -272,6 +296,7 @@ void func5() {
 }
 
 int main(int argc, char **argv) {
+  func15();
   func14();
   func13();
   func12();
