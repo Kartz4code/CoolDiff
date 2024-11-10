@@ -21,6 +21,9 @@
 
 #include "Expression.hpp"
 
+Expression Expression::t0{Variable::t0};
+Expression Expression::t1{Variable::t1};
+
 Expression::Expression() {
   Variable::m_nidx = this->m_idx_count++;
   // Reserve a buffer of expressions

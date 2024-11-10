@@ -28,7 +28,7 @@ template <typename T, typename... Callables>
 class GenericMatSigma : public IMatrix<GenericMatSigma<T, Callables...>> {
 private:
   // Resources
-  T *mp_right{nullptr};
+  T* mp_right{nullptr};
 
   // Callables
   Tuples<Callables...> m_caller;
@@ -46,7 +46,7 @@ public:
   const size_t m_nidx{};
 
   // Constructor
-  constexpr GenericMatSigma(T *u, Callables &&...call) : mp_right{u}, 
+  constexpr GenericMatSigma(T* u, Callables&&... call) : mp_right{u}, 
                                                          m_caller{std::make_tuple(std::forward<Callables>(call)...)},
                                                          m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
@@ -63,17 +63,18 @@ public:
   }
 
   // Find me
-  bool findMe(void *v) const { 
+  bool findMe(void* v) const { 
     BINARY_RIGHT_FIND_ME(); 
   }
 
   // Matrix eval computation
-  V_OVERRIDE(Matrix<Type> *eval()) {
+  V_OVERRIDE(Matrix<Type>* eval()) {
     // Get raw pointers to result and right matrices
-    const Matrix<Type> *right_mat = mp_right->eval();
+    const Matrix<Type>* right_mat = mp_right->eval();
     const size_t rows = mp_right->getNumRows();
     const size_t cols = mp_right->getNumColumns();
 
+    // Sum of all matrix elements as matrix operation - e_r'*A*e_c, e_{r,c} being a one vector of r,c rows and columns
     MATRIX_MUL(Ones(1, rows), right_mat, mp_arr[2]);
     MATRIX_MUL(mp_arr[2], Ones(cols, 1), mp_arr[0]);
 
@@ -82,7 +83,7 @@ public:
   }
 
   // Matrix devalF computation
-  V_OVERRIDE(Matrix<Type> *devalF(Matrix<Variable> &X)) {
+  V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable>& X)) {
     // Rows and columns of function and variable
     const size_t nrows_x = X.getNumRows();
     const size_t ncols_x = X.getNumColumns();
@@ -90,8 +91,9 @@ public:
     const size_t ncols_f = mp_right->getNumColumns();
 
     // Right matrix derivative
-    const Matrix<Type> *drhs = mp_right->devalF(X);
+    const Matrix<Type>* drhs = mp_right->devalF(X);
 
+    // Derivative of sigma function as a matrix operation 
     MATRIX_KRON(Ones(1, nrows_f), Eye(nrows_x), mp_arr[3]);
     MATRIX_KRON(Ones(ncols_f, 1), Eye(ncols_x), mp_arr[4]);
     MATRIX_MUL(mp_arr[3], drhs, mp_arr[5]);
@@ -121,7 +123,7 @@ using GenericMatSigmaT = GenericMatSigma<T, OpMatType>;
 
 // Function for sigma computation
 template <typename T> 
-constexpr const auto &sigma(const IMatrix<T> &u) {
+constexpr const auto& sigma(const IMatrix<T>& u) {
   auto tmp = Allocate<GenericMatSigmaT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpMatObj);
   return *tmp;
 }

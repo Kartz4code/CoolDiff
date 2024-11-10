@@ -63,7 +63,7 @@ OMPair& PreCompCacheExp(Expression& exp) {
 }
 
 // Symbolic Expression
-Expression& SymDiff(Expression& exp, const Variable& var) {
+Expression& SymDiffExp(Expression& exp, const Variable& var) {
   // Reset graph/tree
   return exp.SymDiff(var);
 }

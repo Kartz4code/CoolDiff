@@ -67,6 +67,9 @@ void PreCompExp(Expression&);
 // Main reverse mode AD table
 OMPair& PreCompCacheExp(const Expression&);
 
+// Symbolic Expression
+Expression& SymDiffExp(Expression&, const Variable&);
+
 template <typename T> 
 inline constexpr Type Eval(T& v) {
   // If T is Expression
@@ -85,8 +88,8 @@ inline constexpr Type Eval(T& v) {
   else if constexpr (true == std::is_base_of_v<MetaVariable, T>) {
     return const_cast<std::decay_t<T>&>(v).eval();
   }
-  // If T is Type or arithmetic
-  else if constexpr (std::is_arithmetic_v<T> == true || std::is_same_v<T, Type> == true) {
+  // If T is Numeric type
+  else if constexpr (true == is_numeric_v<T>) {
     return (Type)(v);
   }
   // If unknown type, throw error
@@ -105,8 +108,8 @@ inline constexpr Type DevalF(T& v, const Variable& var) {
   else if constexpr (true == std::is_same_v<T, Variable>) {
     return ((v.m_nidx == var.m_nidx) ? (Type)(1) : (Type)(0));
   }
-  // If T is Parameter
-  else if constexpr (true == std::is_same_v<T, Parameter> || true == std::is_arithmetic_v<T> || true == std::is_same_v<T, Type>) {
+  // If T is Parameter or Numeric type
+  else if constexpr (true == std::is_same_v<T, Parameter> || true == is_numeric_v<T>) {
     return (Type)(0);
   }
   // If T is an expression template
@@ -146,8 +149,8 @@ inline constexpr Type DevalR(T& v, const Variable& var) {
   else if constexpr (true == std::is_same_v<T, Variable>) {
     return ((v.m_nidx == var.m_nidx) ? (Type)(1) : (Type)(0));
   }
-  // If T is Parameter
-  else if constexpr (true == std::is_same_v<T, Parameter> || true == std::is_arithmetic_v<T> || true == std::is_same_v<T, Type>) {
+  // If T is Parameter or Numeric type
+  else if constexpr (true == std::is_same_v<T, Parameter> || true == is_numeric_v<T>) {
     return (Type)(0);
   }
   // If T is an expression template
@@ -178,8 +181,30 @@ inline constexpr OMPair& PreCompCache(const T& v) {
   }
 }
 
-// Symbolic Expression
-Expression &SymDiff(Expression&, const Variable&);
+template<typename T>
+inline constexpr Expression& SymDiff(T& v, const Variable& var) {
+  // If T is Expression
+  if constexpr (true == std::is_same_v<Expression, T>) {
+    return SymDiffExp(v, var);
+  } 
+  // If T is Variable
+  else if constexpr (true == std::is_same_v<T, Variable>) {
+    return ((v.m_nidx == var.m_nidx) ? Expression::t1 : Expression::t0);
+  }
+  // If T is Parameter or Numeric type
+  else if constexpr (true == std::is_same_v<T, Parameter> || true == is_numeric_v<T>) {
+    return Expression::t0;
+  }
+  // If T is an expression template
+  else if constexpr (true == std::is_base_of_v<MetaVariable, T>) {
+    return const_cast<std::decay_t<T>&>(v).symDeval(var);
+  }
+  // If unknown type, throw error
+  else {
+    ASSERT(false, "Unknown type");
+  }
+}
+
 
 // Forward mode algorithmic differentiation (Matrix)
 Matrix<Type> &DevalF(Expression &, const Matrix<Variable> &, bool = false);
