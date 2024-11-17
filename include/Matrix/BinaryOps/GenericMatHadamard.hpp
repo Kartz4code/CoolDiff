@@ -26,8 +26,7 @@
 
 // Left/right side is a Matrix
 template <typename T1, typename T2, typename... Callables>
-class GenericMatHadamard
-    : public IMatrix<GenericMatHadamard<T1, T2, Callables...>> {
+class GenericMatHadamard : public IMatrix<GenericMatHadamard<T1, T2, Callables...>> {
 private:
   // Resources
   T1 *mp_left{nullptr};

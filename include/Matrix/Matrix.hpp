@@ -435,15 +435,17 @@ public:
 
     // TODO Special matrix embedding
     if (result->getMatType() == MatrixSpl::ZEROS) {
-      std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(), [this, &col_start, &row_start, &inner_idx, result](const size_t i) {
-            std::for_each(EXECUTION_PAR inner_idx.begin(), inner_idx.end(), [i, this, &col_start, &row_start, &inner_idx, result](const size_t j) { 
-              (*this)(i, j) = (Type)(0); 
-             });
-      });
+      if constexpr(std::is_same_v<T, Type>) {
+        std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(), [this, &col_start, &row_start, &inner_idx, result](const size_t i) {
+              std::for_each(EXECUTION_PAR inner_idx.begin(), inner_idx.end(), [i, this, &col_start, &row_start, &inner_idx, result](const size_t j) { 
+                (*this)(i, j) = (Type)(0); 
+                });
+        });
+      }
     } else {
       std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(), [this, &col_start, &row_start, &inner_idx, result](const size_t i) {
             std::for_each(EXECUTION_PAR inner_idx.begin(), inner_idx.end(), [i, this, &col_start, &row_start, &inner_idx, result](const size_t j) {
-                            (*this)(i, j) = (*result)(i - row_start, j - col_start);
+                (*this)(i, j) = (*result)(i - row_start, j - col_start);
             });
       });
     }
@@ -573,7 +575,7 @@ public:
 
   // Find me
   bool findMe(void* v) const {
-    if (static_cast<const void *>(this) == v) {
+    if (static_cast<const void*>(this) == v) {
       return true;
     } else {
       return false;

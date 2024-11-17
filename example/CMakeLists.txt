@@ -33,13 +33,8 @@ if(${BUILD_EXAMPLE})
     # Set compile options
     target_compile_options(Gaussian PRIVATE -fpermissive)
     if(${BUILD_TYPE} STREQUAL Debug)
-        target_compile_options(Gaussian PRIVATE -fno-omit-frame-pointer
-                                                -fsanitize=address)
-        target_link_options(
-            Gaussian
-            PRIVATE
-            -fno-omit-frame-pointer
-            -fsanitize=address)
+        target_compile_options(Gaussian PRIVATE -fno-omit-frame-pointer -fsanitize=address)
+        target_link_options(Gaussian PRIVATE -fno-omit-frame-pointer -fsanitize=address)
     endif()
     target_link_libraries(Gaussian PRIVATE CoolDiff)
 
@@ -48,20 +43,31 @@ if(${BUILD_EXAMPLE})
     ]]
 
     # Add executable (target testing)
-    add_executable(MatrixArithmetic
-                   ${CMAKE_SOURCE_DIR}/example/MatrixArithmetic.cpp)
+    add_executable(MatrixArithmetic ${CMAKE_SOURCE_DIR}/example/MatrixArithmetic.cpp)
     # Set target include directories
     target_include_directories(MatrixArithmetic PUBLIC ${INCLUDES})
     # Set compile options
     target_compile_options(MatrixArithmetic PRIVATE -fpermissive)
     if(${BUILD_TYPE} STREQUAL Debug)
-        target_compile_options(MatrixArithmetic PRIVATE -fno-omit-frame-pointer
-                                                        -fsanitize=address)
-        target_link_options(
-            MatrixArithmetic
-            PRIVATE
-            -fno-omit-frame-pointer
-            -fsanitize=address)
+        target_compile_options(MatrixArithmetic PRIVATE -fno-omit-frame-pointer -fsanitize=address)
+        target_link_options( MatrixArithmetic PRIVATE -fno-omit-frame-pointer -fsanitize=address)
     endif()
     target_link_libraries(MatrixArithmetic PRIVATE CoolDiff)
+
+
+    #[[
+        GaussNewton example
+    ]]
+
+    # Add executable (target testing)
+    add_executable(GaussNewton ${CMAKE_SOURCE_DIR}/example/GaussNewton.cpp)
+    # Set target include directories
+    target_include_directories(GaussNewton PUBLIC ${INCLUDES})
+    # Set compile options
+    target_compile_options(GaussNewton PRIVATE -fpermissive)
+    if(${BUILD_TYPE} STREQUAL Debug)
+        target_compile_options(GaussNewton PRIVATE -fno-omit-frame-pointer -fsanitize=address)
+        target_link_options(GaussNewton PRIVATE -fno-omit-frame-pointer -fsanitize=address)
+    endif()
+    target_link_libraries(GaussNewton PRIVATE CoolDiff)
 endif()

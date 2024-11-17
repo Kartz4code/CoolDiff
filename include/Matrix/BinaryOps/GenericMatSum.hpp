@@ -22,6 +22,7 @@
 #pragma once
 
 #include "Matrix.hpp"
+#include "MatrixHelper.hpp"
 
 // Left/right side is a Matrix
 template <typename T1, typename T2, typename... Callables>
@@ -216,8 +217,8 @@ template <typename T1, typename T2, typename... Callables>
 class GenericMatScalarSumExp : public IMatrix<GenericMatScalarSumExp<T1, T2, Callables...>> {
 private:
   // Resources
-  Expression m_left;
-  T2 *mp_right{nullptr};
+  T1* mp_left{nullptr};
+  T2* mp_right{nullptr};
 
   // Callables
   Tuples<Callables...> m_caller;
@@ -228,14 +229,14 @@ private:
 
   // All matrices
   inline static constexpr const size_t m_size{4};
-  Matrix<Type> *mp_arr[m_size]{};
+  Matrix<Type>* mp_arr[m_size]{};
 
 public:
   // Block index
   const size_t m_nidx{};
 
   // Constructor
-  constexpr GenericMatScalarSumExp(T1 *u, T2 *v, Callables &&...call) : m_left{*u}, 
+  constexpr GenericMatScalarSumExp(T1* u, T2* v, Callables&&... call) : mp_left{u}, 
                                                                         mp_right{v}, 
                                                                         m_caller{std::make_tuple(std::forward<Callables>(call)...)},
                                                                         m_nidx{this->m_idx_count++} {
@@ -253,15 +254,15 @@ public:
   }
 
   // Find me
-  bool findMe(void *v) const { 
+  bool findMe(void* v) const { 
     BINARY_RIGHT_FIND_ME(); 
   }
 
   // Matrix eval computation
-  V_OVERRIDE(Matrix<Type> *eval()) {
+  V_OVERRIDE(Matrix<Type>* eval()) {
     // Get raw pointers to result and right matrices
-    const Matrix<Type> *rhs = mp_right->eval();
-    const Type val = Eval(m_left);
+    const Matrix<Type>* rhs = mp_right->eval();
+    const Type val = Eval((*mp_left));
 
     // Matrix-Scalar addition computation (Policy design)
     MATRIX_SCALAR_ADD(val, rhs, mp_arr[0]);
@@ -271,9 +272,9 @@ public:
   }
 
   // Matrix devalF computation
-  V_OVERRIDE(Matrix<Type> *devalF(Matrix<Variable> &X)) {
+  V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable>& X)) {
     // Right matrix derivative
-    const Matrix<Type> *drhs = mp_right->devalF(X);
+    const Matrix<Type>* drhs = mp_right->devalF(X);
 
     const size_t nrows_x = X.getNumRows();
     const size_t ncols_x = X.getNumColumns();
@@ -281,7 +282,7 @@ public:
     const size_t ncols_f = getNumColumns();
 
     // Derivative of expression w.r.t to variable matrix (Reverse mode)
-    DevalR(m_left, X, mp_arr[2]);
+    DevalR((*mp_left), X, mp_arr[2]);
 
     // Kronecker product with ones and add with right derivatives
     MATRIX_KRON(Ones(nrows_f, ncols_f), mp_arr[2], mp_arr[3]);
