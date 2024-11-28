@@ -24,13 +24,13 @@
 
 // Reset temporaries
 void MetaVariable::resetTemp() {
-  if (this->mp_tmp != nullptr) {
+  if (nullptr != this->mp_tmp) {
     this->mp_tmp->reset();
   }
 
   std::for_each(EXECUTION_SEQ this->mp_dtmp.begin(), this->mp_dtmp.end(),
-                [](auto &item) {
-                  if (auto *v = item.second; v != nullptr) {
+                [](auto& item) {
+                  if (auto* v = item.second; nullptr != v) {
                     v->reset();
                   }
                 });

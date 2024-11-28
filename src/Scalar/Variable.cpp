@@ -118,8 +118,8 @@ Type Variable::getdValue() const {
 void Variable::resetImpl() {
   this->m_visited = true;
   // Reset states
-  std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(), [](auto *item) {
-    if (item != nullptr) {
+  std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(), [](auto* item) {
+    if (nullptr != item) {
       item->reset();
     }
   });
@@ -158,7 +158,7 @@ Type Variable::devalF(const Variable& var) {
     this->m_visited = true;
     // Loop on internal equations
     std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(),
-                  [this, &var](auto *i) {
+                  [this, &var](auto* i) {
                     if (nullptr != i) {
                       setdValue(i->devalF(var));
                       setValue(i->eval());
@@ -198,7 +198,7 @@ Variable* Variable::symDeval(const Variable& var) {
     this->m_visited = true;
     // Loop on internal equations
     std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(),
-                  [this, &var](auto *item) {
+                  [this, &var](auto* item) {
                     if (nullptr != item) {
                       mp_dtmp[m_nidx] = item->symDeval(var);
                       mp_tmp = item->symEval();

@@ -34,8 +34,7 @@ void MatSubNaiveHandler::handle(const Matrix<Type> *lhs,
   const size_t rrows{rhs->getNumRows()};
 
   // Assert dimensions
-  ASSERT((nrows == rrows) && (ncols == lcols),
-         "Matrix subtraction dimensions mismatch");
+  ASSERT((nrows == rrows) && (ncols == lcols), "Matrix subtraction dimensions mismatch");
 
   // Pool matrix
   MemoryManager::MatrixPool(nrows, ncols, result);

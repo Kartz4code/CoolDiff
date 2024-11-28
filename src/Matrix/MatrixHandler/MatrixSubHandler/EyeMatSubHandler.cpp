@@ -78,8 +78,7 @@ void EyeMatSubHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
   const size_t rrows{rhs->getNumRows()};
 
   // Assert dimensions
-  ASSERT((nrows == rrows) && (ncols == lcols),
-         "Matrix subtraction dimensions mismatch");
+  ASSERT((nrows == rrows) && (ncols == lcols), "Matrix subtraction dimensions mismatch");
 
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */

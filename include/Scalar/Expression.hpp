@@ -34,10 +34,11 @@ private:
   template<typename T>
   friend inline constexpr Expression& SymDiff(T&, const Variable&);
 
+public:
+
   static Expression t0;
   static Expression t1;
 
-public:
   // Default constructor
   Expression();
 

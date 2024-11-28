@@ -87,11 +87,13 @@ public:
 
   // Symbolic evaluation
   V_OVERRIDE(Variable* symEval()) { 
+    ASSERT(false, "Invalid symbolic evaluation operation for GenericBinaryC0Function");
     return &Variable::t0; 
   }
 
   // Symbolic Differentiation
   V_OVERRIDE(Variable* symDeval(const Variable& var)) { 
+    ASSERT(false, "Invalid symbolic derivative operation for GenericBinaryC0Function");
     return &Variable::t0; 
   }
 

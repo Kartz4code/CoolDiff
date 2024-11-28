@@ -37,7 +37,7 @@ Matrix<Type>* MemoryManager::MatrixSplPool(const size_t rows, const size_t cols,
   };
 
   // Matrix<Type> database
-  auto &mat_ptr = MemoryManager::m_del_mat_type_ptr;
+  auto& mat_ptr = MemoryManager::m_del_mat_type_ptr;
 
   // Dispatch matrix from pool
   if (auto it = std::find_if(EXECUTION_PAR mat_ptr.begin(), mat_ptr.end(), functor); it != mat_ptr.end()) {

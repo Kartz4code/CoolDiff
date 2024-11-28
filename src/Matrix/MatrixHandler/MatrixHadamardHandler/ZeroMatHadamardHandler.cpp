@@ -34,8 +34,7 @@ void ZeroMatHadamardHandler::handle(const Matrix<Type> *lhs,
   const size_t rrows{rhs->getNumRows()};
 
   // Assert dimensions
-  ASSERT((nrows == rrows) && (ncols == lcols),
-         "Matrix Hadamard product dimensions mismatch");
+  ASSERT((nrows == rrows) && (ncols == lcols), "Matrix Hadamard product dimensions mismatch");
 
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */

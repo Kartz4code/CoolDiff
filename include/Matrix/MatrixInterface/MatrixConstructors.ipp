@@ -1,0 +1,148 @@
+ #pragma once
+
+/**
+ * @file include/Matrix/MatrixInterface/MatrixConstructors.ipp
+ *
+ * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ */
+/*
+ * This file is part of CoolDiff library.
+ *
+ * You can redistribute it and/or modify it under the terms of the GNU
+ * General Public License version 3 as published by the Free Software
+ * Foundation.
+ *
+ * Licensees holding a valid commercial license may use this software
+ * in accordance with the commercial license agreement provided in
+ * conjunction with the software.  The terms and conditions of any such
+ * commercial license agreement shall govern, supersede, and render
+ * ineffective any application of the GPLv3 license to this software,
+ * notwithstanding of any reference thereto in the software or
+ * associated repository.
+ */
+
+#include "Matrix.hpp"
+ 
+// Special matrix constructor (Privatized, only for internal factory view)
+template<typename T>
+constexpr Matrix<T>::Matrix(const size_t rows, const size_t cols, const MatrixSpl& type) : m_rows{rows}, 
+                                                                                           m_cols{cols},
+                                                                                           m_type{type} {
+  // Assert for strictly non-negative values for rows and columns
+  ASSERT(rows > 0 && cols > 0, "Row/Column size is not strictly non-negative");                                                                                  
+}
+
+// Default constructor - Zero arguments
+template<typename T>
+constexpr Matrix<T>::Matrix() : m_rows{1}, 
+                                m_cols{1}, 
+                                m_type{(size_t)(-1)}, 
+                                mp_mat{new T[1]{}},
+                                mp_result{nullptr}, 
+                                mp_dresult{nullptr}, 
+                                m_eval{false}, 
+                                m_devalf{false},
+                                m_nidx{this->m_idx_count++} 
+{}
+
+
+// Constructor with rows and columns
+template<typename T>
+constexpr Matrix<T>::Matrix(const size_t rows, const size_t cols) : m_rows{rows}, 
+                                                                    m_cols{cols}, 
+                                                                    m_type{(size_t)(-1)},
+                                                                    mp_result{nullptr}, 
+                                                                    mp_dresult{nullptr},
+                                                                    m_eval{false}, 
+                                                                    m_devalf{false}, 
+                                                                    m_nidx{this->m_idx_count++} {
+  // Assert for strictly non-negative values for rows and columns
+  ASSERT(rows > 0 && cols > 0, "Row/Column size is not strictly non-negative");  
+  mp_mat = new T[getNumElem()]{};                                                      
+}
+
+// Constructor with rows and columns with initial values
+template<typename T>
+constexpr Matrix<T>::Matrix(const size_t rows, const size_t cols, const T& val) : Matrix(rows, cols) {
+  std::fill(EXECUTION_PAR mp_mat, mp_mat + getNumElem(), val);
+}
+
+// Copy constructor
+template<typename T>
+constexpr Matrix<T>::Matrix(const Matrix& m) : m_rows{m.m_rows}, 
+                                               m_cols{m.m_cols}, 
+                                               m_type{m.m_type},
+                                               m_eval{m.m_eval}, 
+                                               m_devalf{m.m_devalf},
+                                               m_cache{m.m_cache}, 
+                                               m_nidx{m.m_nidx} {
+  // If T is an Expression type
+  if constexpr(false == std::is_same_v<T,Expression>) {
+    if(nullptr != m.mp_mat) {
+      // Copy values
+      mp_mat = new T[getNumElem()]{};
+      std::copy(EXECUTION_PAR m.mp_mat, m.mp_mat + getNumElem(), mp_mat);
+    }
+  } else {
+      // Pushback the expression in a generic holder
+      m_gh_vec.push_back((Matrix<Expression>*)&m);
+  }
+}
+
+// Copy assignment operator
+template<typename T>
+Matrix<T>& Matrix<T>::operator=(const Matrix& m) {
+  if (&m != this) {
+    // Assign resources
+    m_rows = m.m_rows;
+    m_cols = m.m_cols;
+    m_type = m.m_type;
+    m_eval = m.m_eval;
+    m_devalf = m.m_devalf;
+    m_cache = m.m_cache;
+    m_nidx = m.m_nidx;
+
+    // Reset mp_mat
+    if (nullptr != mp_mat) {
+      delete[] mp_mat;
+      mp_mat = nullptr;
+    }
+
+    // Reset mp_result
+    if (nullptr != mp_result) {
+      delete[] mp_result;
+      mp_result = nullptr;
+    }
+
+    // Reset mp_dresult
+    if (nullptr != mp_dresult) {
+      delete[] mp_dresult;
+      mp_dresult = nullptr;
+    }
+
+    // If T is an Expression type
+    if constexpr(false == std::is_same_v<T,Expression>) {
+      if(nullptr != m.mp_mat) {
+        // Copy values
+        mp_mat = new T[getNumElem()]{};
+        std::copy(EXECUTION_PAR m.mp_mat, m.mp_mat + getNumElem(), mp_mat);
+      }
+    } else {
+        // Pushback the expression in a generic holder
+        m_gh_vec.push_back((Matrix<Expression>*)&m);
+    }
+  }
+
+  // Return this reference
+  return *this;
+}
+
+// Destructor
+template<typename T>
+Matrix<T>::~Matrix() {
+  // If mp_mat is not nullptr, delete it
+  if (nullptr != mp_mat) {
+    delete[] mp_mat;
+    mp_mat = nullptr;
+  }
+}

@@ -169,6 +169,7 @@ set(INCLUDES
     ${CMAKE_SOURCE_DIR}/include/Scalar/UnaryOps
     ${CMAKE_SOURCE_DIR}/include/Scalar
     ${CMAKE_SOURCE_DIR}/include/Matrix
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixInterface
     ${CMAKE_SOURCE_DIR}/include/Matrix/BinaryOps
     ${CMAKE_SOURCE_DIR}/include/Matrix/UnaryOps
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler
