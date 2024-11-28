@@ -294,40 +294,7 @@ void func5() {
   std::cout << DevalF(M, m1) << "\n";
 }
 
-void func16() {
-  const size_t N{5};
-  Type* X = new Type[N]; 
-  Type* Y = new Type[N];
-
-  for(size_t i{}; i < N; ++i) {
-    X[i] = i;
-    Y[i] = 2*X[i]*X[i] + X[i] + 1;
-  }
-  
-  Parameter y, x;
-  Variable beta1{0}, beta2{0}, beta3{0}; 
-
-  Expression L = pow(y - (beta1*x*x + beta2*x + beta3), 2);
-  Oracle oracle{L,{beta1,beta2,beta3}};
-
-  Matrix<Type> M(3,N);
-  
-  for(size_t i{}; i < N; ++i) {
-    y = Y[i]; x = X[i];
-    M.setBlockMat({0,2},{i,i}, &oracle.jacobian());  
-  }
-
-  std::cout << Eval(M) << "\n";
-  beta1 = 4; beta2 = 5; beta3 = 6;
-
-  for(size_t i{}; i < N; ++i) {
-    y = Y[i]; x = X[i];
-    M.setBlockMat({0,2},{i,i}, &oracle.jacobian());  
-  }
-
-  std::cout << Eval(M) << "\n";
-
-}
+void func16() {}
 
 int main(int argc, char **argv) {
   func16();

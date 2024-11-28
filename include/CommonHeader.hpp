@@ -238,29 +238,50 @@ std::string ToString(const T& value) {
 
 // Null pointer check
 #define NULL_CHECK(PTR, MSG)                                                   \
-  [ptr = PTR, msg = MSG]() {                                                   \
-    if (nullptr == ptr) {                                                      \
-      std::ostringstream oss;                                                  \
-      oss << "[ERROR MSG]: " << msg << "\n"                                    \
-          << "[FILENAME]: " << __FILE__ << "\n"                                \
-          << "[LINE NO]: " << __LINE__ << "\n";                                \
-      std::cout << oss.str() << "\n";                                          \
-      assert(false);                                                           \
-    }                                                                          \
-  }();
+{                                                                              \
+  if (nullptr == PTR) {                                                        \
+    std::ostringstream oss;                                                    \
+    oss << "[ERROR MSG]: " << MSG << "\n"                                      \
+        << "[FILENAME]: " << __FILE__ << "\n"                                  \
+        << "[FUNCTION]: " << __FUNCTION__ << "\n"                              \
+        << "[LINE NO]: " << __LINE__ << "\n";                                  \
+    std::cout << oss.str() << "\n";                                            \
+    assert(false);                                                             \
+  }                                                                            \
+}
 
 // Check boolean
 #define ASSERT(X, MSG)                                                         \
-  [x = X, msg = MSG]() {                                                       \
-    if (false == x) {                                                          \
-      std::ostringstream oss;                                                  \
-      oss << "[ERROR MSG]: " << msg << "\n"                                    \
-          << "[FILENAME]: " << __FILE__ << "\n"                                \
-          << "[LINE NO]: " << __LINE__ << "\n";                                \
-      std::cout << oss.str() << "\n";                                          \
-      assert(false);                                                           \
-    }                                                                          \
-  }();
+{                                                                              \
+  if (false == (X)) {                                                          \
+    std::ostringstream oss;                                                    \
+    oss << "[ERROR MSG]: " << MSG << "\n"                                      \
+        << "[FILENAME]: " << __FILE__ << "\n"                                  \
+        << "[FUNCTION]: " << __FUNCTION__ << "\n"                              \
+        << "[LINE NO]: " << __LINE__ << "\n";                                  \
+    std::cout << oss.str() << "\n";                                            \
+    assert(false);                                                             \
+  }                                                                            \
+}
+
+#define TIME_IT(CODE, UNIT)                                                                 \
+{                                                                                           \
+  auto start = std::chrono::high_resolution_clock::now();                                   \
+  CODE;                                                                                     \
+  auto stop = std::chrono::high_resolution_clock::now();                                    \
+  auto duration = std::chrono::duration_cast<std::chrono::UNIT>(stop - start);              \
+  std::ostringstream oss;                                                                   \
+  oss << "[COMPUTATION TIME]: " << duration.count() << " " << #UNIT << "\n"                 \
+      << "[FILENAME]: " << __FILE__ << "\n"                                                 \
+      << "[FUNCTION]: " << __FUNCTION__ << "\n"                                             \
+      << "[LINE NO]: " << __LINE__ << "\n";                                                 \
+  std::cout << oss.str() << "\n";                                                           \
+}
+
+
+#define TIME_IT_US(CODE) TIME_IT(CODE, microseconds)
+#define TIME_MS(CODE) TIME_IT(CODE, milliseconds)                                                
+#define TIME_S(CODE) TIME_IT(CODE, seconds)
 
 // Range values from start to end
 template <typename T> 

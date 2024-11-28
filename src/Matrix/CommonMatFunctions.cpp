@@ -22,11 +22,11 @@
 #include "CommonMatFunctions.hpp"
 #include "Matrix.hpp"
 
-Type Oracle::eval() const {
+Type OracleScalar::eval() {
     return Eval(m_exp);
 }
 
-Matrix<Type>& Oracle::hessian() {
+Matrix<Type>& OracleScalar::hessian() {
     if(nullptr == m_hessian) {
         m_hessian = Matrix<Type>::MatrixFactory::CreateMatrixPtr(m_dim, m_dim);
         symJacob(m_exp);
@@ -47,7 +47,7 @@ Matrix<Type>& Oracle::hessian() {
     return *m_hessian;
 }
 
-Matrix<Type>& Oracle::jacobian() {
+Matrix<Type>& OracleScalar::jacobian() {
     if(nullptr == m_jacobian) {
         m_jacobian = Matrix<Type>::MatrixFactory::CreateMatrixPtr(m_dim, 1);
     }
@@ -58,4 +58,23 @@ Matrix<Type>& Oracle::jacobian() {
                                  [this](const auto &v) { return DevalR(m_exp, v); });
 
     return *m_jacobian;
+}
+
+// Get variables
+const Vector<Variable>& OracleScalar::getVariables() const {
+    return m_vec;
+  }
+
+// Get variable size
+const size_t OracleScalar::getVariableSize() const {
+    return m_dim;
+}
+
+// Oracle functions
+Matrix<Type>& OracleMatrix::eval() {
+    return Eval(m_exp);
+}
+
+Matrix<Type>& OracleMatrix::jacobian() {
+    return DevalF(m_exp, m_X);
 }

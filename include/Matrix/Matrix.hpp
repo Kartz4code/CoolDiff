@@ -36,7 +36,7 @@ public:
   public:
     // Create matrix as reference
     template <typename... Args> 
-    static Matrix<T> &CreateMatrix(Args&&... args) {
+    static Matrix<T>& CreateMatrix(Args&&... args) {
       auto tmp = Allocate<Matrix<T>>(std::forward<Args>(args)...);
       return *tmp;
     }
@@ -61,12 +61,8 @@ private:
   template <typename Z> 
   friend class Matrix;
 
-  // Special matrix constructor (Privatized)
-  constexpr Matrix(const size_t rows, const size_t cols, const MatrixSpl& type) : m_rows{rows}, 
-                                                                                  m_cols{cols},
-                                                                                  m_type{type} {
-    ASSERT(rows > 0 && cols > 0, "Row/Column size is not strictly non-negative");                                                                                  
-  }
+  // Special matrix constructor (Privatized, only for internal factory view)
+  constexpr Matrix(const size_t, const size_t, const MatrixSpl&);
 
   // Matrix row and column size
   size_t m_rows{0};
@@ -94,102 +90,9 @@ private:
   Matrix<Type>* mp_dresult{nullptr};
 
   // Set values for the result matrix
-  inline void setEval() {
-    // Set result matrix
-    if ((nullptr != mp_mat) && 
-        (nullptr != mp_result) &&
-        (nullptr != mp_result->mp_mat)) {
-      std::transform(EXECUTION_SEQ mp_mat, mp_mat + getNumElem(), mp_result->mp_mat, [this](auto& v) { return Eval(v); });
-    }
-  }
-
-  // Set value for the derivative result matrix (Matrix)
-  inline void setDevalF(const Matrix<Variable>& X) {
-    // If the matrix type is Expression
-    if constexpr (true == std::is_same_v<T, Expression>) {
-      if ((nullptr != mp_mat) && 
-          (nullptr != mp_dresult) &&
-          (nullptr != mp_dresult->mp_mat)) {
-        // Precompute the reverse derivatives
-        std::for_each(EXECUTION_SEQ mp_mat, mp_mat + getNumElem(), [](auto &i) { PreComp(i); });
-
-        // Get dimensions of X variable matrix
-        const size_t xrows = X.getNumRows();
-        const size_t xcols = X.getNumColumns();
-
-        // Vector of indices in current matrix
-        const auto outer_idx = Range<size_t>(0, getNumElem());
-        const auto inner_idx = Range<size_t>(0, (xrows * xcols));
-
-        // Logic for Kronecker product (Reverse mode differentiation)
-        std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(),
-                      [this, &X, &inner_idx, xrows, xcols](const size_t i) {
-                        const size_t k = (i % m_cols);
-                        const size_t l = (i - k) / m_cols;
-
-                        // Inner loop
-                        std::for_each(EXECUTION_PAR inner_idx.begin(),
-                                      inner_idx.end(), [&](const size_t n) {
-                                        const size_t j = n % xcols;
-                                        const size_t i = (n - j) / xcols;
-                                        (*mp_dresult)(l * xrows + i, k * xcols + j) = DevalR((*this)(l, k), X(i, j));
-                                      });
-                    });
-      }
-    }
-    // If the matrix type is Variable
-    else if constexpr (true == std::is_same_v<T, Variable>) {
-      if ((nullptr != mp_mat) && 
-          (nullptr != mp_dresult) &&
-          (nullptr != mp_dresult->mp_mat) &&
-          // Important condition to delineate Matrix<Variable>
-          (m_nidx == X.m_nidx)) {
-        // Get dimensions of X variable matrix
-        const size_t xrows = X.getNumRows();
-        const size_t xcols = X.getNumColumns();
-
-        // Vector of indices in X matrix
-        const auto idx = Range<size_t>(0, X.getNumElem());
-        // Logic for Kronecker product (With ones)
-        std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
-                      [this, xrows, xcols](const size_t n) {
-                        const size_t j = n % xcols;
-                        const size_t i = (n - j) / xcols;
-                        // Inner loop
-                        (*mp_dresult)(i * xrows + i, j * xcols + j) = (Type)(1);
-                    });
-      }
-      // If the Matrix is Variable, but of different form
-      else if ((nullptr != mp_mat) && 
-               (nullptr != mp_dresult) &&
-               (nullptr != mp_dresult->mp_mat)) {
-        // Get dimensions of X variable matrix
-        const size_t xrows = X.getNumRows();
-        const size_t xcols = X.getNumColumns();
-
-        // Vector of indices in current matrix
-        const auto outer_idx = Range<size_t>(0, getNumElem());
-        const auto inner_idx = Range<size_t>(0, xrows * xcols);
-
-        // Logic for Kronecker product (Forward mode differentiation)
-        std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(),
-                      [this, &X, &inner_idx, xrows, xcols](const size_t i) {
-                        const size_t k = i % m_cols;
-                        const size_t l = (i - k) / m_cols;
-
-                        // Inner loop
-                        std::for_each(
-                            EXECUTION_PAR inner_idx.begin(), inner_idx.end(),
-                            [&](const size_t n) {
-                              const size_t j = n % xcols;
-                              const size_t i = (n - j) / xcols;
-                              (*mp_dresult)(l * xrows + i, k * xcols + j) =
-                                  (((*this)(l, k).m_nidx == X(i, j).m_nidx) ? (Type)(1) : (Type)(0));
-                            });
-                  });
-      }
-    }
-  }
+  void setEval();
+  // Set value for the derivative result matrix
+  void setDevalF(const Matrix<Variable>&);
 
 public:
   // Block index
@@ -197,34 +100,12 @@ public:
   // Cache for reverse AD
   OMMatPair m_cache{};
 
-  // Default constructor
-  constexpr Matrix() : m_rows{1}, 
-                       m_cols{1}, 
-                       m_type{(size_t)(-1)}, 
-                       mp_mat{new T[1]{}},
-                       mp_result{nullptr}, 
-                       mp_dresult{nullptr}, 
-                       m_eval{false}, 
-                       m_devalf{false},
-                       m_nidx{this->m_idx_count++} 
-  {}
-
-  // Initalize the matrix with rows and columns
-  constexpr Matrix(const size_t rows, const size_t cols) : m_rows{rows}, 
-                                                           m_cols{cols}, 
-                                                           m_type{(size_t)(-1)},
-                                                           // rows and cols must be set before calling getNumElem
-                                                           mp_mat{new T[getNumElem()]{}}, mp_result{nullptr}, mp_dresult{nullptr},
-                                                           m_eval{false}, 
-                                                           m_devalf{false}, 
-                                                           m_nidx{this->m_idx_count++} {
-    ASSERT(rows > 0 && cols > 0, "Row/Column size is not strictly non-negative");                                                        
-  }
-
-  // Initalize the matrix with rows and columns with initial values
-  constexpr Matrix(const size_t rows, const size_t cols, const T &val) : Matrix(rows, cols) {
-    std::fill(EXECUTION_PAR mp_mat, mp_mat + getNumElem(), val);
-  }
+  // Default constructor - Zero arguments
+  constexpr Matrix();
+  // Constructor with rows and columns
+  constexpr Matrix(const size_t, const size_t);
+  // Constructor with rows and columns with initial values
+  constexpr Matrix(const size_t, const size_t, const T&);
 
   // Matrix expressions constructor
   template <typename Z>
@@ -243,14 +124,13 @@ public:
     // Emplace the expression in a generic holder
     m_gh_vec.push_back((Matrix<Expression>*)&expr);
   }
-
   /* Copy assignment for expression evaluation */
   template <typename Z> 
   Matrix &operator=(const IMatrix<Z>& expr) {
     // Static assert so that type T is an expression
     static_assert(true == std::is_same_v<T, Expression>, "[ERROR] The type T is not an expression");
     // Clear buffer if not recursive expression not found
-    if (static_cast<const Z &>(expr).findMe(this) == false) {
+    if (static_cast<const Z&>(expr).findMe(this) == false) {
       m_gh_vec.clear();
     }
     // Emplace the expression in a generic holder
@@ -271,11 +151,11 @@ public:
                                           m_gh_vec{std::exchange(m.m_gh_vec, {})}, 
                                           m_nidx{std::exchange(m.m_nidx, -1)} 
   {}
-
   // Move assignment operator
   Matrix& operator=(Matrix&& m) noexcept {
     if (nullptr != mp_mat) {
       delete[] mp_mat;
+      mp_mat = nullptr;
     }
 
     // Exchange values
@@ -294,93 +174,25 @@ public:
     // Return this reference
     return *this;
   }
-
   // Copy constructor
-  constexpr Matrix(const Matrix& m) : m_rows{m.m_rows}, 
-                                      m_cols{m.m_cols}, 
-                                      m_type{m.m_type},
-                                      // rows and cols must be set before calling getNumElem
-                                      mp_mat{new T[getNumElem()]{}}, 
-                                      m_eval{m.m_eval}, 
-                                      m_devalf{m.m_devalf},
-                                      m_cache{m.m_cache}, 
-                                      m_nidx{m.m_nidx}, 
-                                      m_gh_vec{m.m_gh_vec} {
-    // Copy values
-    std::copy(EXECUTION_PAR m.mp_mat, m.mp_mat + getNumElem(), mp_mat);
-  }
-
+  constexpr Matrix(const Matrix&);
   // Copy assignment operator
-  Matrix& operator=(const Matrix& m) {
-    if (&m != this) {
-      // Assign resources
-      m_rows = m.m_rows;
-      m_cols = m.m_cols;
-      m_type = m.m_type;
-      m_nidx = m.m_nidx;
-      m_gh_vec = m.m_gh_vec;
-      m_eval = m.m_eval;
-      m_devalf = m.m_devalf;
-      m_cache = m.m_cache;
+  Matrix& operator=(const Matrix&);
 
-      // Copy mp_mat
-      if (nullptr != mp_mat) {
-        delete[] mp_mat;
-      }
+  // Get matrix pointer immutable
+  const T* getMatrixPtr() const;
+  // Get matrix pointer mutable
+  T* getMatrixPtr();
 
-      // rows and cols must be set before calling getNumElem
-      mp_mat = new T[getNumElem()]{};
-      std::copy(EXECUTION_PAR m.mp_mat, m.mp_mat + getNumElem(), mp_mat);
+  // Matrix 2D access using operator()() immutable
+  const T& operator()(const size_t, const size_t) const;
+  // Matrix 2D access using operator()() mutable
+  T& operator()(const size_t, const size_t);
 
-      // Copy and clone mp_result
-      if (nullptr != mp_result) {
-        delete[] mp_result;
-      }
-      // Copy and clone mp_dresult
-      if (nullptr != mp_dresult) {
-        delete[] mp_dresult;
-      }
-    }
-
-    // Return this reference
-    return *this;
-  }
-
-  // Get matrix pointer const
-  const T* getMatrixPtr() const { 
-    return mp_mat; 
-  }
-
-  // Get matrix pointer
-  T* getMatrixPtr() { 
-    return mp_mat; 
-  }
-
-  // Matrix 2D access using operator()()
-  T& operator()(const size_t i, const size_t j) {
-    ASSERT((i >= 0 && i < m_rows), "Row index out of bound");
-    ASSERT((j >= 0 && j < m_cols), "Column index out of bound");
-    return mp_mat[i * m_cols + j];
-  }
-
-  // Matrix 2D access using operator()() const
-  const T& operator()(const size_t i, const size_t j) const {
-    ASSERT((i >= 0 && i < m_rows), "Row index out of bound");
-    ASSERT((j >= 0 && j < m_cols), "Column index out of bound");
-    return mp_mat[i * m_cols + j];
-  }
-
-  // Matrix 1D access using operator[]
-  T& operator[](const size_t l) {
-    ASSERT((l >= 0 && l < getNumElem()), "Index out of bound");
-    return mp_mat[l];
-  }
-
-  // Matrix 1D access using operator[] const
-  const T& operator[](const size_t l) const {
-    ASSERT((l >= 0 && l < getNumElem()), "Index out of bound");
-    return mp_mat[l];
-  }
+  // Matrix 1D access using operator[] immutable
+  const T& operator[](const size_t) const;
+  // Matrix 1D access using operator[] mutable
+  T& operator[](const size_t);
 
   // Get block matrix
   void getBlockMat(const Pair<size_t, size_t>& rows, const Pair<size_t, size_t>& cols, Matrix*& result) const {
@@ -458,120 +270,32 @@ public:
     result->setBlockMat({r, r + m_rows - 1}, {c, c + m_cols - 1}, this);
   }
 
-  // Get a row (Move)
-  Matrix getRow(const size_t& i) && {
-    ASSERT((i >= 0 && i < m_rows), "Row index out of bound");
-    Matrix tmp(m_cols, 1);
-    std::copy(EXECUTION_PAR mp_mat + (i * m_cols), mp_mat + ((i + 1) * m_cols), tmp.getMatrixPtr());
-    return std::move(tmp);
-  }
-
-  // Get a row (Copy)
-  Matrix getRow(const size_t& i) const & {
-    ASSERT((i >= 0 && i < m_rows), "Row index out of bound");
-    Matrix tmp(m_cols, 1);
-    std::copy(EXECUTION_PAR mp_mat + (i * m_cols), mp_mat + ((i + 1) * m_cols), tmp.getMatrixPtr());
-    return tmp;
-  }
-
-  // Get a column (Move)
-  Matrix getColumn(const size_t& i) && {
-    ASSERT((i >= 0 && i < m_cols), "Column index out of bound");
-    Matrix tmp(m_rows, 1);
-
-    // Iteration elements
-    const auto idx = Range<size_t>(0, m_rows);
-    // For each execution
-    std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
-                  [this, &tmp](const size_t n) {
-                    const size_t j = (n % m_cols);
-                    const size_t i = (n - j) / m_cols;
-                    tmp.mp_mat[j] = mp_mat[j * m_rows + i];
-                  });
-
-    return std::move(tmp);
-  }
-
-  // Get a column (copy)
-  Matrix getColumn(const size_t& i) const & {
-    ASSERT((i >= 0 && i < m_cols), "Column index out of bound");
-    Matrix tmp(m_rows, 1);
-
-    // Iteration elements
-    const auto idx = Range<size_t>(0, m_rows);
-    // For each execution
-    std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
-                  [this, &tmp](const size_t n) {
-                    const size_t j = (n % m_cols);
-                    const size_t i = (n - j) / m_cols;
-                    tmp.mp_mat[j] = mp_mat[j * m_rows + i];
-                  });
-
-    return tmp;
-  }
+  // Get a row for matrix using move semantics
+  Matrix getRow(const size_t) &&;
+  // Get a row for matrix using copy semantics
+  Matrix getRow(const size_t) const &;
+  // Get a column for matrix using move semantics
+  Matrix getColumn(const size_t) &&;
+  // Get a column for matrix using copy semantics
+  Matrix getColumn(const size_t) const &;
 
   // Get number of rows
-  V_OVERRIDE(size_t getNumRows() const) { 
-    return m_rows; 
-  }
-
+  V_OVERRIDE(size_t getNumRows() const);
   // Get number of columns
-  V_OVERRIDE(size_t getNumColumns() const) { 
-    return m_cols; 
-  }
+  V_OVERRIDE(size_t getNumColumns() const);
 
   // Get total elements
-  size_t getNumElem() const { 
-    return (m_rows * m_cols); 
-  }
+  size_t getNumElem() const;
 
-  // Get final number of rows (Expression)
-  size_t getFinalNumRows() const {
-    size_t rows{};
-    if constexpr (true == std::is_same_v<T, Expression>) {
-      if (false == m_gh_vec.empty()) {
-        if (auto it = m_gh_vec.back(); nullptr != it) {
-          rows = it->getNumRows();
-        } else {
-          rows = getNumRows();
-        }
-      } else {
-        rows = getNumRows();
-      }
-    } else {
-      rows = getNumRows();
-    }
-    return rows;
-  }
-
-  // Get final number of columns (Expression)
-  size_t getFinalNumColumns() const {
-    size_t cols{};
-    if constexpr (true == std::is_same_v<T, Expression>) {
-      if (false == m_gh_vec.empty()) {
-        if (auto it = m_gh_vec.back(); nullptr != it) {
-          cols = it->getNumColumns();
-        } else {
-          cols = getNumColumns();
-        }
-      } else {
-        cols = getNumColumns();
-      }
-    } else {
-      cols = getNumColumns();
-    }
-    return cols;
-  }
-
-  // Get total final number of elements
-  size_t getFinalNumElem() const {
-    return (getFinalNumRows() * getFinalNumColumns());
-  }
+  // Get final number of rows (for multi-layered expression)
+  size_t getFinalNumRows() const;
+  // Get final number of columns (for multi-layered expression)
+  size_t getFinalNumColumns() const;
+  // Get total final number of elements (for multi-layered expression)
+  size_t getFinalNumElem() const;
 
   // Get type of matrix
-  MatrixSpl getMatType() const { 
-    return m_type; 
-  }
+  MatrixSpl getMatType() const;
 
   // Find me
   bool findMe(void* v) const {
@@ -732,9 +456,7 @@ public:
   }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { 
-    return "Matrix"; 
-  }
+  V_OVERRIDE(std::string_view getType() const);
 
   // To output stream
   friend std::ostream &operator<<(std::ostream& os, Matrix& mat) {
@@ -772,11 +494,9 @@ public:
   }
 
   // Destructor
-  V_DTR(~Matrix()) {
-    // If mp_mat is not nullptr, delete it
-    if (nullptr != mp_mat) {
-      delete[] mp_mat;
-      mp_mat = nullptr;
-    }
-  }
+  V_DTR(~Matrix());
 };
+
+#include "MatrixConstructors.ipp"
+#include "MatrixAccessors.ipp"
+#include "MatrixUtils.ipp"

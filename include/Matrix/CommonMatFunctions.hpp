@@ -222,11 +222,11 @@ Matrix<Expression>& SymMatDiff(T& exp, const Matrix<Variable>& m) {
   return result;
 }
 
-// Oracle class
-class Oracle {
+// Oracle scalar class
+class OracleScalar {
 private:
-  // Dimension of vector
-  const size_t m_dim{};
+  // Dimension of variable vector
+  size_t m_dim{};
   // Vector of variables
   Vector<Variable> m_vec{};
   // Hessian pointer
@@ -236,7 +236,7 @@ private:
   
   // Expression
   Expression m_exp;
-  // Vector of Jacobian expressions
+  // Vector of Jacobian expressions (For Hessian computation)
   Matrix<Expression> m_jacobian_sym;
 
   // Symbolic Jacobian for Hessian computation 
@@ -248,22 +248,48 @@ private:
   }
 
 public:
-  template<typename T>
-  constexpr Oracle(T& exp, const Matrix<Variable>& X) : m_dim{ X.getNumElem() },
-                                                        m_exp{ exp },
-                                                        m_vec{ X.getMatrixPtr(), X.getMatrixPtr() + X.getNumElem() } 
+  template<typename T, typename = std::enable_if_t<std::is_base_of_v<MetaVariable, T>>>
+  constexpr OracleScalar(T& exp, const Matrix<Variable>& X) : m_dim{ X.getNumElem() },
+                                                              m_exp{ exp },
+                                                              m_vec{ X.getMatrixPtr(), X.getMatrixPtr() + X.getNumElem() } 
   {}
 
-  template<typename T>
-  constexpr Oracle(T& exp, const Vector<Variable>& vec) : m_dim{ vec.size() },
-                                                          m_exp{ exp },
-                                                          m_vec{ vec } 
+  template<typename T, typename = std::enable_if_t<std::is_base_of_v<MetaVariable, T>>>
+  constexpr OracleScalar(T& exp, const Vector<Variable>& vec) : m_dim{ vec.size() },
+                                                                m_exp{ exp },
+                                                                m_vec{ vec } 
   {}
 
   // Oracle functions
-  Type eval() const;
+  Type eval();
   Matrix<Type>& hessian();
   Matrix<Type>& jacobian();
 
-  ~Oracle() = default;
+  // Get variables
+  const Vector<Variable>& getVariables() const;
+  // Get variable size
+  const size_t getVariableSize() const;
+
+  ~OracleScalar() = default;
+};
+
+// OracleMatrix class
+class OracleMatrix {
+private:
+  // Matrix expression
+  Matrix<Expression> m_exp;
+  // Matrix variable
+  Matrix<Variable> m_X;
+
+  public:
+    template<typename T, typename = std::enable_if_t<std::is_base_of_v<MetaMatrix, T>>>
+    constexpr OracleMatrix(T& exp, const Matrix<Variable>& X) : m_exp{ exp },
+                                                                m_X{ X } 
+    {}
+
+    // Oracle functions
+    Matrix<Type>& eval();
+    Matrix<Type>& jacobian();
+
+    ~OracleMatrix() = default;
 };
