@@ -108,18 +108,6 @@ Matrix<T>& Matrix<T>::operator=(const Matrix& m) {
       mp_mat = nullptr;
     }
 
-    // Reset mp_result
-    if (nullptr != mp_result) {
-      delete[] mp_result;
-      mp_result = nullptr;
-    }
-
-    // Reset mp_dresult
-    if (nullptr != mp_dresult) {
-      delete[] mp_dresult;
-      mp_dresult = nullptr;
-    }
-
     // If T is an Expression type
     if constexpr(false == std::is_same_v<T,Expression>) {
       if(nullptr != m.mp_mat) {
@@ -132,6 +120,48 @@ Matrix<T>& Matrix<T>::operator=(const Matrix& m) {
         m_gh_vec.push_back((Matrix<Expression>*)&m);
     }
   }
+
+  // Return this reference
+  return *this;
+}
+
+// Move constructor
+template<typename T>
+constexpr Matrix<T>::Matrix(Matrix&& m) noexcept : m_rows{std::exchange(m.m_rows, -1)}, 
+                                                   m_cols{std::exchange(m.m_cols,-1)},
+                                                   m_type{std::exchange(m.m_type, -1)}, 
+                                                   mp_mat{std::exchange(m.mp_mat, nullptr)},
+                                                   mp_result{std::exchange(m.mp_result, nullptr)},
+                                                   mp_dresult{std::exchange(m.mp_dresult, nullptr)}, 
+                                                   m_eval{std::exchange(m.m_eval, false)},
+                                                   m_devalf{std::exchange(m.m_devalf, false)}, 
+                                                   m_cache{std::move(m.m_cache)},
+                                                   m_gh_vec{std::exchange(m.m_gh_vec, {})}, 
+                                                   m_nidx{std::exchange(m.m_nidx, -1)} 
+{}
+
+
+// Move assignment operator
+template<typename T>
+Matrix<T>& Matrix<T>::operator=(Matrix&& m) noexcept {
+   // Reset mp_mat
+  if (nullptr != mp_mat) {
+    delete[] mp_mat;
+    mp_mat = nullptr;
+  }
+
+  // Exchange values
+  mp_mat = std::exchange(m.mp_mat, nullptr);
+  m_rows = std::exchange(m.m_rows, -1);
+  m_cols = std::exchange(m.m_cols, -1);
+  m_type = std::exchange(m.m_type, -1);
+  mp_result = std::exchange(m.mp_result, nullptr);
+  mp_dresult = std::exchange(m.mp_dresult, nullptr);
+  m_eval = std::exchange(m.m_eval, false);
+  m_devalf = std::exchange(m.m_devalf, false);
+  m_cache = std::move(m.m_cache);
+  m_nidx = std::exchange(m.m_nidx, -1);
+  m_gh_vec = std::exchange(m.m_gh_vec, {});
 
   // Return this reference
   return *this;

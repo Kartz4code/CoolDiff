@@ -65,16 +65,18 @@ void ZeroMatSubHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
     return;
   }
   /* Zero matrix numerical check */
-  else if (auto *it = ZeroMatSubNum(lhs, rhs); nullptr != it) {
-    if (it == lhs) {
-      result = const_cast<Matrix<Type> *>(lhs);
-    } else if (it == rhs) {
-      SubZero(it, result);
-    } else {
-      result = const_cast<Matrix<Type> *>(it);
+  #if defined(NUMERICAL_CHECK)
+    else if (auto *it = ZeroMatSubNum(lhs, rhs); nullptr != it) {
+      if (it == lhs) {
+        result = const_cast<Matrix<Type> *>(lhs);
+      } else if (it == rhs) {
+        SubZero(it, result);
+      } else {
+        result = const_cast<Matrix<Type> *>(it);
+      }
+      return;
     }
-    return;
-  }
+  #endif
 #endif
 
   // Chain of responsibility

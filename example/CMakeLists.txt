@@ -54,15 +54,21 @@ if(${BUILD_EXAMPLE})
     endif()
     target_link_libraries(MatrixArithmetic PRIVATE CoolDiff)
 
-
     #[[
         GaussNewton example
     ]]
 
     # Add executable (target testing)
-    add_executable(GaussNewton ${CMAKE_SOURCE_DIR}/example/GaussNewton.cpp)
+    set(SOURCES ${CMAKE_SOURCE_DIR}/example/GaussNewton/src/OracleMatrix.cpp
+                ${CMAKE_SOURCE_DIR}/example/GaussNewton/src/OracleScalar.cpp
+                ${CMAKE_SOURCE_DIR}/example/GaussNewton/src/GaussNewton.cpp
+                ${CMAKE_SOURCE_DIR}/example/GaussNewton/src/Oracle.cpp)
+
+    add_executable(GaussNewton ${CMAKE_SOURCE_DIR}/example/GaussNewton/main.cpp ${SOURCES})
+
+
     # Set target include directories
-    target_include_directories(GaussNewton PUBLIC ${INCLUDES})
+    target_include_directories(GaussNewton PUBLIC ${INCLUDES} ${CMAKE_SOURCE_DIR}/example/GaussNewton/include)
     # Set compile options
     target_compile_options(GaussNewton PRIVATE -fpermissive)
     if(${BUILD_TYPE} STREQUAL Debug)
@@ -70,4 +76,5 @@ if(${BUILD_EXAMPLE})
         target_link_options(GaussNewton PRIVATE -fno-omit-frame-pointer -fsanitize=address)
     endif()
     target_link_libraries(GaussNewton PRIVATE CoolDiff)
+
 endif()

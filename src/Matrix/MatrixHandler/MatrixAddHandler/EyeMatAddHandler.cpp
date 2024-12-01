@@ -86,14 +86,16 @@ void EyeMatAddHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
   }
 
   /* Eye matrix numerical check */
-  else if (auto *it = EyeMatAddNum(lhs, rhs); nullptr != it) {
-    if (it == lhs || it == rhs) {
-      AddEye(it, result);
-    } else {
-      Add2Eye(it, result);
+  #if defined(NUMERICAL_CHECK)
+    else if (auto *it = EyeMatAddNum(lhs, rhs); nullptr != it) {
+      if (it == lhs || it == rhs) {
+        AddEye(it, result);
+      } else {
+        Add2Eye(it, result);
+      }
+      return;
     }
-    return;
-  }
+  #endif
 #endif
 
   // Chain of responsibility

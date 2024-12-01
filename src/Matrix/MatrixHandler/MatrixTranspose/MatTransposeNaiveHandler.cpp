@@ -35,6 +35,10 @@ void MatTransposeNaiveHandler::handle(const Matrix<Type> *mat,
     // Row and column index
     const size_t j = n % ncols;
     const size_t i = (n - j) / ncols;
-    (*result)(j, i) = std::conj((*mat)(i, j));
+    #if defined(USE_COMPLEX_MATH)
+      (*result)(j, i) = std::conj((*mat)(i, j));
+    #else
+      (*result)(j, i) = (*mat)(i, j);
+    #endif
   });
 }

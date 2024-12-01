@@ -55,10 +55,12 @@ void ZeroMatConvHandler::handle(const size_t stride_x, const size_t stride_y,
     return;
   }
   /* Zero matrix numerical check */
-  else if (auto *it = ZeroMatConvNum(rows, cols, lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type> *>(it);
-    return;
-  }
+  #if defined(NUMERICAL_CHECK)
+    else if (auto *it = ZeroMatConvNum(rows, cols, lhs, rhs); nullptr != it) {
+      result = const_cast<Matrix<Type> *>(it);
+      return;
+    }
+  #endif
 #endif
 
   // Chain of responsibility

@@ -32,8 +32,7 @@ void ZeroMatAddHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
   const size_t rrows{rhs->getNumRows()};
 
   // Assert dimensions
-  ASSERT((nrows == rrows) && (ncols == lcols),
-         "Matrix addition dimensions mismatch");
+  ASSERT((nrows == rrows) && (ncols == lcols), "Matrix addition dimensions mismatch");
 
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
@@ -42,10 +41,12 @@ void ZeroMatAddHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
     return;
   }
   /* Zero matrix numerical check */
-  else if (auto *it = ZeroMatAddNum(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type> *>(it);
-    return;
-  }
+  #if defined(NUMERICAL_CHECK)
+    else if (auto *it = ZeroMatAddNum(lhs, rhs); nullptr != it) {
+      result = const_cast<Matrix<Type> *>(it);
+      return;
+    }
+  #endif
 #endif
 
   // Chain of responsibility

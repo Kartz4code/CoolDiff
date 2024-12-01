@@ -94,6 +94,11 @@ private:
   // Set value for the derivative result matrix
   void setDevalF(const Matrix<Variable>&);
 
+    // Move constructor
+  constexpr Matrix(Matrix&&) noexcept;  
+  // Move assignment operator
+  Matrix& operator=(Matrix&&) noexcept;
+
 public:
   // Block index
   size_t m_nidx{};
@@ -126,7 +131,7 @@ public:
   }
   /* Copy assignment for expression evaluation */
   template <typename Z> 
-  Matrix &operator=(const IMatrix<Z>& expr) {
+  Matrix& operator=(const IMatrix<Z>& expr) {
     // Static assert so that type T is an expression
     static_assert(true == std::is_same_v<T, Expression>, "[ERROR] The type T is not an expression");
     // Clear buffer if not recursive expression not found
@@ -138,42 +143,6 @@ public:
     return *this;
   }
 
-  // Move constructor
-  constexpr Matrix(Matrix&& m) noexcept : m_rows{std::exchange(m.m_rows, -1)}, 
-                                          m_cols{std::exchange(m.m_cols,-1)},
-                                          m_type{std::exchange(m.m_type, -1)}, 
-                                          mp_mat{std::exchange(m.mp_mat, nullptr)},
-                                          mp_result{std::exchange(m.mp_result, nullptr)},
-                                          mp_dresult{std::exchange(m.mp_dresult, nullptr)}, 
-                                          m_eval{std::exchange(m.m_eval, false)},
-                                          m_devalf{std::exchange(m.m_devalf, false)}, 
-                                          m_cache{std::move(m.m_cache)},
-                                          m_gh_vec{std::exchange(m.m_gh_vec, {})}, 
-                                          m_nidx{std::exchange(m.m_nidx, -1)} 
-  {}
-  // Move assignment operator
-  Matrix& operator=(Matrix&& m) noexcept {
-    if (nullptr != mp_mat) {
-      delete[] mp_mat;
-      mp_mat = nullptr;
-    }
-
-    // Exchange values
-    mp_mat = std::exchange(m.mp_mat, nullptr);
-    m_rows = std::exchange(m.m_rows, -1);
-    m_cols = std::exchange(m.m_cols, -1);
-    m_type = std::exchange(m.m_type, -1);
-    mp_result = std::exchange(m.mp_result, nullptr);
-    mp_dresult = std::exchange(m.mp_dresult, nullptr);
-    m_eval = std::exchange(m.m_eval, false);
-    m_devalf = std::exchange(m.m_devalf, false);
-    m_cache = std::move(m.m_cache);
-    m_nidx = std::exchange(m.m_nidx, -1);
-    m_gh_vec = std::exchange(m.m_gh_vec, {});
-
-    // Return this reference
-    return *this;
-  }
   // Copy constructor
   constexpr Matrix(const Matrix&);
   // Copy assignment operator
@@ -279,11 +248,6 @@ public:
   // Get a column for matrix using copy semantics
   Matrix getColumn(const size_t) const &;
 
-  // Get number of rows
-  V_OVERRIDE(size_t getNumRows() const);
-  // Get number of columns
-  V_OVERRIDE(size_t getNumColumns() const);
-
   // Get total elements
   size_t getNumElem() const;
 
@@ -297,201 +261,31 @@ public:
   // Get type of matrix
   MatrixSpl getMatType() const;
 
+  // Free resources
+  void free();
   // Find me
-  bool findMe(void* v) const {
-    if (static_cast<const void*>(this) == v) {
-      return true;
-    } else {
-      return false;
-    }
-  }
+  bool findMe(void*) const;
+  // Reset impl
+  void resetImpl();
+
+  // Get number of rows
+  V_OVERRIDE(size_t getNumRows() const);
+  // Get number of columns
+  V_OVERRIDE(size_t getNumColumns() const);
 
   // Evaluate matrix
-  V_OVERRIDE(Matrix<Type>* eval()) {
-    // Cache the mp_result value
-    if constexpr (false == std::is_same_v<T, Type>) {
-      if (nullptr != mp_mat) {
-        MemoryManager::MatrixPool(m_rows, m_cols, mp_result);
-      }
-    } else {
-      MemoryManager::MatrixPool(m_rows, m_cols, mp_result);
-    }
-
-    // If value not evaluated, compute it again
-    if (false == m_eval) {
-      setEval();
-      m_eval = true;
-    }
-
-    // If visited already
-    if (false == this->m_visited) {
-      // Set visit flag to true
-      this->m_visited = true;
-      // Loop on internal equations
-      std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(),
-                    [this](auto *i) {
-                      if (nullptr != i) {
-                        mp_result = i->eval();
-                        m_eval = true;
-                      }
-                    });
-    }
-
-    // Return evaulation result
-    return mp_result;
-  }
-
+  V_OVERRIDE(Matrix<Type>* eval());
   // Derivative matrix
-  V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable>& X)) {
-    // Derivative result computation
-    const size_t xrows = X.getNumRows();
-    const size_t xcols = X.getNumColumns();
-    if constexpr (true == std::is_same_v<T, Type> || true == std::is_same_v<T, Parameter>) {
-      #if defined(NAIVE_IMPL)
-        mp_dresult = MemoryManager::MatrixSplPool((m_rows * xrows), (m_cols * xcols), MatrixSpl::ZEROS);
-      #else
-        MemoryManager::MatrixPool((m_rows * xrows), (m_cols * xcols), mp_dresult);
-      #endif
-    } else {
-      if (nullptr != mp_mat) {
-        MemoryManager::MatrixPool((m_rows * xrows), (m_cols * xcols), mp_dresult);
-      }
-    }
-
-    // If derivative not evaluated, compute it again
-    if (false == m_devalf) {
-      setDevalF(X);
-      m_devalf = true;
-    }
-
-    // If visited already
-    if (false == this->m_visited) {
-      // Set visit flag to true
-      this->m_visited = true;
-      // Loop on internal equations
-      std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(),
-                    [this, &X](auto *i) {
-                      if (nullptr != i) {
-                        mp_dresult = i->devalF(X);
-                        m_devalf = true;
-                        mp_result = i->eval();
-                        m_eval = true;
-                      }
-                    });
-    }
-
-    // Return derivative result
-    return mp_dresult;
-  }
-
-  // Free resources
-  void free() { 
-    m_free = true; 
-  }
-
+  V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable>&));
   // Reset all visited flags
-  V_OVERRIDE(void reset()) {
-    if (true == this->m_visited) {
-
-      this->m_visited = false;
-      // Reset states
-      m_eval = false;
-      m_devalf = false;
-
-      // For each element
-      std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(), 
-                    [](auto *item) {
-                      if (nullptr != item) {
-                        item->reset();
-                      }
-                  });
-    }
-    // Reset flag
-    this->m_visited = false;
-
-    // Free all results
-    if (mp_result != nullptr) {
-      mp_result->free();
-    }
-
-    // Free all derivative results
-    if (mp_dresult != nullptr) {
-      mp_dresult->free();
-    }
-
-    // Empty cache
-    if (false == m_cache.empty()) {
-      m_cache.clear();
-    }
-  }
-
-  // Reset impl
-  inline void resetImpl() {
-    // Reset flag
-    this->m_visited = true;
-
-    // Reset states
-    m_eval = false;
-    m_devalf = false;
-
-    // Free all results
-    if (mp_result != nullptr) {
-      mp_result->free();
-    }
-
-    // Free all derivative results
-    if (mp_dresult != nullptr) {
-      mp_dresult->free();
-    }
-
-    // For each element
-    std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(),
-                  [](auto *item) {
-                    if (nullptr != item) {
-                      item->reset();
-                    }
-                  });
-
-    this->m_visited = false;
-  }
+  V_OVERRIDE(void reset());
 
   // Get type
   V_OVERRIDE(std::string_view getType() const);
 
   // To output stream
-  friend std::ostream &operator<<(std::ostream& os, Matrix& mat) {
-    const size_t rows = mat.getFinalNumRows();
-    const size_t cols = mat.getFinalNumColumns();
-    if constexpr (true == std::is_same_v<T, Type>) {
-      if (mat.getMatType() == MatrixSpl::ZEROS) {
-        os << "Zero matrix of dimension: "
-           << "(" << rows << "," << cols << ")\n";
-      } else if (mat.getMatType() == MatrixSpl::EYE) {
-        os << "Identity matrix of dimension: "
-           << "(" << rows << "," << cols << ")\n";
-      } else {
-        // Serial print
-        for (size_t i{}; i < rows; ++i) {
-          for (size_t j{}; j < cols; ++j) {
-            os << mat(i, j) << " ";
-          }
-          os << "\n";
-        }
-      }
-      return os;
-    } else if constexpr (true == std::is_arithmetic_v<T>) {
-      // Serial print
-      for (size_t i{}; i < rows; ++i) {
-        for (size_t j{}; j < cols; ++j) {
-          os << mat(i, j) << " ";
-        }
-        os << "\n";
-      }
-      return os;
-    } else {
-      ASSERT(false, "Matrix not in printable format");
-    }
-  }
+  template<typename Z>
+  friend std::ostream& operator<<(std::ostream&, Matrix<Z>&);
 
   // Destructor
   V_DTR(~Matrix());
@@ -500,3 +294,4 @@ public:
 #include "MatrixConstructors.ipp"
 #include "MatrixAccessors.ipp"
 #include "MatrixUtils.ipp"
+#include "MatrixVirtuals.ipp"
