@@ -36,9 +36,12 @@
 #include <tuple>
 #include <type_traits>
 #include <vector>
+#include <complex>
+
 
 // Naive implementation of matrix algorithms
 #define NAIVE_IMPL
+#define NUMERICAL_CHECK
 
 #ifndef BUILD_TYPE
   #define SCALAR_TYPE double
@@ -134,7 +137,6 @@ constexpr inline static const size_t g_vec_init{32};
 using Real = SCALAR_TYPE;
 
 #if defined(USE_COMPLEX_MATH)
-  #include <complex>
 
   using Type = std::complex<Real>;
 
@@ -229,7 +231,7 @@ enum ADMode { FORWARD, REVERSE };
 template <typename T> 
 std::string ToString(const T& value) {
   // If complex number
-  if constexpr (std::is_same_v<T, std::complex<Real>>) {
+  if constexpr (true == std::is_same_v<T, std::complex<Real>>) {
     return std::move("(" + std::to_string(value.real()) + "," + std::to_string(value.imag()) + ")");
   } else {
     return std::move(std::to_string(value));
@@ -264,6 +266,7 @@ std::string ToString(const T& value) {
   }                                                                            \
 }
 
+// Time it base
 #define TIME_IT(CODE, UNIT)                                                                 \
 {                                                                                           \
   auto start = std::chrono::high_resolution_clock::now();                                   \
@@ -278,10 +281,14 @@ std::string ToString(const T& value) {
   std::cout << oss.str() << "\n";                                                           \
 }
 
-
+// Time it in nanoseconds
+#define TIME_IT_NS(CODE) TIME_IT(CODE, nanoseconds)
+// Time it in microseconds
 #define TIME_IT_US(CODE) TIME_IT(CODE, microseconds)
-#define TIME_MS(CODE) TIME_IT(CODE, milliseconds)                                                
-#define TIME_S(CODE) TIME_IT(CODE, seconds)
+// Time it in milliseconds
+#define TIME_IT_MS(CODE) TIME_IT(CODE, milliseconds)                                                
+// Time it in seconds
+#define TIME_IT_S(CODE) TIME_IT(CODE, seconds)
 
 // Range values from start to end
 template <typename T> 

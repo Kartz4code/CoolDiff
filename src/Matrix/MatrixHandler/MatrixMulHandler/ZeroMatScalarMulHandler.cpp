@@ -33,10 +33,12 @@ void ZeroMatScalarMulHandler::handle(Type lhs, const Matrix<Type> *rhs,
   }
 
   /* Zero matrix numerical check */
-  else if (auto *it = ZeroMatScalarMulNum(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type> *>(it);
-    return;
-  }
+  #if defined(NUMERICAL_CHECK)
+    else if (auto *it = ZeroMatScalarMulNum(lhs, rhs); nullptr != it) {
+      result = const_cast<Matrix<Type> *>(it);
+      return;
+    }
+  #endif
 #endif
 
   // Chain of responsibility

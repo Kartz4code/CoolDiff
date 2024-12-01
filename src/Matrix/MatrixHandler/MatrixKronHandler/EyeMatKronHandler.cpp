@@ -24,8 +24,9 @@
 #include "MatrixEyeOps.hpp"
 
 // When left matrix is special matrix of identity type
-void KronEyeLHS(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
-                Matrix<Type> *&result) {
+void KronEyeLHS(const Matrix<Type>* lhs, 
+                const Matrix<Type>* rhs,
+                Matrix<Type>*& result) {
   /* Matrix-Matrix numerical Kronocker product */
   // Rows and columns of result matrix and if result is nullptr, then create a
   // new resource
@@ -61,8 +62,9 @@ void KronEyeLHS(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
 }
 
 // When right matrix is special matrix of identity type
-void KronEyeRHS(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
-                Matrix<Type> *&result) {
+void KronEyeRHS(const Matrix<Type>* lhs, 
+                const Matrix<Type>* rhs,
+                Matrix<Type>*& result) {
   /* Matrix-Matrix numerical Kronocker product */
   // Rows and columns of result matrix and if result is nullptr, then create a
   // new resource
@@ -97,32 +99,51 @@ void KronEyeRHS(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
                 });
 }
 
-void EyeMatKronHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
-                               Matrix<Type> *&result) {
+void EyeMatKronHandler::handle(const Matrix<Type>* lhs, 
+                               const Matrix<Type>* rhs,
+                               Matrix<Type>*& result) {
 #if defined(NAIVE_IMPL)
   /* Eye matrix special check */
   if (auto *it = EyeMatKron(lhs, rhs); nullptr != it) {
     if (it == lhs) {
-      KronEyeRHS(lhs, rhs, result);
+      if(-1 == lhs->getMatType()) {
+        KronEyeRHS(lhs, rhs, result);
+      } else {
+        MatrixHandler::handle(lhs, rhs, result);
+      }
     } else if (it == rhs) {
-      KronEyeLHS(lhs, rhs, result);
+      if(-1 == rhs->getMatType()) {
+        KronEyeLHS(lhs, rhs, result);
+      } else {
+        MatrixHandler::handle(lhs, rhs, result);
+      }
     } else {
-      result = const_cast<Matrix<Type> *>(it);
+      result = const_cast<Matrix<Type>*>(it);
     }
     return;
   }
 
   /* Eye matrix numerical check */
-  else if (auto *it = EyeMatKronNum(lhs, rhs); nullptr != it) {
-    if (it == lhs) {
-      KronEyeRHS(lhs, rhs, result);
-    } else if (it == rhs) {
-      KronEyeLHS(lhs, rhs, result);
-    } else {
-      result = const_cast<Matrix<Type> *>(it);
+  #if defined(NUMERICAL_CHECK)
+    else if (auto *it = EyeMatKronNum(lhs, rhs); nullptr != it) {
+      if (it == lhs) {
+        if(-1 == lhs->getMatType()) {
+          KronEyeRHS(lhs, rhs, result);
+        } else {
+          MatrixHandler::handle(lhs, rhs, result);
+        }
+      } else if (it == rhs) {
+        if(-1 == rhs->getMatType()) {
+          KronEyeLHS(lhs, rhs, result);
+        } else {
+          MatrixHandler::handle(lhs, rhs, result);
+        }
+      } else {
+        result = const_cast<Matrix<Type> *>(it);
+      }
+      return;
     }
-    return;
-  }
+  #endif
 #endif
 
   // Chain of responsibility

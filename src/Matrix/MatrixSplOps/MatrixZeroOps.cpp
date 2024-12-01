@@ -22,6 +22,8 @@
 #include "MatrixZeroOps.hpp"
 #include "CommonMatFunctions.hpp"
 
+#define ABS(X) (X>0?(X):(-X))
+
 // Is the matrix zero
 bool IsZeroMatrix(const Matrix<Type> *m) {
   // Zero special matrix check
@@ -35,7 +37,7 @@ bool IsZeroMatrix(const Matrix<Type> *m) {
 
   // Get Matrix pointer and check for null pointer
   auto *it = m->getMatrixPtr();
-
+  
   // Check all elements for zero
   return std::all_of(EXECUTION_PAR it, it + m->getNumElem(),
                      [](Type i) { return (i == (Type)(0)); });

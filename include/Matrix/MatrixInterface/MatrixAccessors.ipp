@@ -136,45 +136,47 @@ size_t Matrix<T>::getNumColumns() const {
 // Get total number of elements
 template<typename T>
 size_t Matrix<T>::getNumElem() const { 
-    return (m_rows * m_cols); 
+    return (getNumRows() * getNumColumns()); 
 }
 
 // Get final number of rows (for multi-layered expression)
 template<typename T>
-size_t Matrix<T>::getFinalNumRows() const {
-    size_t rows{};
+size_t Matrix<T>::getFinalNumRows() const { 
+    size_t rows{m_rows}; 
+    // If the type T is an Expression
     if constexpr (true == std::is_same_v<T, Expression>) {
+      // If the vector of MetaVariables non-empty
       if (false == m_gh_vec.empty()) {
+        // Choose the last value in this vector
         if (auto it = m_gh_vec.back(); nullptr != it) {
-          rows = it->getNumRows();
-        } else {
-          rows = getNumRows();
-        }
-      } else {
-        rows = getNumRows();
-      }
-    } else {
-      rows = getNumRows();
-    }
+            if(auto* ptr = dynamic_cast<Matrix<Expression>*>(it)) {
+              rows = ptr->getFinalNumRows();
+            } else {
+              rows = it->getNumRows();
+            }
+          }
+        } 
+      } 
     return rows;
 }
 
 // Get final number of columns (for multi-layered expression)
 template<typename T>
-size_t Matrix<T>::getFinalNumColumns() const {
-    size_t cols{};
+size_t Matrix<T>::getFinalNumColumns() const { 
+    size_t cols{m_cols};
+    // If the type T is an Expression
     if constexpr (true == std::is_same_v<T, Expression>) {
+      // If the vector of MetaVariables non-empty
       if (false == m_gh_vec.empty()) {
+        // Choose the last value in this vector
         if (auto it = m_gh_vec.back(); nullptr != it) {
-          cols = it->getNumColumns();
-        } else {
-          cols = getNumColumns();
+            if(auto* ptr = dynamic_cast<Matrix<Expression>*>(it)) {
+              cols = ptr->getFinalNumColumns();
+            } else {
+              cols = it->getNumColumns();
+            }
         }
-      } else {
-        cols = getNumColumns();
       }
-    } else {
-      cols = getNumColumns();
     }
     return cols;
 }

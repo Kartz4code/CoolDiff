@@ -34,10 +34,13 @@ void ZeroMatKronHandler::handle(const Matrix<Type> *lhs,
   }
 
   /* Zero matrix numerical check */
-  else if (auto *it = ZeroMatKronNum(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type> *>(it);
-    return;
-  }
+  #if defined(NUMERICAL_CHECK)
+    else if (auto* it = ZeroMatKronNum(lhs, rhs); nullptr != it) {
+      result = const_cast<Matrix<Type> *>(it);
+      return;
+    }
+  #endif
+
 #endif
 
   // Chain of responsibility

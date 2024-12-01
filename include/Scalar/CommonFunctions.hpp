@@ -202,7 +202,7 @@ inline constexpr Expression& SymDiff(T& v, const Variable& var) {
   // If T is an expression template
   else if constexpr (true == std::is_base_of_v<MetaVariable, T>) {
     auto exp = Allocate<Expression>(const_cast<std::decay_t<T>&>(v));
-    return SymDiffExp(*exp, var);
+    return details::SymDiffExp(*exp, var);
   }
   // If unknown type, throw error
   else {

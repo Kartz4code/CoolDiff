@@ -51,10 +51,12 @@ void EyeMatScalarAddHandler::handle(Type lhs, const Matrix<Type> *rhs,
   }
 
   /* Eye matrix numerical check */
-  else if (auto *it = EyeMatScalarAddNum(lhs, rhs); nullptr != it) {
-    AddEye(lhs, rhs, result);
-    return;
-  }
+  #if defined(NUMERICAL_CHECK)
+    else if (auto *it = EyeMatScalarAddNum(lhs, rhs); nullptr != it) {
+      AddEye(lhs, rhs, result);
+      return;
+    }
+  #endif
 #endif
 
   // Chain of responsibility

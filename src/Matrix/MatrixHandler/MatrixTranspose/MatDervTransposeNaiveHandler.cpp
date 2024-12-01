@@ -48,8 +48,11 @@ void MatDervTransposeNaiveHandler::handle(
                         // Inner Row and column index
                         const size_t m = n2 % ncols_x;
                         const size_t l = (n2 - m) / ncols_x;
-                        (*result)(l + j * nrows_x, m + i * ncols_x) =
-                            std::conj((*mat)(l + i * nrows_x, m + j * ncols_x));
+                        #if defined(USE_COMPLEX_MATH)
+                          (*result)(l + j * nrows_x, m + i * ncols_x) = std::conj((*mat)(l + i * nrows_x, m + j * ncols_x));
+                        #else
+                          (*result)(l + j * nrows_x, m + i * ncols_x) = (*mat)(l + i * nrows_x, m + j * ncols_x);
+                        #endif
                       });
       });
 }

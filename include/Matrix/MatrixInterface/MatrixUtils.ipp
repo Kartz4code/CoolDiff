@@ -110,4 +110,83 @@ if constexpr (true == std::is_same_v<T, Expression>) {
     }
 }
 
+// Free resources
+template<typename T>
+void Matrix<T>::free() { 
+    m_free = true; 
+}
 
+// Find me
+template<typename T>
+bool Matrix<T>::findMe(void* v) const {
+    if (static_cast<const void*>(this) == v) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+// Reset impl
+template<typename T>
+void Matrix<T>::resetImpl() {
+    // Reset flag
+    this->m_visited = true;
+
+    // Reset states
+    m_eval = false;
+    m_devalf = false;
+
+    // Free all results
+    if (nullptr != mp_result) {
+        mp_result->free();
+    }
+
+    // Free all derivative results
+    if (nullptr != mp_dresult) {
+        mp_dresult->free();
+    }
+
+    // For each element
+    std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(),
+                    [](auto* item) {
+                        if (nullptr != item) {
+                            item->reset();
+                        }
+                    });
+
+    this->m_visited = false;
+}
+
+// To output stream
+template<typename T>
+std::ostream &operator<<(std::ostream& os, Matrix<T>& mat) {
+    const size_t rows = mat.getFinalNumRows();
+    const size_t cols = mat.getFinalNumColumns();
+    if constexpr (true == std::is_same_v<T, Type>) {
+        if (mat.getMatType() == MatrixSpl::ZEROS) {
+            os << "Zero matrix of dimension: " << "(" << rows << "," << cols << ")\n";
+        } else if (mat.getMatType() == MatrixSpl::EYE) {
+            os << "Identity matrix of dimension: " << "(" << rows << "," << cols << ")\n";
+        } else {
+            // Serial print
+            for (size_t i{}; i < rows; ++i) {
+                for (size_t j{}; j < cols; ++j) {
+                    os << mat(i, j) << " ";
+                }
+                os << "\n";
+            }
+        }
+        return os;
+    } else if constexpr (true == std::is_arithmetic_v<T>) {
+        // Serial print
+        for (size_t i{}; i < rows; ++i) {
+            for (size_t j{}; j < cols; ++j) {
+                os << mat(i, j) << " ";
+            }
+            os << "\n";
+        }
+        return os;
+    } else {
+        ASSERT(false, "Matrix not in printable format");
+    }
+}

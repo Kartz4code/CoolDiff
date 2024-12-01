@@ -50,10 +50,12 @@ void EyeMatScalarMulHandler::handle(Type lhs, const Matrix<Type> *rhs,
   }
 
   /* Eye matrix numerical check */
-  else if (auto *it = EyeMatScalarMulNum(lhs, rhs); nullptr != it) {
-    MulEye(lhs, rhs, result);
-    return;
-  }
+  #if defined(NUMERICAL_CHECK)
+    else if (auto *it = EyeMatScalarMulNum(lhs, rhs); nullptr != it) {
+      MulEye(lhs, rhs, result);
+      return;
+    }
+  #endif
 #endif
 
   // Chain of responsibility
