@@ -42,8 +42,10 @@ class OracleMatrix : public Oracle {
     
     // Oracle functions
     V_OVERRIDE( Type eval() );
-    V_OVERRIDE( Matrix<Type>& jacobian() );
+    V_OVERRIDE( Matrix<Type>* evalMat() );
+    V_OVERRIDE( Matrix<Type>* jacobian() );
     V_OVERRIDE( const size_t getVariableSize() const );
+    V_OVERRIDE( std::string_view getOracleType() const );
 
     // Get variables
     const Matrix<Variable>& getVariables() const;

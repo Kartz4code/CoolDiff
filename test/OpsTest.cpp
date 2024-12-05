@@ -1186,6 +1186,87 @@ TEST(OpsTest, ATanhOpsHessian) {
   }
 }
 
+// Unary function test
+TEST(OpsTest, UnaryTest) {
+  double epi{0.001};
+  Variable x1{-1.2}, x2{0.1}, x3{6.2}, x4{13}, x5{108};
+
+  // Sin function as a unary function
+  auto Sin = UnaryC0Function([](Type x) { return std::sin(x); }, 
+                             [](Type x) { return std::cos(x); });
+
+  // Split test
+  Type a{-0.707, 0.5};
+  Expression y = x4 * x5 * tanh(a * x2 * x3);
+  y = x2 * y * tan(x4) * cos(x3) + tanh(y * 2) * Sin(sqrt(x1) * exp(x2 * x3));
+
+  Variable *tmp[5] = {&x1, &x2, &x3, &x4, &x5};
+  Expression DY[5];
+
+  Type value{-28.94381007, 13.16350226};
+  Type results[5] = {{0, 3.306156431},
+                     {-583.013791417, 228.245717412},
+                     {-7.148360529, 2.362356436},
+                     {-78.138818106, 45.704271223},
+                     {-0.267998241, 0.156755178}};
+
+// Expression evaluation
+#if defined(USE_COMPLEX_MATH)
+  ASSERT_NEAR(value.real(), Eval(y).real(), epi);
+  ASSERT_NEAR(value.imag(), Eval(y).imag(), epi);
+#else
+  ASSERT_NEAR(value, Eval(y), epi);
+#endif
+
+  // Jacobian evaluation (Reverse)
+  PreComp(y);
+  for (int i{}; i < 5; ++i) {
+    // DevalR evaluation
+    Type dr = DevalR(y, *tmp[i]);
+    // DevalR assertion
+    ASSERT_NEAR(results[i].real(), dr.real(), epi);
+    ASSERT_NEAR(results[i].imag(), dr.imag(), epi);
+  }
+
+  // Jacobian evaluation (Forward)
+  for (int i{}; i < 5; ++i) {
+    // DevalF evaluation
+    Type df = DevalF(y, *tmp[i]);
+    // DevalF assertion
+    ASSERT_NEAR(results[i].real(), df.real(), epi);
+    ASSERT_NEAR(results[i].imag(), df.imag(), epi);
+  }
+}
+
+// Binary function test
+TEST(OpsTest, BinaryTest) {
+  Variable x1{1}, x2{2}, x3{-3}, x4{24}, x5{-99};
+
+  auto Product = BinaryC0Function([](Type u, Type v) { return u*v; },
+                                  [](Type u, Type v) { return v; }, 
+                                  [](Type u, Type v) { return u; });
+
+  Expression y = 9 + Product(Product((x1 + x2), (x3 + Product(x4,x5))),3);
+             y = y - Product(Product(2,x1),4) - 10;
+
+  Type results[5] = {-7145, -7137, 9, -891, 216};
+
+  // Jacobian reverse
+  PreComp(y);
+  ASSERT_EQ(results[0], DevalR(y, x1));
+  ASSERT_EQ(results[1], DevalR(y, x2));
+  ASSERT_EQ(results[2], DevalR(y, x3));
+  ASSERT_EQ(results[3], DevalR(y, x4));
+  ASSERT_EQ(results[4], DevalR(y, x5));
+
+  // Jacobian forward
+  ASSERT_EQ(results[0], DevalF(y, x1));
+  ASSERT_EQ(results[1], DevalF(y, x2));
+  ASSERT_EQ(results[2], DevalF(y, x3));
+  ASSERT_EQ(results[3], DevalF(y, x4));
+  ASSERT_EQ(results[4], DevalF(y, x5));
+}
+
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

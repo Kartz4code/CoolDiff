@@ -22,9 +22,10 @@
 #include "GaussNewton.hpp"
 
 // Number of data points
-#define N (5)
+#define N (500)
 
 // 2D ICP
+
 void GNMatrix() {
   // Create X-Y pairs of data of size N;
   Matrix<Type> X(N,2); 
@@ -39,7 +40,7 @@ void GNMatrix() {
     }
   }
 
-  Matrix<Variable> V(3,1);
+  Matrix<Variable> V(1,3);
   V[0] = 3.14156/2; V[1] = 1; V[2] = 2;
 
   Matrix<Expression> R(2,2);
@@ -52,7 +53,7 @@ void GNMatrix() {
   Matrix<Parameter> PX(2,1);
   Matrix<Parameter> PY(2,1);
 
-  Matrix<Expression> J = sigma(PY - (R*PX + t));
+  Matrix<Expression> J = (PY - (R*PX + t));
   Oracle* oracle = Oracle::OracleFactory::CreateOracle(J,V);
 
   GaussNewton gn;
@@ -61,8 +62,11 @@ void GNMatrix() {
     .setParameters(&PX,&PY);
 
   for(int i{}; i < 10; ++i) {
-    V[0] = i+0.0001; V[1] = 4*i; V[2] = 5*i;
-    TIME_IT_US(*gn.getJt());
+    V[0] = i+0.00000000001; V[1] = 4*i; V[2] = 5*i;
+    Pair<MatType*, MatType*> res;
+    TIME_IT_MS(res = gn.getAB());
+    std::cout << *(res.first) << "\n";
+    std::cout << *(res.second) << "\n";
   }
 }
 
@@ -113,14 +117,17 @@ void GNScalar() {
     .setParameters(&PX,&PY);
 
   for(int i{}; i < 10; ++i) {
-    V[0] = i+0.0001; V[1] = 4*i; V[2] = 5*i;
-    std::cout << *gn.getRes() << "\n";
-    std::cout << *gn.getJt() << "\n";
+    V[0] = i; V[1] = 4*i; V[2] = 5*i;
+    Pair<MatType*, MatType*> res;
+    TIME_IT_MS(res = gn.getAB());
+    std::cout << *(res.first) << "\n";
+    std::cout << *(res.second) << "\n";
+    
   }
 }
 
 int main(int argc, char** argv) {
   GNMatrix();
-  GNScalar();
+  //GNScalar();
   return 0;
 }

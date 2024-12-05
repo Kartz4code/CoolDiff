@@ -41,7 +41,7 @@
 
 // Naive implementation of matrix algorithms
 #define NAIVE_IMPL
-#define NUMERICAL_CHECK
+//#define NUMERICAL_CHECK
 
 #ifndef BUILD_TYPE
   #define SCALAR_TYPE double
@@ -239,32 +239,38 @@ std::string ToString(const T& value) {
 }
 
 // Null pointer check
-#define NULL_CHECK(PTR, MSG)                                                   \
-{                                                                              \
-  if (nullptr == PTR) {                                                        \
-    std::ostringstream oss;                                                    \
-    oss << "[ERROR MSG]: " << MSG << "\n"                                      \
-        << "[FILENAME]: " << __FILE__ << "\n"                                  \
-        << "[FUNCTION]: " << __FUNCTION__ << "\n"                              \
-        << "[LINE NO]: " << __LINE__ << "\n";                                  \
-    std::cout << oss.str() << "\n";                                            \
-    assert(false);                                                             \
-  }                                                                            \
-}
+#if defined(BUILD_TYPE)
+  // Check null poineter
+  #define NULL_CHECK(PTR, MSG)                                                   \
+  {                                                                              \
+    if (nullptr == PTR) {                                                        \
+      std::ostringstream oss;                                                    \
+      oss << "[ERROR MSG]: " << MSG << "\n"                                      \
+          << "[FILENAME]: " << __FILE__ << "\n"                                  \
+          << "[FUNCTION]: " << __FUNCTION__ << "\n"                              \
+          << "[LINE NO]: " << __LINE__ << "\n";                                  \
+      std::cout << oss.str() << "\n";                                            \
+      assert(false);                                                             \
+    }                                                                            \
+  }
 
-// Check boolean
-#define ASSERT(X, MSG)                                                         \
-{                                                                              \
-  if (false == (X)) {                                                          \
-    std::ostringstream oss;                                                    \
-    oss << "[ERROR MSG]: " << MSG << "\n"                                      \
-        << "[FILENAME]: " << __FILE__ << "\n"                                  \
-        << "[FUNCTION]: " << __FUNCTION__ << "\n"                              \
-        << "[LINE NO]: " << __LINE__ << "\n";                                  \
-    std::cout << oss.str() << "\n";                                            \
-    assert(false);                                                             \
-  }                                                                            \
-}
+  // Check boolean
+  #define ASSERT(X, MSG)                                                         \
+  {                                                                              \
+    if (false == (X)) {                                                          \
+      std::ostringstream oss;                                                    \
+      oss << "[ERROR MSG]: " << MSG << "\n"                                      \
+          << "[FILENAME]: " << __FILE__ << "\n"                                  \
+          << "[FUNCTION]: " << __FUNCTION__ << "\n"                              \
+          << "[LINE NO]: " << __LINE__ << "\n";                                  \
+      std::cout << oss.str() << "\n";                                            \
+      assert(false);                                                             \
+    }                                                                            \
+  }
+#else
+  #define NULL_CHECK(PTR, MSG) 
+  #define ASSERT(X, MSG) 
+#endif
 
 // Time it base
 #define TIME_IT(CODE, UNIT)                                                                 \

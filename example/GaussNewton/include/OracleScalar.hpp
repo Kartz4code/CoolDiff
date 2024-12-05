@@ -57,11 +57,13 @@ private:
 public:
   // Oracle functions
   V_OVERRIDE( Type eval() );
-  V_OVERRIDE( Matrix<Type>& jacobian() );
+  V_OVERRIDE( Matrix<Type>* evalMat() );
+  V_OVERRIDE( Matrix<Type>* jacobian() );
   V_OVERRIDE( const size_t getVariableSize() const );
+  V_OVERRIDE( std::string_view getOracleType() const );
 
   // Get Hessian
-  Matrix<Type>& hessian();
+  Matrix<Type>* hessian();
   // Get variables
   const Vector<Variable>& getVariables() const;
 

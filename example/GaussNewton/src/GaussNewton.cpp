@@ -31,28 +31,74 @@ void GaussNewton::setData(const size_t i) {
     }
 }
 
-// Compute jacobians for individual data and store it in m_jt matrix
-void GaussNewton::computeJt() {
-    const size_t var_size = m_oracle->getVariableSize();
-    if(nullptr == m_jt) {
-        m_jt = Matrix<Type>::MatrixFactory::CreateMatrixPtr(var_size, m_size);
+// Get A,B for matrix solve
+void GaussNewton::computeABScalar() {
+    const size_t var_size = static_cast<OracleScalar*>(m_oracle)->getVariableSize();
+    // If m_A is a nullptr
+    if(nullptr == m_A) {
+        m_A = Matrix<Type>::MatrixFactory::CreateMatrixPtr(var_size, var_size);
     }
+
+    // If m_B is a nullptr
+    if(nullptr == m_B) {
+        m_B = Matrix<Type>::MatrixFactory::CreateMatrixPtr(var_size, 1);
+    }
+
+    // Reset m_A and m_B
+    ResetZero(m_A);
+    ResetZero(m_B);
+
     for(size_t i{}; i < m_size; ++i) {
-        const Pair<size_t,size_t> row_select{0,var_size-1};
-        const Pair<size_t,size_t> col_select{i,i};
+        // Set data
         setData(i);
-        m_jt->setBlockMat(row_select, col_select, &m_oracle->jacobian());  
+
+        // Eval and jacobian
+        const Type eval = static_cast<OracleScalar*>(m_oracle)->eval();
+        const Matrix<Type>* jacobian = static_cast<OracleScalar*>(m_oracle)->jacobian();
+
+        // Compute A matrix
+        MatrixTranspose(jacobian, m_tempA1);
+        MatrixMul(jacobian, m_tempA1, m_tempA2); 
+        MatrixAdd(m_A, m_tempA2, m_A);
+
+        // Compute B matrix
+        MatrixScalarMul(eval, jacobian, m_tempB);
+        MatrixAdd(m_B, m_tempB, m_B); 
     }
 }
 
-// Compute residual for individual data and store it in m_res matrix
-void GaussNewton::computeRes() {
-    if(nullptr == m_rd) {
-        m_rd = Matrix<Type>::MatrixFactory::CreateMatrixPtr(m_size, 1);
+// Get A,B for matrix solve
+void  GaussNewton::computeABMatrix() {
+    const size_t var_size = static_cast<OracleMatrix*>(m_oracle)->getVariableSize();
+    // If m_A is a nullptr
+    if(nullptr == m_A) {
+        m_A = Matrix<Type>::MatrixFactory::CreateMatrixPtr(var_size, var_size);
     }
+
+    // If m_B is a nullptr
+    if(nullptr == m_B) {
+        m_B = Matrix<Type>::MatrixFactory::CreateMatrixPtr(var_size, 1);
+    }
+
+    // Reset m_A and m_B
+    ResetZero(m_A);
+    ResetZero(m_B);
+
     for(size_t i{}; i < m_size; ++i) {
+        // Set data
         setData(i);
-        (*m_rd)(i,0) = m_oracle->eval();
+        // Eval and jacobian
+        const Matrix<Type>* eval = static_cast<OracleMatrix*>(m_oracle)->evalMat();
+        const Matrix<Type>* jacobian = static_cast<OracleMatrix*>(m_oracle)->jacobian();
+
+        // Compute A matrix
+        MatrixTranspose(jacobian, m_tempA1);
+        MatrixMul(m_tempA1, jacobian, m_tempA2); 
+        MatrixAdd(m_A, m_tempA2, m_A);
+
+        // Compute B matrix
+        MatrixMul(m_tempA1, eval, m_tempB);
+        MatrixAdd(m_B, m_tempB, m_B); 
     }
 }
 
@@ -74,24 +120,21 @@ GaussNewton& GaussNewton::setParameters(Matrix<Parameter>* PX, Matrix<Parameter>
 // Set oracle
 GaussNewton& GaussNewton::setOracle(Oracle* oracle) {
     m_oracle = oracle;
+    m_oracle_type = oracle->getOracleType();
     return *this;
 } 
 
 // Get jacobian
-Matrix<Type>* GaussNewton::getJt() {
-    computeJt();
-    return m_jt;
-}
-
-// Get residual
-Matrix<Type>* GaussNewton::getRes() {
-    computeRes();
-    return m_rd;
-}
-
-// Get objective
-Type GaussNewton::computeObj() {
-    // Compute residual and return accumulated value
-    computeRes(); 
-    return std::reduce(EXECUTION_PAR m_rd->getMatrixPtr(),  m_rd->getMatrixPtr() + m_rd->getNumElem());    
+Pair<Matrix<Type>*,Matrix<Type>*> GaussNewton::getAB() {
+    if("OracleScalar" == m_oracle_type) {
+        computeABScalar();
+        return {m_A,m_B};
+    } else if("OracleMatrix" == m_oracle_type) {
+        computeABMatrix();
+        return {m_A,m_B};
+    } 
+    else {
+        ASSERT(false, "[OracleMatrix] getA method not implemented yet");
+        return {nullptr,nullptr};
+    }
 }

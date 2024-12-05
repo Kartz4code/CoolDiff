@@ -24,17 +24,26 @@
 OracleMatrix::OracleMatrix(Matrix<Expression>& exp, const Matrix<Variable>& X) : m_dim{ X.getNumElem() },
                                                                                  m_exp{ exp },
                                                                                  m_X{ X } {
-    ASSERT(m_exp.getFinalNumElem() == 1, "The loss function is non-scalar");
-    ASSERT(m_X.getNumColumns() == 1, "The variable matrix is not in a column vector form");
+    ASSERT(m_exp.getFinalNumColumns() == 1, "Error function is not a column vector");
+    ASSERT(m_X.getNumRows() == 1, "Variable matrix is not a row vector");
 }
 
 // Oracle functions
 Type OracleMatrix::eval() {
-    return Eval(m_exp)[0];
+    ASSERT(false, "OracleMatrix cannot evaluate to scalar");
+    return (Type)(0);
 }
 
-Matrix<Type>& OracleMatrix::jacobian() {
-    return DevalF(m_exp, m_X);
+Matrix<Type>* OracleMatrix::evalMat() {
+    return &Eval(m_exp);
+}
+
+Matrix<Type>* OracleMatrix::jacobian() {
+    return &DevalF(m_exp, m_X);
+}
+
+std::string_view OracleMatrix::getOracleType() const {
+    return "OracleMatrix";
 }
 
 // Get variables
