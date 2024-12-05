@@ -37,17 +37,22 @@ class GaussNewton {
     
     // Oracle
     Oracle* m_oracle{nullptr};
+    std::string_view m_oracle_type{""};
 
-    // Jacobian transpose, Residual
-    Matrix<Type>* m_jt{nullptr};
-    Matrix<Type>* m_rd{nullptr};
+    Matrix<Type>* m_A{nullptr};
+    Matrix<Type>* m_tempA1{nullptr};
+    Matrix<Type>* m_tempA2{nullptr};
+
+    Matrix<Type>* m_B{nullptr};
+    Matrix<Type>* m_tempB{nullptr};
 
     // Set data
     void setData(const size_t);
-    // Compute jacobians for individual data and store it in m_jt matrix
-    void computeJt();
-    // Compute residual for individual data and store it in m_rd matrix
-    void computeRes();
+
+    // Get A,B for matrix solve
+    void computeABScalar();
+    // Get A,B for matrix solve
+    void computeABMatrix();
 
   public:
     GaussNewton() = default; 
@@ -58,13 +63,9 @@ class GaussNewton {
     GaussNewton& setParameters(Matrix<Parameter>*, Matrix<Parameter>*);
     // Set oracle
     GaussNewton& setOracle(Oracle*);
-    // Get jacobian
-    Matrix<Type>* getJt();
-    // Get residual
-    Matrix<Type>* getRes();
 
-    // Get objective
-    Type computeObj();
+    // Get A,B pair
+    Pair<Matrix<Type>*,Matrix<Type>*> getAB();
 
     ~GaussNewton() = default;
 };

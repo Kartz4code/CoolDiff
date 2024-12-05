@@ -81,9 +81,9 @@ void MatrixAdd(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& 
       3) Matrix-Matrix addition
   */
 
-  MatAddNaiveHandler h1{nullptr};
-  ZeroMatAddHandler h2{&h1};
-  EyeMatAddHandler h3{&h2};
+  static MatAddNaiveHandler h1{nullptr};
+  static ZeroMatAddHandler h2{&h1};
+  static EyeMatAddHandler h3{&h2};
 
   // Handle matrix addition
   h3.handle(lhs, rhs, result);
@@ -101,9 +101,9 @@ void MatrixSub(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& 
       3) Matrix-Matrix subtraction
   */
 
-  MatSubNaiveHandler h1{nullptr};
-  ZeroMatSubHandler h2{&h1};
-  EyeMatSubHandler h3{&h2};
+  static MatSubNaiveHandler h1{nullptr};
+  static ZeroMatSubHandler h2{&h1};
+  static EyeMatSubHandler h3{&h2};
 
   // Handle matrix subtraction
   h3.handle(lhs, rhs, result);
@@ -120,9 +120,9 @@ void MatrixMul(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& 
       2) Zero matrix check
       3) Matrix-Matrix multiplication
   */
-  MatMulNaiveHandler h1{nullptr};
-  ZeroMatMulHandler h2{&h1};
-  EyeMatMulHandler h3{&h2};
+  static MatMulNaiveHandler h1{nullptr};
+  static ZeroMatMulHandler h2{&h1};
+  static EyeMatMulHandler h3{&h2};
 
   // Handle matrix multiplication
   h3.handle(lhs, rhs, result);
@@ -140,9 +140,9 @@ void MatrixKron(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*&
       3) Matrix-Matrix Kronocker product
   */
 
-  MatKronNaiveHandler h1{nullptr};
-  ZeroMatKronHandler h2{&h1};
-  EyeMatKronHandler h3{&h2};
+  static MatKronNaiveHandler h1{nullptr};
+  static ZeroMatKronHandler h2{&h1};
+  static EyeMatKronHandler h3{&h2};
 
   // Handle Kronocker product
   h3.handle(lhs, rhs, result);
@@ -160,9 +160,9 @@ void MatrixHadamard(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Typ
       3) Matrix-Matrix Hadamard product
   */
 
-  MatHadamardNaiveHandler h1{nullptr};
-  ZeroMatHadamardHandler h2{&h1};
-  EyeMatHadamardHandler h3{&h2};
+  static MatHadamardNaiveHandler h1{nullptr};
+  static ZeroMatHadamardHandler h2{&h1};
+  static EyeMatHadamardHandler h3{&h2};
 
   // Handle Hadamard product
   h3.handle(lhs, rhs, result);
@@ -179,9 +179,9 @@ void MatrixScalarAdd(Type lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
       3) Matrix-Matrix Hadamard product
   */
 
-  MatScalarAddNaiveHandler h1{nullptr};
-  ZeroMatScalarAddHandler h2{&h1};
-  EyeMatScalarAddHandler h3{&h2};
+  static MatScalarAddNaiveHandler h1{nullptr};
+  static ZeroMatScalarAddHandler h2{&h1};
+  static EyeMatScalarAddHandler h3{&h2};
 
   // Handle Matrix-Scalar addition
   h3.handle(lhs, rhs, result);
@@ -198,9 +198,9 @@ void MatrixScalarMul(Type lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
      3) Matrix-Matrix Hadamard product
  */
 
-  MatScalarMulNaiveHandler h1{nullptr};
-  ZeroMatScalarMulHandler h2{&h1};
-  EyeMatScalarMulHandler h3{&h2};
+  static MatScalarMulNaiveHandler h1{nullptr};
+  static ZeroMatScalarMulHandler h2{&h1};
+  static EyeMatScalarMulHandler h3{&h2};
 
   // Handle Matrix-Scalar multiplication
   h3.handle(lhs, rhs, result);
@@ -217,9 +217,9 @@ void MatrixTranspose(const Matrix<Type>* mat, Matrix<Type>*& result) {
      3) Matrix transpose
  */
 
-  MatTransposeNaiveHandler h1{nullptr};
-  ZeroMatTransposeHandler h2{&h1};
-  EyeMatTransposeHandler h3{&h2};
+  static MatTransposeNaiveHandler h1{nullptr};
+  static ZeroMatTransposeHandler h2{&h1};
+  static EyeMatTransposeHandler h3{&h2};
 
   // Handle Matrix transpose
   h3.handle(mat, result);
@@ -238,9 +238,9 @@ void MatrixDervTranspose(const size_t nrows_f, const size_t ncols_f,
       3) Matrix transpose
   */
 
-  MatDervTransposeNaiveHandler h1{nullptr};
-  ZeroMatDervTransposeHandler h2{&h1};
-  EyeMatDervTransposeHandler h3{&h2};
+  static MatDervTransposeNaiveHandler h1{nullptr};
+  static ZeroMatDervTransposeHandler h2{&h1};
+  static EyeMatDervTransposeHandler h3{&h2};
 
   // Handle Matrix transpose
   h3.handle(nrows_f, ncols_f, nrows_x, ncols_x, mat, result);
@@ -259,8 +259,8 @@ void MatrixConv(const size_t stride_x, const size_t stride_y,
       2) Zero matrix check
       3) Matrix convolution
   */
-  MatConvNaiveHandler h1{nullptr};
-  ZeroMatConvHandler h2{&h1};
+  static MatConvNaiveHandler h1{nullptr};
+  static ZeroMatConvHandler h2{&h1};
 
   // Handle Matrix convolution
   h2.handle(stride_x, stride_y, pad_x, pad_y, lhs, rhs, result);
@@ -286,8 +286,8 @@ void MatrixDervConv(const size_t nrows_x, const size_t ncols_x,
       3) Matrix convolution derivative
   */
 
-  MatDervConvNaiveHandler h1{nullptr};
-  ZeroMatDervConvHandler h2{&h1};
+  static MatDervConvNaiveHandler h1{nullptr};
+  static ZeroMatDervConvHandler h2{&h1};
 
   // Handle Matrix convolution derivative
   h2.handle(nrows_x, ncols_x, 

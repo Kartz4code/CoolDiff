@@ -36,7 +36,12 @@ Type OracleScalar::eval() {
     return Eval(m_exp);
 }
 
-Matrix<Type>& OracleScalar::hessian() {
+Matrix<Type>* OracleScalar::evalMat() {
+    ASSERT(false, "OracleScalar cannot evaluate to Matrix");
+    return nullptr;
+}
+
+Matrix<Type>* OracleScalar::hessian() {
     if(nullptr == m_hessian) {
         m_hessian = Matrix<Type>::MatrixFactory::CreateMatrixPtr(m_dim, m_dim);
         symJacob(m_exp);
@@ -54,10 +59,10 @@ Matrix<Type>& OracleScalar::hessian() {
             }
         }
     }
-    return *m_hessian;
+    return m_hessian;
 }
 
-Matrix<Type>& OracleScalar::jacobian() {
+Matrix<Type>* OracleScalar::jacobian() {
     if(nullptr == m_jacobian) {
         m_jacobian = Matrix<Type>::MatrixFactory::CreateMatrixPtr(m_dim, 1);
     }
@@ -67,8 +72,13 @@ Matrix<Type>& OracleScalar::jacobian() {
                                  m_jacobian->getMatrixPtr(),
                                  [this](const auto &v) { return DevalR(m_exp, v); });
 
-    return *m_jacobian;
+    return m_jacobian;
 }
+
+std::string_view OracleScalar::getOracleType() const {
+    return "OracleScalar";
+}
+
 
 // Get variables
 const Vector<Variable>& OracleScalar::getVariables() const {

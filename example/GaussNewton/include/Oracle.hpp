@@ -42,8 +42,10 @@ class Oracle {
 
         // Oracle functions
         V_PURE( Type eval() );
-        V_PURE( Matrix<Type>& jacobian() );
+        V_PURE( Matrix<Type>* evalMat() );
+        V_PURE( Matrix<Type>* jacobian() );
         V_PURE( const size_t getVariableSize() const );
+        V_PURE( std::string_view getOracleType() const );
 
         virtual ~Oracle();
 };
