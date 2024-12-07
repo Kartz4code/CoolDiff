@@ -23,7 +23,7 @@
 #include "GaussNewton.hpp"
 
 // Set data
-void GaussNewton::setData(const size_t i) {
+void GaussNewton::setUnit(const size_t i) {
     for(size_t j{}; j < m_X->getNumColumns(); ++j) {
         (*m_PX)[j] = (*m_X)(i,j); 
     }
@@ -48,8 +48,8 @@ void GaussNewton::computeABScalar(const size_t var_size) {
     ResetZero(m_B);
 
     for(size_t i{}; i < m_size; ++i) {
-        // Set data
-        setData(i);
+        // Set unit
+        setUnit(i);
 
         // Eval and jacobian
         const Type eval = static_cast<OracleScalar*>(m_oracle)->eval();
@@ -82,8 +82,8 @@ void  GaussNewton::computeABMatrix(const size_t var_size) {
     ResetZero(m_B);
 
     for(size_t i{}; i < m_size; ++i) {
-        // Set data
-        setData(i);
+        // Set unit
+        setUnit(i);
      
         // Eval and jacobian
         const Matrix<Type>* eval = static_cast<OracleMatrix*>(m_oracle)->evalMat();
@@ -201,7 +201,7 @@ void GaussNewton::solve() {
                 // Convert A and B to Eigen matrix
                 Eigen::Map<Eigen::MatrixXcd> eigA(A, var_size, var_size);
                 Eigen::Map<Eigen::MatrixXcd> eigB(B, var_size, 1);
-                Eigen::LLT<Eigen::MatrixXd> llt(eigA);
+                Eigen::LLT<Eigen::MatrixXcd> llt(eigA);
                 // Solve and store results
                 auto delX = llt.solve(eigB);
                 Eigen::Map<Eigen::MatrixXcd>( m_delX->getMatrixPtr(), delX.rows(), delX.cols() ) = delX;
@@ -209,7 +209,7 @@ void GaussNewton::solve() {
                 // Convert A and B to Eigen matrix
                 Eigen::Map<Eigen::MatrixXcf> eigA(A, var_size, var_size);
                 Eigen::Map<Eigen::MatrixXcf> eigB(B, var_size, 1);
-                Eigen::LLT<Eigen::MatrixXd> llt(eigA);
+                Eigen::LLT<Eigen::MatrixXcf> llt(eigA);
                 // Solve and store results
                 auto delX = llt.solve(eigB);
                 Eigen::Map<Eigen::MatrixXcf>( m_delX->getMatrixPtr(), delX.rows(), delX.cols() ) = delX;
@@ -229,7 +229,7 @@ void GaussNewton::solve() {
                 // Convert A and B to Eigen matrix
                 Eigen::Map<Eigen::MatrixXf> eigA(A, var_size, var_size);
                 Eigen::Map<Eigen::MatrixXf> eigB(B, var_size, 1);
-                Eigen::LLT<Eigen::MatrixXd> llt(eigA);
+                Eigen::LLT<Eigen::MatrixXf> llt(eigA);
                 // Solve and store results
                 auto delX = llt.solve(eigB);
                 Eigen::Map<Eigen::MatrixXf>(m_delX->getMatrixPtr(), delX.rows(), delX.cols() ) = delX;
