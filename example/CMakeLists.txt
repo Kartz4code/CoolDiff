@@ -58,6 +58,8 @@ if(${BUILD_EXAMPLE})
         GaussNewton example
     ]]
 
+    find_package(Eigen3 REQUIRED)
+
     # Add executable (target testing)
     set(SOURCES ${CMAKE_SOURCE_DIR}/example/GaussNewton/src/OracleMatrix.cpp
                 ${CMAKE_SOURCE_DIR}/example/GaussNewton/src/OracleScalar.cpp
@@ -75,6 +77,6 @@ if(${BUILD_EXAMPLE})
         target_compile_options(GaussNewton PRIVATE -fno-omit-frame-pointer -fsanitize=address)
         target_link_options(GaussNewton PRIVATE -fno-omit-frame-pointer -fsanitize=address)
     endif()
-    target_link_libraries(GaussNewton PRIVATE CoolDiff)
+    target_link_libraries(GaussNewton PRIVATE CoolDiff Eigen3::Eigen)
 
 endif()

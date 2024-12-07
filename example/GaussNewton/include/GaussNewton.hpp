@@ -39,12 +39,20 @@ class GaussNewton {
     Oracle* m_oracle{nullptr};
     std::string_view m_oracle_type{""};
 
+    // A matrix results and temps
     Matrix<Type>* m_A{nullptr};
     Matrix<Type>* m_tempA1{nullptr};
     Matrix<Type>* m_tempA2{nullptr};
 
+    // B matrix results and temps
     Matrix<Type>* m_B{nullptr};
     Matrix<Type>* m_tempB{nullptr};
+
+    // X matrix result
+    Matrix<Type>* m_delX{nullptr};
+
+    // Maximum number of iterations
+    size_t m_max_iter{20};
 
     // Set data
     void setData(const size_t);
@@ -53,6 +61,17 @@ class GaussNewton {
     void computeABScalar();
     // Get A,B for matrix solve
     void computeABMatrix();
+    // Get A,B
+    void computeAB();
+
+
+    // Update values for scalar solve
+    void updateScalar(const size_t);
+    // Update values for matrix solve
+    void updateMatrix(const size_t);
+    // Update 
+    void update(const size_t);
+
 
   public:
     GaussNewton() = default; 
@@ -63,9 +82,11 @@ class GaussNewton {
     GaussNewton& setParameters(Matrix<Parameter>*, Matrix<Parameter>*);
     // Set oracle
     GaussNewton& setOracle(Oracle*);
+    // Set maximum number of iterations
+    GaussNewton& setMaxIterations(const size_t);
 
-    // Get A,B pair
-    Pair<Matrix<Type>*,Matrix<Type>*> getAB();
+    // Solve Gauss Newton problem
+    void solve();
 
     ~GaussNewton() = default;
 };

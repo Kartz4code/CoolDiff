@@ -66,6 +66,7 @@ public:
   Matrix<Type>* hessian();
   // Get variables
   const Vector<Variable>& getVariables() const;
+  Vector<Variable>& getVariables();
 
   virtual ~OracleScalar() = default;
 };
