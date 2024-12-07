@@ -54,8 +54,8 @@ class GaussNewton {
     // Maximum number of iterations
     size_t m_max_iter{20};
 
-    // Set data
-    void setData(const size_t);
+    // Set unit
+    void setUnit(const size_t);
 
     // Get A,B for matrix solve
     void computeABScalar(const size_t);
