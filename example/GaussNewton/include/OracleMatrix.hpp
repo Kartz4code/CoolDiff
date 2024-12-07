@@ -49,6 +49,7 @@ class OracleMatrix : public Oracle {
 
     // Get variables
     const Matrix<Variable>& getVariables() const;
+    Matrix<Variable>& getVariables();
 
     virtual ~OracleMatrix() = default;
 };

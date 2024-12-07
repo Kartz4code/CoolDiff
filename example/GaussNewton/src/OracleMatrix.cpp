@@ -51,6 +51,10 @@ const Matrix<Variable>& OracleMatrix::getVariables() const {
     return m_X;
 }
 
+ Matrix<Variable>& OracleMatrix::getVariables() {
+    return m_X;
+ }
+
 // Get variable size
 const size_t OracleMatrix::getVariableSize() const {
     return m_dim;

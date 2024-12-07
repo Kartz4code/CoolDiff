@@ -85,6 +85,10 @@ const Vector<Variable>& OracleScalar::getVariables() const {
     return m_vec;
 }
 
+Vector<Variable>& OracleScalar::getVariables() {
+    return m_vec;
+}
+
 // Get variable size
 const size_t OracleScalar::getVariableSize() const {
     return m_dim;
