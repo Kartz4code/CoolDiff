@@ -58,11 +58,11 @@ class GaussNewton {
     void setData(const size_t);
 
     // Get A,B for matrix solve
-    void computeABScalar();
+    void computeABScalar(const size_t);
     // Get A,B for matrix solve
-    void computeABMatrix();
+    void computeABMatrix(const size_t);
     // Get A,B
-    void computeAB();
+    void computeAB(const size_t);
 
 
     // Update values for scalar solve
@@ -77,7 +77,7 @@ class GaussNewton {
     GaussNewton() = default; 
 
     // Set data (X,Y,size)
-    GaussNewton& setData(Matrix<Type>*, Matrix<Type>*, const size_t);
+    GaussNewton& setData(Matrix<Type>*, Matrix<Type>*);
     // Set data parameters
     GaussNewton& setParameters(Matrix<Parameter>*, Matrix<Parameter>*);
     // Set oracle

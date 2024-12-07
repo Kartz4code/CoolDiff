@@ -26,6 +26,8 @@
 
 #include "CommonFunctions.hpp"
 
+#if defined(USE_COMPLEX_MATH)
+
 // Evaluation test
 TEST(OpsTest, BasicBinaryOps1) {
   Variable x1{1}, x2{2}, x3{-3}, x4{24}, x5{-99};
@@ -1267,7 +1269,13 @@ TEST(OpsTest, BinaryTest) {
   ASSERT_EQ(results[4], DevalF(y, x5));
 }
 
+#endif
+
 int main(int argc, char **argv) {
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+  #if defined(USE_COMPLEX_MATH)
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+  #else
+    return 0;
+  #endif
 }
