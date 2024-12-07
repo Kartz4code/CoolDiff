@@ -33,13 +33,11 @@ void GaussNewton::setData(const size_t i) {
 }
 
 // Get A,B for matrix solve
-void GaussNewton::computeABScalar() {
-    const size_t var_size = static_cast<OracleScalar*>(m_oracle)->getVariableSize();
+void GaussNewton::computeABScalar(const size_t var_size) {
     // If m_A is a nullptr
     if(nullptr == m_A) {
         m_A = Matrix<Type>::MatrixFactory::CreateMatrixPtr(var_size, var_size);
     }
-
     // If m_B is a nullptr
     if(nullptr == m_B) {
         m_B = Matrix<Type>::MatrixFactory::CreateMatrixPtr(var_size, 1);
@@ -69,13 +67,11 @@ void GaussNewton::computeABScalar() {
 }
 
 // Get A,B for matrix solve
-void  GaussNewton::computeABMatrix() {
-    const size_t var_size = static_cast<OracleMatrix*>(m_oracle)->getVariableSize();
+void  GaussNewton::computeABMatrix(const size_t var_size) {
     // If m_A is a nullptr
     if(nullptr == m_A) {
         m_A = Matrix<Type>::MatrixFactory::CreateMatrixPtr(var_size, var_size);
     }
-
     // If m_B is a nullptr
     if(nullptr == m_B) {
         m_B = Matrix<Type>::MatrixFactory::CreateMatrixPtr(var_size, 1);
@@ -88,6 +84,7 @@ void  GaussNewton::computeABMatrix() {
     for(size_t i{}; i < m_size; ++i) {
         // Set data
         setData(i);
+     
         // Eval and jacobian
         const Matrix<Type>* eval = static_cast<OracleMatrix*>(m_oracle)->evalMat();
         const Matrix<Type>* jacobian = static_cast<OracleMatrix*>(m_oracle)->jacobian();
@@ -104,11 +101,11 @@ void  GaussNewton::computeABMatrix() {
 }
 
 // Compute AB matrices
-void GaussNewton::computeAB() {
+void GaussNewton::computeAB(const size_t var_size) {
     if("OracleScalar" == m_oracle_type) {
-        computeABScalar();
+        computeABScalar(var_size);
     } else if("OracleMatrix" == m_oracle_type) {
-        computeABMatrix();
+        computeABMatrix(var_size);
     } 
     else {
         ASSERT(false, "Unknown oracle");
@@ -117,6 +114,7 @@ void GaussNewton::computeAB() {
 
 // Update values for scalar solve
 void GaussNewton::updateScalar(const size_t var_size) {
+    // Get variables
     auto& X = static_cast<OracleScalar*>(m_oracle)->getVariables();
     // Update all variable values 
     const auto idx = Range<size_t>(0, var_size);
@@ -128,6 +126,7 @@ void GaussNewton::updateScalar(const size_t var_size) {
 
 // Update values for matrix solve
 void GaussNewton::updateMatrix(const size_t var_size) {
+    // Get variables
     auto& X = static_cast<OracleMatrix*>(m_oracle)->getVariables();
     // Update all variable values
     const auto idx = Range<size_t>(0, var_size);
@@ -139,7 +138,6 @@ void GaussNewton::updateMatrix(const size_t var_size) {
 
 // Update 
 void GaussNewton::update(const size_t var_size) {
-    /* Update rule */
     // If oracle type is scalar
     if("OracleScalar" == m_oracle_type) {
         updateScalar(var_size);
@@ -152,13 +150,11 @@ void GaussNewton::update(const size_t var_size) {
     } 
 }
 
-
-
 // Set data (X,Y,size)
-GaussNewton& GaussNewton::setData(Matrix<Type>* X, Matrix<Type>* Y, const size_t size) {
-    m_size = size;
-    m_X = X;
-    m_Y = Y;
+GaussNewton& GaussNewton::setData(Matrix<Type>* X, Matrix<Type>* Y) {
+    ASSERT((X->getNumRows() == Y->getNumRows()), "Number of input/output rows are not equal");
+    ASSERT((X->getNumColumns() == Y->getNumColumns()), "Number of input/output rows are not equal");
+    m_size = X->getNumRows(); m_X = X; m_Y = Y;
     return *this;
 }
 
@@ -184,7 +180,7 @@ GaussNewton& GaussNewton::setMaxIterations(const size_t max_iter) {
 
 // Solve Gauss Newton problem
 void GaussNewton::solve() {
-    const size_t var_size = static_cast<OracleMatrix*>(m_oracle)->getVariableSize();
+    const size_t var_size = m_oracle->getVariableSize();
     // If m_A is a nullptr
     if(nullptr == m_delX) {
         m_delX = Matrix<Type>::MatrixFactory::CreateMatrixPtr(var_size, 1);
@@ -193,7 +189,7 @@ void GaussNewton::solve() {
     // Gauss Newton iterations
     for(size_t iter{}; iter < m_max_iter; ++iter) {
         /* Compute A and B matrices */
-        computeAB();
+        computeAB(var_size);
 
         // Raw pointer for A and B matrices
         Type* A = m_A->getMatrixPtr();
@@ -205,17 +201,17 @@ void GaussNewton::solve() {
                 // Convert A and B to Eigen matrix
                 Eigen::Map<Eigen::MatrixXcd> eigA(A, var_size, var_size);
                 Eigen::Map<Eigen::MatrixXcd> eigB(B, var_size, 1);
-                Eigen::PartialPivLU<Eigen::MatrixXcd> lu(eigA);
+                Eigen::LLT<Eigen::MatrixXd> llt(eigA);
                 // Solve and store results
-                auto delX = lu.solve(eigB);
+                auto delX = llt.solve(eigB);
                 Eigen::Map<Eigen::MatrixXcd>( m_delX->getMatrixPtr(), delX.rows(), delX.cols() ) = delX;
             #elif (SCALAR_TYPE == float)  
                 // Convert A and B to Eigen matrix
                 Eigen::Map<Eigen::MatrixXcf> eigA(A, var_size, var_size);
                 Eigen::Map<Eigen::MatrixXcf> eigB(B, var_size, 1);
-                Eigen::PartialPivLU<Eigen::MatrixXcf> lu(eigA);
+                Eigen::LLT<Eigen::MatrixXd> llt(eigA);
                 // Solve and store results
-                auto delX = lu.solve(eigB);
+                auto delX = llt.solve(eigB);
                 Eigen::Map<Eigen::MatrixXcf>( m_delX->getMatrixPtr(), delX.rows(), delX.cols() ) = delX;
             #else 
                 ASSERT(false, "Unknown type");
@@ -225,23 +221,24 @@ void GaussNewton::solve() {
                 // Convert A and B to Eigen matrix 
                 Eigen::Map<Eigen::MatrixXd> eigA(A, var_size, var_size);
                 Eigen::Map<Eigen::MatrixXd> eigB(B, var_size, 1);
-                Eigen::PartialPivLU<Eigen::MatrixXd> lu(eigA);
+                Eigen::LLT<Eigen::MatrixXd> llt(eigA);
                 // Solve and store results
-                auto delX = lu.solve(eigB);
+                auto delX = llt.solve(eigB);
                 Eigen::Map<Eigen::MatrixXd>( m_delX->getMatrixPtr(), delX.rows(), delX.cols() ) = delX;
             #elif (SCALAR_TYPE == float)  
                 // Convert A and B to Eigen matrix
                 Eigen::Map<Eigen::MatrixXf> eigA(A, var_size, var_size);
                 Eigen::Map<Eigen::MatrixXf> eigB(B, var_size, 1);
-                Eigen::PartialPivLU<Eigen::MatrixXf> lu(eigA);
+                Eigen::LLT<Eigen::MatrixXd> llt(eigA);
                 // Solve and store results
-                auto delX = lu.solve(eigB);
+                auto delX = llt.solve(eigB);
                 Eigen::Map<Eigen::MatrixXf>(m_delX->getMatrixPtr(), delX.rows(), delX.cols() ) = delX;
             #else 
                 ASSERT(false, "Unknown type");
             #endif
         #endif
 
+        /* Update variable values */
         update(var_size);
     }
 }

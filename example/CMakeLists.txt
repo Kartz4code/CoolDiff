@@ -68,9 +68,14 @@ if(${BUILD_EXAMPLE})
 
     add_executable(GaussNewton ${CMAKE_SOURCE_DIR}/example/GaussNewton/main.cpp ${SOURCES})
 
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/GaussNewton/config/GaussNewtonData.hpp.in 
+                    GaussNewtonData.hpp 
+                    @ONLY)
 
     # Set target include directories
-    target_include_directories(GaussNewton PUBLIC ${INCLUDES} ${CMAKE_SOURCE_DIR}/example/GaussNewton/include)
+    target_include_directories(GaussNewton PUBLIC ${INCLUDES} 
+                                                  ${CMAKE_SOURCE_DIR}/example/GaussNewton/include
+                                                  ${CMAKE_CURRENT_BINARY_DIR})
     # Set compile options
     target_compile_options(GaussNewton PRIVATE -fpermissive)
     if(${BUILD_TYPE} STREQUAL Debug)
@@ -79,4 +84,5 @@ if(${BUILD_EXAMPLE})
     endif()
     target_link_libraries(GaussNewton PRIVATE CoolDiff Eigen3::Eigen)
 
+    
 endif()
