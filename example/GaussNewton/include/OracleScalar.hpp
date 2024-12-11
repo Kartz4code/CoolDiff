@@ -29,28 +29,29 @@ private:
   friend class Oracle;
   friend class Oracle::OracleFactory;
 
-  // Dimension of variable vector
-  size_t m_dim{};
-  // Vector of variables
-  Vector<Variable> m_vec{};
   // Hessian pointer
   Matrix<Type>* m_hessian{nullptr};
   // Jacobian pointer
   Matrix<Type>* m_jacobian{nullptr};
-  
+
+  // Dimension of variable vector
+  size_t m_dim{};  
   // Expression
   Expression& m_exp;
+  // Vector of variables
+  Matrix<Variable>& m_X;
+
   // Vector of Jacobian expressions (For Hessian computation)
   Matrix<Expression> m_jacobian_sym;
 
-  OracleScalar(Expression&, const Matrix<Variable>&);
-  OracleScalar(Expression&, const Vector<Variable>&);
+  // Scalar oracle constructor
+  OracleScalar(Expression&, Matrix<Variable>&);
 
   // Symbolic Jacobian for Hessian computation 
   template<typename T>
   void symJacob(T& exp) {
     for (size_t i{}; i < m_dim; ++i) {
-      m_jacobian_sym[i] = SymDiff(exp, m_vec[i]);                                              
+      m_jacobian_sym[i] = SymDiff(exp, m_X[i]);                                              
     } 
   }
 
@@ -64,9 +65,10 @@ public:
 
   // Get Hessian
   Matrix<Type>* hessian();
+
   // Get variables
-  const Vector<Variable>& getVariables() const;
-  Vector<Variable>& getVariables();
+  const Matrix<Variable>& getVariables() const;
+  Matrix<Variable>& getVariables();
 
   virtual ~OracleScalar() = default;
 };

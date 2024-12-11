@@ -27,8 +27,8 @@
 class GaussNewton {
   private:
     // Parameter matrices for input and output data
-    Matrix<Parameter>* m_PX{nullptr};
-    Matrix<Parameter>* m_PY{nullptr};
+    Matrix<Parameter>* m_DX{nullptr};
+    Matrix<Parameter>* m_DY{nullptr};
 
     // Data size, X, Y dataset
     size_t m_size{(size_t)(-1)}; 
@@ -52,10 +52,10 @@ class GaussNewton {
     Matrix<Type>* m_delX{nullptr};
 
     // Maximum number of iterations
-    size_t m_max_iter{20};
+    size_t m_max_iter{4};
 
-    // Set unit
-    void setUnit(const size_t);
+    // Set data unit
+    void setDataUnit(const size_t);
 
     // Get A,B for matrix solve
     void computeABScalar(const size_t);
@@ -76,10 +76,10 @@ class GaussNewton {
   public:
     GaussNewton() = default; 
 
-    // Set data (X,Y,size)
-    GaussNewton& setData(Matrix<Type>*, Matrix<Type>*);
+    // Set data (X,Y)
+    GaussNewton& setData(Matrix<Type>* = nullptr, Matrix<Type>* = nullptr);
     // Set data parameters
-    GaussNewton& setParameters(Matrix<Parameter>*, Matrix<Parameter>*);
+    GaussNewton& setDataParameters(Matrix<Parameter>* = nullptr, Matrix<Parameter>* = nullptr);
     // Set oracle
     GaussNewton& setOracle(Oracle*);
     // Set maximum number of iterations

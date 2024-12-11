@@ -22,6 +22,7 @@
 #include "GaussNewton.hpp"
 #include "GaussNewtonData.hpp"
 #include <fstream>
+#include <eigen3/Eigen/Dense>
 
 // Count number of rows
 int CountRows(std::string_view file) {
@@ -95,9 +96,8 @@ Pair<Matrix<Type>*,Matrix<Type>*> LoadData() {
     return {X,Y};
 }
 
-// 2D ICP
+// 2D data matching
 void GNMatrix() {
-
   // Load data
   auto data = LoadData();
 
@@ -111,22 +111,22 @@ void GNMatrix() {
   R(1,0) = -sin( V[0] ); R(1,1) = cos( V[0] );
   t[0] = V[1]; t[1] = V[2]; 
 
-
   // Parameter for input/output data
   Matrix<Parameter> PX(2,1), PY(2,1);
 
+  // Matrix expression error function
   Matrix<Expression> J = (PY - (R*PX + t));
 
   GaussNewton gn;
   gn.setData(data.first, data.second)
     .setOracle(Oracle::OracleFactory::CreateOracle(J,V))
-    .setParameters(&PX,&PY)
-    .setMaxIterations(5);
+    .setDataParameters(&PX,&PY)
+    .setMaxIterations(4);
 
   TIME_IT_MS(gn.solve());
-  
-  std::cout << "Final value: " << Eval(V) << "\n";
 
+  std::cout << "Computed values: " << Eval(V);
+  std::cout << "Actual values: " << (Type)3.14159/2 << " " << (Type)5 << " " << (Type)-2 << "\n";
 }
 
 int main(int argc, char** argv) {

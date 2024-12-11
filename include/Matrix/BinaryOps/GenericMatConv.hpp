@@ -57,14 +57,14 @@ public:
   const size_t m_nidx{};
 
   // Constructor
-  constexpr GenericMatConv(T1 *u, T2 *v, 
-                           const size_t stride_x, const size_t stride_y, 
-                           const size_t pad_x, const size_t pad_y, 
-                           Callables &&...call) : mp_left{u}, mp_right{v}, 
-                                                  m_stride_x{stride_x}, m_stride_y{stride_y},
-                                                  m_pad_x{pad_x}, m_pad_y{pad_y}, 
-                                                  m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                  m_nidx{this->m_idx_count++} {
+   GenericMatConv(T1 *u, T2 *v, 
+                  const size_t stride_x, const size_t stride_y, 
+                  const size_t pad_x, const size_t pad_y, 
+                  Callables &&...call) : mp_left{u}, mp_right{v}, 
+                                        m_stride_x{stride_x}, m_stride_y{stride_y},
+                                        m_pad_x{pad_x}, m_pad_y{pad_y}, 
+                                        m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                        m_nidx{this->m_idx_count++} {
     // Stride must be strictly non-negative
     ASSERT(((int)m_stride_x > 0) && ((int)m_stride_y > 0), "Stride is not strictly non-negative");
     // Padding must be positive

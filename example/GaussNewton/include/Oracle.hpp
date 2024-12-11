@@ -33,9 +33,8 @@ class Oracle {
 
         class OracleFactory {
             public:
-                static Oracle* CreateOracle(Expression&, const Matrix<Variable>&);
-                static Oracle* CreateOracle(Expression&, const Vector<Variable>&);
-                static Oracle* CreateOracle(Matrix<Expression>&, const Matrix<Variable>&);
+                static Oracle* CreateOracle(Expression&, Matrix<Variable>&);
+                static Oracle* CreateOracle(Matrix<Expression>&, Matrix<Variable>&);
 
                 ~OracleFactory() = default;
         };

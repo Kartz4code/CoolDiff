@@ -72,6 +72,10 @@ if(${BUILD_EXAMPLE})
                     GaussNewtonData.hpp 
                     @ONLY)
 
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/GaussNewton/config/GaussNewtonData.py.in 
+                   ${CMAKE_CURRENT_SOURCE_DIR}/GaussNewton/data/GaussNewtonData.py 
+                    @ONLY)
+
     # Set target include directories
     target_include_directories(GaussNewton PUBLIC ${INCLUDES} 
                                                   ${CMAKE_SOURCE_DIR}/example/GaussNewton/include

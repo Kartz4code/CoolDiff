@@ -32,7 +32,7 @@ private:
 
   // Friend function
   template<typename T>
-  friend inline constexpr Expression& SymDiff(T&, const Variable&);
+  friend inline Expression& SymDiff(T&, const Variable&);
 
 public:
 
@@ -43,7 +43,7 @@ public:
   Expression();
 
   template <typename T> 
-  constexpr Expression(const IVariable<T>& expr) {
+  Expression(const IVariable<T>& expr) {
     Variable::m_nidx = this->m_idx_count++;
     // Reserve a buffer of expressions
     Variable::m_gh_vec.reserve(g_vec_init);
@@ -83,7 +83,7 @@ public:
   class ExpressionFactory {
   public:
     template <typename T, typename = std::enable_if_t<is_valid_v<T>>>
-    constexpr inline static Expression& CreateExpression(const T& exp) {
+    inline static Expression& CreateExpression(const T& exp) {
       if constexpr (true == is_numeric_v<T>) {
         auto tmp = Allocate<Expression>(*Allocate<Parameter>(exp)).get();
         return *tmp;

@@ -73,7 +73,7 @@ namespace details {
 }
 
 template <typename T> 
-inline constexpr Type Eval(T& v) {
+inline Type Eval(T& v) {
   // If T is Expression
   if constexpr (true == std::is_same_v<Expression, T>) {
     return details::EvalExp(v);
@@ -103,7 +103,7 @@ inline constexpr Type Eval(T& v) {
 }
 
 template <typename T> 
-inline constexpr Type DevalF(T& v, const Variable& var) {
+inline Type DevalF(T& v, const Variable& var) {
   // If T is Expression
   if constexpr (true == std::is_same_v<Expression, T>) {
     return details::DevalFExp(v, var);
@@ -128,7 +128,7 @@ inline constexpr Type DevalF(T& v, const Variable& var) {
 }
 
 template <typename T> 
-inline constexpr void PreComp(T& v) {
+inline void PreComp(T& v) {
   // If T is Expression
   if constexpr (true == std::is_same_v<T, Expression>) {
     details::PreCompExp(v);
@@ -145,7 +145,7 @@ inline constexpr void PreComp(T& v) {
 }
 
 template <typename T> 
-inline constexpr Type DevalR(T& v, const Variable& var) {
+inline Type DevalR(T& v, const Variable& var) {
   // If T is Expression
   if constexpr (true == std::is_same_v<Expression, T>) {
     return details::DevalRExp(v, var);
@@ -170,7 +170,7 @@ inline constexpr Type DevalR(T& v, const Variable& var) {
 }
 
 template <typename T> 
-inline constexpr OMPair& PreCompCache(T& v) {
+inline OMPair& PreCompCache(T& v) {
   if constexpr (true == std::is_same_v<Expression, T>) {
     return details::PreCompCacheExp(v);
   }
@@ -186,7 +186,7 @@ inline constexpr OMPair& PreCompCache(T& v) {
 }
 
 template<typename T>
-inline constexpr Expression& SymDiff(T& v, const Variable& var) {
+inline Expression& SymDiff(T& v, const Variable& var) {
   // If T is Expression
   if constexpr (true == std::is_same_v<Expression, T>) {
     return details::SymDiffExp(v, var);

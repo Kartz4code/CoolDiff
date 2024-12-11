@@ -21,9 +21,9 @@
 
 #include "OracleMatrix.hpp"
 
-OracleMatrix::OracleMatrix(Matrix<Expression>& exp, const Matrix<Variable>& X) : m_dim{ X.getNumElem() },
-                                                                                 m_exp{ exp },
-                                                                                 m_X{ X } {
+OracleMatrix::OracleMatrix(Matrix<Expression>& exp, Matrix<Variable>& X) : m_dim{ X.getNumElem() },
+                                                                           m_exp{ exp },
+                                                                           m_X{ X } {
     ASSERT(m_exp.getFinalNumColumns() == 1, "Error function is not a column vector");
     ASSERT(m_X.getNumRows() == 1, "Variable matrix is not a row vector");
 }

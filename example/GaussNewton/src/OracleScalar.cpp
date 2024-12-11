@@ -22,15 +22,12 @@
 #include "OracleScalar.hpp"
 
 
-OracleScalar::OracleScalar(Expression& exp, const Matrix<Variable>& X) : m_dim{ X.getNumElem() },
-                                                                         m_exp{ exp },
-                                                                         m_vec{ X.getMatrixPtr(), X.getMatrixPtr() + X.getNumElem() } 
+// Scalar oracle constructor
+OracleScalar::OracleScalar(Expression& exp, Matrix<Variable>& X) : m_dim{ X.getNumElem() },
+                                                                   m_exp{ exp },
+                                                                   m_X{ X } 
 {}
 
-OracleScalar::OracleScalar(Expression& exp, const Vector<Variable>& vec) : m_dim{ vec.size() },
-                                                                           m_exp{ exp },
-                                                                           m_vec{ vec } 
-{}
 
 Type OracleScalar::eval() {
     return Eval(m_exp);
@@ -52,10 +49,10 @@ Matrix<Type>* OracleScalar::hessian() {
         PreComp(m_jacobian_sym[i]);
         for (size_t j{}; j <= i; ++j) {
             if (j < i) {
-                (*m_hessian)(i, j) = DevalR(m_jacobian_sym[i], m_vec[j]);
+                (*m_hessian)(i, j) = DevalR(m_jacobian_sym[i], m_X[j]);
                 (*m_hessian)(j, i) = (*m_hessian)(i, j);
             } else if (i == j) {
-                (*m_hessian)(i, j) = DevalR(m_jacobian_sym[i], m_vec[j]);
+                (*m_hessian)(i, j) = DevalR(m_jacobian_sym[i], m_X[j]);
             }
         }
     }
@@ -68,7 +65,8 @@ Matrix<Type>* OracleScalar::jacobian() {
     }
     // Precompute (By design, the operation is serial)
     PreComp(m_exp);
-    std::transform(EXECUTION_SEQ m_vec.cbegin(), m_vec.cend(), 
+    
+    std::transform(EXECUTION_SEQ m_X.getMatrixPtr(), m_X.getMatrixPtr() + m_X.getNumElem(), 
                                  m_jacobian->getMatrixPtr(),
                                  [this](const auto &v) { return DevalR(m_exp, v); });
 
@@ -79,14 +77,13 @@ std::string_view OracleScalar::getOracleType() const {
     return "OracleScalar";
 }
 
-
 // Get variables
-const Vector<Variable>& OracleScalar::getVariables() const {
-    return m_vec;
+const Matrix<Variable>& OracleScalar::getVariables() const {
+    return m_X;
 }
 
-Vector<Variable>& OracleScalar::getVariables() {
-    return m_vec;
+Matrix<Variable>& OracleScalar::getVariables() {
+    return m_X;
 }
 
 // Get variable size

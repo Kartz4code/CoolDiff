@@ -25,6 +25,9 @@
 #include "MatrixHandler.hpp"
 
 class MatMulNaiveHandler : public MatrixHandler {
+private:
+  Matrix<Type>* mp_rhs_transpose{nullptr};
+
 public:
   using MatrixHandler::MatrixHandler;
 
