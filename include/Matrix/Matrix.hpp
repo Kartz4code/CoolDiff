@@ -62,7 +62,7 @@ private:
   friend class Matrix;
 
   // Special matrix constructor (Privatized, only for internal factory view)
-  constexpr Matrix(const size_t, const size_t, const MatrixSpl&);
+  Matrix(const size_t, const size_t, const MatrixSpl&);
 
   // Matrix row and column size
   size_t m_rows{0};
@@ -94,8 +94,8 @@ private:
   // Set value for the derivative result matrix
   void setDevalF(const Matrix<Variable>&);
 
-    // Move constructor
-  constexpr Matrix(Matrix&&) noexcept;  
+  // Move constructor
+  Matrix(Matrix&&) noexcept;  
   // Move assignment operator
   Matrix& operator=(Matrix&&) noexcept;
 
@@ -106,15 +106,15 @@ public:
   OMMatPair m_cache{};
 
   // Default constructor - Zero arguments
-  constexpr Matrix();
+  Matrix();
   // Constructor with rows and columns
-  constexpr Matrix(const size_t, const size_t);
+  Matrix(const size_t, const size_t);
   // Constructor with rows and columns with initial values
-  constexpr Matrix(const size_t, const size_t, const T&);
+  Matrix(const size_t, const size_t, const T&);
 
   // Matrix expressions constructor
   template <typename Z>
-  constexpr Matrix(const IMatrix<Z>& expr) : m_rows{expr.getNumRows()}, 
+  Matrix(const IMatrix<Z>& expr) : m_rows{expr.getNumRows()}, 
                                              m_cols{expr.getNumColumns()},
                                              m_type{(size_t)(-1)}, 
                                              mp_result{nullptr}, 
@@ -144,7 +144,7 @@ public:
   }
 
   // Copy constructor
-  constexpr Matrix(const Matrix&);
+  Matrix(const Matrix&);
   // Copy assignment operator
   Matrix& operator=(const Matrix&);
 

@@ -26,10 +26,10 @@
 
 // Predeclare Eval function
 template <typename T> 
-inline constexpr Type Eval(T&);
+inline Type Eval(T&);
 // Predeclare DevalF function
 template <typename T> 
-inline constexpr Type DevalF(T&, const Variable&);
+inline Type DevalF(T&, const Variable&);
 
 // Function computation (Found in bottom)
 template <typename Func1, typename Func2>

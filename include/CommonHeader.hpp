@@ -43,9 +43,12 @@
 #define NAIVE_IMPL
 //#define NUMERICAL_CHECK
 
+// Matrix transpose based matrix multiplication (Naive implementation)
+//#define MATRIX_TRANSPOSED_MUL
+
 #ifndef BUILD_TYPE
   #define SCALAR_TYPE double
-  #define USE_COMPLEX_MATH
+  //#define USE_COMPLEX_MATH
   #define USE_ROBIN_HOOD_MAP
   #define USE_VIRTUAL_FUNCTIONS
   #define USE_PARALLEL_POLICY

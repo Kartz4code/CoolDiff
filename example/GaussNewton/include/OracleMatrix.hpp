@@ -29,14 +29,14 @@ class OracleMatrix : public Oracle {
     friend class Oracle;
     friend class Oracle::OracleFactory;
 
-    OracleMatrix(Matrix<Expression>&, const Matrix<Variable>&);
+    OracleMatrix(Matrix<Expression>&, Matrix<Variable>&);
     
     // Dimension of variable vector
     size_t m_dim{};
     // Matrix expression
     Matrix<Expression>& m_exp;
     // Matrix variable
-    Matrix<Variable> m_X;
+    Matrix<Variable>& m_X;
 
   public:
     
