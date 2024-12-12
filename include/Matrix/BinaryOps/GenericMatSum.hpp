@@ -29,8 +29,8 @@ template <typename T1, typename T2, typename... Callables>
 class GenericMatSum : public IMatrix<GenericMatSum<T1, T2, Callables...>> {
 private:
   // Resources
-  T1 *mp_left{nullptr};
-  T2 *mp_right{nullptr};
+  T1* mp_left{nullptr};
+  T2* mp_right{nullptr};
 
   // Callables
   Tuples<Callables...> m_caller;
@@ -55,7 +55,7 @@ private:
 
   // All matrices
   inline static constexpr const size_t m_size{2};
-  Matrix<Type> *mp_arr[m_size]{};
+  Matrix<Type>* mp_arr[m_size]{};
 
 public:
   // Block index
@@ -64,7 +64,7 @@ public:
   OMMatPair m_cache{};
 
   // Constructor
-  constexpr GenericMatSum(T1 *u, T2 *v, Callables &&...call) : mp_left{u}, 
+  constexpr GenericMatSum(T1* u, T2* v, Callables&&... call) : mp_left{u}, 
                                                                mp_right{v}, 
                                                                m_caller{std::make_tuple(std::forward<Callables>(call)...)},
                                                                m_nidx{this->m_idx_count++} {
@@ -82,18 +82,18 @@ public:
   }
 
   // Find me
-  bool findMe(void *v) const { 
+  bool findMe(void* v) const { 
     BINARY_FIND_ME(); 
   }
 
   // Matrix eval computation
-  V_OVERRIDE(Matrix<Type> *eval()) {
+  V_OVERRIDE(Matrix<Type>* eval()) {
     // Check whether dimensions are correct
     ASSERT(verifyDim(), "Matrix-Matrix addition dimensions mismatch");
 
     // Get raw pointers to result, left and right matrices
-    const Matrix<Type> *left_mat = mp_left->eval();
-    const Matrix<Type> *right_mat = mp_right->eval();
+    const Matrix<Type>* left_mat = mp_left->eval();
+    const Matrix<Type>* right_mat = mp_right->eval();
 
     // Matrix-Matrix addition computation (Policy design)
     MATRIX_ADD(left_mat, right_mat, mp_arr[0]);
@@ -103,13 +103,13 @@ public:
   }
 
   // Matrix devalF computation
-  V_OVERRIDE(Matrix<Type> *devalF(Matrix<Variable> &X)) {
+  V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable> &X)) {
     // Check whether dimensions are correct
     ASSERT(verifyDim(), "Matrix-Matrix addition dimensions mismatch");
 
     // Left and right matrices
-    const Matrix<Type> *dleft_mat = mp_left->devalF(X);
-    const Matrix<Type> *dright_mat = mp_right->devalF(X);
+    const Matrix<Type>* dleft_mat = mp_left->devalF(X);
+    const Matrix<Type>* dright_mat = mp_right->devalF(X);
 
     // Matrix-Matrix derivative addition computation (Policy design)
     MATRIX_ADD(dleft_mat, dright_mat, mp_arr[1]);
@@ -138,7 +138,7 @@ class GenericMatScalarSum : public IMatrix<GenericMatScalarSum<T, Callables...>>
 private:
   // Resources
   Type m_left{};
-  T *mp_right{nullptr};
+  T* mp_right{nullptr};
 
   // Callables
   Tuples<Callables...> m_caller;
@@ -149,14 +149,14 @@ private:
 
   // All matrices
   inline static constexpr const size_t m_size{2};
-  Matrix<Type> *mp_arr[m_size]{};
+  Matrix<Type>* mp_arr[m_size]{};
 
 public:
   // Block index
   const size_t m_nidx{};
 
   // Constructor
-  constexpr GenericMatScalarSum(Type u, T *v, Callables &&...call) : m_left{u}, 
+  constexpr GenericMatScalarSum(Type u, T* v, Callables&&... call) : m_left{u}, 
                                                                      mp_right{v}, 
                                                                      m_caller{std::make_tuple(std::forward<Callables>(call)...)},
                                                                      m_nidx{this->m_idx_count++} {
@@ -174,14 +174,14 @@ public:
   }
 
   // Find me
-  bool findMe(void *v) const { 
+  bool findMe(void* v) const { 
     BINARY_RIGHT_FIND_ME(); 
   }
 
   // Matrix eval computation
-  V_OVERRIDE(Matrix<Type> *eval()) {
+  V_OVERRIDE(Matrix<Type>* eval()) {
     // Get raw pointers to result and right matrices
-    const Matrix<Type> *right_mat = mp_right->eval();
+    const Matrix<Type>* right_mat = mp_right->eval();
 
     // Matrix-Scalar addition computation (Policy design)
     MATRIX_SCALAR_ADD(m_left, right_mat, mp_arr[0]);
@@ -191,7 +191,7 @@ public:
   }
 
   // Matrix devalF computation
-  V_OVERRIDE(Matrix<Type> *devalF(Matrix<Variable> &X)) {
+  V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable>& X)) {
     // Right matrix derivative
     mp_arr[1] = mp_right->devalF(X);
     // Return result pointer
@@ -320,7 +320,7 @@ using GenericMatScalarSumExpT = GenericMatScalarSumExp<T1, T2, OpMatType>;
 
 // Function for sum computation
 template <typename T1, typename T2>
-constexpr const auto &operator+(const IMatrix<T1> &u, const IMatrix<T2> &v) {
+constexpr const auto& operator+(const IMatrix<T1>& u, const IMatrix<T2>& v) {
   auto tmp = Allocate<GenericMatSumT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&u)),
                                               const_cast<T2*>(static_cast<const T2*>(&v)), 
                                               OpMatObj);
@@ -329,19 +329,19 @@ constexpr const auto &operator+(const IMatrix<T1> &u, const IMatrix<T2> &v) {
 
 // Function for sum computation
 template <typename T>
-constexpr const auto &operator+(Type u, const IMatrix<T> &v) {
+constexpr const auto& operator+(Type u, const IMatrix<T>& v) {
   auto tmp = Allocate<GenericMatScalarSumT<T>>(u, const_cast<T*>(static_cast<const T*>(&v)), OpMatObj);
   return *tmp;
 }
 
 template <typename T>
-constexpr const auto &operator+(const IMatrix<T> &v, Type u) {
+constexpr const auto& operator+(const IMatrix<T>& v, Type u) {
   return u + v;
 }
 
 // Matrix sum with scalar (LHS) - SFINAE'd
 template <typename T1, typename T2, typename = ExpType<T1>>
-constexpr const auto &operator+(const T1 &v, const IMatrix<T2> &u) {
+constexpr const auto& operator+(const T1& v, const IMatrix<T2>& u) {
   auto tmp = Allocate<GenericMatScalarSumExpT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&v)),
                                                        const_cast<T2*>(static_cast<const T2*>(&u)), 
                                                        OpMatObj);
@@ -350,6 +350,6 @@ constexpr const auto &operator+(const T1 &v, const IMatrix<T2> &u) {
 
 // Matrix sum with scalar (RHS) - SFINAE'd
 template <typename T1, typename T2, typename = ExpType<T2>>
-constexpr const auto &operator+(const IMatrix<T1> &u, const T2 &v) {
+constexpr const auto& operator+(const IMatrix<T1>& u, const T2& v) {
   return v + u;
 }

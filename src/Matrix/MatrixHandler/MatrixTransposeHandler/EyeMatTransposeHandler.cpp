@@ -24,8 +24,7 @@
 #include "Matrix.hpp"
 #include "MatrixEyeOps.hpp"
 
-void EyeMatTransposeHandler::handle(const Matrix<Type> *mat,
-                                    Matrix<Type> *&result) {
+void EyeMatTransposeHandler::handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
   if (true == IsEyeMatrix(mat)) {

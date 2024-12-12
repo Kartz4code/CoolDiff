@@ -121,7 +121,7 @@ void GNMatrix() {
   gn.setData(data.first, data.second)
     .setOracle(Oracle::OracleFactory::CreateOracle(J,V))
     .setDataParameters(&PX,&PY)
-    .setMaxIterations(4);
+    .setMaxIterations(3);
 
   TIME_IT_MS(gn.solve());
 

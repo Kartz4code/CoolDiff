@@ -61,7 +61,7 @@ Matrix<Type>* OracleScalar::hessian() {
 
 Matrix<Type>* OracleScalar::jacobian() {
     if(nullptr == m_jacobian) {
-        m_jacobian = Matrix<Type>::MatrixFactory::CreateMatrixPtr(m_dim, 1);
+        m_jacobian = Matrix<Type>::MatrixFactory::CreateMatrixPtr(1, m_dim);
     }
     // Precompute (By design, the operation is serial)
     PreComp(m_exp);

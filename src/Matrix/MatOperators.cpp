@@ -120,6 +120,7 @@ void MatrixMul(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& 
       2) Zero matrix check
       3) Matrix-Matrix multiplication
   */
+  
   static MatMulNaiveHandler h1{nullptr};
   static ZeroMatMulHandler h2{&h1};
   static EyeMatMulHandler h3{&h2};

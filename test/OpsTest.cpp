@@ -20,11 +20,7 @@
  */
 
 #include <gtest/gtest.h>
-
-#include <iostream>
-#include <vector>
-
-#include "CommonFunctions.hpp"
+#include "CoolDiff.hpp"
 
 #if defined(USE_COMPLEX_MATH)
 

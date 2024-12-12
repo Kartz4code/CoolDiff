@@ -24,9 +24,7 @@
 #include "Matrix.hpp"
 #include "MatrixZeroOps.hpp"
 
-void ZeroMatHadamardHandler::handle(const Matrix<Type> *lhs,
-                                    const Matrix<Type> *rhs,
-                                    Matrix<Type> *&result) {
+void ZeroMatHadamardHandler::handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
 
   const size_t nrows{lhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
@@ -38,15 +36,15 @@ void ZeroMatHadamardHandler::handle(const Matrix<Type> *lhs,
 
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
-  if (auto *it = ZeroMatHadamard(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type> *>(it);
+  if (auto* it = ZeroMatHadamard(lhs, rhs); nullptr != it) {
+    result = const_cast<Matrix<Type>*>(it);
     return;
   }
 
   /* Zero matrix numerical check */
   #if defined(NUMERICAL_CHECK)
-    else if (auto *it = ZeroMatHadamardNum(lhs, rhs); nullptr != it) {
-      result = const_cast<Matrix<Type> *>(it);
+    else if (auto* it = ZeroMatHadamardNum(lhs, rhs); nullptr != it) {
+      result = const_cast<Matrix<Type>*>(it);
       return;
     }
   #endif

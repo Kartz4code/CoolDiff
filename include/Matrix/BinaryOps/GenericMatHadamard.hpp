@@ -29,8 +29,8 @@ template <typename T1, typename T2, typename... Callables>
 class GenericMatHadamard : public IMatrix<GenericMatHadamard<T1, T2, Callables...>> {
 private:
   // Resources
-  T1 *mp_left{nullptr};
-  T2 *mp_right{nullptr};
+  T1* mp_left{nullptr};
+  T2* mp_right{nullptr};
 
   // Callables
   Tuples<Callables...> m_caller;
@@ -55,14 +55,14 @@ private:
 
   // All matrices
   inline static constexpr const size_t m_size{6};
-  Matrix<Type> *mp_arr[m_size]{};
+  Matrix<Type>* mp_arr[m_size]{};
 
 public:
   // Block index
   const size_t m_nidx{};
 
   // Constructor
-  constexpr GenericMatHadamard(T1 *u, T2 *v, Callables &&...call) : mp_left{u}, 
+  constexpr GenericMatHadamard(T1* u, T2* v, Callables&&... call) : mp_left{u}, 
                                                                     mp_right{v}, 
                                                                     m_caller{std::make_tuple(std::forward<Callables>(call)...)},
                                                                     m_nidx{this->m_idx_count++} {
@@ -80,18 +80,18 @@ public:
   }
 
   // Find me
-  bool findMe(void *v) const { 
+  bool findMe(void* v) const { 
     BINARY_FIND_ME(); 
   }
 
   // Matrix eval computation
-  V_OVERRIDE(Matrix<Type> *eval()) {
+  V_OVERRIDE(Matrix<Type>* eval()) {
     // Check whether dimensions are correct
     ASSERT(verifyDim(), "Matrix-Matrix Hadamard product dimensions mismatch");
 
     // Get raw pointers to result, left and right matrices
-    const Matrix<Type> *left_mat = mp_left->eval();
-    const Matrix<Type> *right_mat = mp_right->eval();
+    const Matrix<Type>* left_mat = mp_left->eval();
+    const Matrix<Type>* right_mat = mp_right->eval();
 
     // Matrix-Matrix Hadamard product evaluation (Policy design)
     MATRIX_HADAMARD(left_mat, right_mat, mp_arr[0]);
@@ -100,17 +100,17 @@ public:
   }
 
   // Matrix devalF computation
-  V_OVERRIDE(Matrix<Type> *devalF(Matrix<Variable> &X)) {
+  V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable> &X)) {
     // Check whether dimensions are correct
     ASSERT(verifyDim(), "Matrix-Matrix Hadamard product dimensions mismatch");
 
     // Left and right matrices derivatives
-    const Matrix<Type> *dleft_mat = mp_left->devalF(X);
-    const Matrix<Type> *dright_mat = mp_right->devalF(X);
+    const Matrix<Type>* dleft_mat = mp_left->devalF(X);
+    const Matrix<Type>* dright_mat = mp_right->devalF(X);
 
     // Left and right matrices evaluation
-    const Matrix<Type> *left_mat = mp_left->eval();
-    const Matrix<Type> *right_mat = mp_right->eval();
+    const Matrix<Type>* left_mat = mp_left->eval();
+    const Matrix<Type>* right_mat = mp_right->eval();
 
     const size_t nrows_x = X.getNumRows();
     const size_t ncols_x = X.getNumColumns();
@@ -151,9 +151,9 @@ using GenericMatHadamardT = GenericMatHadamard<T1, T2, OpMatType>;
 
 // Function for Hadamard product computation
 template <typename T1, typename T2>
-constexpr const auto &operator^(const IMatrix<T1> &u, const IMatrix<T2> &v) {
-  auto tmp = Allocate<GenericMatHadamardT<T1, T2>>(
-      const_cast<T1 *>(static_cast<const T1 *>(&u)),
-      const_cast<T2 *>(static_cast<const T2 *>(&v)), OpMatObj);
+constexpr const auto& operator^(const IMatrix<T1>& u, const IMatrix<T2>& v) {
+  auto tmp = Allocate<GenericMatHadamardT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&u)),
+                                                   const_cast<T2*>(static_cast<const T2*>(&v)), 
+                                                   OpMatObj);
   return *tmp;
 }

@@ -23,8 +23,7 @@
 #include "Matrix.hpp"
 #include "MatrixZeroOps.hpp"
 
-void ZeroMatMulHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
-                               Matrix<Type> *&result) {
+void ZeroMatMulHandler::handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
 
   // If result is nullptr, then create a new resource
   const size_t lrows{lhs->getNumRows()};
@@ -37,19 +36,18 @@ void ZeroMatMulHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
 
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
-  if (auto *it = ZeroMatMul(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type> *>(it);
+  if (auto* it = ZeroMatMul(lhs, rhs); nullptr != it) {
+    result = const_cast<Matrix<Type>*>(it);
     return;
   }
 
   /* Zero matrix numerical check */
   #if defined(NUMERICAL_CHECK)
-    else if (auto *it = ZeroMatMulNum(lhs, rhs); nullptr != it) {
-      result = const_cast<Matrix<Type> *>(it);
+    else if (auto* it = ZeroMatMulNum(lhs, rhs); nullptr != it) {
+      result = const_cast<Matrix<Type>*>(it);
       return;
     }
   #endif
-  
 #endif
 
   // Chain of responsibility

@@ -24,8 +24,7 @@
 #include "Matrix.hpp"
 #include "MatrixZeroOps.hpp"
 
-void ZeroMatTransposeHandler::handle(const Matrix<Type> *mat,
-                                     Matrix<Type> *&result) {
+void ZeroMatTransposeHandler::handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
   if (true == IsZeroMatrix(mat)) {

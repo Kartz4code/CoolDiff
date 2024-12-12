@@ -22,9 +22,7 @@
 #include "MatKronNaiveHandler.hpp"
 #include "Matrix.hpp"
 
-void MatKronNaiveHandler::handle(const Matrix<Type> *lhs,
-                                 const Matrix<Type> *rhs,
-                                 Matrix<Type> *&result) {
+void MatKronNaiveHandler::handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
   /* Matrix-Matrix numerical Kronocker product */
   // Rows and columns of result matrix and if result is nullptr, then create a
   // new resource
@@ -36,21 +34,20 @@ void MatKronNaiveHandler::handle(const Matrix<Type> *lhs,
   // Pool matrix
   MemoryManager::MatrixPool((lr * rr), (lc * rc), result);
 
-  const auto lhs_idx = Range<size_t>(0, lr * lc);
-  const auto rhs_idx = Range<size_t>(0, rr * rc);
+  const auto lhs_idx = Range<size_t>(0, (lr * lc));
+  const auto rhs_idx = Range<size_t>(0, (rr * rc));
   std::for_each(EXECUTION_PAR lhs_idx.begin(), lhs_idx.end(),
                 [&](const size_t n1) {
-                  const size_t j{n1 % lc};
-                  const size_t i{(n1 - j) / lc};
+                  const size_t j = (n1 % lc);
+                  const size_t i = ((n1 - j) / lc);
                   Type val = (*lhs)(i, j);
 
                   if ((Type)(0) != val) {
                     std::for_each(EXECUTION_PAR rhs_idx.begin(), rhs_idx.end(),
                                   [&](const size_t n2) {
-                                    const size_t m{n2 % rc};
-                                    const size_t l{(n2 - m) / rc};
-                                    (*result)(i * rr + l, j * rc + m) =
-                                        (*rhs)(l, m) * val;
+                                    const size_t m = (n2 % rc);
+                                    const size_t l = ((n2 - m) / rc);
+                                    (*result)((i * rr) + l, (j * rc) + m) = ((*rhs)(l, m) * val);
                                   });
                   }
                 });

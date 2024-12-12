@@ -22,8 +22,7 @@
 #include "MatTransposeNaiveHandler.hpp"
 #include "Matrix.hpp"
 
-void MatTransposeNaiveHandler::handle(const Matrix<Type> *mat,
-                                      Matrix<Type> *&result) {
+void MatTransposeNaiveHandler::handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
   const size_t nrows{mat->getNumRows()};
   const size_t ncols{mat->getNumColumns()};
 
@@ -33,8 +32,8 @@ void MatTransposeNaiveHandler::handle(const Matrix<Type> *mat,
   const auto idx = Range<size_t>(0, nrows * ncols);
   std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t n) {
     // Row and column index
-    const size_t j = n % ncols;
-    const size_t i = (n - j) / ncols;
+    const size_t j = (n % ncols);
+    const size_t i = ((n - j) / ncols);
     #if defined(USE_COMPLEX_MATH)
       (*result)(j, i) = std::conj((*mat)(i, j));
     #else

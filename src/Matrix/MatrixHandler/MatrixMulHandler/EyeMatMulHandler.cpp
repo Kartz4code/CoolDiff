@@ -23,9 +23,7 @@
 #include "Matrix.hpp"
 #include "MatrixEyeOps.hpp"
 
-void EyeMatMulHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
-                              Matrix<Type> *&result) {
-
+void EyeMatMulHandler::handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
   // If result is nullptr, then create a new resource
   const size_t lrows{lhs->getNumRows()};
   const size_t lcols{lhs->getNumColumns()};
@@ -37,15 +35,15 @@ void EyeMatMulHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
 
 #if defined(NAIVE_IMPL)
   /* Eye matrix special check */
-  if (auto *it = EyeMatMul(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type> *>(it);
+  if (auto* it = EyeMatMul(lhs, rhs); nullptr != it) {
+    result = const_cast<Matrix<Type>*>(it);
     return;
   }
 
   /* Eye matrix numerical check */
   #if defined(NUMERICAL_CHECK)
-    else if (auto *it = EyeMatMulNum(lhs, rhs); nullptr != it) {
-      result = const_cast<Matrix<Type> *>(it);
+    else if (auto* it = EyeMatMulNum(lhs, rhs); nullptr != it) {
+      result = const_cast<Matrix<Type>*>(it);
       return;
     }
   #endif

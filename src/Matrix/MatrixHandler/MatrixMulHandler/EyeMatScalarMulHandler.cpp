@@ -23,7 +23,7 @@
 #include "Matrix.hpp"
 #include "MatrixEyeOps.hpp"
 
-void MulEye(Type val, const Matrix<Type> *it, Matrix<Type> *&result) {
+void MulEye(Type val, const Matrix<Type>* it, Matrix<Type>*& result) {
   /*
     Rows and columns of result matrix and if result is nullptr or if dimensions
     mismatch, then create a new matrix resource
@@ -40,18 +40,17 @@ void MulEye(Type val, const Matrix<Type> *it, Matrix<Type> *&result) {
                 [&](const size_t i) { (*result)(i, i) = val; });
 }
 
-void EyeMatScalarMulHandler::handle(Type lhs, const Matrix<Type> *rhs,
-                                    Matrix<Type> *&result) {
+void EyeMatScalarMulHandler::handle(Type lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
 #if defined(NAIVE_IMPL)
   /* Eye matrix special check */
-  if (auto *it = EyeMatScalarMul(lhs, rhs); nullptr != it) {
+  if (auto* it = EyeMatScalarMul(lhs, rhs); nullptr != it) {
     MulEye(lhs, rhs, result);
     return;
   }
 
   /* Eye matrix numerical check */
   #if defined(NUMERICAL_CHECK)
-    else if (auto *it = EyeMatScalarMulNum(lhs, rhs); nullptr != it) {
+    else if (auto* it = EyeMatScalarMulNum(lhs, rhs); nullptr != it) {
       MulEye(lhs, rhs, result);
       return;
     }

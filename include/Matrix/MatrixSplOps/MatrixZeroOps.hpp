@@ -77,4 +77,5 @@ const Matrix<Type>* ZeroMatConvNum(const size_t, const size_t,
 
 // Zero matrix derivative convolution numerics
 const Matrix<Type> *ZeroMatDervConvNum(const size_t, const size_t,
-                                       const Matrix<Type>*, const Matrix<Type>*, const Matrix<Type>*, const Matrix<Type>*);
+                                       const Matrix<Type>*, const Matrix<Type>*, 
+                                       const Matrix<Type>*, const Matrix<Type>*);

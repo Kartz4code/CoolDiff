@@ -25,7 +25,7 @@
 #define ABS(X) (X>0?(X):(-X))
 
 // Is the matrix zero
-bool IsZeroMatrix(const Matrix<Type> *m) {
+bool IsZeroMatrix(const Matrix<Type>* m) {
   // Zero special matrix check
   if (m->getMatType() == MatrixSpl::ZEROS) {
     return true;
@@ -67,13 +67,13 @@ const Matrix<Type> *ZeroMatAdd(const Matrix<Type> *lhs,
 }
 
 // Zero matrix scalar addition
-const Matrix<Type> *ZeroMatScalarAdd(Type lhs, const Matrix<Type> *rhs) {
+const Matrix<Type> *ZeroMatScalarAdd(Type lhs, const Matrix<Type>* rhs) {
   // Rows and columns of result matrix
   const size_t nrows{rhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
 
   // Result matrix
-  Matrix<Type> *result{nullptr};
+  Matrix<Type>* result{nullptr};
 
   // If both lhs and rhs matrices are zero matrices
   if ((lhs == (Type)(0)) && (rhs->getMatType() == MatrixSpl::ZEROS)) {
@@ -90,8 +90,8 @@ const Matrix<Type> *ZeroMatScalarAdd(Type lhs, const Matrix<Type> *rhs) {
 }
 
 // Zero matrix subtraction
-const Matrix<Type> *ZeroMatSub(const Matrix<Type> *lhs,
-                               const Matrix<Type> *rhs) {
+const Matrix<Type>* ZeroMatSub(const Matrix<Type>* lhs,
+                               const Matrix<Type>* rhs) {
   // Rows and columns of result matrix
   const size_t nrows{lhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
@@ -250,7 +250,7 @@ const Matrix<Type> *ZeroMatAddNum(const Matrix<Type> *lhs,
 }
 
 // Zero matrix scalar addition numerics
-const Matrix<Type> *ZeroMatScalarAddNum(Type lhs, const Matrix<Type> *rhs) {
+const Matrix<Type> *ZeroMatScalarAddNum(Type lhs, const Matrix<Type>* rhs) {
   // Rows and columns of result matrix
   const size_t nrows{rhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
@@ -259,7 +259,7 @@ const Matrix<Type> *ZeroMatScalarAddNum(Type lhs, const Matrix<Type> *rhs) {
   const bool rhs_bool = IsZeroMatrix(rhs);
 
   // Result matrix
-  Matrix<Type> *result{nullptr};
+  Matrix<Type>* result{nullptr};
 
   if ((lhs == (Type)(0)) && rhs_bool == true) {
     return MemoryManager::MatrixSplPool(nrows, ncols, MatrixSpl::ZEROS);
