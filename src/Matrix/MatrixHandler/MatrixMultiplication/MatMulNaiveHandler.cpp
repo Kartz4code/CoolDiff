@@ -23,10 +23,7 @@
 #include "MatTransposeNaiveHandler.hpp"
 #include "Matrix.hpp"
 
-void MatMulNaiveHandler::handle(const Matrix<Type> *lhs,
-                                const Matrix<Type> *rhs,
-                                Matrix<Type> *&result) {
-
+void MatMulNaiveHandler::handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
   // If result is nullptr, then create a new resource
   const size_t lrows{lhs->getNumRows()};
   const size_t lcols{lhs->getNumColumns()};
@@ -61,15 +58,15 @@ void MatMulNaiveHandler::handle(const Matrix<Type> *lhs,
                   std::for_each(EXECUTION_SEQ inner_idx.begin(), inner_idx.end(), 
                                 [&](const size_t m) {
                                   #if defined(MATRIX_TRANSPOSED_MUL)
-                                    tmp += (*lhs)(i, m) * (*mp_rhs_transpose)(j,m);
+                                    tmp += ((*lhs)(i, m) * (*mp_rhs_transpose)(j,m));
                                   #else
-                                    tmp += (*lhs)(i, m) * (*rhs)(m,j);
+                                    tmp += ((*lhs)(i, m) * (*rhs)(m,j));
                                   #endif
                                 });
 
                   // Store result
                   (*result)(i, j) = std::exchange(tmp, (Type)(0));
-                });
+              });
 
 
   #if defined(MATRIX_TRANSPOSED_MUL)

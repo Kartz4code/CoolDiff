@@ -22,9 +22,7 @@
 #include "MatSubNaiveHandler.hpp"
 #include "Matrix.hpp"
 
-void MatSubNaiveHandler::handle(const Matrix<Type> *lhs,
-                                const Matrix<Type> *rhs,
-                                Matrix<Type> *&result) {
+void MatSubNaiveHandler::handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
   /* Matrix-Matrix numerical subtraction */
   // Rows and columns of result matrix and if result is nullptr, then create a
   // new resource
@@ -40,14 +38,15 @@ void MatSubNaiveHandler::handle(const Matrix<Type> *lhs,
   MemoryManager::MatrixPool(nrows, ncols, result);
 
   // Get raw pointers to result, left and right matrices
-  Type *res = result->getMatrixPtr();
-  const Type *left = lhs->getMatrixPtr();
-  const Type *right = rhs->getMatrixPtr();
+  Type* res = result->getMatrixPtr();
+  const Type* left = lhs->getMatrixPtr();
+  const Type* right = rhs->getMatrixPtr();
 
   // For each element, perform subtraction
   const size_t size{nrows * ncols};
   std::transform(EXECUTION_PAR left, left + size, right, res,
-                 [](const Type a, const Type b) { return a - b; });
+                 [](const Type a, const Type b) { return a - b; }
+                );
 
   return;
 }

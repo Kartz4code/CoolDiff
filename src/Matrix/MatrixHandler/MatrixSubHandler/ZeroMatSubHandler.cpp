@@ -23,7 +23,7 @@
 #include "Matrix.hpp"
 #include "MatrixZeroOps.hpp"
 
-void SubZero(const Matrix<Type> *it, Matrix<Type> *&result) {
+void SubZero(const Matrix<Type>* it, Matrix<Type>*& result) {
   /*
     Rows and columns of result matrix and if result is nullptr or if dimensions
     mismatch, then create a new matrix resource
@@ -36,14 +36,11 @@ void SubZero(const Matrix<Type> *it, Matrix<Type> *&result) {
 
   std::transform(EXECUTION_PAR it->getMatrixPtr(),
                  it->getMatrixPtr() + it->getNumElem(), result->getMatrixPtr(),
-                 [](const auto &i) { return (Type)(-1) * i; });
+                 [](const auto &i) { return ((Type)(-1) * i); });
 }
 
-void ZeroMatSubHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
-                               Matrix<Type> *&result) {
-
-  // Rows and columns of result matrix and if result is nullptr, then create a
-  // new resource
+void ZeroMatSubHandler::handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
+  // Rows and columns of result matrix and if result is nullptr, then create a new resource
   const size_t nrows{lhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
   const size_t lcols{lhs->getNumColumns()};
@@ -54,25 +51,33 @@ void ZeroMatSubHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
 
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
-  if (auto *it = ZeroMatSub(lhs, rhs); nullptr != it) {
+  if (auto* it = ZeroMatSub(lhs, rhs); nullptr != it) {
     if (it == lhs) {
-      result = const_cast<Matrix<Type> *>(lhs);
+      result = const_cast<Matrix<Type>*>(lhs);
     } else if (it == rhs) {
-      SubZero(it, result);
+      if(-1 == it->getMatType()) {
+        SubZero(it, result);
+      } else {
+        MatrixHandler::handle(lhs, rhs, result);
+      }
     } else {
-      result = const_cast<Matrix<Type> *>(it);
+      result = const_cast<Matrix<Type>*>(it);
     }
     return;
   }
   /* Zero matrix numerical check */
   #if defined(NUMERICAL_CHECK)
-    else if (auto *it = ZeroMatSubNum(lhs, rhs); nullptr != it) {
+    else if (auto* it = ZeroMatSubNum(lhs, rhs); nullptr != it) {
       if (it == lhs) {
-        result = const_cast<Matrix<Type> *>(lhs);
+        result = const_cast<Matrix<Type>*>(lhs);
       } else if (it == rhs) {
-        SubZero(it, result);
+        if(-1 == it->getMatType()) {
+          SubZero(it, result);
+        } else {
+          MatrixHandler::handle(lhs, rhs, result);
+        }
       } else {
-        result = const_cast<Matrix<Type> *>(it);
+        result = const_cast<Matrix<Type>*>(it);
       }
       return;
     }

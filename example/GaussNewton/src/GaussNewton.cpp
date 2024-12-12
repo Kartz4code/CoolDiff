@@ -75,11 +75,11 @@ void GaussNewton::computeABScalar(const size_t var_size) {
 
         // Compute A matrix
         h3.handle(jacobian, m_tempA1);
-        h2.handle(jacobian, m_tempA1, m_tempA2); 
+        h2.handle(m_tempA1, jacobian, m_tempA2); 
         h1.handle(m_A, m_tempA2, m_A);
 
         // Compute B matrix
-        h4.handle(eval, jacobian, m_tempB);
+        h4.handle(eval, m_tempA1, m_tempB);
         h1.handle(m_B, m_tempB, m_B); 
     }
 }

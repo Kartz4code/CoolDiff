@@ -217,33 +217,6 @@ void func9() {
   std::cout << DevalF(S, X) << "\n";
 }
 
-void func2() {
-  Matrix<Variable> x(2, 2);
-  x(0, 0) = 1;
-  x(0, 1) = 5;
-  x(1, 0) = 3;
-  x(1, 1) = 20;
-
-  Matrix<Type> m = Matrix<Type>::MatrixFactory::CreateMatrix(2, 2);
-  m(0, 0) = 1;
-  m(0, 1) = 0;
-  m(1, 0) = 0;
-  m(1, 1) = 1;
-
-  Matrix<Expression> x2(2, 2);
-  x2(0, 0) = x(0, 0) + x(1, 1);
-  x2(0, 1) = x(0, 0) - x(1, 1);
-  x2(1, 0) = x(1, 0) + x(1, 0);
-  x2(1, 1) = x(0, 0) + x(1, 1) + x(0, 1) + x(1, 0);
-
-  Matrix<Expression> sum = m * x2;
-  sum = sum * x + x;
-
-  std::cout << Eval(sum) << "\n";
-  std::cout << DevalF(sum, x) << "\n";
-  std::cout << DevalF(sum, x) << "\n";
-}
-
 void func3() {
   Matrix<Variable> x(2, 2);
   x(0, 0) = 1;
@@ -305,7 +278,6 @@ int main(int argc, char **argv) {
   func11();
   func10();
   func9();
-  func2();
   func3();
   func5();
 

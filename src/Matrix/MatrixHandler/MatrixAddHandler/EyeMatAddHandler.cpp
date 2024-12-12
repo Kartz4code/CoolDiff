@@ -23,7 +23,7 @@
 #include "Matrix.hpp"
 #include "MatrixEyeOps.hpp"
 
-void AddEye(const Matrix<Type> *it, Matrix<Type> *&result) {
+void AddEye(const Matrix<Type>* it, Matrix<Type>*& result) {
   /*
     Rows and columns of result matrix and if result is nullptr or if dimensions
     mismatch, then create a new matrix resource
@@ -44,7 +44,7 @@ void AddEye(const Matrix<Type> *it, Matrix<Type> *&result) {
       [&](const size_t i) { (*result)(i, i) = (*it)(i, i) + (Type)(1); });
 }
 
-void Add2Eye(const Matrix<Type> *it, Matrix<Type> *&result) {
+void Add2Eye(const Matrix<Type>* it, Matrix<Type>*& result) {
   /*
     Rows and columns of result matrix and if result is nullptr or if dimensions
     mismatch, then create a new matrix resource
@@ -62,8 +62,7 @@ void Add2Eye(const Matrix<Type> *it, Matrix<Type> *&result) {
                 [&](const size_t i) { (*result)(i, i) = (Type)(2); });
 }
 
-void EyeMatAddHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
-                              Matrix<Type> *&result) {
+void EyeMatAddHandler::handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
 
   const size_t nrows{lhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
@@ -71,14 +70,17 @@ void EyeMatAddHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
   const size_t rrows{rhs->getNumRows()};
 
   // Assert dimensions
-  ASSERT((nrows == rrows) && (ncols == lcols),
-         "Matrix addition dimensions mismatch");
+  ASSERT((nrows == rrows) && (ncols == lcols), "Matrix addition dimensions mismatch");
 
 #if defined(NAIVE_IMPL)
   /* Eye matrix special check */
-  if (auto *it = EyeMatAdd(lhs, rhs); nullptr != it) {
+  if (auto* it = EyeMatAdd(lhs, rhs); nullptr != it) {
     if (it == lhs || it == rhs) {
-      AddEye(it, result);
+      if(-1 == it->getMatType()) {
+        AddEye(it, result);
+      } else {
+        MatrixHandler::handle(lhs, rhs, result);
+      }
     } else {
       Add2Eye(it, result);
     }
@@ -87,9 +89,13 @@ void EyeMatAddHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
 
   /* Eye matrix numerical check */
   #if defined(NUMERICAL_CHECK)
-    else if (auto *it = EyeMatAddNum(lhs, rhs); nullptr != it) {
+    else if (auto* it = EyeMatAddNum(lhs, rhs); nullptr != it) {
       if (it == lhs || it == rhs) {
-        AddEye(it, result);
+        if(-1 == it->getMatType()) {
+          AddEye(it, result);
+        } else {
+          MatrixHandler::handle(lhs, rhs, result);
+        }
       } else {
         Add2Eye(it, result);
       }

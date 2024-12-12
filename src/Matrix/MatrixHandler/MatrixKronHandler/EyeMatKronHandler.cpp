@@ -24,9 +24,7 @@
 #include "MatrixEyeOps.hpp"
 
 // When left matrix is special matrix of identity type
-void KronEyeLHS(const Matrix<Type>* lhs, 
-                const Matrix<Type>* rhs,
-                Matrix<Type>*& result) {
+void KronEyeLHS(const Matrix<Type>* lhs,  const Matrix<Type>* rhs, Matrix<Type>*& result) {
   /* Matrix-Matrix numerical Kronocker product */
   // Rows and columns of result matrix and if result is nullptr, then create a
   // new resource
@@ -42,8 +40,8 @@ void KronEyeLHS(const Matrix<Type>* lhs,
   const auto rhs_idx = Range<size_t>(0, rr * rc);
   std::for_each(EXECUTION_PAR lhs_idx.begin(), lhs_idx.end(),
                 [&](const size_t n1) {
-                  const size_t j{n1 % lc};
-                  const size_t i{(n1 - j) / lc};
+                  const size_t j = (n1 % lc);
+                  const size_t i = ((n1 - j) / lc);
 
                   // If i == j, then val is 1, else zero (LHS identity creation)
                   Type val = ((i == j) ? (Type)(1) : (Type)(0));
@@ -52,19 +50,16 @@ void KronEyeLHS(const Matrix<Type>* lhs,
                   if ((Type)(0) != val) {
                     std::for_each(EXECUTION_PAR rhs_idx.begin(), rhs_idx.end(),
                                   [&](const size_t n2) {
-                                    const size_t m{n2 % rc};
-                                    const size_t l{(n2 - m) / rc};
-                                    (*result)(i * rr + l, j * rc + m) =
-                                        (*rhs)(l, m) * val;
+                                    const size_t m = (n2 % rc);
+                                    const size_t l = ((n2 - m) / rc);
+                                    (*result)((i * rr) + l, (j * rc) + m) = ((*rhs)(l, m) * val);
                                   });
                   }
                 });
 }
 
 // When right matrix is special matrix of identity type
-void KronEyeRHS(const Matrix<Type>* lhs, 
-                const Matrix<Type>* rhs,
-                Matrix<Type>*& result) {
+void KronEyeRHS(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
   /* Matrix-Matrix numerical Kronocker product */
   // Rows and columns of result matrix and if result is nullptr, then create a
   // new resource
@@ -80,8 +75,8 @@ void KronEyeRHS(const Matrix<Type>* lhs,
   const auto rhs_idx = Range<size_t>(0, rr * rc);
   std::for_each(EXECUTION_PAR lhs_idx.begin(), lhs_idx.end(),
                 [&](const size_t n1) {
-                  const size_t j{n1 % lc};
-                  const size_t i{(n1 - j) / lc};
+                  const size_t j = (n1 % lc);
+                  const size_t i = ((n1 - j) / lc);
 
                   // Value of LHS matrix at (i,j) index
                   Type val = (*lhs)(i, j);
@@ -90,29 +85,26 @@ void KronEyeRHS(const Matrix<Type>* lhs,
                   if ((Type)(0) != val) {
                     std::for_each(EXECUTION_PAR rhs_idx.begin(), rhs_idx.end(),
                                   [&](const size_t n2) {
-                                    const size_t m{n2 % rc};
-                                    const size_t l{(n2 - m) / rc};
-                                    (*result)(i * rr + l, j * rc + m) =
-                                        ((l == m) ? val : (Type)(0));
+                                    const size_t m = (n2 % rc);
+                                    const size_t l = ((n2 - m) / rc);
+                                    (*result)((i * rr) + l, (j * rc) + m) = ((l == m) ? val : (Type)(0));
                                   });
                   }
-                });
+               });
 }
 
-void EyeMatKronHandler::handle(const Matrix<Type>* lhs, 
-                               const Matrix<Type>* rhs,
-                               Matrix<Type>*& result) {
+void EyeMatKronHandler::handle(const Matrix<Type>* lhs,  const Matrix<Type>* rhs, Matrix<Type>*& result) {
 #if defined(NAIVE_IMPL)
   /* Eye matrix special check */
-  if (auto *it = EyeMatKron(lhs, rhs); nullptr != it) {
+  if (auto* it = EyeMatKron(lhs, rhs); nullptr != it) {
     if (it == lhs) {
-      if(-1 == lhs->getMatType()) {
+      if(-1 == it->getMatType()) {
         KronEyeRHS(lhs, rhs, result);
       } else {
         MatrixHandler::handle(lhs, rhs, result);
       }
     } else if (it == rhs) {
-      if(-1 == rhs->getMatType()) {
+      if(-1 == it->getMatType()) {
         KronEyeLHS(lhs, rhs, result);
       } else {
         MatrixHandler::handle(lhs, rhs, result);
@@ -125,7 +117,7 @@ void EyeMatKronHandler::handle(const Matrix<Type>* lhs,
 
   /* Eye matrix numerical check */
   #if defined(NUMERICAL_CHECK)
-    else if (auto *it = EyeMatKronNum(lhs, rhs); nullptr != it) {
+    else if (auto* it = EyeMatKronNum(lhs, rhs); nullptr != it) {
       if (it == lhs) {
         if(-1 == lhs->getMatType()) {
           KronEyeRHS(lhs, rhs, result);
@@ -139,7 +131,7 @@ void EyeMatKronHandler::handle(const Matrix<Type>* lhs,
           MatrixHandler::handle(lhs, rhs, result);
         }
       } else {
-        result = const_cast<Matrix<Type> *>(it);
+        result = const_cast<Matrix<Type>*>(it);
       }
       return;
     }

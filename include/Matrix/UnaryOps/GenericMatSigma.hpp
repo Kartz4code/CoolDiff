@@ -39,7 +39,7 @@ private:
 
   // All matrices
   inline static constexpr const size_t m_size{6};
-  Matrix<Type> *mp_arr[m_size]{};
+  Matrix<Type>* mp_arr[m_size]{};
 
 public:
   // Block index

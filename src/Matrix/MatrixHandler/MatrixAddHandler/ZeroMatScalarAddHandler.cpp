@@ -23,18 +23,17 @@
 #include "Matrix.hpp"
 #include "MatrixZeroOps.hpp"
 
-void ZeroMatScalarAddHandler::handle(Type lhs, const Matrix<Type> *rhs,
-                                     Matrix<Type> *&result) {
+void ZeroMatScalarAddHandler::handle(Type lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
-  if (auto *it = ZeroMatScalarAdd(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type> *>(it);
+  if (auto* it = ZeroMatScalarAdd(lhs, rhs); nullptr != it) {
+    result = const_cast<Matrix<Type>*>(it);
     return;
   }
   /* Zero matrix numerical check */
   #if defined(NUMERICAL_CHECK)
-    else if (auto *it = ZeroMatScalarAddNum(lhs, rhs); nullptr != it) {
-      result = const_cast<Matrix<Type> *>(it);
+    else if (auto* it = ZeroMatScalarAddNum(lhs, rhs); nullptr != it) {
+      result = const_cast<Matrix<Type>*>(it);
       return;
     }
   #endif
