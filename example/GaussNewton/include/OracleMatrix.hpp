@@ -25,31 +25,30 @@
 
 // OracleMatrix class
 class OracleMatrix : public Oracle {
-  private:
-    friend class Oracle;
-    friend class Oracle::OracleFactory;
+private:
+  friend class Oracle;
+  friend class Oracle::OracleFactory;
 
-    OracleMatrix(Matrix<Expression>&, Matrix<Variable>&);
-    
-    // Dimension of variable vector
-    size_t m_dim{};
-    // Matrix expression
-    Matrix<Expression>& m_exp;
-    // Matrix variable
-    Matrix<Variable>& m_X;
+  OracleMatrix(Matrix<Expression> &, Matrix<Variable> &);
 
-  public:
-    
-    // Oracle functions
-    V_OVERRIDE( Type eval() );
-    V_OVERRIDE( Matrix<Type>* evalMat() );
-    V_OVERRIDE( Matrix<Type>* jacobian() );
-    V_OVERRIDE( const size_t getVariableSize() const );
-    V_OVERRIDE( std::string_view getOracleType() const );
+  // Dimension of variable vector
+  size_t m_dim{};
+  // Matrix expression
+  Matrix<Expression> &m_exp;
+  // Matrix variable
+  Matrix<Variable> &m_X;
 
-    // Get variables
-    const Matrix<Variable>& getVariables() const;
-    Matrix<Variable>& getVariables();
+public:
+  // Oracle functions
+  V_OVERRIDE(Type eval());
+  V_OVERRIDE(Matrix<Type> *evalMat());
+  V_OVERRIDE(Matrix<Type> *jacobian());
+  V_OVERRIDE(const size_t getVariableSize() const);
+  V_OVERRIDE(std::string_view getOracleType() const);
 
-    virtual ~OracleMatrix() = default;
+  // Get variables
+  const Matrix<Variable> &getVariables() const;
+  Matrix<Variable> &getVariables();
+
+  virtual ~OracleMatrix() = default;
 };

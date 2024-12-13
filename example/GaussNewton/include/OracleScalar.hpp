@@ -30,45 +30,44 @@ private:
   friend class Oracle::OracleFactory;
 
   // Hessian pointer
-  Matrix<Type>* m_hessian{nullptr};
+  Matrix<Type> *m_hessian{nullptr};
   // Jacobian pointer
-  Matrix<Type>* m_jacobian{nullptr};
+  Matrix<Type> *m_jacobian{nullptr};
 
   // Dimension of variable vector
-  size_t m_dim{};  
+  size_t m_dim{};
   // Expression
-  Expression& m_exp;
+  Expression &m_exp;
   // Vector of variables
-  Matrix<Variable>& m_X;
+  Matrix<Variable> &m_X;
 
   // Vector of Jacobian expressions (For Hessian computation)
   Matrix<Expression> m_jacobian_sym;
 
   // Scalar oracle constructor
-  OracleScalar(Expression&, Matrix<Variable>&);
+  OracleScalar(Expression &, Matrix<Variable> &);
 
-  // Symbolic Jacobian for Hessian computation 
-  template<typename T>
-  void symJacob(T& exp) {
+  // Symbolic Jacobian for Hessian computation
+  template <typename T> void symJacob(T &exp) {
     for (size_t i{}; i < m_dim; ++i) {
-      m_jacobian_sym[i] = SymDiff(exp, m_X[i]);                                              
-    } 
+      m_jacobian_sym[i] = SymDiff(exp, m_X[i]);
+    }
   }
 
 public:
   // Oracle functions
-  V_OVERRIDE( Type eval() );
-  V_OVERRIDE( Matrix<Type>* evalMat() );
-  V_OVERRIDE( Matrix<Type>* jacobian() );
-  V_OVERRIDE( const size_t getVariableSize() const );
-  V_OVERRIDE( std::string_view getOracleType() const );
+  V_OVERRIDE(Type eval());
+  V_OVERRIDE(Matrix<Type> *evalMat());
+  V_OVERRIDE(Matrix<Type> *jacobian());
+  V_OVERRIDE(const size_t getVariableSize() const);
+  V_OVERRIDE(std::string_view getOracleType() const);
 
   // Get Hessian
-  Matrix<Type>* hessian();
+  Matrix<Type> *hessian();
 
   // Get variables
-  const Matrix<Variable>& getVariables() const;
-  Matrix<Variable>& getVariables();
+  const Matrix<Variable> &getVariables() const;
+  Matrix<Variable> &getVariables();
 
   virtual ~OracleScalar() = default;
 };

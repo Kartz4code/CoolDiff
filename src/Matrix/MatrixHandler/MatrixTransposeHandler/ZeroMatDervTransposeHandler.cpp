@@ -24,9 +24,9 @@
 #include "Matrix.hpp"
 #include "MatrixZeroOps.hpp"
 
-void ZeroMatDervTransposeHandler::handle(const size_t nrows_f, const size_t ncols_f, 
-                                         const size_t nrows_x, const size_t ncols_x, 
-                                         const Matrix<Type>* mat, Matrix<Type>*& result) {
+void ZeroMatDervTransposeHandler::handle(
+    const size_t nrows_f, const size_t ncols_f, const size_t nrows_x,
+    const size_t ncols_x, const Matrix<Type> *mat, Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
   if (true == IsZeroMatrix(mat)) {

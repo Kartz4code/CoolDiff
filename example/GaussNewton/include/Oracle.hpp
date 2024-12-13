@@ -25,26 +25,26 @@
 
 // Oracle base class
 class Oracle {
-    private:
-        inline static Vector<SharedPtr<Oracle>> m_oracle_factory;  
-    
-    public:
-        Oracle() = default;
+private:
+  inline static Vector<SharedPtr<Oracle>> m_oracle_factory;
 
-        class OracleFactory {
-            public:
-                static Oracle* CreateOracle(Expression&, Matrix<Variable>&);
-                static Oracle* CreateOracle(Matrix<Expression>&, Matrix<Variable>&);
+public:
+  Oracle() = default;
 
-                ~OracleFactory() = default;
-        };
+  class OracleFactory {
+  public:
+    static Oracle *CreateOracle(Expression &, Matrix<Variable> &);
+    static Oracle *CreateOracle(Matrix<Expression> &, Matrix<Variable> &);
 
-        // Oracle functions
-        V_PURE( Type eval() );
-        V_PURE( Matrix<Type>* evalMat() );
-        V_PURE( Matrix<Type>* jacobian() );
-        V_PURE( const size_t getVariableSize() const );
-        V_PURE( std::string_view getOracleType() const );
+    ~OracleFactory() = default;
+  };
 
-        virtual ~Oracle();
+  // Oracle functions
+  V_PURE(Type eval());
+  V_PURE(Matrix<Type> *evalMat());
+  V_PURE(Matrix<Type> *jacobian());
+  V_PURE(const size_t getVariableSize() const);
+  V_PURE(std::string_view getOracleType() const);
+
+  virtual ~Oracle();
 };

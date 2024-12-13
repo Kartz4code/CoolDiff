@@ -23,7 +23,7 @@
 #include "Matrix.hpp"
 #include "MatrixEyeOps.hpp"
 
-void SubEyeRHS(const Matrix<Type>* it, Matrix<Type>*& result) {
+void SubEyeRHS(const Matrix<Type> *it, Matrix<Type> *&result) {
   /*
     Rows and columns of result matrix and if result is nullptr or if dimensions
     mismatch, then create a new matrix resource
@@ -45,7 +45,7 @@ void SubEyeRHS(const Matrix<Type>* it, Matrix<Type>*& result) {
   });
 }
 
-void SubEyeLHS(const Matrix<Type>* it, Matrix<Type>*& result) {
+void SubEyeLHS(const Matrix<Type> *it, Matrix<Type> *&result) {
   /*
     Rows and columns of result matrix and if result is nullptr or if dimensions
     mismatch, then create a new matrix resource
@@ -62,11 +62,13 @@ void SubEyeLHS(const Matrix<Type>* it, Matrix<Type>*& result) {
   std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t n) {
     const size_t j = (n % ncols);
     const size_t i = ((n - j) / ncols);
-    (*result)(i, j) = ((i == j) ? ((Type)(1) - (*it)(i, j)) : ((Type)(-1) * (*it)(i, j)));
+    (*result)(i, j) =
+        ((i == j) ? ((Type)(1) - (*it)(i, j)) : ((Type)(-1) * (*it)(i, j)));
   });
 }
 
-void EyeMatSubHandler::handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
+void EyeMatSubHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+                              Matrix<Type> *&result) {
 
   // Rows and columns of result matrix and if result is nullptr, then create a
   // new resource
@@ -76,49 +78,50 @@ void EyeMatSubHandler::handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, 
   const size_t rrows{rhs->getNumRows()};
 
   // Assert dimensions
-  ASSERT((nrows == rrows) && (ncols == lcols), "Matrix subtraction dimensions mismatch");
+  ASSERT((nrows == rrows) && (ncols == lcols),
+         "Matrix subtraction dimensions mismatch");
 
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
-  if (auto* it = EyeMatSub(lhs, rhs); nullptr != it) {
+  if (auto *it = EyeMatSub(lhs, rhs); nullptr != it) {
     if (it == lhs) {
-      if(-1 == it->getMatType()) {
+      if (-1 == it->getMatType()) {
         SubEyeRHS(it, result);
       } else {
         MatrixHandler::handle(lhs, rhs, result);
       }
     } else if (it == rhs) {
-      if(-1 == it->getMatType()) {
+      if (-1 == it->getMatType()) {
         SubEyeLHS(it, result);
       } else {
         MatrixHandler::handle(lhs, rhs, result);
       }
     } else {
-      result = const_cast<Matrix<Type>*>(it);
+      result = const_cast<Matrix<Type> *>(it);
     }
     return;
   }
-  /* Zero matrix numerical check */
-  #if defined(NUMERICAL_CHECK)
-    else if (auto* it = EyeMatSubNum(lhs, rhs); nullptr != it) {
-      if (it == lhs) {
-        if(-1 == it->getMatType()) {
-          SubEyeRHS(it, result);
-        } else {
-          MatrixHandler::handle(lhs, rhs, result);
-        }
-      } else if (it == rhs) {
-        if(-1 == it->getMatType()) {
-          SubEyeLHS(it, result);
-        } else {
-          MatrixHandler::handle(lhs, rhs, result);
-        }
+/* Zero matrix numerical check */
+#if defined(NUMERICAL_CHECK)
+  else if (auto *it = EyeMatSubNum(lhs, rhs); nullptr != it) {
+    if (it == lhs) {
+      if (-1 == it->getMatType()) {
+        SubEyeRHS(it, result);
       } else {
-        result = const_cast<Matrix<Type>*>(it);
+        MatrixHandler::handle(lhs, rhs, result);
       }
-      return;
+    } else if (it == rhs) {
+      if (-1 == it->getMatType()) {
+        SubEyeLHS(it, result);
+      } else {
+        MatrixHandler::handle(lhs, rhs, result);
+      }
+    } else {
+      result = const_cast<Matrix<Type> *>(it);
     }
-  #endif
+    return;
+  }
+#endif
 #endif
 
   // Chain of responsibility

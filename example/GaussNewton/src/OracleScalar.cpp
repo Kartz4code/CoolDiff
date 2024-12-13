@@ -21,72 +21,59 @@
 
 #include "OracleScalar.hpp"
 
-
 // Scalar oracle constructor
-OracleScalar::OracleScalar(Expression& exp, Matrix<Variable>& X) : m_dim{ X.getNumElem() },
-                                                                   m_exp{ exp },
-                                                                   m_X{ X } 
-{}
+OracleScalar::OracleScalar(Expression &exp, Matrix<Variable> &X)
+    : m_dim{X.getNumElem()}, m_exp{exp}, m_X{X} {}
 
+Type OracleScalar::eval() { return Eval(m_exp); }
 
-Type OracleScalar::eval() {
-    return Eval(m_exp);
+Matrix<Type> *OracleScalar::evalMat() {
+  ASSERT(false, "OracleScalar cannot evaluate to Matrix");
+  return nullptr;
 }
 
-Matrix<Type>* OracleScalar::evalMat() {
-    ASSERT(false, "OracleScalar cannot evaluate to Matrix");
-    return nullptr;
-}
-
-Matrix<Type>* OracleScalar::hessian() {
-    if(nullptr == m_hessian) {
-        m_hessian = Matrix<Type>::MatrixFactory::CreateMatrixPtr(m_dim, m_dim);
-        symJacob(m_exp);
+Matrix<Type> *OracleScalar::hessian() {
+  if (nullptr == m_hessian) {
+    m_hessian = Matrix<Type>::MatrixFactory::CreateMatrixPtr(m_dim, m_dim);
+    symJacob(m_exp);
+  }
+  // Exploit Hessian symmetry
+  for (size_t i{}; i < m_dim; ++i) {
+    // Precompute
+    PreComp(m_jacobian_sym[i]);
+    for (size_t j{}; j <= i; ++j) {
+      if (j < i) {
+        (*m_hessian)(i, j) = DevalR(m_jacobian_sym[i], m_X[j]);
+        (*m_hessian)(j, i) = (*m_hessian)(i, j);
+      } else if (i == j) {
+        (*m_hessian)(i, j) = DevalR(m_jacobian_sym[i], m_X[j]);
+      }
     }
-    // Exploit Hessian symmetry
-    for (size_t i{}; i < m_dim; ++i) {
-        // Precompute
-        PreComp(m_jacobian_sym[i]);
-        for (size_t j{}; j <= i; ++j) {
-            if (j < i) {
-                (*m_hessian)(i, j) = DevalR(m_jacobian_sym[i], m_X[j]);
-                (*m_hessian)(j, i) = (*m_hessian)(i, j);
-            } else if (i == j) {
-                (*m_hessian)(i, j) = DevalR(m_jacobian_sym[i], m_X[j]);
-            }
-        }
-    }
-    return m_hessian;
+  }
+  return m_hessian;
 }
 
-Matrix<Type>* OracleScalar::jacobian() {
-    if(nullptr == m_jacobian) {
-        m_jacobian = Matrix<Type>::MatrixFactory::CreateMatrixPtr(1, m_dim);
-    }
-    // Precompute (By design, the operation is serial)
-    PreComp(m_exp);
-    
-    std::transform(EXECUTION_SEQ m_X.getMatrixPtr(), m_X.getMatrixPtr() + m_X.getNumElem(), 
-                                 m_jacobian->getMatrixPtr(),
-                                 [this](const auto &v) { return DevalR(m_exp, v); });
+Matrix<Type> *OracleScalar::jacobian() {
+  if (nullptr == m_jacobian) {
+    m_jacobian = Matrix<Type>::MatrixFactory::CreateMatrixPtr(1, m_dim);
+  }
+  // Precompute (By design, the operation is serial)
+  PreComp(m_exp);
 
-    return m_jacobian;
+  std::transform(EXECUTION_SEQ m_X.getMatrixPtr(),
+                 m_X.getMatrixPtr() + m_X.getNumElem(),
+                 m_jacobian->getMatrixPtr(),
+                 [this](const auto &v) { return DevalR(m_exp, v); });
+
+  return m_jacobian;
 }
 
-std::string_view OracleScalar::getOracleType() const {
-    return "OracleScalar";
-}
+std::string_view OracleScalar::getOracleType() const { return "OracleScalar"; }
 
 // Get variables
-const Matrix<Variable>& OracleScalar::getVariables() const {
-    return m_X;
-}
+const Matrix<Variable> &OracleScalar::getVariables() const { return m_X; }
 
-Matrix<Variable>& OracleScalar::getVariables() {
-    return m_X;
-}
+Matrix<Variable> &OracleScalar::getVariables() { return m_X; }
 
 // Get variable size
-const size_t OracleScalar::getVariableSize() const {
-    return m_dim;
-}
+const size_t OracleScalar::getVariableSize() const { return m_dim; }

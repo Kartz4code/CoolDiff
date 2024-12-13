@@ -70,7 +70,8 @@
 #include "MatTransposeNaiveHandler.hpp"
 
 // Matrix-Matrix addition - Left, Right, Result matrix pointer
-void MatrixAdd(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
+void MatrixAdd(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+               Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -90,7 +91,8 @@ void MatrixAdd(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& 
 }
 
 // Matrix-Matrix subtraction - Left, Right, Result matrix pointer
-void MatrixSub(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
+void MatrixSub(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+               Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -110,7 +112,8 @@ void MatrixSub(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& 
 }
 
 // Matrix-Matrix multiplication - Left, Right, Result matrix pointer
-void MatrixMul(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
+void MatrixMul(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+               Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -120,7 +123,7 @@ void MatrixMul(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& 
       2) Zero matrix check
       3) Matrix-Matrix multiplication
   */
-  
+
   static MatMulNaiveHandler h1{nullptr};
   static ZeroMatMulHandler h2{&h1};
   static EyeMatMulHandler h3{&h2};
@@ -130,7 +133,8 @@ void MatrixMul(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& 
 }
 
 // Matrix-Matrix Kronocker product - Left, Right, Result matrix pointer
-void MatrixKron(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
+void MatrixKron(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+                Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -150,7 +154,8 @@ void MatrixKron(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*&
 }
 
 // Matrix-Matrix Hadamard product - Left, Right, Result matrix pointer
-void MatrixHadamard(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
+void MatrixHadamard(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+                    Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -170,7 +175,7 @@ void MatrixHadamard(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Typ
 }
 
 // Matrix-Scalar addition
-void MatrixScalarAdd(Type lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
+void MatrixScalarAdd(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
@@ -189,7 +194,7 @@ void MatrixScalarAdd(Type lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
 }
 
 // Matrix-Scalar multiplication
-void MatrixScalarMul(Type lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
+void MatrixScalarMul(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
@@ -208,7 +213,7 @@ void MatrixScalarMul(Type lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
 }
 
 // Matrix transpose
-void MatrixTranspose(const Matrix<Type>* mat, Matrix<Type>*& result) {
+void MatrixTranspose(const Matrix<Type> *mat, Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(mat, "Matrix (mat) is a nullptr");
 
@@ -229,7 +234,7 @@ void MatrixTranspose(const Matrix<Type>* mat, Matrix<Type>*& result) {
 // Matrix derivative transpose
 void MatrixDervTranspose(const size_t nrows_f, const size_t ncols_f,
                          const size_t nrows_x, const size_t ncols_x,
-                         const Matrix<Type>* mat, Matrix<Type>*& result) {
+                         const Matrix<Type> *mat, Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(mat, "Matrix (mat) is a nullptr");
 
@@ -249,8 +254,8 @@ void MatrixDervTranspose(const size_t nrows_f, const size_t ncols_f,
 
 // Matrix convolution
 void MatrixConv(const size_t stride_x, const size_t stride_y,
-                const size_t pad_x, const size_t pad_y, 
-                const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
+                const size_t pad_x, const size_t pad_y, const Matrix<Type> *lhs,
+                const Matrix<Type> *rhs, Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -271,9 +276,9 @@ void MatrixConv(const size_t stride_x, const size_t stride_y,
 void MatrixDervConv(const size_t nrows_x, const size_t ncols_x,
                     const size_t stride_x, const size_t stride_y,
                     const size_t pad_x, const size_t pad_y,
-                    const Matrix<Type>* lhs, const Matrix<Type>* dlhs,
-                    const Matrix<Type>* rhs, const Matrix<Type>* drhs,
-                    Matrix<Type>*& result) {
+                    const Matrix<Type> *lhs, const Matrix<Type> *dlhs,
+                    const Matrix<Type> *rhs, const Matrix<Type> *drhs,
+                    Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -291,8 +296,6 @@ void MatrixDervConv(const size_t nrows_x, const size_t ncols_x,
   static ZeroMatDervConvHandler h2{&h1};
 
   // Handle Matrix convolution derivative
-  h2.handle(nrows_x, ncols_x, 
-            stride_x, stride_y, 
-            pad_x, pad_y, 
-            lhs, dlhs, rhs, drhs, result);
+  h2.handle(nrows_x, ncols_x, stride_x, stride_y, pad_x, pad_y, lhs, dlhs, rhs,
+            drhs, result);
 }

@@ -30,7 +30,8 @@ void MatDervConvNaiveHandler::handle(
     const Matrix<Type> *lhs, const Matrix<Type> *dlhs, const Matrix<Type> *rhs,
     const Matrix<Type> *drhs, Matrix<Type> *&result) {
   // Stride must be strictly non-negative
-  ASSERT(((int)stride_x > 0) && ((int)stride_y > 0), "Stride is not strictly non-negative");
+  ASSERT(((int)stride_x > 0) && ((int)stride_y > 0),
+         "Stride is not strictly non-negative");
   // Padding must be positive
   ASSERT(((int)pad_x >= 0) && ((int)pad_y >= 0), "Stride is not positive");
 
@@ -51,7 +52,8 @@ void MatDervConvNaiveHandler::handle(
       (((lhs->getNumColumns() + (2 * pad_y) - ccols) / stride_y) + 1);
 
   // Matrix-Matrix convolution result dimensions must be strictly non-negative
-  ASSERT(((int)rows > 0 || (int)cols > 0), "Matrix-Matrix convolution dimensions invalid");
+  ASSERT(((int)rows > 0 || (int)cols > 0),
+         "Matrix-Matrix convolution dimensions invalid");
 
   // Pad left derivative matrix with required padding
   dlhs->pad((pad_x * nrows_x), (pad_y * ncols_x), mp_arr[0]);

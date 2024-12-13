@@ -19,8 +19,8 @@
  * associated repository.
  */
 
-#include <gtest/gtest.h>
 #include "CoolDiff.hpp"
+#include <gtest/gtest.h>
 
 #if defined(USE_COMPLEX_MATH)
 
@@ -417,8 +417,7 @@ TEST(OpsTest, LogOps) {
   Variable x1{-1.2}, x2{2}, x3{6.2}, x4{13}, x5{108};
 
   // Split test
-  Expression y =
-      2.3 + log(-x1 * x2) * exp(log(x3 * x5)) - sin(x2) * tan(x4);
+  Expression y = 2.3 + log(-x1 * x2) * exp(log(x3 * x5)) - sin(x2) * tan(x4);
   y = x2 * y * x4 * cos(x3);
 
   Variable *tmp[5] = {&x1, &x2, &x3, &x4, &x5};
@@ -454,8 +453,7 @@ TEST(OpsTest, LogOpsHessian) {
   Variable x1{-1.2}, x2{2}, x3{6.2}, x4{13}, x5{108};
 
   // Split test
-  Expression y =
-      2.3 + log(-x1 * x2) * exp(log(x3 * x5)) - sin(x2) * tan(x4);
+  Expression y = 2.3 + log(-x1 * x2) * exp(log(x3 * x5)) - sin(x2) * tan(x4);
   y = x2 * y * x4 * cos(x3);
 
   Variable *tmp[5] = {&x1, &x2, &x3, &x4, &x5};
@@ -1190,7 +1188,7 @@ TEST(OpsTest, UnaryTest) {
   Variable x1{-1.2}, x2{0.1}, x3{6.2}, x4{13}, x5{108};
 
   // Sin function as a unary function
-  auto Sin = UnaryC0Function([](Type x) { return std::sin(x); }, 
+  auto Sin = UnaryC0Function([](Type x) { return std::sin(x); },
                              [](Type x) { return std::cos(x); });
 
   // Split test
@@ -1240,12 +1238,12 @@ TEST(OpsTest, UnaryTest) {
 TEST(OpsTest, BinaryTest) {
   Variable x1{1}, x2{2}, x3{-3}, x4{24}, x5{-99};
 
-  auto Product = BinaryC0Function([](Type u, Type v) { return u*v; },
-                                  [](Type u, Type v) { return v; }, 
+  auto Product = BinaryC0Function([](Type u, Type v) { return u * v; },
+                                  [](Type u, Type v) { return v; },
                                   [](Type u, Type v) { return u; });
 
-  Expression y = 9 + Product(Product((x1 + x2), (x3 + Product(x4,x5))),3);
-             y = y - Product(Product(2,x1),4) - 10;
+  Expression y = 9 + Product(Product((x1 + x2), (x3 + Product(x4, x5))), 3);
+  y = y - Product(Product(2, x1), 4) - 10;
 
   Type results[5] = {-7145, -7137, 9, -891, 216};
 
@@ -1268,10 +1266,10 @@ TEST(OpsTest, BinaryTest) {
 #endif
 
 int main(int argc, char **argv) {
-  #if defined(USE_COMPLEX_MATH)
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-  #else
-    return RUN_ALL_TESTS();
-  #endif
+#if defined(USE_COMPLEX_MATH)
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+#else
+  return RUN_ALL_TESTS();
+#endif
 }

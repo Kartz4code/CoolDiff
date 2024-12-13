@@ -220,26 +220,26 @@ void ZeroMatDervConvHandler::handle(
     }
     return;
   }
-  /* Zero matrix numerical check */
-  #if defined(NUMERICAL_CHECK)
-    else if (auto *it = ZeroMatDervConvNum((rows * nrows_x), (cols * ncols_x),
-                                          lhs, dlhs, rhs, drhs);
-            nullptr != it) {
-      if (it == rhs) {
-        handleRHS(nrows_x, ncols_x, stride_x, stride_y, pad_x, pad_y, lhs_rows,
-                  lhs_cols, rhs, dlhs, result);
-        return;
-      } else if (it == lhs) {
-        handleLHS(nrows_x, ncols_x, stride_x, stride_y, pad_x, pad_y, crows,
-                  ccols, lhs, drhs, result);
-        return;
-      } else {
-        result = const_cast<Matrix<Type> *>(it);
-        return;
-      }
+/* Zero matrix numerical check */
+#if defined(NUMERICAL_CHECK)
+  else if (auto *it = ZeroMatDervConvNum((rows * nrows_x), (cols * ncols_x),
+                                         lhs, dlhs, rhs, drhs);
+           nullptr != it) {
+    if (it == rhs) {
+      handleRHS(nrows_x, ncols_x, stride_x, stride_y, pad_x, pad_y, lhs_rows,
+                lhs_cols, rhs, dlhs, result);
+      return;
+    } else if (it == lhs) {
+      handleLHS(nrows_x, ncols_x, stride_x, stride_y, pad_x, pad_y, crows,
+                ccols, lhs, drhs, result);
+      return;
+    } else {
+      result = const_cast<Matrix<Type> *>(it);
       return;
     }
-  #endif
+    return;
+  }
+#endif
 #endif
 
   // Chain of responsibility

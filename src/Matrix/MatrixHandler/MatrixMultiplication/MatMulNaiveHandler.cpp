@@ -23,7 +23,9 @@
 #include "MatTransposeNaiveHandler.hpp"
 #include "Matrix.hpp"
 
-void MatMulNaiveHandler::handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
+void MatMulNaiveHandler::handle(const Matrix<Type> *lhs,
+                                const Matrix<Type> *rhs,
+                                Matrix<Type> *&result) {
   // If result is nullptr, then create a new resource
   const size_t lrows{lhs->getNumRows()};
   const size_t lcols{lhs->getNumColumns()};
@@ -36,45 +38,44 @@ void MatMulNaiveHandler::handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs
   // Pool matrix
   MemoryManager::MatrixPool(lrows, rcols, result);
 
-  // Transpose of rhs
-  #if defined(MATRIX_TRANSPOSED_MUL)
-    static MatTransposeNaiveHandler transpose_handler{nullptr};
-    transpose_handler.handle(rhs, mp_rhs_transpose);
-  #endif
+// Transpose of rhs
+#if defined(MATRIX_TRANSPOSED_MUL)
+  static MatTransposeNaiveHandler transpose_handler{nullptr};
+  transpose_handler.handle(rhs, mp_rhs_transpose);
+#endif
 
   // Indices for outer loop and inner loop
   const auto outer_idx = Range<size_t>(0, lrows * rcols);
   const auto inner_idx = Range<size_t>(0, rrows);
 
   // Naive matrix-matrix multiplication
-  std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(),
-                [&](const size_t n) {
-                  // Row and column index
-                  const size_t j = (n % rcols);
-                  const size_t i = ((n - j) / rcols);
+  std::for_each(
+      EXECUTION_PAR outer_idx.begin(), outer_idx.end(), [&](const size_t n) {
+        // Row and column index
+        const size_t j = (n % rcols);
+        const size_t i = ((n - j) / rcols);
 
-                  // Inner product
-                  Type tmp{};
-                  std::for_each(EXECUTION_SEQ inner_idx.begin(), inner_idx.end(), 
-                                [&](const size_t m) {
-                                  #if defined(MATRIX_TRANSPOSED_MUL)
-                                    tmp += ((*lhs)(i, m) * (*mp_rhs_transpose)(j,m));
-                                  #else
+        // Inner product
+        Type tmp{};
+        std::for_each(EXECUTION_SEQ inner_idx.begin(), inner_idx.end(),
+                      [&](const size_t m) {
+#if defined(MATRIX_TRANSPOSED_MUL)
+                        tmp += ((*lhs)(i, m) * (*mp_rhs_transpose)(j, m));
+#else
                                     tmp += ((*lhs)(i, m) * (*rhs)(m,j));
-                                  #endif
-                                });
+#endif
+                      });
 
-                  // Store result
-                  (*result)(i, j) = std::exchange(tmp, (Type)(0));
-              });
+        // Store result
+        (*result)(i, j) = std::exchange(tmp, (Type)(0));
+      });
 
-
-  #if defined(MATRIX_TRANSPOSED_MUL)
-    // Free rhs transpose matrix to the pool
-    if (nullptr != mp_rhs_transpose) {
-        mp_rhs_transpose->free();
-    }
-  #endif
+#if defined(MATRIX_TRANSPOSED_MUL)
+  // Free rhs transpose matrix to the pool
+  if (nullptr != mp_rhs_transpose) {
+    mp_rhs_transpose->free();
+  }
+#endif
 
   return;
 }

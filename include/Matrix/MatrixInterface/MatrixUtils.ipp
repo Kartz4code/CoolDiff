@@ -38,7 +38,7 @@ void Matrix<T>::setDevalF(const Matrix<Variable>& X) {
 if constexpr (true == std::is_same_v<T, Expression>) {
     if ((nullptr != mp_mat) && (nullptr != mp_dresult) && (nullptr != mp_dresult->mp_mat)) {
         // Precompute the reverse derivatives
-        std::for_each(EXECUTION_SEQ mp_mat, mp_mat + getNumElem(), [](auto &i) { PreComp(i); });
+        std::for_each(EXECUTION_SEQ mp_mat, mp_mat + getNumElem(), [](auto& i) { PreComp(i); });
 
         // Get dimensions of X variable matrix
         const size_t xrows = X.getNumRows();

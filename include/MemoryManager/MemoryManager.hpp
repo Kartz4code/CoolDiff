@@ -30,14 +30,15 @@ class MemoryManager {
 private:
   // Allocate friend function
   template <typename T, typename... Args>
-  friend SharedPtr<T> Allocate(Args&&... args);
+  friend SharedPtr<T> Allocate(Args &&...args);
 
   // Vector of deleted or to be deleted MetaVariable resources
   inline static Vector<SharedPtr<MetaVariable>> m_del_ptr;
 
   // Vector of deleted or to be deleted MetaMatrix resources
   inline static Vector<SharedPtr<MetaMatrix>> m_del_mat_ptr;
-  // A special vector for Matrix<Type> which is used dynamically throughout the process
+  // A special vector for Matrix<Type> which is used dynamically throughout the
+  // process
   inline static Vector<SharedPtr<Matrix<Type>>> m_del_mat_type_ptr;
 
 public:
@@ -45,14 +46,15 @@ public:
   static size_t size();
 
   // Special matrix pool allocation
-  static Matrix<Type>* MatrixSplPool(const size_t, const size_t, const MatrixSpl&);
+  static Matrix<Type> *MatrixSplPool(const size_t, const size_t,
+                                     const MatrixSpl &);
   // Matrix pool allocation
-  static void MatrixPool(const size_t, const size_t, Matrix<Type>*&, const Type& = (Type)0);
+  static void MatrixPool(const size_t, const size_t, Matrix<Type> *&,
+                         const Type & = (Type)0);
 };
 
 // Delete resource
-template <typename T> 
-void DelPtr(T* ptr) {
+template <typename T> void DelPtr(T *ptr) {
   if (nullptr != ptr) {
     delete ptr;
     ptr = nullptr;
@@ -61,14 +63,14 @@ void DelPtr(T* ptr) {
 
 // Scalar allocator
 template <typename T, typename... Args>
-inline SharedPtr<T> Allocate(Args&&... args) {
+inline SharedPtr<T> Allocate(Args &&...args) {
   const size_t size = sizeof(T);
   const size_t align = 0;
 
   // Allocate with custom deleter
   SharedPtr<T> tmp{new T(std::forward<Args>(args)...), DelPtr<T>};
 
-  // Push the allocated object into stack to clear it later 
+  // Push the allocated object into stack to clear it later
   if constexpr (std::is_base_of_v<MetaVariable, T>) {
     MemoryManager::m_del_ptr.push_back(tmp);
   } else if constexpr (std::is_base_of_v<MetaMatrix, T>) {

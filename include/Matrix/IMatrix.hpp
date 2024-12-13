@@ -25,18 +25,15 @@
 #include "MemoryManager.hpp"
 
 // IVariable class to enforce expression templates for lazy evaluation
-template <typename T> 
-class IMatrix : public MetaMatrix {
+template <typename T> class IMatrix : public MetaMatrix {
 private:
   // CRTP const
-  inline constexpr const T& derived() const {
-    return static_cast<const T&>(*this);
+  inline constexpr const T &derived() const {
+    return static_cast<const T &>(*this);
   }
 
   // CRTP mutable
-  inline constexpr T& derived() { 
-    return static_cast<T&>(*this); 
-  }
+  inline constexpr T &derived() { return static_cast<T &>(*this); }
 
 protected:
   // Protected constructor
@@ -44,9 +41,7 @@ protected:
 
 public:
   // Find me
-  bool findMe(void* v) const { 
-    return derived().findMe(v); 
-  }
+  bool findMe(void *v) const { return derived().findMe(v); }
 
   // Protected destructor
   V_DTR(~IMatrix()) = default;
@@ -57,7 +52,7 @@ public:
   this->m_visited = false;                                                     \
   mp_left->reset();                                                            \
   mp_right->reset();                                                           \
-  std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type>* m) {   \
+  std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type> *m) {   \
     if (nullptr != m) {                                                        \
       m->free();                                                               \
     }                                                                          \
@@ -66,7 +61,7 @@ public:
 #define BINARY_MAT_RIGHT_RESET()                                               \
   this->m_visited = false;                                                     \
   mp_right->reset();                                                           \
-  std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type>* m) {   \
+  std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type> *m) {   \
     if (nullptr != m) {                                                        \
       m->free();                                                               \
     }                                                                          \
