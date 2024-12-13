@@ -23,7 +23,8 @@
 #include "MatScalarMulNaiveHandler.hpp"
 #include "Matrix.hpp"
 
-void MatScalarMulNaiveHandler::handle(Type lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
+void MatScalarMulNaiveHandler::handle(Type lhs, const Matrix<Type> *rhs,
+                                      Matrix<Type> *&result) {
   /* Matrix-Scalar numerical multiplication */
   // Rows and columns of result matrix and if result is nullptr, then create a
   // new resource
@@ -34,12 +35,11 @@ void MatScalarMulNaiveHandler::handle(Type lhs, const Matrix<Type>* rhs, Matrix<
   MemoryManager::MatrixPool(nrows, ncols, result);
 
   // Get raw pointers to result, left and right matrices
-  Type* res = result->getMatrixPtr();
-  const Type* right = rhs->getMatrixPtr();
+  Type *res = result->getMatrixPtr();
+  const Type *right = rhs->getMatrixPtr();
 
   const size_t size{nrows * ncols};
   // For each element, perform addition
   std::transform(EXECUTION_PAR right, right + size, res,
-                 [&lhs](Type value) { return lhs * value; }
-                );
+                 [&lhs](Type value) { return lhs * value; });
 }

@@ -23,7 +23,7 @@
 #include "Matrix.hpp"
 #include "MatrixEyeOps.hpp"
 
-void AddEye(Type val, const Matrix<Type>* it, Matrix<Type>*& result) {
+void AddEye(Type val, const Matrix<Type> *it, Matrix<Type> *&result) {
   /*
     Rows and columns of result matrix and if result is nullptr or if dimensions
     mismatch, then create a new matrix resource
@@ -36,26 +36,27 @@ void AddEye(Type val, const Matrix<Type>* it, Matrix<Type>*& result) {
 
   // Diagonal indices (Modification)
   const auto diag_idx = Range<size_t>(0, nrows);
-  std::for_each(EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
-                [&](const size_t i) { (*result)(i, i) = (*result)(i, i) + (Type)(1); }
-               );
+  std::for_each(
+      EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
+      [&](const size_t i) { (*result)(i, i) = (*result)(i, i) + (Type)(1); });
 }
 
-void EyeMatScalarAddHandler::handle(Type lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
+void EyeMatScalarAddHandler::handle(Type lhs, const Matrix<Type> *rhs,
+                                    Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   /* Eye matrix special check */
-  if (auto* it = EyeMatScalarAdd(lhs, rhs); nullptr != it) {
+  if (auto *it = EyeMatScalarAdd(lhs, rhs); nullptr != it) {
     AddEye(lhs, rhs, result);
     return;
   }
 
-  /* Eye matrix numerical check */
-  #if defined(NUMERICAL_CHECK)
-    else if (auto* it = EyeMatScalarAddNum(lhs, rhs); nullptr != it) {
-      AddEye(lhs, rhs, result);
-      return;
-    }
-  #endif
+/* Eye matrix numerical check */
+#if defined(NUMERICAL_CHECK)
+  else if (auto *it = EyeMatScalarAddNum(lhs, rhs); nullptr != it) {
+    AddEye(lhs, rhs, result);
+    return;
+  }
+#endif
 #endif
 
   // Chain of responsibility

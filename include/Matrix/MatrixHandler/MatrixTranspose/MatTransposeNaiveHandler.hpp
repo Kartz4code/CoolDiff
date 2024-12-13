@@ -27,7 +27,7 @@ class MatTransposeNaiveHandler : public MatrixHandler {
 public:
   using MatrixHandler::MatrixHandler;
 
-  V_OVERRIDE(void handle(const Matrix<Type>*, Matrix<Type>*&));
+  V_OVERRIDE(void handle(const Matrix<Type> *, Matrix<Type> *&));
 
   // Destructor
   V_DTR(~MatTransposeNaiveHandler() = default);

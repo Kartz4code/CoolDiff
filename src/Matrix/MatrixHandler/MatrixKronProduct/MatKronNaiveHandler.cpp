@@ -22,7 +22,9 @@
 #include "MatKronNaiveHandler.hpp"
 #include "Matrix.hpp"
 
-void MatKronNaiveHandler::handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
+void MatKronNaiveHandler::handle(const Matrix<Type> *lhs,
+                                 const Matrix<Type> *rhs,
+                                 Matrix<Type> *&result) {
   /* Matrix-Matrix numerical Kronocker product */
   // Rows and columns of result matrix and if result is nullptr, then create a
   // new resource
@@ -47,7 +49,8 @@ void MatKronNaiveHandler::handle(const Matrix<Type>* lhs, const Matrix<Type>* rh
                                   [&](const size_t n2) {
                                     const size_t m = (n2 % rc);
                                     const size_t l = ((n2 - m) / rc);
-                                    (*result)((i * rr) + l, (j * rc) + m) = ((*rhs)(l, m) * val);
+                                    (*result)((i * rr) + l, (j * rc) + m) =
+                                        ((*rhs)(l, m) * val);
                                   });
                   }
                 });

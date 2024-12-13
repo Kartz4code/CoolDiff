@@ -25,68 +25,67 @@
 #include "OracleScalar.hpp"
 
 class GaussNewton {
-  private:
-    // Parameter matrices for input and output data
-    Matrix<Parameter>* m_DX{nullptr};
-    Matrix<Parameter>* m_DY{nullptr};
+private:
+  // Parameter matrices for input and output data
+  Matrix<Parameter> *m_DX{nullptr};
+  Matrix<Parameter> *m_DY{nullptr};
 
-    // Data size, X, Y dataset
-    size_t m_size{(size_t)(-1)}; 
-    Matrix<Type>* m_X{nullptr};
-    Matrix<Type>* m_Y{nullptr}; 
-    
-    // Oracle
-    Oracle* m_oracle{nullptr};
-    std::string_view m_oracle_type{""};
+  // Data size, X, Y dataset
+  size_t m_size{(size_t)(-1)};
+  Matrix<Type> *m_X{nullptr};
+  Matrix<Type> *m_Y{nullptr};
 
-    // A matrix results and temps
-    Matrix<Type>* m_A{nullptr};
-    Matrix<Type>* m_tempA1{nullptr};
-    Matrix<Type>* m_tempA2{nullptr};
+  // Oracle
+  Oracle *m_oracle{nullptr};
+  std::string_view m_oracle_type{""};
 
-    // B matrix results and temps
-    Matrix<Type>* m_B{nullptr};
-    Matrix<Type>* m_tempB{nullptr};
+  // A matrix results and temps
+  Matrix<Type> *m_A{nullptr};
+  Matrix<Type> *m_tempA1{nullptr};
+  Matrix<Type> *m_tempA2{nullptr};
 
-    // X matrix result
-    Matrix<Type>* m_delX{nullptr};
+  // B matrix results and temps
+  Matrix<Type> *m_B{nullptr};
+  Matrix<Type> *m_tempB{nullptr};
 
-    // Maximum number of iterations
-    size_t m_max_iter{4};
+  // X matrix result
+  Matrix<Type> *m_delX{nullptr};
 
-    // Set data unit
-    void setDataUnit(const size_t);
+  // Maximum number of iterations
+  size_t m_max_iter{4};
 
-    // Get A,B for matrix solve
-    void computeABScalar(const size_t);
-    // Get A,B for matrix solve
-    void computeABMatrix(const size_t);
-    // Get A,B
-    void computeAB(const size_t);
+  // Set data unit
+  void setDataUnit(const size_t);
 
+  // Get A,B for matrix solve
+  void computeABScalar(const size_t);
+  // Get A,B for matrix solve
+  void computeABMatrix(const size_t);
+  // Get A,B
+  void computeAB(const size_t);
 
-    // Update values for scalar solve
-    void updateScalar(const size_t);
-    // Update values for matrix solve
-    void updateMatrix(const size_t);
-    // Update 
-    void update(const size_t);
+  // Update values for scalar solve
+  void updateScalar(const size_t);
+  // Update values for matrix solve
+  void updateMatrix(const size_t);
+  // Update
+  void update(const size_t);
 
+public:
+  GaussNewton() = default;
 
-  public:
-    GaussNewton() = default; 
+  // Set data (X,Y)
+  GaussNewton &setData(Matrix<Type> * = nullptr, Matrix<Type> * = nullptr);
+  // Set data parameters
+  GaussNewton &setDataParameters(Matrix<Parameter> * = nullptr,
+                                 Matrix<Parameter> * = nullptr);
+  // Set oracle
+  GaussNewton &setOracle(Oracle *);
+  // Set maximum number of iterations
+  GaussNewton &setMaxIterations(const size_t);
 
-    // Set data (X,Y)
-    GaussNewton& setData(Matrix<Type>* = nullptr, Matrix<Type>* = nullptr);
-    // Set data parameters
-    GaussNewton& setDataParameters(Matrix<Parameter>* = nullptr, Matrix<Parameter>* = nullptr);
-    // Set oracle
-    GaussNewton& setOracle(Oracle*);
-    // Set maximum number of iterations
-    GaussNewton& setMaxIterations(const size_t);
+  // Solve Gauss Newton problem
+  void solve();
 
-    // Solve Gauss Newton problem
-    void solve();
-
-    ~GaussNewton() = default;
+  ~GaussNewton() = default;
 };

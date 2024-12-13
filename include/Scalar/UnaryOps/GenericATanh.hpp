@@ -28,7 +28,7 @@ template <typename T, typename... Callables>
 class GenericATanh : public IVariable<GenericATanh<T, Callables...>> {
 private:
   // Resources
-  T* mp_left{nullptr};
+  T *mp_left{nullptr};
 
   // Callables
   Tuples<Callables...> m_caller;
@@ -44,13 +44,12 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericATanh(T* u, Callables&&... call) : mp_left{u}, 
-                                                      m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                      m_nidx{this->m_idx_count++} 
-  {}
+  constexpr GenericATanh(T *u, Callables &&...call)
+      : mp_left{u}, m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+        m_nidx{this->m_idx_count++} {}
 
   // Symbolic evaluation
-  V_OVERRIDE(Variable* symEval()) {
+  V_OVERRIDE(Variable *symEval()) {
     if (nullptr == this->mp_tmp) {
       auto tmp = Allocate<Expression>(atanh(EVAL_L()));
       this->mp_tmp = tmp.get();
@@ -59,10 +58,11 @@ public:
   }
 
   // Symbolic Differentiation
-  V_OVERRIDE(Variable* symDeval(const Variable& var)) {
+  V_OVERRIDE(Variable *symDeval(const Variable &var)) {
     // Static derivative computation
     if (auto it = this->mp_dtmp.find(var.m_nidx); it == this->mp_dtmp.end()) {
-      auto tmp = Allocate<Expression>(((Type)(-1) / (EVAL_L() * EVAL_L() - (Type)(1))) * DEVAL_L(var));
+      auto tmp = Allocate<Expression>(
+          ((Type)(-1) / (EVAL_L() * EVAL_L() - (Type)(1))) * DEVAL_L(var));
       this->mp_dtmp[var.m_nidx] = tmp.get();
     }
     return this->mp_dtmp[var.m_nidx];
@@ -76,7 +76,7 @@ public:
   }
 
   // Deval in run-time for forward derivative
-  V_OVERRIDE(Type devalF(const Variable& var)) {
+  V_OVERRIDE(Type devalF(const Variable &var)) {
     // Return derivative of atanh: (1/(1-(u*u)))*ud
     const Type du = mp_left->devalF(var);
     const Type u = mp_left->eval();
@@ -146,36 +146,27 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair& getCache()) { 
-    return m_cache; 
-  }
+  V_OVERRIDE(OMPair &getCache()) { return m_cache; }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { 
-    UNARY_RESET(); 
-  }
+  V_OVERRIDE(void reset()) { UNARY_RESET(); }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { 
-    return "GenericATanh"; 
-  }
+  V_OVERRIDE(std::string_view getType() const) { return "GenericATanh"; }
 
   // Find me
-  V_OVERRIDE(bool findMe(void* v) const) { 
-    UNARY_FIND_ME(); 
-  }
+  V_OVERRIDE(bool findMe(void *v) const) { UNARY_FIND_ME(); }
 
   // Destructor
   V_DTR(~GenericATanh()) = default;
 };
 
 // Variable atanh with 1 typename callables
-template <typename T> 
-using GenericATanhT = GenericATanh<T, OpType>;
+template <typename T> using GenericATanhT = GenericATanh<T, OpType>;
 
 // Function for atanh computation
-template <typename T> 
-constexpr const auto &atanh(const IVariable<T>& u) {
-  auto tmp = Allocate<GenericATanhT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpObj);
+template <typename T> constexpr const auto &atanh(const IVariable<T> &u) {
+  auto tmp = Allocate<GenericATanhT<T>>(
+      const_cast<T *>(static_cast<const T *>(&u)), OpObj);
   return *tmp;
 }

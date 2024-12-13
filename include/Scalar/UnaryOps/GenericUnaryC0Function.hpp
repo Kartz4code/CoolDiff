@@ -25,28 +25,27 @@
 #include "Variable.hpp"
 
 // Predeclare Eval function
-template <typename T> 
-inline Type Eval(T&);
+template <typename T> inline Type Eval(T &);
 // Predeclare DevalF function
-template <typename T> 
-inline Type DevalF(T&, const Variable&);
+template <typename T> inline Type DevalF(T &, const Variable &);
 
 // Function computation (Found in bottom)
 template <typename Func1, typename Func2>
-constexpr const auto& UnaryC0Function(Func1, Func2);
+constexpr const auto &UnaryC0Function(Func1, Func2);
 
 template <typename Func1, typename Func2>
-class GenericUnaryC0Function : public IVariable<GenericUnaryC0Function<Func1, Func2>> {
+class GenericUnaryC0Function
+    : public IVariable<GenericUnaryC0Function<Func1, Func2>> {
 private:
   // Resources
-  mutable Expression* mp_left{nullptr};
+  mutable Expression *mp_left{nullptr};
 
   // Callables
   Func1 m_f1;
   Func2 m_f2;
 
   template <typename T, typename = std::enable_if_t<is_valid_v<T>>>
-  constexpr const auto& setOperand(const T& x) const {
+  constexpr const auto &setOperand(const T &x) const {
     if constexpr (true == is_numeric_v<T>) {
       mp_left = Allocate<Expression>(*Allocate<Parameter>(x)).get();
     } else {
@@ -62,26 +61,26 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericUnaryC0Function(Func1 f1, Func2 f2) : m_f1{f1}, 
-                                                         m_f2{f2}, 
-                                                         m_nidx{this->m_idx_count++} 
-  {}
+  constexpr GenericUnaryC0Function(Func1 f1, Func2 f2)
+      : m_f1{f1}, m_f2{f2}, m_nidx{this->m_idx_count++} {}
 
   template <typename T, typename = std::enable_if_t<is_valid_v<T>>>
-  constexpr const auto& operator()(const T& x) const {
+  constexpr const auto &operator()(const T &x) const {
     return UnaryC0Function(m_f1, m_f2).setOperand(x);
   }
 
   // Symbolic evaluation
-  V_OVERRIDE(Variable* symEval()) { 
-    ASSERT(false, "Invalid symbolic evaluation operation for GenericUnaryC0Function");
-    return &Variable::t0; 
+  V_OVERRIDE(Variable *symEval()) {
+    ASSERT(false,
+           "Invalid symbolic evaluation operation for GenericUnaryC0Function");
+    return &Variable::t0;
   }
 
   // Symbolic Differentiation
-  V_OVERRIDE(Variable* symDeval(const Variable&)) { 
-    ASSERT(false, "Invalid symbolic derivative operation for GenericUnaryC0Function");
-    return &Variable::t0; 
+  V_OVERRIDE(Variable *symDeval(const Variable &)) {
+    ASSERT(false,
+           "Invalid symbolic derivative operation for GenericUnaryC0Function");
+    return &Variable::t0;
   }
 
   // Eval in run-time
@@ -92,7 +91,7 @@ public:
   }
 
   // Deval in run-time for forward derivative
-  V_OVERRIDE(Type devalF(const Variable& var)) {
+  V_OVERRIDE(Type devalF(const Variable &var)) {
     // Return derivative
     const Type du = DevalF(*mp_left, var);
     const Type u = Eval(*mp_left);
@@ -100,7 +99,7 @@ public:
   }
 
   // Traverse run-time
-  V_OVERRIDE(void traverse(OMPair* cache = nullptr)) {
+  V_OVERRIDE(void traverse(OMPair *cache = nullptr)) {
     // If cache is nullptr, i.e. for the first step
     if (cache == nullptr) {
       // cache is m_cache
@@ -159,14 +158,10 @@ public:
   }
 
   // Get m_cache
-  V_OVERRIDE(OMPair& getCache()) { 
-    return m_cache; 
-  }
+  V_OVERRIDE(OMPair &getCache()) { return m_cache; }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { 
-    UNARY_RESET(); 
-  }
+  V_OVERRIDE(void reset()) { UNARY_RESET(); }
 
   // Get type
   V_OVERRIDE(std::string_view getType() const) {
@@ -174,9 +169,7 @@ public:
   }
 
   // Find me
-  V_OVERRIDE(bool findMe(void* v) const) { 
-    UNARY_FIND_ME(); 
-  }
+  V_OVERRIDE(bool findMe(void *v) const) { UNARY_FIND_ME(); }
 
   // Destructor
   V_DTR(~GenericUnaryC0Function()) = default;
@@ -184,9 +177,11 @@ public:
 
 // Function computation
 template <typename Func1, typename Func2>
-constexpr const auto& UnaryC0Function(Func1 f1, Func2 f2) {
-  static_assert(true == std::is_invocable_v<Func1, Type>, "Eval function is not invocable");
-  static_assert(true == std::is_invocable_v<Func2, Type>, "Deval function is not invocable");
+constexpr const auto &UnaryC0Function(Func1 f1, Func2 f2) {
+  static_assert(true == std::is_invocable_v<Func1, Type>,
+                "Eval function is not invocable");
+  static_assert(true == std::is_invocable_v<Func2, Type>,
+                "Deval function is not invocable");
   auto tmp = Allocate<GenericUnaryC0Function<Func1, Func2>>(f1, f2);
   return *tmp;
 }

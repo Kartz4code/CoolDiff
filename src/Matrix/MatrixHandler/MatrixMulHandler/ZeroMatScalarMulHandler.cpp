@@ -23,21 +23,22 @@
 #include "Matrix.hpp"
 #include "MatrixZeroOps.hpp"
 
-void ZeroMatScalarMulHandler::handle(Type lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
+void ZeroMatScalarMulHandler::handle(Type lhs, const Matrix<Type> *rhs,
+                                     Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
-  if (auto* it = ZeroMatScalarMul(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type>*>(it);
+  if (auto *it = ZeroMatScalarMul(lhs, rhs); nullptr != it) {
+    result = const_cast<Matrix<Type> *>(it);
     return;
   }
 
-  /* Zero matrix numerical check */
-  #if defined(NUMERICAL_CHECK)
-    else if (auto* it = ZeroMatScalarMulNum(lhs, rhs); nullptr != it) {
-      result = const_cast<Matrix<Type>*>(it);
-      return;
-    }
-  #endif
+/* Zero matrix numerical check */
+#if defined(NUMERICAL_CHECK)
+  else if (auto *it = ZeroMatScalarMulNum(lhs, rhs); nullptr != it) {
+    result = const_cast<Matrix<Type> *>(it);
+    return;
+  }
+#endif
 #endif
 
   // Chain of responsibility

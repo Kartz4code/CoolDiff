@@ -23,7 +23,8 @@
 #include "Matrix.hpp"
 #include "MatrixZeroOps.hpp"
 
-void ZeroMatAddHandler::handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
+void ZeroMatAddHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
+                               Matrix<Type> *&result) {
 
   const size_t nrows{lhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
@@ -31,21 +32,22 @@ void ZeroMatAddHandler::handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs,
   const size_t rrows{rhs->getNumRows()};
 
   // Assert dimensions
-  ASSERT((nrows == rrows) && (ncols == lcols), "Matrix addition dimensions mismatch");
+  ASSERT((nrows == rrows) && (ncols == lcols),
+         "Matrix addition dimensions mismatch");
 
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
-  if (auto* it = ZeroMatAdd(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type>*>(it);
+  if (auto *it = ZeroMatAdd(lhs, rhs); nullptr != it) {
+    result = const_cast<Matrix<Type> *>(it);
     return;
   }
-  /* Zero matrix numerical check */
-  #if defined(NUMERICAL_CHECK)
-    else if (auto* it = ZeroMatAddNum(lhs, rhs); nullptr != it) {
-      result = const_cast<Matrix<Type>*>(it);
-      return;
-    }
-  #endif
+/* Zero matrix numerical check */
+#if defined(NUMERICAL_CHECK)
+  else if (auto *it = ZeroMatAddNum(lhs, rhs); nullptr != it) {
+    result = const_cast<Matrix<Type> *>(it);
+    return;
+  }
+#endif
 #endif
 
   // Chain of responsibility

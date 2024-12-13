@@ -28,8 +28,8 @@ template <typename T1, typename T2, typename... Callables>
 class GenericMatSub : public IMatrix<GenericMatSub<T1, T2, Callables...>> {
 private:
   // Resources
-  T1* mp_left{nullptr};
-  T2* mp_right{nullptr};
+  T1 *mp_left{nullptr};
+  T2 *mp_right{nullptr};
 
   // Callables
   Tuples<Callables...> m_caller;
@@ -54,43 +54,37 @@ private:
 
   // All matrices
   inline static constexpr const size_t m_size{2};
-  Matrix<Type>* mp_arr[m_size]{};
+  Matrix<Type> *mp_arr[m_size]{};
 
 public:
   // Block index
   const size_t m_nidx{};
 
   // Constructor
-  constexpr GenericMatSub(T1* u, T2* v, Callables &&...call) : mp_left{u}, 
-                                                               mp_right{v}, 
-                                                               m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                               m_nidx{this->m_idx_count++} {
+  constexpr GenericMatSub(T1 *u, T2 *v, Callables &&...call)
+      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
+                                     std::forward<Callables>(call)...)},
+        m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
   // Get number of rows
-  V_OVERRIDE(size_t getNumRows() const) { 
-    return mp_left->getNumRows(); 
-  }
+  V_OVERRIDE(size_t getNumRows() const) { return mp_left->getNumRows(); }
 
   // Get number of columns
-  V_OVERRIDE(size_t getNumColumns() const) { 
-    return mp_right->getNumColumns(); 
-  }
+  V_OVERRIDE(size_t getNumColumns() const) { return mp_right->getNumColumns(); }
 
   // Find me
-  bool findMe(void* v) const { 
-    BINARY_FIND_ME(); 
-  }
+  bool findMe(void *v) const { BINARY_FIND_ME(); }
 
   // Matrix eval computation
-  V_OVERRIDE(Matrix<Type>* eval()) {
+  V_OVERRIDE(Matrix<Type> *eval()) {
     // Check whether dimensions are correct
     ASSERT(verifyDim(), "Matrix-Matrix subtraction dimensions mismatch");
 
     // Get raw pointers to result, left and right matrices
-    const Matrix<Type>* left_mat = mp_left->eval();
-    const Matrix<Type>* right_mat = mp_right->eval();
+    const Matrix<Type> *left_mat = mp_left->eval();
+    const Matrix<Type> *right_mat = mp_right->eval();
 
     // Matrix-Matrix subtraction computation (Policy design)
     MATRIX_SUB(left_mat, right_mat, mp_arr[0]);
@@ -100,13 +94,13 @@ public:
   }
 
   // Matrix devalF computation
-  V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable>& X)) {
+  V_OVERRIDE(Matrix<Type> *devalF(Matrix<Variable> &X)) {
     // Check whether dimensions are correct
     ASSERT(verifyDim(), "Matrix-Matrix subtraction dimensions mismatch");
 
     // Left and right matrices
-    const Matrix<Type>* dleft_mat = mp_left->devalF(X);
-    const Matrix<Type>* dright_mat = mp_right->devalF(X);
+    const Matrix<Type> *dleft_mat = mp_left->devalF(X);
+    const Matrix<Type> *dright_mat = mp_right->devalF(X);
 
     // Matrix-Matrix derivative subtraction computation (Policy design)
     MATRIX_SUB(dleft_mat, dright_mat, mp_arr[1]);
@@ -116,14 +110,10 @@ public:
   }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { 
-    BINARY_MAT_RESET(); 
-  }
+  V_OVERRIDE(void reset()) { BINARY_MAT_RESET(); }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { 
-    return "GenericMatSub"; 
-  }
+  V_OVERRIDE(std::string_view getType() const) { return "GenericMatSub"; }
 
   // Destructor
   V_DTR(~GenericMatSub()) = default;
@@ -135,33 +125,33 @@ using GenericMatSubT = GenericMatSub<T1, T2, OpMatType>;
 
 // Function for sub computation
 template <typename T1, typename T2>
-constexpr const auto& operator-(const IMatrix<T1>& u, const IMatrix<T2>& v) {
-  auto tmp = Allocate<GenericMatSubT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&u)),
-                                              const_cast<T2*>(static_cast<const T2*>(&v)), 
-                                              OpMatObj);
+constexpr const auto &operator-(const IMatrix<T1> &u, const IMatrix<T2> &v) {
+  auto tmp = Allocate<GenericMatSubT<T1, T2>>(
+      const_cast<T1 *>(static_cast<const T1 *>(&u)),
+      const_cast<T2 *>(static_cast<const T2 *>(&v)), OpMatObj);
   return *tmp;
 }
 
 // Matrix sub with Type (LHS)
 template <typename T>
-constexpr const auto& operator-(const Type& v, const IMatrix<T>& u) {
+constexpr const auto &operator-(const Type &v, const IMatrix<T> &u) {
   return (v + ((Type)(-1) * u));
 }
 
 // Matrix sub with Type (RHS)
 template <typename T>
-constexpr const auto& operator-(const IMatrix<T>& u, const Type& v) {
+constexpr const auto &operator-(const IMatrix<T> &u, const Type &v) {
   return (u + ((Type)(-1) * v));
 }
 
 // Matrix sub with scalar (LHS) - SFINAE'd
 template <typename T1, typename T2, typename = ExpType<T1>>
-constexpr const auto& operator-(const T1& v, const IMatrix<T2>& u) {
+constexpr const auto &operator-(const T1 &v, const IMatrix<T2> &u) {
   return (v + ((Type)(-1) * u));
 }
 
 // Matrix sub with scalar (RHS) - SFINAE'd
 template <typename T1, typename T2, typename = ExpType<T2>>
-constexpr const auto& operator-(const IMatrix<T1>& u, const T2& v) {
+constexpr const auto &operator-(const IMatrix<T1> &u, const T2 &v) {
   return (u + ((Type)(-1) * v));
 }

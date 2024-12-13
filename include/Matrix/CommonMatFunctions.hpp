@@ -27,14 +27,13 @@
 #include "GenericMatSigma.hpp"
 #include "GenericMatSub.hpp"
 #include "GenericMatSum.hpp"
-#include "GenericMatTranspose.hpp"
 #include "GenericMatTrace.hpp"
+#include "GenericMatTranspose.hpp"
 #include "Matrix.hpp"
 #include "MatrixBasics.hpp"
 
 // Matrix evaluation
-template <typename T> 
-Matrix<Type>& Eval(Matrix<T>& Mexp) {
+template <typename T> Matrix<Type> &Eval(Matrix<T> &Mexp) {
   // Reset graph/tree
   Mexp.resetImpl();
   // Return evaluation value
@@ -43,7 +42,7 @@ Matrix<Type>& Eval(Matrix<T>& Mexp) {
 
 // Matrix-Matrix derivative evaluation
 template <typename T>
-Matrix<Type>& DevalF(Matrix<T>& Mexp, Matrix<Variable>& X) {
+Matrix<Type> &DevalF(Matrix<T> &Mexp, Matrix<Variable> &X) {
   // Reset graph/tree
   Mexp.resetImpl();
   // Return evaluation value
@@ -53,41 +52,47 @@ Matrix<Type>& DevalF(Matrix<T>& Mexp, Matrix<Variable>& X) {
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 // Forward mode algorithmic differentiation (Matrix)
-template<typename T>
-Matrix<Type>& DevalF(T& exp, const Matrix<Variable>& m, bool serial = true) {
+template <typename T>
+Matrix<Type> &DevalF(T &exp, const Matrix<Variable> &m, bool serial = true) {
   const size_t n = m.getNumElem();
-  auto& result = Matrix<Type>::MatrixFactory::CreateMatrix(m.getNumRows(), m.getNumColumns());
-  
+  auto &result = Matrix<Type>::MatrixFactory::CreateMatrix(m.getNumRows(),
+                                                           m.getNumColumns());
+
   // If T is an expression
-  if constexpr(true == std::is_same_v<T,Expression>) {
+  if constexpr (true == std::is_same_v<T, Expression>) {
     if (true == exp.isRecursive() && true == serial) {
-      std::transform(EXECUTION_SEQ m.getMatrixPtr(), m.getMatrixPtr() + n, result.getMatrixPtr(),
-                    [&exp](const auto& v) { return DevalF(exp, v); });
+      std::transform(EXECUTION_SEQ m.getMatrixPtr(), m.getMatrixPtr() + n,
+                     result.getMatrixPtr(),
+                     [&exp](const auto &v) { return DevalF(exp, v); });
       return result;
     } else {
       // Copy expression and fill it up with exp
-      Vector<Expression> exp_coll(n); exp_coll.reserve(n);
+      Vector<Expression> exp_coll(n);
+      exp_coll.reserve(n);
       std::fill(EXECUTION_PAR exp_coll.begin(), exp_coll.end(), exp);
 
       // Tranform and get results
-      std::transform(EXECUTION_PAR exp_coll.begin(), exp_coll.end(), m.getMatrixPtr(), result.getMatrixPtr(),
+      std::transform(EXECUTION_PAR exp_coll.begin(), exp_coll.end(),
+                     m.getMatrixPtr(), result.getMatrixPtr(),
                      [](auto &v1, const auto &v2) { return DevalF(v1, v2); });
       return result;
     }
-  } 
-  
+  }
+
   // If T is not an exprssion
-  if(true == serial) {
-      std::transform(EXECUTION_SEQ m.getMatrixPtr(), m.getMatrixPtr() + n, result.getMatrixPtr(),
-                    [&exp](const auto& v) { return DevalF(exp, v); });
-  } 
-  else {
+  if (true == serial) {
+    std::transform(EXECUTION_SEQ m.getMatrixPtr(), m.getMatrixPtr() + n,
+                   result.getMatrixPtr(),
+                   [&exp](const auto &v) { return DevalF(exp, v); });
+  } else {
     // Copy expression and fill it up with exp
-    Vector<Expression> exp_coll(n); exp_coll.reserve(n);
+    Vector<Expression> exp_coll(n);
+    exp_coll.reserve(n);
     std::fill(EXECUTION_PAR exp_coll.begin(), exp_coll.end(), exp);
 
     // Tranform and get results
-    std::transform(EXECUTION_PAR exp_coll.begin(), exp_coll.end(), m.getMatrixPtr(), result.getMatrixPtr(),
+    std::transform(EXECUTION_PAR exp_coll.begin(), exp_coll.end(),
+                   m.getMatrixPtr(), result.getMatrixPtr(),
                    [](auto &v1, const auto &v2) { return DevalF(v1, v2); });
   }
 
@@ -95,49 +100,48 @@ Matrix<Type>& DevalF(T& exp, const Matrix<Variable>& m, bool serial = true) {
 }
 
 // Reverse mode algorithmic differentiation (Matrix)
-template<typename T>
-Matrix<Type>& DevalR(T& exp, const Matrix<Variable>& m) {
+template <typename T> Matrix<Type> &DevalR(T &exp, const Matrix<Variable> &m) {
   const size_t n = m.getNumElem();
-  auto& result = Matrix<Type>::MatrixFactory::CreateMatrix(m.getNumRows(), m.getNumColumns());
+  auto &result = Matrix<Type>::MatrixFactory::CreateMatrix(m.getNumRows(),
+                                                           m.getNumColumns());
 
   // Precompute (By design, the operation is serial)
   PreComp(exp);
 
-  std::transform(EXECUTION_SEQ m.getMatrixPtr(), m.getMatrixPtr() + n, 
-                               result.getMatrixPtr(), 
-                               [&exp](const auto& v) { return DevalR(exp, v); });
+  std::transform(EXECUTION_SEQ m.getMatrixPtr(), m.getMatrixPtr() + n,
+                 result.getMatrixPtr(),
+                 [&exp](const auto &v) { return DevalR(exp, v); });
 
   return result;
 }
 
 // Jacobian reverse mode (Scalar - Vector)
-template<typename T>
-Matrix<Type>& JacobianR(T& exp, const Vector<Variable>& vec) {
+template <typename T>
+Matrix<Type> &JacobianR(T &exp, const Vector<Variable> &vec) {
   const size_t rows = vec.size();
   auto &result = Matrix<Type>::MatrixFactory::CreateMatrix(rows, 1);
 
   // Precompute (By design, the operation is serial)
   PreComp(exp);
 
-  std::transform(EXECUTION_SEQ vec.cbegin(), vec.cend(), 
-                               result.getMatrixPtr(),
-                              [&exp](const auto &v) { return DevalR(exp, v); });
+  std::transform(EXECUTION_SEQ vec.cbegin(), vec.cend(), result.getMatrixPtr(),
+                 [&exp](const auto &v) { return DevalR(exp, v); });
 
   return result;
 }
 
 // Jacobian reverse mode (Scalar - Matrix)
-template<typename T>
-Matrix<Type>& JacobianR(T& exp, const Matrix<Variable>& X) {
+template <typename T>
+Matrix<Type> &JacobianR(T &exp, const Matrix<Variable> &X) {
   Vector<Variable> vec(X.getMatrixPtr(), X.getMatrixPtr() + X.getNumElem());
-  return JacobianR(exp,vec);
+  return JacobianR(exp, vec);
 }
 
 // Hessian reverse mode (Scalar - Vector)
-template<typename T>
-Matrix<Type>& HessianR(T& exp, const Vector<Variable>& vec) {
+template <typename T>
+Matrix<Type> &HessianR(T &exp, const Vector<Variable> &vec) {
   const size_t dim = vec.size();
-  auto& result = Matrix<Type>::MatrixFactory::CreateMatrix(dim, dim);
+  auto &result = Matrix<Type>::MatrixFactory::CreateMatrix(dim, dim);
   Matrix<Expression> firstSym(dim, 1);
 
   // Exploit Hessian symmetry
@@ -159,17 +163,17 @@ Matrix<Type>& HessianR(T& exp, const Vector<Variable>& vec) {
 }
 
 // Hessian reverse mode (Scalar - Matrix)
-template<typename T>
-Matrix<Type>& HessianR(T& exp, const Matrix<Variable>& X) {
+template <typename T>
+Matrix<Type> &HessianR(T &exp, const Matrix<Variable> &X) {
   Vector<Variable> vec(X.getMatrixPtr(), X.getMatrixPtr() + X.getNumElem());
-  return HessianR(exp,vec);
+  return HessianR(exp, vec);
 }
 
 // Symbolic Jacobian of expression (Scalar - Vector)
-template<typename T>
-Matrix<Expression>& SymJacobian(T& exp, const Vector<Variable>& vec) {
+template <typename T>
+Matrix<Expression> &SymJacobian(T &exp, const Vector<Variable> &vec) {
   const size_t rows = vec.size();
-  auto& result = Matrix<Expression>::MatrixFactory::CreateMatrix(rows, 1);
+  auto &result = Matrix<Expression>::MatrixFactory::CreateMatrix(rows, 1);
   for (size_t i{}; i < rows; ++i) {
     result(i, 0) = SymDiff(exp, vec[i]);
   }
@@ -177,17 +181,17 @@ Matrix<Expression>& SymJacobian(T& exp, const Vector<Variable>& vec) {
 }
 
 // Symbolic Jacobian of expression (Scalar - Matrix)
-template<typename T>
-Matrix<Expression>& SymJacobian(T& exp, const Matrix<Variable>& X) {
+template <typename T>
+Matrix<Expression> &SymJacobian(T &exp, const Matrix<Variable> &X) {
   Vector<Variable> vec(X.getMatrixPtr(), X.getMatrixPtr() + X.getNumElem());
   return SymJacobian(exp, vec);
 }
 
 // Symbolic Hessian of expression (Scalar - Vector)
-template<typename T>
-Matrix<Expression>& SymHessian(T& exp, const Vector<Variable>& vec) {
+template <typename T>
+Matrix<Expression> &SymHessian(T &exp, const Vector<Variable> &vec) {
   const size_t dim = vec.size();
-  auto& result = Matrix<Expression>::MatrixFactory::CreateMatrix(dim, dim);
+  auto &result = Matrix<Expression>::MatrixFactory::CreateMatrix(dim, dim);
 
   // Exploit Hessian symmetry
   for (size_t i{}; i < dim; ++i) {
@@ -205,20 +209,20 @@ Matrix<Expression>& SymHessian(T& exp, const Vector<Variable>& vec) {
 }
 
 // Symbolic Hessian of expression (Scalar - Matrix)
-template<typename T>
-Matrix<Expression>& SymHessian(T& exp, const Matrix<Variable>& X) {
+template <typename T>
+Matrix<Expression> &SymHessian(T &exp, const Matrix<Variable> &X) {
   Vector<Variable> vec(X.getMatrixPtr(), X.getMatrixPtr() + X.getNumElem());
   return SymHessian(exp, vec);
 }
 
 // Symbolic Expression (Scalar - Matrix)
-template<typename T>
-Matrix<Expression>& SymMatDiff(T& exp, const Matrix<Variable>& m) {
+template <typename T>
+Matrix<Expression> &SymMatDiff(T &exp, const Matrix<Variable> &m) {
   const size_t n = m.getNumElem();
-  auto& result = Matrix<Expression>::MatrixFactory::CreateMatrix(m.getNumRows(), m.getNumColumns());
+  auto &result = Matrix<Expression>::MatrixFactory::CreateMatrix(
+      m.getNumRows(), m.getNumColumns());
   for (size_t i{}; i < n; ++i) {
     result[i] = SymDiff(exp, m[i]);
   }
   return result;
 }
-

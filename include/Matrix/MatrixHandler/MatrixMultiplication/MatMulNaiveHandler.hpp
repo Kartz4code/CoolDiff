@@ -26,12 +26,13 @@
 
 class MatMulNaiveHandler : public MatrixHandler {
 private:
-  Matrix<Type>* mp_rhs_transpose{nullptr};
+  Matrix<Type> *mp_rhs_transpose{nullptr};
 
 public:
   using MatrixHandler::MatrixHandler;
 
-  V_OVERRIDE(void handle(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&));
+  V_OVERRIDE(void handle(const Matrix<Type> *, const Matrix<Type> *,
+                         Matrix<Type> *&));
 
   // Destructor
   V_DTR(~MatMulNaiveHandler() = default);

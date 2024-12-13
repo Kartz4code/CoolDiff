@@ -23,13 +23,13 @@
 #include "CommonMatFunctions.hpp"
 
 // Is the matrix square
-bool IsSquareMatrix(const Matrix<Type>* m) {
+bool IsSquareMatrix(const Matrix<Type> *m) {
   // Check for square matrix
   return (m->getNumColumns() == m->getNumRows());
 }
 
 // Is the matrix identity
-bool IsEyeMatrix(const Matrix<Type>* m) {
+bool IsEyeMatrix(const Matrix<Type> *m) {
   // If matrix not square, return false
   if (false == IsSquareMatrix(m)) {
     return false;
@@ -75,8 +75,8 @@ bool IsEyeMatrix(const Matrix<Type>* m) {
 }
 
 // Eye matrix addition checks
-const Matrix<Type>* EyeMatAdd(const Matrix<Type>* lhs,
-                              const Matrix<Type>* rhs) {
+const Matrix<Type> *EyeMatAdd(const Matrix<Type> *lhs,
+                              const Matrix<Type> *rhs) {
   // Left matrix rows and column numbers
   const size_t lrows = lhs->getNumRows();
   const size_t rcols = rhs->getNumColumns();
@@ -95,7 +95,7 @@ const Matrix<Type>* EyeMatAdd(const Matrix<Type>* lhs,
 }
 
 // Eye matrix scalar addition
-const Matrix<Type>* EyeMatScalarAdd(Type lhs, const Matrix<Type>* rhs) {
+const Matrix<Type> *EyeMatScalarAdd(Type lhs, const Matrix<Type> *rhs) {
   if (rhs->getMatType() == MatrixSpl::EYE) {
     return rhs;
   } else {
@@ -104,8 +104,8 @@ const Matrix<Type>* EyeMatScalarAdd(Type lhs, const Matrix<Type>* rhs) {
 }
 
 // Eye matrix subtraction
-const Matrix<Type>* EyeMatSub(const Matrix<Type>* lhs,
-                              const Matrix<Type>* rhs) {
+const Matrix<Type> *EyeMatSub(const Matrix<Type> *lhs,
+                              const Matrix<Type> *rhs) {
   // Left matrix rows and column numbers
   const size_t lrows = lhs->getNumRows();
   const size_t rcols = rhs->getNumColumns();
@@ -124,8 +124,8 @@ const Matrix<Type>* EyeMatSub(const Matrix<Type>* lhs,
 }
 
 // Eye matrix multiplication checks
-const Matrix<Type>* EyeMatMul(const Matrix<Type>* lhs,
-                              const Matrix<Type>* rhs) {
+const Matrix<Type> *EyeMatMul(const Matrix<Type> *lhs,
+                              const Matrix<Type> *rhs) {
   // Left matrix rows and column numbers
   const size_t lrows = lhs->getNumRows();
   const size_t rcols = rhs->getNumColumns();
@@ -149,7 +149,7 @@ const Matrix<Type>* EyeMatMul(const Matrix<Type>* lhs,
 }
 
 // Eye matrix scalar addition
-const Matrix<Type>* EyeMatScalarMul(Type lhs, const Matrix<Type>* rhs) {
+const Matrix<Type> *EyeMatScalarMul(Type lhs, const Matrix<Type> *rhs) {
   if (rhs->getMatType() == MatrixSpl::EYE) {
     return rhs;
   } else {
@@ -158,8 +158,8 @@ const Matrix<Type>* EyeMatScalarMul(Type lhs, const Matrix<Type>* rhs) {
 }
 
 // Eye matrix Kronocker
-const Matrix<Type>* EyeMatKron(const Matrix<Type>* lhs,
-                               const Matrix<Type>* rhs) {
+const Matrix<Type> *EyeMatKron(const Matrix<Type> *lhs,
+                               const Matrix<Type> *rhs) {
   // Left matrix rows and right matrix columns
   const size_t lr = lhs->getNumRows();
   const size_t lc = lhs->getNumColumns();
@@ -182,8 +182,8 @@ const Matrix<Type>* EyeMatKron(const Matrix<Type>* lhs,
 }
 
 // Eye matrix Hadamard product
-const Matrix<Type>* EyeMatHadamard(const Matrix<Type>* lhs,
-                                   const Matrix<Type>* rhs) {
+const Matrix<Type> *EyeMatHadamard(const Matrix<Type> *lhs,
+                                   const Matrix<Type> *rhs) {
   // Left matrix rows and column numbers
   const size_t lrows = lhs->getNumRows();
   const size_t rcols = rhs->getNumColumns();
@@ -207,8 +207,8 @@ const Matrix<Type>* EyeMatHadamard(const Matrix<Type>* lhs,
 }
 
 // Eye matrix addition numerical checks
-const Matrix<Type>* EyeMatAddNum(const Matrix<Type>* lhs,
-                                 const Matrix<Type>* rhs) {
+const Matrix<Type> *EyeMatAddNum(const Matrix<Type> *lhs,
+                                 const Matrix<Type> *rhs) {
   // Left matrix rows and column numbers
   const size_t lrows = lhs->getNumRows();
   const size_t rcols = rhs->getNumColumns();
@@ -229,7 +229,7 @@ const Matrix<Type>* EyeMatAddNum(const Matrix<Type>* lhs,
 }
 
 // Eye matrix scalar addition
-const Matrix<Type>* EyeMatScalarAddNum(Type lhs, const Matrix<Type>* rhs) {
+const Matrix<Type> *EyeMatScalarAddNum(Type lhs, const Matrix<Type> *rhs) {
   const bool rhs_bool = IsEyeMatrix(rhs);
   if (rhs_bool == true) {
     return rhs;
@@ -239,8 +239,8 @@ const Matrix<Type>* EyeMatScalarAddNum(Type lhs, const Matrix<Type>* rhs) {
 }
 
 // Eye matrix subtraction numerics
-const Matrix<Type>* EyeMatSubNum(const Matrix<Type>* lhs,
-                                 const Matrix<Type>* rhs) {
+const Matrix<Type> *EyeMatSubNum(const Matrix<Type> *lhs,
+                                 const Matrix<Type> *rhs) {
   // Left matrix rows and column numbers
   const size_t lrows = lhs->getNumRows();
   const size_t rcols = rhs->getNumColumns();
@@ -261,8 +261,8 @@ const Matrix<Type>* EyeMatSubNum(const Matrix<Type>* lhs,
 }
 
 // Eye matrix multiplication numerical check
-const Matrix<Type>* EyeMatMulNum(const Matrix<Type>* lhs,
-                                 const Matrix<Type>* rhs) {
+const Matrix<Type> *EyeMatMulNum(const Matrix<Type> *lhs,
+                                 const Matrix<Type> *rhs) {
   // Get rows and columns
   const size_t lrows = lhs->getNumRows();
   const size_t rcols = rhs->getNumColumns();
@@ -282,7 +282,7 @@ const Matrix<Type>* EyeMatMulNum(const Matrix<Type>* lhs,
 }
 
 // Zero matrix scalar multiplication numerics
-const Matrix<Type>* EyeMatScalarMulNum(Type type, const Matrix<Type>* rhs) {
+const Matrix<Type> *EyeMatScalarMulNum(Type type, const Matrix<Type> *rhs) {
   const bool rhs_bool = IsEyeMatrix(rhs);
   if (rhs_bool == true) {
     return rhs;
@@ -292,8 +292,8 @@ const Matrix<Type>* EyeMatScalarMulNum(Type type, const Matrix<Type>* rhs) {
 }
 
 // Eye matrix Kronocker product numerics
-const Matrix<Type>* EyeMatKronNum(const Matrix<Type>* lhs,
-                                  const Matrix<Type>* rhs) {
+const Matrix<Type> *EyeMatKronNum(const Matrix<Type> *lhs,
+                                  const Matrix<Type> *rhs) {
   // Left matrix rows and right matrix columns
   const size_t lr = lhs->getNumRows();
   const size_t lc = lhs->getNumColumns();
@@ -318,8 +318,8 @@ const Matrix<Type>* EyeMatKronNum(const Matrix<Type>* lhs,
 }
 
 // Eye matrix Hadamard product numerics
-const Matrix<Type>* EyeMatHadamardNum(const Matrix<Type>* lhs,
-                                      const Matrix<Type>* rhs) {
+const Matrix<Type> *EyeMatHadamardNum(const Matrix<Type> *lhs,
+                                      const Matrix<Type> *rhs) {
   // Get rows and columns
   const size_t lrows = lhs->getNumRows();
   const size_t rcols = rhs->getNumColumns();

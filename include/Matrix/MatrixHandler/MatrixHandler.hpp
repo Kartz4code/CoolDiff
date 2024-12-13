@@ -26,30 +26,30 @@
 // Matrix handler for different types
 class MatrixHandler {
 private:
-  MatrixHandler* mp_handler{nullptr};
+  MatrixHandler *mp_handler{nullptr};
 
 public:
   // Constructor
-  constexpr MatrixHandler(MatrixHandler* h = nullptr) : mp_handler{h} {}
+  constexpr MatrixHandler(MatrixHandler *h = nullptr) : mp_handler{h} {}
 
-  V_UNPURE(void handle(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&));
+  V_UNPURE(void handle(const Matrix<Type> *, const Matrix<Type> *,
+                       Matrix<Type> *&));
 
-  V_UNPURE(void handle(const Type, const Matrix<Type>*, Matrix<Type>*&));
+  V_UNPURE(void handle(const Type, const Matrix<Type> *, Matrix<Type> *&));
 
-  V_UNPURE(void handle(const Matrix<Type>*, Matrix<Type>*&));
+  V_UNPURE(void handle(const Matrix<Type> *, Matrix<Type> *&));
 
-  V_UNPURE(void handle(const size_t, const size_t, 
-                       const size_t, const size_t,
-                       const Matrix<Type>*,  Matrix<Type>*&));
+  V_UNPURE(void handle(const size_t, const size_t, const size_t, const size_t,
+                       const Matrix<Type> *, Matrix<Type> *&));
 
-  V_UNPURE(void handle(const size_t, const size_t, 
-                       const size_t, const size_t,
-                       const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&));
+  V_UNPURE(void handle(const size_t, const size_t, const size_t, const size_t,
+                       const Matrix<Type> *, const Matrix<Type> *,
+                       Matrix<Type> *&));
 
-  V_UNPURE(void handle(const size_t, const size_t, 
-                       const size_t, const size_t,
-                       const size_t, const size_t, 
-                       const Matrix<Type>*, const Matrix<Type>*, const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&));
+  V_UNPURE(void handle(const size_t, const size_t, const size_t, const size_t,
+                       const size_t, const size_t, const Matrix<Type> *,
+                       const Matrix<Type> *, const Matrix<Type> *,
+                       const Matrix<Type> *, Matrix<Type> *&));
 
   // Destructor
   V_DTR(~MatrixHandler() = default);

@@ -22,7 +22,9 @@
 #include "MatHadamardNaiveHandler.hpp"
 #include "Matrix.hpp"
 
-void MatHadamardNaiveHandler::handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
+void MatHadamardNaiveHandler::handle(const Matrix<Type> *lhs,
+                                     const Matrix<Type> *rhs,
+                                     Matrix<Type> *&result) {
   /* Matrix-Matrix numerical addition */
   // Rows and columns of result matrix and if result is nullptr, then create a
   // new resource
@@ -32,21 +34,21 @@ void MatHadamardNaiveHandler::handle(const Matrix<Type>* lhs, const Matrix<Type>
   const size_t rrows{rhs->getNumRows()};
 
   // Assert dimensions
-  ASSERT((nrows == rrows) && (ncols == lcols), "Matrix Hadamard product dimensions mismatch");
+  ASSERT((nrows == rrows) && (ncols == lcols),
+         "Matrix Hadamard product dimensions mismatch");
 
   // Pool matrix
   MemoryManager::MatrixPool(nrows, ncols, result);
 
   // Get raw pointers to result, left and right matrices
-  Type* res = result->getMatrixPtr();
-  const Type* left = lhs->getMatrixPtr();
-  const Type* right = rhs->getMatrixPtr();
+  Type *res = result->getMatrixPtr();
+  const Type *left = lhs->getMatrixPtr();
+  const Type *right = rhs->getMatrixPtr();
 
   // For each element, perform addition
   const size_t size{nrows * ncols};
   std::transform(EXECUTION_PAR left, left + size, right, res,
-                 [](const Type a, const Type b) { return a * b; }
-                );
+                 [](const Type a, const Type b) { return a * b; });
 
   return;
 }

@@ -32,24 +32,24 @@ public:
   // Constructors
   VarWrap();
   VarWrap(Type);
-  VarWrap(const VarWrap&);
-  VarWrap(VarWrap&&) noexcept;
+  VarWrap(const VarWrap &);
+  VarWrap(VarWrap &&) noexcept;
 
   // Assignments
-  VarWrap& operator=(const VarWrap&);
-  VarWrap& operator=(VarWrap&&) noexcept;
+  VarWrap &operator=(const VarWrap &);
+  VarWrap &operator=(VarWrap &&) noexcept;
 
   // Set constructor
-  void setConstructor(const Type&);
+  void setConstructor(const Type &);
 
   // Getters and setters methods
   // Get/Set value
   const Type getValue() const;
-  void setValue(const Type&);
+  void setValue(const Type &);
 
   // Get/Set dvalue
   const Type getdValue() const;
-  void setdValue(const Type&);
+  void setdValue(const Type &);
 
   // Destructor
   ~VarWrap() = default;

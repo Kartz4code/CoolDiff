@@ -28,7 +28,7 @@ class MatDervConvNaiveHandler : public MatrixHandler {
 private:
   // All matrices
   inline static constexpr const size_t m_size{13};
-  Matrix<Type>* mp_arr[m_size]{};
+  Matrix<Type> *mp_arr[m_size]{};
 
   // Boolean check for initialization
   bool m_initialized{false};
@@ -36,10 +36,10 @@ private:
 public:
   using MatrixHandler::MatrixHandler;
 
-  V_OVERRIDE(void handle(const size_t, const size_t, 
-                         const size_t, const size_t,
-                         const size_t, const size_t, 
-                         const Matrix<Type>*, const Matrix<Type>*, const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&));
+  V_OVERRIDE(void handle(const size_t, const size_t, const size_t, const size_t,
+                         const size_t, const size_t, const Matrix<Type> *,
+                         const Matrix<Type> *, const Matrix<Type> *,
+                         const Matrix<Type> *, Matrix<Type> *&));
 
   // Destructor
   V_DTR(~MatDervConvNaiveHandler() = default);

@@ -31,7 +31,7 @@ Variable::Variable() : m_nidx{this->m_idx_count++} {
 }
 
 // Variables with concrete values
-Variable::Variable(const Type& value) : m_nidx{this->m_idx_count++} {
+Variable::Variable(const Type &value) : m_nidx{this->m_idx_count++} {
   *m_value_var = value;
   // Set all the values for VarWrap
   m_var.setConstructor(value);
@@ -42,7 +42,7 @@ Variable::Variable(const Type& value) : m_nidx{this->m_idx_count++} {
 }
 
 // Copy assignment to Type values
-Variable& Variable::operator=(const Type& value) {
+Variable &Variable::operator=(const Type &value) {
   // Set value
   *m_value_var = value;
   // Set all the values for VarWrap
@@ -55,27 +55,25 @@ Variable& Variable::operator=(const Type& value) {
 }
 
 // Variable copy constructor
-Variable::Variable(const Variable& exp) : m_nidx{exp.m_nidx}, 
-                                          m_cache{exp.m_cache}, 
-                                          m_var{exp.m_var},
-                                          m_value_var{exp.m_value_var}, 
-                                          m_gh_vec{exp.m_gh_vec} {
+Variable::Variable(const Variable &exp)
+    : m_nidx{exp.m_nidx}, m_cache{exp.m_cache}, m_var{exp.m_var},
+      m_value_var{exp.m_value_var}, m_gh_vec{exp.m_gh_vec} {
   // Copy visited flag
   m_visited = exp.m_visited;
 }
 
 // Variable copy constructor
-Variable::Variable(Variable&& exp) noexcept : m_nidx{std::exchange(exp.m_nidx, -1)}, 
-                                              m_cache{std::move(exp.m_cache)},
-                                              m_var{std::move(exp.m_var)}, 
-                                              m_value_var{std::exchange(exp.m_value_var, nullptr)}, 
-                                              m_gh_vec{std::move(exp.m_gh_vec)} {
+Variable::Variable(Variable &&exp) noexcept
+    : m_nidx{std::exchange(exp.m_nidx, -1)}, m_cache{std::move(exp.m_cache)},
+      m_var{std::move(exp.m_var)},
+      m_value_var{std::exchange(exp.m_value_var, nullptr)}, m_gh_vec{std::move(
+                                                                exp.m_gh_vec)} {
   // Copy visited flag
   m_visited = std::exchange(exp.m_visited, false);
 }
 
 // Copy assignment from one variable to another
-Variable& Variable::operator=(const Variable& exp) {
+Variable &Variable::operator=(const Variable &exp) {
   if (&exp != this) {
     // Copy all members
     m_nidx = exp.m_nidx;
@@ -88,7 +86,7 @@ Variable& Variable::operator=(const Variable& exp) {
   return *this;
 }
 
-Variable& Variable::operator=(Variable&& exp) noexcept {
+Variable &Variable::operator=(Variable &&exp) noexcept {
   m_nidx = std::exchange(exp.m_nidx, -1);
   m_cache = std::move(exp.m_cache);
   m_var = std::move(exp.m_var);
@@ -99,26 +97,18 @@ Variable& Variable::operator=(Variable&& exp) noexcept {
   return *this;
 }
 
-void Variable::setValue(const Type& val) { 
-  m_var.setValue(val); 
-}
+void Variable::setValue(const Type &val) { m_var.setValue(val); }
 
-Type Variable::getValue() const { 
-  return m_var.getValue(); 
-}
+Type Variable::getValue() const { return m_var.getValue(); }
 
-void Variable::setdValue(const Type& val) { 
-  m_var.setdValue(val); 
-}
+void Variable::setdValue(const Type &val) { m_var.setdValue(val); }
 
-Type Variable::getdValue() const { 
-  return m_var.getdValue(); 
-}
+Type Variable::getdValue() const { return m_var.getdValue(); }
 
 void Variable::resetImpl() {
   this->m_visited = true;
   // Reset states
-  std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(), [](auto* item) {
+  std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(), [](auto *item) {
     if (nullptr != item) {
       item->reset();
     }
@@ -151,14 +141,14 @@ Type Variable::eval() {
 }
 
 // Evaluate 1st derivative in forward mode
-Type Variable::devalF(const Variable& var) {
+Type Variable::devalF(const Variable &var) {
   /* devalF BEGIN */
   if (false == this->m_visited) {
     // Set visit flag to true
     this->m_visited = true;
     // Loop on internal equations
     std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(),
-                  [this, &var](auto* i) {
+                  [this, &var](auto *i) {
                     if (nullptr != i) {
                       setdValue(i->devalF(var));
                       setValue(i->eval());
@@ -176,17 +166,15 @@ Type Variable::devalF(const Variable& var) {
 }
 
 // Deval in run-time for reverse derivative 1st
-Type Variable::devalR(const Variable& var) { 
-  return m_cache[var.m_nidx]; 
-}
+Type Variable::devalR(const Variable &var) { return m_cache[var.m_nidx]; }
 
 // Evaluate variable
-Variable* Variable::symEval() {
+Variable *Variable::symEval() {
   return ((nullptr != this->mp_tmp) ? (this->mp_tmp) : this);
 }
 
 // Forward derivative of variable in forward mode
-Variable* Variable::symDeval(const Variable& var) {
+Variable *Variable::symDeval(const Variable &var) {
   // Set differentiation result to a new variable
   if (auto it = this->mp_dtmp.find(m_nidx); it == this->mp_dtmp.end()) {
     auto tmp = Allocate<Variable>((Type)0);
@@ -198,7 +186,7 @@ Variable* Variable::symDeval(const Variable& var) {
     this->m_visited = true;
     // Loop on internal equations
     std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(),
-                  [this, &var](auto* item) {
+                  [this, &var](auto *item) {
                     if (nullptr != item) {
                       mp_dtmp[m_nidx] = item->symDeval(var);
                       mp_tmp = item->symEval();
@@ -218,13 +206,13 @@ Variable* Variable::symDeval(const Variable& var) {
 }
 
 // Exposed to user to compute symbolic differentiation
-Expression Variable::SymDiff(const Variable& v) {
+Expression Variable::SymDiff(const Variable &v) {
   resetImpl();
   return *symDeval(v);
 }
 
 // Traverse tree
-void Variable::traverse(OMPair* cache) {
+void Variable::traverse(OMPair *cache) {
   if (false == this->m_visited) {
     this->m_visited = true;
     // Reset states
@@ -243,9 +231,7 @@ void Variable::traverse(OMPair* cache) {
 }
 
 // Get cache
-OMPair& Variable::getCache() { 
-  return m_cache; 
-}
+OMPair &Variable::getCache() { return m_cache; }
 
 // Reset
 void Variable::reset() {
@@ -276,20 +262,18 @@ void Variable::reset() {
 }
 
 // Get type
-std::string_view Variable::getType() const { 
-  return "Variable"; 
-}
+std::string_view Variable::getType() const { return "Variable"; }
 
 // Find me
-bool Variable::findMe(void* v) const {
-  if (static_cast<const void*>(this) == v) {
+bool Variable::findMe(void *v) const {
+  if (static_cast<const void *>(this) == v) {
     return true;
   } else {
     return false;
   }
 }
 
-Variable& Variable::VariableFactory::CreateVariable(const Type& val) {
+Variable &Variable::VariableFactory::CreateVariable(const Type &val) {
   auto tmp = Allocate<Variable>(val);
   return *tmp;
 }

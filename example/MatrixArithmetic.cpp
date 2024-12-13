@@ -24,44 +24,51 @@
 
 void func15() {
   Variable x{2};
-  Expression y = x*x + 2*x + 1; 
+  Expression y = x * x + 2 * x + 1;
 
-  Expression yx = SymDiff(y,x);
-  Expression yxx = SymDiff(yx,x);
-  Expression z = SymDiff(x,x);
-
+  Expression yx = SymDiff(y, x);
+  Expression yxx = SymDiff(yx, x);
+  Expression z = SymDiff(x, x);
 
   std::cout << Eval(y) << "\n";
-  std::cout << DevalF(y,x) << "\n";
+  std::cout << DevalF(y, x) << "\n";
 
   std::cout << Eval(yx) << "\n";
-  std::cout << DevalF(yx,x) << "\n";
+  std::cout << DevalF(yx, x) << "\n";
 
   std::cout << Eval(yxx) << "\n";
-  std::cout << DevalF(yxx,x) << "\n";
+  std::cout << DevalF(yxx, x) << "\n";
 
   std::cout << Eval(z) << "\n";
-  std::cout << DevalF(z,x) << "\n";
-
-
+  std::cout << DevalF(z, x) << "\n";
 }
 
 void func14() {
-  Matrix<Type> A(3,3);
+  Matrix<Type> A(3, 3);
   Matrix<Variable> X(3, 3);
 
-  A(0, 0) = 1; A(0, 1) = 2; A(0, 2) = 3;
-  A(1, 0) = 4; A(1, 1) = 5; A(1, 2) = 6;
-  A(2, 0) = 7; A(2, 1) = 8; A(2, 2) = 9;
+  A(0, 0) = 1;
+  A(0, 1) = 2;
+  A(0, 2) = 3;
+  A(1, 0) = 4;
+  A(1, 1) = 5;
+  A(1, 2) = 6;
+  A(2, 0) = 7;
+  A(2, 1) = 8;
+  A(2, 2) = 9;
 
-  X(0, 0) = 1; X(0, 1) = 2; X(0, 2) = 3;
-  X(1, 0) = 4; X(1, 1) = 5; X(1, 2) = 6;
-  X(2, 0) = 7; X(2, 1) = 8; X(2, 2) = 9;
+  X(0, 0) = 1;
+  X(0, 1) = 2;
+  X(0, 2) = 3;
+  X(1, 0) = 4;
+  X(1, 1) = 5;
+  X(1, 2) = 6;
+  X(2, 0) = 7;
+  X(2, 1) = 8;
+  X(2, 2) = 9;
 
-  Matrix<Expression> exp = trace(A*X);
-  std::cout << DevalF(exp,X) << "\n";
-  
-  
+  Matrix<Expression> exp = trace(A * X);
+  std::cout << DevalF(exp, X) << "\n";
 }
 
 void func13() {
@@ -156,130 +163,13 @@ void func11() {
   std::cout << DevalF(Y, X) << "\n";
 }
 
-void func10() {
-  Matrix<Variable> X(2, 1);
-  X(0, 0) = 2.3;
-  X(1, 0) = 3;
-
-  std::cout << Eval(X(0, 0) * X(0, 0) + X(0, 0)) << "\n";
-  X(0, 0) = 3;
-  std::cout << Eval(X(0, 0) * X(0, 0) + X(0, 0)) << "\n";
-  std::cout << DevalF(X(0, 0) * X(0, 0) + X(0, 0), X(0, 0)) << "\n";
-  // std::cout << DevalR(X(0,0)*X(0,0), X(0,0)) << "\n";
-
-  Matrix<Type> A(3, 2);
-  A(0, 0) = 1;
-  A(0, 1) = 2;
-  A(1, 0) = 3;
-  A(1, 1) = 4;
-  A(2, 0) = 5;
-  A(2, 1) = 6;
-
-  Matrix<Type> Z(2, 1);
-  Z(0, 0) = 5;
-  Z(1, 0) = 6;
-
-  Matrix<Expression> M3 = transpose(A * X) * (A * X);
-
-  std::cout << Eval(M3) << "\n";
-  std::cout << DevalF(M3, X) << "\n";
-}
-
-void func9() {
-  Matrix<Variable> X(2, 2);
-  X(0, 0) = 1;
-  X(0, 1) = 2;
-  X(1, 0) = 3;
-  X(1, 1) = 4;
-
-  Matrix<Variable> Z(2, 2);
-  Z(1, 1) = X(0, 0);
-
-  Matrix<Type> A(2, 2);
-  A(0, 0) = 1;
-  A(0, 1) = 2;
-  A(1, 0) = 3;
-  A(1, 1) = 4;
-
-  Matrix<Expression> Y(2, 2);
-  Y(0, 0) = X(0, 0) + X(0, 1);
-  Y(0, 1) = X(0, 0) * X(0, 1) - X(1, 0);
-  Y(1, 0) = X(0, 1) - X(0, 0) + X(1, 0);
-  Y(1, 1) = X(0, 1) / X(1, 1);
-
-  Parameter p{2};
-  Variable& s = X(0, 0);
-  Matrix<Expression> S = X * s - X(0, 0);
-
-  std::cout << Eval(S) << "\n";
-  p = 3;
-  std::cout << Eval(S) << "\n";
-  std::cout << DevalF(S, X) << "\n";
-}
-
-void func3() {
-  Matrix<Variable> x(2, 2);
-  x(0, 0) = 1;
-  x(0, 1) = 2;
-  x(1, 0) = 3;
-  x(1, 1) = 4;
-
-  Matrix<Type> m = Matrix<Type>::MatrixFactory::CreateMatrix(2, 2);
-  m(0, 0) = 1;
-  m(0, 1) = 2;
-  m(1, 0) = 3;
-  m(1, 1) = 4;
-
-  Matrix<Expression> x2(2, 2);
-  x2(0, 0) = x(0, 0) + x(1, 0);
-  x2(0, 1) = x(1, 1) + x(0, 1);
-  x2(1, 0) = x(1, 0) + x(1, 1);
-  x2(1, 1) = x(1, 1);
-
-  Matrix<Type> m2(2, 1);
-  m2(0, 0) = 1;
-  m2(1, 0) = 5;
-
-  Matrix<Expression> sum = x2 * x2 * x2 + x;
-  sum = sum * m + x;
-  sum = x * sum * m2;
-
-  std::cout << DevalF(sum, x) << "\n";
-  std::cout << DevalF(sum, x) << "\n\n";
-}
-
-void func5() {
-  auto m1 = Matrix<Variable>::MatrixFactory::CreateMatrix(2, 1);
-  m1(0, 0) = 1;
-  m1(1, 0) = 1;
-
-  Matrix<Type> m2 = Matrix<Type>::MatrixFactory::CreateMatrix(2, 2);
-  m2(0, 0) = 1;
-  m2(0, 1) = 2;
-  m2(1, 0) = 3;
-  m2(1, 1) = 4;
-
-  Matrix<Expression> M = m1 + m1;
-  M = m2 * M + m1;
-
-  std::cout << Eval(M) << "\n";
-  std::cout << DevalF(M, m1) << "\n";
-  std::cout << DevalF(M, m1) << "\n";
-}
-
-void func16() {}
 
 int main(int argc, char **argv) {
-  func16();
   func15();
   func14();
   func13();
   func12();
   func11();
-  func10();
-  func9();
-  func3();
-  func5();
 
   Matrix<Variable> x(2, 1);
   x(0, 0) = 2;
