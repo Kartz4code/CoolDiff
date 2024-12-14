@@ -20,5 +20,6 @@
  */
 
 #pragma once
+
 #include "CommonFunctions.hpp"
 #include "CommonMatFunctions.hpp"

@@ -22,14 +22,97 @@
 #include <gtest/gtest.h>
 #include "CoolDiff.hpp"
 
-// Matrix transpose operation
-TEST(MatTest, Test5) {
-    // Eval and Deval result
-    Type Xres[1][1] = {(Type)102408.0};
+// Matrix convolution operation (with variable change)
+TEST(MatTest, Test7) {
+  // Result set 1
+  Type Eres1[1][1] = {(Type)-182};  
+  Type DW1res1[2][2] = {{(Type)-26, (Type)-26}, 
+                        {(Type)-26, (Type)-26}};
+  Type DW2res1[2][2] = {{(Type)-91, (Type)-91}, 
+                        {(Type)-91, (Type)-91}};  
 
-    Type DXres[3][2] = {{(Type)48252.0,   (Type)3.0},
-                        {(Type)61206.0,   (Type)0},
-                        {(Type)79536.0,   (Type)0}};
+  // Result set 2
+  Type Eres2[1][1] = {(Type)1040};  
+  Type DW1res2[2][2] = {{(Type)104, (Type)104}, 
+                        {(Type)104, (Type)104}};
+  Type DW2res2[2][2] = {{(Type)-130, (Type)-130}, 
+                        {(Type)-130, (Type)-130}};  
+
+  Matrix<Type> X(3, 3);
+  Matrix<Variable> W1(2, 2), W2(2, 2);
+
+  X(0, 0) = -1; X(0, 1) = 2; X(0, 2) = -3;
+  X(1, 0) = 4; X(1, 1) = -13; X(1, 2) = 5;
+  X(2, 0) = -6; X(2, 1) = 7; X(2, 2) = -8;
+
+  W1(0, 0) = -1; W1(0, 1) = 2;
+  W1(1, 0) = -3; W1(1, 1) = 9;
+
+  W2(0, 0) = -3; W2(0, 1) = 4;
+  W2(1, 0) = -5; W2(1, 1) = 6;
+
+  Matrix<Expression> E = conv(X, W2, 1, 1, 1, 1);
+  E = conv(E, W1, 1, 1, 1, 1);
+  E = sigma(E);   
+
+    // Verification eval function 
+    auto verify_eval_function = [&](auto Xres) {
+        auto& R = Eval(E);
+        for(size_t i{}; i < R.getNumRows(); ++i){
+            for(size_t j{}; j < R.getNumColumns(); ++j) {
+                if(R(i,j) != Xres[i][j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }; 
+
+    // Verification deval function
+    auto verify_deval_function = [&](auto DXres, auto& X) {
+        auto& DR = DevalF(E, X);
+        for(size_t i{}; i < DR.getNumRows(); ++i){
+            for(size_t j{}; j < DR.getNumColumns(); ++j) {
+                if(DR(i,j) != DXres[i][j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    };
+
+    // Assert test
+    ASSERT_TRUE(verify_eval_function(Eres1)); 
+    ASSERT_TRUE(verify_deval_function(DW1res1,W1));
+    ASSERT_TRUE(verify_deval_function(DW2res1,W2));
+
+    W1(0, 0) = 1; W1(0, 1) = 4;
+    W1(1, 0) = -1; W1(1, 1) = 6;
+
+    W2(0, 0) = -1; W2(0, 1) = -8;
+    W2(1, 0) = 3; W2(1, 1) = -2;
+    
+    // Assert test
+    ASSERT_TRUE(verify_eval_function(Eres2)); 
+    ASSERT_TRUE(verify_deval_function(DW1res2,W1));
+    ASSERT_TRUE(verify_deval_function(DW2res2,W2));
+}
+
+// Matrix trace operation (with variable change)
+TEST(MatTest, Test6) {
+    // Eval and Deval result 1
+    Type Xres1[1][1] = {(Type)2244.0};
+
+    Type DXres1[3][2] = {{(Type)830.0,   (Type)3.0},
+                         {(Type)851.0,   (Type)0},
+                         {(Type)738.0,    (Type)0}};
+
+    // Eval and Deval result 2
+    Type Xres2[1][1] = {(Type)1980.0};
+
+    Type DXres2[3][2] = {{(Type)851.0,  (Type)3.0},
+                         {(Type)573.0,   (Type)0},
+                         {(Type)672.0,   (Type)0}};
 
     Variable x1{1}, x2{2}, x3{3};
     Matrix<Variable> X(3,1);
@@ -43,8 +126,12 @@ TEST(MatTest, Test5) {
     Y(0,0) = x1+x2; Y(0,1) = x1*x2-x3;
     Y(1,0) = x2-x1+x3; Y(1,1) = x2+x1+x3;
 
-    Matrix<Expression> E = transpose(Y*A*X)*(Y*A*X);
-    E = E + 2*x1*x2;
+    Matrix<Type> Z(1,2);
+    Z(0,0) = 3; Z(0,1) = 7;
+
+    Matrix<Expression> E = (Y*A*X)*Z + 2*x1*x2;
+    E = E - x1*x2 + x3;
+    E = trace(E);
 
     // Verification eval function 
     auto verify_eval_function = [&](auto Xres) {
@@ -73,8 +160,85 @@ TEST(MatTest, Test5) {
     };
 
     // Assert test
-    ASSERT_TRUE(verify_eval_function(Xres)); 
-    ASSERT_TRUE(verify_deval_function(DXres));
+    ASSERT_TRUE(verify_eval_function(Xres1)); 
+    ASSERT_TRUE(verify_deval_function(DXres1));
+
+    // Change of variable values
+    x1 = -1; x2 = 3; x3 = 4;
+
+    // Assert test
+    ASSERT_TRUE(verify_eval_function(Xres2)); 
+    ASSERT_TRUE(verify_deval_function(DXres2));
+
+}
+
+// Matrix sigma operation (with variable change)
+TEST(MatTest, Test5) {
+    // Eval and Deval result 1
+    Type Xres1[1][1] = {(Type)318.0};
+
+    Type DXres1[3][2] = {{(Type)174.0,   (Type)3.0},
+                         {(Type)155.0,   (Type)0},
+                         {(Type)80.0,    (Type)0}};
+
+    // Eval and Deval result 2
+    Type Xres2[1][1] = {(Type)126.0};
+
+    Type DXres2[3][2] = {{(Type)179.0,  (Type)3.0},
+                         {(Type)49.0,   (Type)0},
+                         {(Type)38.0,   (Type)0}};
+
+    Variable x1{1}, x2{2}, x3{3};
+    Matrix<Variable> X(3,1);
+    X(0,0) = x1; X(1,0) = x2; X(2,0) = x3; 
+
+    Matrix<Type> A(2,3);
+    A(0,0) = 1; A(0,1) = 2; A(0,2) = 3;
+    A(1,0) = 7; A(1,1) = 5; A(1,2) = 9;
+
+    Matrix<Expression> Y(2,2);
+    Y(0,0) = x1+x2; Y(0,1) = x1*x2-x3;
+    Y(1,0) = x2-x1+x3; Y(1,1) = x2+x1+x3;
+
+    Matrix<Expression> E = Y*A*X;
+    E = sigma(E);
+
+    // Verification eval function 
+    auto verify_eval_function = [&](auto Xres) {
+        auto& R = Eval(E);
+        for(size_t i{}; i < R.getNumRows(); ++i){
+            for(size_t j{}; j < R.getNumColumns(); ++j) {
+                if(R(i,j) != Xres[i][j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }; 
+
+    // Verification deval function
+    auto verify_deval_function = [&](auto DXres) {
+        auto& DR = DevalF(E, X);
+        for(size_t i{}; i < DR.getNumRows(); ++i){
+            for(size_t j{}; j < DR.getNumColumns(); ++j) {
+                if(DR(i,j) != DXres[i][j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    };
+
+    // Assert test
+    ASSERT_TRUE(verify_eval_function(Xres1)); 
+    ASSERT_TRUE(verify_deval_function(DXres1));
+
+    // Change of variable values
+    x1 = -1; x2 = 3; x3 = 4;
+
+    // Assert test
+    ASSERT_TRUE(verify_eval_function(Xres2)); 
+    ASSERT_TRUE(verify_deval_function(DXres2));
 
 }
 

@@ -34,7 +34,7 @@ Variable::Variable() : m_nidx{this->m_idx_count++} {
 Variable::Variable(const Type &value) : m_nidx{this->m_idx_count++} {
   *m_value_var = value;
   // Set all the values for VarWrap
-  m_var.setConstructor(value);
+  m_var->setConstructor(value);
   // Reserve a buffer of expressions
   m_gh_vec.reserve(g_vec_init);
   // Clear cache
@@ -46,7 +46,7 @@ Variable &Variable::operator=(const Type &value) {
   // Set value
   *m_value_var = value;
   // Set all the values for VarWrap
-  m_var.setConstructor(value);
+  m_var->setConstructor(value);
   // A number doesn't contain any content, so clear expression buffer
   m_gh_vec.clear();
   // Clear cache
@@ -97,13 +97,13 @@ Variable &Variable::operator=(Variable &&exp) noexcept {
   return *this;
 }
 
-void Variable::setValue(const Type &val) { m_var.setValue(val); }
+void Variable::setValue(const Type &val) { m_var->setValue(val); }
 
-Type Variable::getValue() const { return m_var.getValue(); }
+Type Variable::getValue() const { return m_var->getValue(); }
 
-void Variable::setdValue(const Type &val) { m_var.setdValue(val); }
+void Variable::setdValue(const Type &val) { m_var->setdValue(val); }
 
-Type Variable::getdValue() const { return m_var.getdValue(); }
+Type Variable::getdValue() const { return m_var->getdValue(); }
 
 void Variable::resetImpl() {
   this->m_visited = true;

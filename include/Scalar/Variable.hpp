@@ -28,7 +28,7 @@
 class Variable : public IVariable<Variable> {
 protected:
   // Underlying symbolic variable
-  VarWrap m_var{};
+  SharedPtr<VarWrap> m_var{std::make_shared<VarWrap>()};
 
   // Static variable for one seed
   static Variable t1;
