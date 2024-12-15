@@ -36,7 +36,7 @@ find_package(Threads REQUIRED)
 
 # [Custom flags]
 # Build type: Debug or Release
-set(BUILD_TYPE Debug)
+set(BUILD_TYPE Release)
 
 option(BUILD_TEST "Building unit test executables" ON)
 option(BUILD_EXAMPLE "Building example executables" ON)

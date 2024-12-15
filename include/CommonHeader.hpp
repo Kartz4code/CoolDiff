@@ -46,11 +46,11 @@
 //#define MATRIX_TRANSPOSED_MUL
 
 #ifndef BUILD_TYPE
-#define SCALAR_TYPE double
-#define USE_COMPLEX_MATH
-#define USE_ROBIN_HOOD_MAP
-#define USE_VIRTUAL_FUNCTIONS
-#define USE_PARALLEL_POLICY
+  #define SCALAR_TYPE double
+  #define USE_COMPLEX_MATH
+  #define USE_ROBIN_HOOD_MAP
+  #define USE_VIRTUAL_FUNCTIONS
+  #define USE_PARALLEL_POLICY
 #endif
 
 // Use parallel policy

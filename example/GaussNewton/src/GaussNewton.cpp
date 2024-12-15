@@ -209,8 +209,11 @@ void GaussNewton::solve() {
     computeAB(var_size);
 
     // Raw pointer for A and B matrices
-    Type *A = m_A->getMatrixPtr();
-    Type *B = m_B->getMatrixPtr();
+    Type* A = m_A->getMatrixPtr();
+    Type* B = m_B->getMatrixPtr();
+
+    NULL_CHECK(A, "A matrix is a null pointer");
+    NULL_CHECK(B, "B matrix is a null pointer");
 
 /* Linear algebra solve A/B */
 #if defined(USE_COMPLEX_MATH)
