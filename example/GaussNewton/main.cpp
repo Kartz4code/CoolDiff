@@ -136,7 +136,29 @@ void GNMatrix() {
             << (Type)-2 << "\n";
 }
 
+void NonLinearSolve() {
+
+  Variable x{10}, y{15}; 
+  Matrix<Variable> X(1,2);
+  X(0,0) = x; X(0,1) = y; 
+  Matrix<Expression> E(2,1);
+
+  E(0,0) = x*x + y*y - 20;
+  E(1,0) = x - y + 2;
+
+  GaussNewton gn;
+  gn.setOracle(Oracle::OracleFactory::CreateOracle(E, X))
+    .setMaxIterations(7);
+
+  TIME_IT_MS(gn.solve());
+
+  std::cout << "Computed values (x,y): " << Eval(x) <<  "," << Eval(y) << "\n";
+  std::cout << "Actual values (x,y): (-4,-2) or (2,4)\n\n"; 
+
+}
+
 int main(int argc, char **argv) {
+  NonLinearSolve();
   GNMatrix();
   return 0;
 }

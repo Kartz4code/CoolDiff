@@ -31,7 +31,7 @@ private:
   Matrix<Parameter> *m_DY{nullptr};
 
   // Data size, X, Y dataset
-  size_t m_size{(size_t)(-1)};
+  size_t m_size{1};
   Matrix<Type> *m_X{nullptr};
   Matrix<Type> *m_Y{nullptr};
 
