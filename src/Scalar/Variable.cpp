@@ -206,7 +206,7 @@ Variable *Variable::symDeval(const Variable &var) {
 }
 
 // Exposed to user to compute symbolic differentiation
-Expression Variable::SymDiff(const Variable &v) {
+Variable& Variable::SymDiff(const Variable &v) {
   resetImpl();
   return *symDeval(v);
 }

@@ -104,18 +104,13 @@ void GNMatrix() {
 
   // Matrix variables
   Matrix<Variable> V(1, 3);
-  V[0] = 0.5142;
-  V[1] = 20;
-  V[2] = -10;
+  V[0] = 0.5142; V[1] = 20; V[2] = -10;
 
   // Rotation and translation matrices
   Matrix<Expression> R(2, 2), t(2, 1);
-  R(0, 0) = cos(V[0]);
-  R(0, 1) = sin(V[0]);
-  R(1, 0) = -sin(V[0]);
-  R(1, 1) = cos(V[0]);
-  t[0] = V[1];
-  t[1] = V[2];
+  R(0, 0) = cos(V[0]); R(0, 1) = sin(V[0]);
+  R(1, 0) = -sin(V[0]); R(1, 1) = cos(V[0]);
+  t[0] = V[1]; t[1] = V[2];
 
   // Parameter for input/output data
   Matrix<Parameter> PX(2, 1), PY(2, 1);
@@ -137,8 +132,8 @@ void GNMatrix() {
 }
 
 void NonLinearSolve() {
-
   Variable x{10}, y{15}; 
+
   Matrix<Variable> X(1,2);
   X(0,0) = x; X(0,1) = y; 
   Matrix<Expression> E(2,1);
@@ -158,7 +153,7 @@ void NonLinearSolve() {
 }
 
 int main(int argc, char **argv) {
-  NonLinearSolve();
+  //NonLinearSolve();
   GNMatrix();
   return 0;
 }
