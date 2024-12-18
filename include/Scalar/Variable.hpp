@@ -26,33 +26,35 @@
 
 // Variable Expression is a wrapper around the variable class
 class Variable : public IVariable<Variable> {
+private:
+  // Friend class Parameter
+  friend class Parameter;
+
+  // Friend class GenericUnaryC0Function
+  template <typename Func1, typename Func2> 
+  friend class GenericUnaryC0Function;
+
+  // Friend class GenericBinaryC0Function
+  template <typename Func, typename FuncLHS, typename FuncRHS>
+  friend class GenericBinaryC0Function;
+
 protected:
   // Underlying symbolic variable
   SharedPtr<VarWrap> m_var{std::make_shared<VarWrap>()};
+
+  // Type real-time value
+  SharedPtr<Type> m_value_var{std::make_shared<Type>()};
 
   // Static variable for one seed
   static Variable t1;
   // Static variable for zero seed
   static Variable t0;
 
-  // Friend class Parameter
-  friend class Parameter;
-
-  // Friend class GenericUnaryC0Function
-  template <typename Func1, typename Func2> friend class GenericUnaryC0Function;
-
-  // Friend class GenericBinaryC0Function
-  template <typename Func, typename FuncLHS, typename FuncRHS>
-  friend class GenericBinaryC0Function;
-
-  // Type real-time value
-  SharedPtr<Type> m_value_var{std::make_shared<Type>()};
-
   // Collection of meta variable expressions
   Vector<MetaVariable *> m_gh_vec{};
 
   // Exposed to user to compute symbolic differentiation
-  Expression SymDiff(const Variable &);
+  Variable& SymDiff(const Variable &);
 
 public:
   // Block index
