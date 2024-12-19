@@ -61,3 +61,10 @@ void MatrixDervConv(const size_t, const size_t, const size_t, const size_t,
                     const size_t, const size_t, const Matrix<Type> *,
                     const Matrix<Type> *, const Matrix<Type> *,
                     const Matrix<Type> *, Matrix<Type> *&);
+
+// Matrix sin
+void MatrixSin(const Matrix<Type> *, Matrix<Type> *&);
+
+// Matrix cos
+void MatrixCos(const Matrix<Type> *, Matrix<Type> *&);
+

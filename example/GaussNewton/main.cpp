@@ -153,7 +153,7 @@ void NonLinearSolve() {
 }
 
 int main(int argc, char **argv) {
-  //NonLinearSolve();
+  NonLinearSolve();
   GNMatrix();
   return 0;
 }

@@ -22,6 +22,68 @@
 #include <gtest/gtest.h>
 #include "CoolDiff.hpp"
 
+// Matrix sin/cos operation
+TEST(MatTest, Test8) {
+    double epi = 0.001;
+    // Eval and Deval result 1
+    Type Xres1[2][2] = {{ (Type)116.3192408, (Type)181.0049466},
+                        { (Type)350.8476951, (Type)527.8106938}};
+
+    Type DXres1[4][4] = {{ (Type)20.79150789,  (Type)31.33700343,  (Type)-21.3781716,  (Type)66.48187411},
+                         { (Type)34.44941922, (Type)-11.19563462,  (Type)10.17733502,  (Type)17.47356469},
+                         { (Type)86.72069026,  (Type)39.62774697, (Type)-10.14312215,   (Type)143.395168},
+                         { (Type)101.5180748,   (Type)-74.948339,  (Type)28.19618032, (Type)-4.787774304}};
+
+    // Eval and Deval result 2
+    Type Xres2[2][2] = {{ (Type)151.2665253, (Type)103.3465801},
+                        { (Type)478.2702848, (Type)317.4912399}};
+
+    Type DXres2[4][4] = {{ (Type)-22.3638443,   (Type)7.66467508, (Type)-32.47476611, (Type)30.17775842},
+                         { (Type)60.24722736, (Type)-6.085873292,  (Type)23.77664818, (Type)21.60863041},
+                         { (Type)56.61282765,  (Type)16.96222503, (Type)-18.65939104, (Type)89.13394705},
+                         { (Type)176.5870944, (Type)-46.04305063,  (Type)74.30870851, (Type)48.47765126}};
+
+    Variable x1{1}, x2{2}, x3{3}, x4{4};
+    Matrix<Variable> X(2,2);
+    X(0,0) = x1; X(0,1) = x2; 
+    X(1,0) = x3; X(1,1) = x4;
+
+    Matrix<Type> A(2,2);
+    A(0,0) = -1; A(0,1) = 3;
+    A(1,0) =  5; A(1,1) = 6;
+
+    MatExpression E = A*cos(sin(X)) + X;
+    E = A*E*X + cos(2*X)*E;
+
+    // Verification eval function 
+    auto verify_eval_function = [&](auto Xres) {
+        auto& R = Eval(E);
+        for(size_t i{}; i < R.getNumRows(); ++i){
+            for(size_t j{}; j < R.getNumColumns(); ++j) {
+                ASSERT_NEAR(std::abs(R(i,j)), std::abs(Xres[i][j]), epi);
+            }
+        }
+    }; 
+
+    // Verification deval function
+    auto verify_deval_function = [&](auto DXres) {
+        auto& DR = DevalF(E, X);
+        for(size_t i{}; i < DR.getNumRows(); ++i){
+            for(size_t j{}; j < DR.getNumColumns(); ++j) {
+                ASSERT_NEAR(std::abs(DR(i,j)), std::abs(DXres[i][j]), epi);
+            }
+        }
+    };
+
+    verify_eval_function(Xres1);
+    verify_deval_function(DXres1);
+
+    x1 = 4; x2 = 3; x3 = 2; x4 = 1;
+
+    verify_eval_function(Xres2);
+    verify_deval_function(DXres2);
+}
+
 // Matrix convolution operation (with variable change)
 TEST(MatTest, Test7) {
   // Result set 1

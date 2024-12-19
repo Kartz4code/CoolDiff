@@ -29,6 +29,8 @@
 #include "GenericMatSum.hpp"
 #include "GenericMatTrace.hpp"
 #include "GenericMatTranspose.hpp"
+#include "GenericMatSin.hpp"
+#include "GenericMatCos.hpp"
 #include "Matrix.hpp"
 #include "MatrixBasics.hpp"
 
