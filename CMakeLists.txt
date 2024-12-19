@@ -36,7 +36,7 @@ find_package(Threads REQUIRED)
 
 # [Custom flags]
 # Build type: Debug or Release
-set(BUILD_TYPE Release)
+set(BUILD_TYPE Debug)
 
 option(BUILD_TEST "Building unit test executables" ON)
 option(BUILD_EXAMPLE "Building example executables" ON)
@@ -159,6 +159,14 @@ set(SRC
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvolution/MatConvNaiveHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvHandler/ZeroMatConvHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvHandler/ZeroMatDervConvHandler.cpp
+    # MatrixSin folder
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixSinHandler/ZeroMatSinHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixSinHandler/EyeMatSinHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixSin/MatSinNaiveHandler.cpp
+    # MatrixCos folder
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixCosHandler/ZeroMatCosHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixCosHandler/EyeMatCosHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixCos/MatCosNaiveHandler.cpp
     # Memory manager folder
     ${CMAKE_SOURCE_DIR}/src/MemoryManager/MemoryManager.cpp)
 
@@ -187,6 +195,10 @@ set(INCLUDES
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvHandler
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvolution
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSinHandler
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSin
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixCosHandler
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixCos
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixSplOps
     ${CMAKE_SOURCE_DIR}/include/MemoryManager
     ${CMAKE_BINARY_DIR}/_deps/robin-hood-hashing-src/src/include)

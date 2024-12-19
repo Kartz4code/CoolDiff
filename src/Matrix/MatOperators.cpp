@@ -56,6 +56,14 @@
 #include "ZeroMatConvHandler.hpp"
 #include "ZeroMatDervConvHandler.hpp"
 
+// Special matrix sin
+#include "ZeroMatSinHandler.hpp"
+#include "EyeMatSinHandler.hpp"
+
+// Special matrix cos
+#include "ZeroMatCosHandler.hpp"
+#include "EyeMatCosHandler.hpp"
+
 // Matrix operations
 #include "MatAddNaiveHandler.hpp"
 #include "MatConvNaiveHandler.hpp"
@@ -68,6 +76,8 @@
 #include "MatScalarMulNaiveHandler.hpp"
 #include "MatSubNaiveHandler.hpp"
 #include "MatTransposeNaiveHandler.hpp"
+#include "MatSinNaiveHandler.hpp"
+#include "MatCosNaiveHandler.hpp"
 
 // Matrix-Matrix addition - Left, Right, Result matrix pointer
 void MatrixAdd(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
@@ -299,3 +309,40 @@ void MatrixDervConv(const size_t nrows_x, const size_t ncols_x,
   h2.handle(nrows_x, ncols_x, stride_x, stride_y, pad_x, pad_y, lhs, dlhs, rhs,
             drhs, result);
 }
+
+
+// Matrix sin
+void MatrixSin(const Matrix<Type>* mat, Matrix<Type>*& result) {
+  NULL_CHECK(mat, "Matrix mat is a nullptr");
+
+  /* Chain of responsibility (Order matters)
+    1) Eye matrix check
+    2) Zero matrix check
+    3) Matrix sin check
+  */
+
+   static MatSinNaiveHandler h1{nullptr};
+   static ZeroMatSinHandler h2{&h1};
+   static EyeMatSinHandler h3{&h2};
+
+   h3.handle(mat, result);
+}
+
+// Matrix cos
+void MatrixCos(const Matrix<Type>* mat, Matrix<Type>*& result) {
+  NULL_CHECK(mat, "Matrix mat is a nullptr");
+
+  /* Chain of responsibility (Order matters)
+    1) Eye matrix check
+    2) Zero matrix check
+    3) Matrix cos check
+  */
+
+   static MatCosNaiveHandler h1{nullptr};
+   static ZeroMatCosHandler h2{&h1};
+   static EyeMatCosHandler h3{&h2};
+
+   h1.handle(mat, result);
+}
+
+

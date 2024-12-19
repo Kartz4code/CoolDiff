@@ -1263,6 +1263,56 @@ TEST(OpsTest, BinaryTest) {
   ASSERT_EQ(results[4], DevalF(y, x5));
 }
 
+
+// Expression copy constructor and copy assignment 
+TEST(OpsTest, ExpressionCopy) {
+  Parameter phi1{1}, phi2{-1};
+  Variable x1{1}, x2{2}, x3{-2}, x4{-1};
+
+  Expression exp = phi1*x1; 
+  exp = cos(exp)*x2 + phi2*tan(x1*x2); 
+
+  // Copy constructor 
+  Expression exp2 = exp; 
+  Expression exp3; 
+
+  // Copy assignment 
+  exp3 = exp2;
+
+  Type expeval = Eval(exp); 
+  Type exp2eval = Eval(exp2);
+  Type exp3eval = Eval(exp3); 
+
+  PreComp(exp);
+  PreComp(exp2);
+  PreComp(exp3); 
+
+  // Evaluation
+  ASSERT_EQ(expeval, exp2eval);
+  ASSERT_EQ(exp2eval, exp3eval);
+  ASSERT_EQ(exp3eval, expeval);
+
+  // Reverse derivatives w.r.t. x1
+  ASSERT_EQ(DevalR(expeval,x1), DevalR(exp2eval,x1));
+  ASSERT_EQ(DevalR(exp2eval,x1), DevalR(exp3eval,x1));
+  ASSERT_EQ(DevalR(exp3eval,x1), DevalR(expeval,x1));
+
+  // Reverse derivatives w.r.t. x2
+  ASSERT_EQ(DevalR(expeval,x2), DevalR(exp2eval,x2));
+  ASSERT_EQ(DevalR(exp2eval,x2), DevalR(exp3eval,x2));
+  ASSERT_EQ(DevalR(exp3eval,x2), DevalR(expeval,x2));
+
+  // Forward derivatives w.r.t. x1
+  ASSERT_EQ(DevalF(expeval,x1), DevalF(exp2eval,x1));
+  ASSERT_EQ(DevalF(exp2eval,x1), DevalF(exp3eval,x1));
+  ASSERT_EQ(DevalF(exp3eval,x1), DevalF(expeval,x1));
+
+  // Forward derivatives w.r.t. x2
+  ASSERT_EQ(DevalF(expeval,x2), DevalF(exp2eval,x2));
+  ASSERT_EQ(DevalF(exp2eval,x2), DevalF(exp3eval,x2));
+  ASSERT_EQ(DevalF(exp3eval,x2), DevalF(expeval,x2));
+} 
+
 #endif
 
 int main(int argc, char **argv) {
