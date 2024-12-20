@@ -77,10 +77,10 @@ public:
   constexpr GenericBinaryC0Function(Func f, FuncLHS flhs, FuncRHS frhs)
       : m_f{f}, m_flhs{flhs}, m_frhs{frhs}, m_nidx{this->m_idx_count++} {}
 
-  template <typename T1, typename T2,
-            typename = std::enable_if_t<is_valid_v<T1> && is_valid_v<T2>>>
+  template <typename T1, typename T2, typename = std::enable_if_t<is_valid_v<T1> && is_valid_v<T2>>>
   constexpr const auto &operator()(const T1 &x1, const T2 &x2) const {
-    return BinaryC0Function(m_f, m_flhs, m_frhs).setOperand(x1, x2);
+    auto exp = Allocate<Expression>(BinaryC0Function(m_f, m_flhs, m_frhs).setOperand(x1,x2));
+    return *exp;
   }
 
   // Symbolic evaluation

@@ -61,12 +61,15 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericUnaryC0Function(Func1 f1, Func2 f2)
-      : m_f1{f1}, m_f2{f2}, m_nidx{this->m_idx_count++} {}
+  constexpr GenericUnaryC0Function(Func1 f1, Func2 f2) : m_f1{f1}, 
+                                                         m_f2{f2}, 
+                                                         m_nidx{this->m_idx_count++} 
+  {}
 
   template <typename T, typename = std::enable_if_t<is_valid_v<T>>>
   constexpr const auto &operator()(const T &x) const {
-    return UnaryC0Function(m_f1, m_f2).setOperand(x);
+    auto exp = Allocate<Expression>(UnaryC0Function(m_f1, m_f2).setOperand(x));
+    return *exp;
   }
 
   // Symbolic evaluation

@@ -94,8 +94,7 @@ enum OpMat : size_t {
   TRANSPOSE_DERV_MAT,
   CONV_MAT,
   CONV_DERV_MAT,
-  SIN_MAT,
-  COS_MAT,
+  UNARY_OP_MAT,
   COUNT_MAT
 };
 
@@ -119,8 +118,7 @@ enum OpMat : size_t {
   std::get<OpMat::CONV_DERV_MAT>(m_caller)(X1, X2, X3, X4, X5, X6, X7, X8, X9, \
                                            X10, X11)
 
-#define MATRIX_SIN(X, Y) std::get<OpMat::SIN_MAT>(m_caller)(X, Y)
-#define MATRIX_COS(X, Y) std::get<OpMat::COS_MAT>(m_caller)(X, Y)
+#define UNARY_OP_MAT(X,Y,Z) std::get<OpMat::UNARY_OP_MAT>(m_caller)(X, Y, Z)
 
 // Operation type [Order matters!]
 #define OpMatType                                                              \
@@ -140,11 +138,10 @@ enum OpMat : size_t {
                const size_t, const size_t, const Matrix<Type> *,               \
                const Matrix<Type> *, const Matrix<Type> *,                     \
                const Matrix<Type> *, Matrix<Type> *&),                         \
-      void (*)(const Matrix<Type> *, Matrix<Type> *&),                         \
-      void (*)(const Matrix<Type> *, Matrix<Type> *&)
+      void (*)(const Matrix<Type> *, const FunctionType1&, Matrix<Type> *&)
 
 // Operation objects [Order matters!]
 #define OpMatObj                                                               \
   MatrixAdd, MatrixMul, MatrixKron, MatrixSub, MatrixHadamard,                 \
       MatrixScalarAdd, MatrixScalarMul, MatrixTranspose, MatrixDervTranspose,  \
-      MatrixConv, MatrixDervConv, MatrixSin, MatrixCos
+      MatrixConv, MatrixDervConv, MatrixUnary

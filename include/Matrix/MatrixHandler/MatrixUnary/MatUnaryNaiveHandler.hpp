@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/MatrixHandler/MatrixSin/MatSinNaiveHandler.hpp
+ * @file include/Matrix/MatrixHandler/MatrixUnary/MatUnaryNaiveHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -23,12 +23,12 @@
 
 #include "MatrixHandler.hpp"
 
-class MatSinNaiveHandler : public MatrixHandler {
+class MatUnaryNaiveHandler : public MatrixHandler {
 public:
   using MatrixHandler::MatrixHandler;
 
-  V_OVERRIDE(void handle(const Matrix<Type>*, Matrix<Type> *&));
+  V_OVERRIDE(void handle(const Matrix<Type>*, const FunctionType1&, Matrix<Type>*&));
 
   // Destructor
-  V_DTR(~MatSinNaiveHandler() = default);
+  V_DTR(~MatUnaryNaiveHandler() = default);
 };
