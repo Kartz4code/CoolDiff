@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixSinHandler/ZeroMatSinHandler.cpp
+ * @file include/Matrix/MatrixHandler/MatrixUnaryHandler/ZeroMatUnaryHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,23 +19,16 @@
  * associated repository.
  */
 
-#include "ZeroMatSinHandler.hpp"
-#include "Matrix.hpp"
-#include "MatrixZeroOps.hpp"
+#pragma once
 
-void ZeroMatSinHandler::handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
-#if defined(NAIVE_IMPL)
-  /* Zero matrix special check */
-  if (true == IsZeroMatrix(mat)) {
-    // Rows and columns of result matrix
-    const size_t nrows{mat->getNumRows()};
-    const size_t ncols{mat->getNumColumns()};
+#include "MatrixHandler.hpp"
 
-    // Result matrix is sin zero matrix
-    result = MemoryManager::MatrixSplPool(ncols, nrows, MatrixSpl::ZEROS);
-    return;
-  }
-#endif
-  // Chain of responsibility
-  MatrixHandler::handle(mat, result);
-}
+class ZeroMatUnaryHandler : public MatrixHandler {
+public:
+  using MatrixHandler::MatrixHandler;
+
+  V_OVERRIDE(void handle(const Matrix<Type>*, const FunctionType1&, Matrix<Type>*&));
+
+  // Destructor
+  V_DTR(~ZeroMatUnaryHandler() = default);
+};

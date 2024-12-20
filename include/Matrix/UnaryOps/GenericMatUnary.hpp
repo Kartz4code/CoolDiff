@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/UnaryOps/GenericMatSin.hpp
+ * @file include/Matrix/UnaryOps/GenericMatUnary.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -23,36 +23,53 @@
 
 #include "Matrix.hpp"
 
+// Function computation (Found in bottom)
+template <typename Func1, typename Func2>
+constexpr const auto& MatUnaryFunction(Func1, Func2);
+
 // Left/right side is a Matrix
-template <typename T, typename... Callables>
-class GenericMatSin : public IMatrix<GenericMatSin<T, Callables...>> {
+template <typename Func1, typename Func2, typename... Callables>
+class GenericMatUnary : public IMatrix<GenericMatUnary<Func1, Func2, Callables...>> {
 private:
   // Resources
-  T* mp_right{nullptr};
+  mutable Matrix<Expression>* mp_right{nullptr};
+
+  // Callables
+  Func1 m_f1;
+  Func2 m_f2;
 
   // Callables
   Tuples<Callables...> m_caller;
-
-  // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericMatSin)
-  DISABLE_MOVE(GenericMatSin)
 
   // All matrices
   inline static constexpr const size_t m_size{4};
   Matrix<Type>* mp_arr[m_size]{};
 
+  // Set operand
+  template <typename T, typename = std::enable_if_t<std::is_base_of_v<MetaMatrix, T>>>
+  constexpr const auto& setOperand(const T& X) const {
+    mp_right = Allocate<Matrix<Expression>>(X).get();
+    return *this;
+  }  
+
 public:
   // Block index
-  const size_t m_nidx{};
+  const size_t m_nidx{};  
 
   // Constructor
-  constexpr GenericMatSin(T* u, Callables&&...call)  : mp_right{u}, 
-                                                       m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                       m_nidx{this->m_idx_count++} {
+  constexpr GenericMatUnary(Func1 f1, Func2 f2, Callables&&... call) : m_f1{f1}, m_f2{f2}, 
+                                                                       m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                                       m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
   
+  template <typename T, typename = std::enable_if_t<std::is_base_of_v<MetaMatrix, T>>>
+  constexpr const auto& operator()(const T& X) const {
+    auto exp = Allocate<Matrix<Expression>>(MatUnaryFunction(m_f1, m_f2).setOperand(X));
+    return *exp;
+  }
+
   // Get number of rows
   V_OVERRIDE(size_t getNumRows() const) { 
     return mp_right->getNumRows(); 
@@ -72,11 +89,10 @@ public:
   V_OVERRIDE(Matrix<Type>* eval()) {  
     // Get raw pointers to result and right matrices
     const Matrix<Type>* right_mat = mp_right->eval();
-    MATRIX_SIN(right_mat, mp_arr[0]);
+    UNARY_OP_MAT(right_mat, m_f1, mp_arr[0]);
     return mp_arr[0];
   }
 
-  
   // Matrix devalF computation
   V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable>& X)) {
     // Rows and columns of function and variable
@@ -84,11 +100,11 @@ public:
     const size_t ncols_x = X.getNumColumns();
 
     // Right matrix derivative
-    const Matrix<Type>* right_mat = mp_right->eval();
     const Matrix<Type>* dright_mat = mp_right->devalF(X);
+    const Matrix<Type>* right_mat = mp_right->eval();
 
-    MATRIX_COS(right_mat, mp_arr[1]);
-    MATRIX_KRON(Ones(nrows_x, ncols_x), mp_arr[1], mp_arr[2]);
+    UNARY_OP_MAT(right_mat, m_f2, mp_arr[1]);
+    MATRIX_KRON(mp_arr[1], Ones(nrows_x, ncols_x), mp_arr[2]);
     MATRIX_HADAMARD(mp_arr[2], dright_mat, mp_arr[3]);
 
      return mp_arr[3];
@@ -101,21 +117,23 @@ public:
 
   // Get type
   V_OVERRIDE(std::string_view getType() const) { 
-    return "GenericMatSin"; 
+    return "GenericMatUnary"; 
   }
 
   // Destructor
-  V_DTR(~GenericMatSin()) = default;
+  V_DTR(~GenericMatUnary()) = default;
 
 };
 
-// GenericMatSin with 1 typename and callables
-template <typename T> 
-using GenericMatSinT = GenericMatSin<T, OpMatType>;
+// GenericMatUnary with 2 typenames and callables
+template <typename Func1, typename Func2> 
+using GenericMatUnaryT = GenericMatUnary<Func1, Func2, OpMatType>;
 
-// Function for sin computation
-template <typename T> 
-constexpr const auto& sin(const IMatrix<T> &u) {
-  auto tmp = Allocate<GenericMatSinT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpMatObj);
+// Function computation
+template <typename Func1, typename Func2>
+constexpr const auto& MatUnaryFunction(Func1 f1, Func2 f2) {
+  static_assert(true == std::is_invocable_v<Func1, Type>, "Eval function is not invocable");
+  static_assert(true == std::is_invocable_v<Func2, Type>, "Deval function is not invocable");
+  auto tmp = Allocate<GenericMatUnaryT<Func1, Func2>>(f1, f2, OpMatObj);
   return *tmp;
 }

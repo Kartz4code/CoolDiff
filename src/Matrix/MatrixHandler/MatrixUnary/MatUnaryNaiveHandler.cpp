@@ -1,5 +1,6 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixSin/MatSinNaiveHandler.cpp
+ * @file
+ * src/Matrix/MatrixHandler/MatrixUnary/MatUnaryNaiveHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,14 +20,11 @@
  * associated repository.
  */
 
-#include "MatSinNaiveHandler.hpp"
+#include "MatUnaryNaiveHandler.hpp"
 #include "Matrix.hpp"
+#include "MatrixEyeOps.hpp"
 
-void MatSinNaiveHandler::handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
-
-  /* Matrix sin */
-  // Rows and columns of result matrix and if result is nullptr, then create a
-  // new resource
+void MatUnaryNaiveHandler::handle(const Matrix<Type>* mat, const FunctionType1& func, Matrix<Type>*& result) {
 
   const size_t nrows{mat->getNumRows()};
   const size_t ncols{mat->getNumColumns()};
@@ -39,8 +37,7 @@ void MatSinNaiveHandler::handle(const Matrix<Type>* mat, Matrix<Type>*& result) 
   const Type* right = mat->getMatrixPtr();
 
   const size_t size{nrows * ncols};
+
   // For each element, perform operation
-  std::transform(EXECUTION_PAR right, right + size, res, [](const Type a) { return std::sin(a); });
-  
-  return;  
+  std::transform(EXECUTION_PAR right, right + size, res, [func](const Type a) { return func(a); });
 }

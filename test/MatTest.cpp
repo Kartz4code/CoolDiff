@@ -22,9 +22,17 @@
 #include <gtest/gtest.h>
 #include "CoolDiff.hpp"
 
+
 // Matrix sin/cos operation
 TEST(MatTest, Test8) {
     double epi = 0.001;
+
+    auto Sin = MatUnaryFunction([](Type a){ return std::sin(a); }, 
+                                [](Type b){ return std::cos(b); });
+
+    auto Cos = MatUnaryFunction([](Type a){ return std::cos(a); }, 
+                                [](Type b){ return -1*std::sin(b); });
+                                
     // Eval and Deval result 1
     Type Xres1[2][2] = {{ (Type)116.3192408, (Type)181.0049466},
                         { (Type)350.8476951, (Type)527.8106938}};
@@ -52,8 +60,8 @@ TEST(MatTest, Test8) {
     A(0,0) = -1; A(0,1) = 3;
     A(1,0) =  5; A(1,1) = 6;
 
-    MatExpression E = A*cos(sin(X)) + X;
-    E = A*E*X + cos(2*X)*E;
+    MatExpression E = A*Cos(Sin(X)) + X;
+    E = A*E*X + Cos(2*X)*E;
 
     // Verification eval function 
     auto verify_eval_function = [&](auto Xres) {
@@ -83,6 +91,7 @@ TEST(MatTest, Test8) {
     verify_eval_function(Xres2);
     verify_deval_function(DXres2);
 }
+
 
 // Matrix convolution operation (with variable change)
 TEST(MatTest, Test7) {

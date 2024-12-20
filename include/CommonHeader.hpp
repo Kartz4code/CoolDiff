@@ -211,6 +211,9 @@ template <typename... Args> using Tuples = std::tuple<Args...>;
 // A generic shared pointer
 template <typename T> using SharedPtr = std::shared_ptr<T>;
 
+// Function type
+using FunctionType1 = std::function<Type(Type)>;
+
 // A generic future
 template <typename T> using Future = std::future<T>;
 

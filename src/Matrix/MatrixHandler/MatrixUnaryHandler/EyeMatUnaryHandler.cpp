@@ -1,5 +1,6 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixCosHandler/EyeMatCosHandler.cpp
+ * @file
+ * src/Matrix/MatrixHandler/MatrixUnaryHandler/EyeMatUnaryHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,30 +20,11 @@
  * associated repository.
  */
 
-#include "EyeMatCosHandler.hpp"
+#include "EyeMatUnaryHandler.hpp"
 #include "Matrix.hpp"
 #include "MatrixEyeOps.hpp"
 
-void CosEye(const Matrix<Type>* it, Matrix<Type>*& result) {
-  /*
-    Rows and columns of result matrix and if result is nullptr or if dimensions
-    mismatch, then create a new matrix resource
-  */
-  const size_t nrows{it->getNumRows()};
-  const size_t ncols{it->getNumColumns()};
-
-  // Pool matrix
-  MemoryManager::MatrixPool(nrows, ncols, result);
-
-  // Diagonal indices (Modification)
-  const auto diag_idx = Range<size_t>(0, nrows);
-  std::for_each(EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
-                [&](const size_t i) { 
-                    (*result)(i, i) = std::cos(1); 
-                });
-}
-
-void EyeMatCosHandler::handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
+void EyeMatUnaryHandler::handle(const Matrix<Type>* mat, const FunctionType1& func, Matrix<Type>*& result) {
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
   if (true == IsEyeMatrix(mat)) {
@@ -50,11 +32,20 @@ void EyeMatCosHandler::handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
     const size_t nrows{mat->getNumRows()};
     const size_t ncols{mat->getNumColumns()};
 
-    // Result matrix is cos identity matrix
-    CosEye(mat, result);
+    // Result matrix is transposed zero matrix
+    MemoryManager::MatrixPool(ncols, nrows, result);
+
+    // Eye matrix
+    const auto idx = Range<size_t>(0, (nrows * ncols));
+    std::for_each(EXECUTION_PAR idx.begin(), idx.end(), 
+                  [&](const size_t n) {
+                        const size_t j = (n % ncols);
+                        const size_t i = ((n - j) / ncols);
+                        (*result)(i,j) = ((i == j) ? func((Type)1) : func((Type)0));
+                  });
     return;
   }
 #endif
   // Chain of responsibility
-  MatrixHandler::handle(mat, result);
+  MatrixHandler::handle(mat, func, result);
 }

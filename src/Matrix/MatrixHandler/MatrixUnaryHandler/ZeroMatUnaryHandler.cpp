@@ -1,5 +1,6 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixCosHandler/ZeroMatCosHandler.cpp
+ * @file
+ * src/Matrix/MatrixHandler/MatrixUnaryHandler/ZeroMatUnaryHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,11 +20,11 @@
  * associated repository.
  */
 
-#include "ZeroMatCosHandler.hpp"
+#include "ZeroMatUnaryHandler.hpp"
 #include "Matrix.hpp"
 #include "MatrixZeroOps.hpp"
 
-void ZeroMatCosHandler::handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
+void ZeroMatUnaryHandler::handle(const Matrix<Type>* mat, const FunctionType1& func, Matrix<Type>*& result) {
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
   if (true == IsZeroMatrix(mat)) {
@@ -31,11 +32,14 @@ void ZeroMatCosHandler::handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
     const size_t nrows{mat->getNumRows()};
     const size_t ncols{mat->getNumColumns()};
 
-    // Result matrix is cos zero matrix (TODO Ones matrix)
-    MemoryManager::MatrixPool(nrows, ncols, result, (Type)(1));
+    // Result matrix is transposed zero matrix
+    MemoryManager::MatrixPool(ncols, nrows, result);
+
+    // Zero matrix fill
+    std::fill_n(EXECUTION_PAR result->getMatrixPtr(), result->getNumElem(), func((Type)0));
     return;
   }
 #endif
   // Chain of responsibility
-  MatrixHandler::handle(mat, result);
+  MatrixHandler::handle(mat, func, result);
 }
