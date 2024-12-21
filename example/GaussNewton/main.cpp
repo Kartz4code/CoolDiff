@@ -21,7 +21,6 @@
 
 #include "GaussNewton.hpp"
 #include "GaussNewtonData.hpp"
-#include <eigen3/Eigen/Dense>
 #include <fstream>
 
 // Count number of rows
@@ -153,6 +152,42 @@ void NonLinearSolve() {
 }
 
 int main(int argc, char **argv) {
+
+  Matrix<Type> X(2,1);
+  X[0] = 1; X[1] = 3;
+
+  Matrix<Variable> V(1,9);
+  for(size_t i{}; i < 9; ++i) {
+    V[i] = 1;
+  }
+
+
+  Matrix<Variable> W(2,2);
+  Matrix<Variable> B(2,1);
+  Matrix<Variable> W2(1,2);
+  Matrix<Variable> B2(1,1);
+
+  W[0] = V[0]; 
+  W[1] = V[1]; 
+  W[2] = V[2]; 
+  W[3] = V[3];
+  B[0] = V[4]; 
+  B[1] = V[5];
+  W2[0] = V[6]; 
+  W2[1] = V[7];
+  B2[0] = V[8];
+
+  Matrix<Expression> E; 
+  E = Sigmoid(W*X + B);
+  E = Sigmoid(W2*E + B2);
+  E = (1-E);
+
+  std::cout << Eval(E) << "\n";
+  std::cout << Eval(E) << "\n";
+
+  std::cout << DevalF(E,V) << "\n";
+  std::cout << DevalF(E,V) << "\n";
+
   NonLinearSolve();
   GNMatrix();
   return 0;

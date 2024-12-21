@@ -33,7 +33,7 @@ void EyeMatUnaryHandler::handle(const Matrix<Type>* mat, const FunctionType1& fu
     const size_t ncols{mat->getNumColumns()};
 
     // Result matrix is transposed zero matrix
-    MemoryManager::MatrixPool(ncols, nrows, result);
+    MemoryManager::MatrixPool(nrows, ncols, result);
 
     // Eye matrix
     const auto idx = Range<size_t>(0, (nrows * ncols));
