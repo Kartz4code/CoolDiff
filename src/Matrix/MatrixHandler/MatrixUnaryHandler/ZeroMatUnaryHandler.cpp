@@ -33,7 +33,7 @@ void ZeroMatUnaryHandler::handle(const Matrix<Type>* mat, const FunctionType1& f
     const size_t ncols{mat->getNumColumns()};
 
     // Result matrix is transposed zero matrix
-    MemoryManager::MatrixPool(ncols, nrows, result);
+    MemoryManager::MatrixPool(nrows, ncols, result);
 
     // Zero matrix fill
     std::fill_n(EXECUTION_PAR result->getMatrixPtr(), result->getNumElem(), func((Type)0));

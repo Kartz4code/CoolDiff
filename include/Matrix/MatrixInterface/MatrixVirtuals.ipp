@@ -48,8 +48,9 @@ Matrix<Type>* Matrix<T>::eval() {
         std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(),
                     [this](auto* i) {
                         if (nullptr != i) {
-                            mp_result = i->eval();
-                            m_eval = true;
+                            mp_result = i->eval(); m_eval = true;
+                            m_rows = i->getNumRows();
+                            m_cols = i->getNumColumns();
                         }
                     });
     }
@@ -90,10 +91,10 @@ Matrix<Type>* Matrix<T>::devalF(Matrix<Variable>& X) {
         std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(),
                     [this, &X](auto* i) {
                         if (nullptr != i) {
-                        mp_dresult = i->devalF(X);
-                        m_devalf = true;
-                        mp_result = i->eval();
-                        m_eval = true;
+                            mp_dresult = i->devalF(X); m_devalf = true;
+                            mp_result = i->eval(); m_eval = true;
+                            m_rows = i->getNumRows();
+                            m_cols = i->getNumColumns();
                         }
                     });
     }

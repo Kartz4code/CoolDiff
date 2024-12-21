@@ -22,16 +22,9 @@
 #include <gtest/gtest.h>
 #include "CoolDiff.hpp"
 
-
 // Matrix sin/cos operation
 TEST(MatTest, Test8) {
     double epi = 0.001;
-
-    auto Sin = MatUnaryFunction([](Type a){ return std::sin(a); }, 
-                                [](Type b){ return std::cos(b); });
-
-    auto Cos = MatUnaryFunction([](Type a){ return std::cos(a); }, 
-                                [](Type b){ return -1*std::sin(b); });
                                 
     // Eval and Deval result 1
     Type Xres1[2][2] = {{ (Type)116.3192408, (Type)181.0049466},

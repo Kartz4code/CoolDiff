@@ -64,6 +64,7 @@ Matrix<T>::Matrix(const size_t rows, const size_t cols) : m_rows{rows},
 // Constructor with rows and columns with initial values
 template<typename T>
 Matrix<T>::Matrix(const size_t rows, const size_t cols, const T& val) : Matrix(rows, cols) {
+  static_assert(is_numeric_v<T> == true, "Type of matrix is not numeric");
   std::fill(EXECUTION_PAR mp_mat, mp_mat + getNumElem(), val);
 }
 
