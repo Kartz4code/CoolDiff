@@ -41,8 +41,7 @@ public:
   // Default constructor
   Expression();
 
-  template <typename T> 
-  Expression(const IVariable<T> &expr) {
+  template <typename T> Expression(const IVariable<T> &expr) {
     Variable::m_nidx = this->m_idx_count++;
     // Reserve a buffer of expressions
     Variable::m_gh_vec.reserve(g_vec_init);
@@ -50,11 +49,10 @@ public:
     Variable::m_gh_vec.push_back((Expression *)(&(expr * (Type)(1))));
   }
 
-  Expression(const Expression&);
+  Expression(const Expression &);
 
   // Copy assignment for expression evaluation - e.g.Variable x = x1 + x2 + x3;
-  template <typename T> 
-  Expression &operator=(const IVariable<T> &expr) {
+  template <typename T> Expression &operator=(const IVariable<T> &expr) {
     if (auto rec = static_cast<const T &>(expr).findMe(this); rec == false) {
       m_gh_vec.clear();
     } else {
@@ -66,7 +64,7 @@ public:
     return *this;
   }
 
-  Expression& operator=(const Expression&);
+  Expression &operator=(const Expression &);
 
   // Is recursive expression
   bool isRecursive() const;

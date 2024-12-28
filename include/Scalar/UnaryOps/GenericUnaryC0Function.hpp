@@ -1,5 +1,5 @@
 /**
- * @file include/Scalar/UnaryOps/GenericUnaryC1Function.hpp
+ * @file include/Scalar/UnaryOps/GenericUnaryC0Function.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -24,167 +24,97 @@
 #include "IVariable.hpp"
 #include "Variable.hpp"
 
-// Predeclare Eval function
-template <typename T> inline Type Eval(T &);
-// Predeclare DevalF function
-template <typename T> inline Type DevalF(T &, const Variable &);
-
-// Function computation (Found in bottom)
-template <typename Func1, typename Func2>
-constexpr const auto &UnaryC0Function(Func1, Func2);
-
-template <typename Func1, typename Func2>
-class GenericUnaryC0Function
-    : public IVariable<GenericUnaryC0Function<Func1, Func2>> {
-private:
-  // Resources
-  mutable Expression *mp_left{nullptr};
-
-  // Callables
-  Func1 m_f1;
-  Func2 m_f2;
-
-  template <typename T, typename = std::enable_if_t<is_valid_v<T>>>
-  constexpr const auto &setOperand(const T &x) const {
-    if constexpr (true == is_numeric_v<T>) {
-      mp_left = Allocate<Expression>(*Allocate<Parameter>(x)).get();
-    } else {
-      mp_left = Allocate<Expression>(x).get();
-    }
-    return *this;
+#define UNARY_SCALAR_OPERATOR(OPS, FUNC1, FUNC2)                               \
+  template <typename T, typename... Callables>                                 \
+  class Generic##OPS : public IVariable<Generic##OPS<T, Callables...>> {       \
+  private:                                                                     \
+    T *mp_left{nullptr};                                                       \
+    Tuples<Callables...> m_caller;                                             \
+    DISABLE_COPY(Generic##OPS)                                                 \
+    DISABLE_MOVE(Generic##OPS)                                                 \
+  public:                                                                      \
+    const size_t m_nidx{};                                                     \
+    OMPair m_cache;                                                            \
+    constexpr Generic##OPS(T *u, Callables &&...call)                          \
+        : mp_left{u}, m_caller{std::make_tuple(                                \
+                          std::forward<Callables>(call)...)},                  \
+          m_nidx{this->m_idx_count++} {}                                       \
+    V_OVERRIDE(Variable *symEval()) {                                          \
+      ASSERT(false, "Invalid symbolic evaluation operation");                  \
+      return &Variable::t0;                                                    \
+    }                                                                          \
+    V_OVERRIDE(Variable *symDeval(const Variable &)) {                         \
+      ASSERT(false, "Invalid symbolic derivative operation");                  \
+      return &Variable::t0;                                                    \
+    }                                                                          \
+    V_OVERRIDE(Type eval()) {                                                  \
+      const Type u = mp_left->eval();                                          \
+      return (FUNC1(u));                                                       \
+    }                                                                          \
+    V_OVERRIDE(Type devalF(const Variable &var)) {                             \
+      const Type du = mp_left->devalF(var);                                    \
+      const Type u = mp_left->eval();                                          \
+      return (FUNC2(u) * du);                                                  \
+    }                                                                          \
+    V_OVERRIDE(void traverse(OMPair *cache = nullptr)) {                       \
+      \  
+    if (cache == nullptr) {                                                    \
+        cache = &m_cache;                                                      \
+        cache->reserve(g_map_reserve);                                         \
+        if (false == (*cache).empty()) {                                       \
+          (*cache).clear();                                                    \
+        }                                                                      \
+        if (false == mp_left->m_visited) {                                     \
+          mp_left->traverse(cache);                                            \
+        }                                                                      \
+        const Type u = FUNC2(mp_left->eval());                                 \
+        (*cache)[mp_left->m_nidx] += (u);                                      \
+        if (u != (Type)(0)) {                                                  \
+          std::for_each(EXECUTION_PAR mp_left->m_cache.begin(),                \
+                        mp_left->m_cache.end(),                                \
+                        [u, &cache](const auto &item) {                        \
+                          const auto idx = item.first;                         \
+                          const auto val = item.second;                        \
+                          \   
+                        (*cache)[idx] += (val * u);                            \
+                        });                                                    \
+        }                                                                      \
+      }                                                                        \
+      else {                                                                   \
+        const Type cCache = (*cache)[m_nidx];                                  \
+        if (false == mp_left->m_visited) {                                     \
+          mp_left->traverse(cache);                                            \
+        }                                                                      \
+        const Type ustar = (FUNC2(mp_left->eval()) * cCache);                  \
+        (*cache)[mp_left->m_nidx] += (ustar);                                  \
+        if (ustar != (Type)(0)) {                                              \
+          \ 
+        std::for_each(EXECUTION_PAR mp_left->m_cache.begin(),                  \
+                      mp_left->m_cache.end(), [ustar, &cache](auto &item) {    \
+                        const auto idx = item.first;                           \
+                        const auto val = item.second;                          \
+                        (*cache)[idx] += (val * ustar);                        \
+                      });                                                      \
+        }                                                                      \
+      }                                                                        \
+      if (false == mp_left->m_visited) {                                       \
+        mp_left->traverse(cache);                                              \
+      }                                                                        \
+    }                                                                          \
+    V_OVERRIDE(OMPair &getCache()) { return m_cache; }                         \
+    V_OVERRIDE(void reset()) { UNARY_RESET(); }                                \
+    V_OVERRIDE(std::string_view getType() const) {                             \
+      return TOSTRING(Generic##OPS);                                           \
+    }                                                                          \
+    V_OVERRIDE(bool findMe(void *v) const) { UNARY_FIND_ME(); }                \
+    V_DTR(~Generic##OPS()) = default;                                          \
+  };                                                                           \
+  template <typename T>                                                        \
+  \   
+using CONCAT3(Generic, OPS, T) = Generic##OPS<T, OpType>;                      \
+  template <typename T> constexpr const auto &OPS(const IVariable<T> &u) {     \
+    auto tmp = Allocate < CONCAT3(Generic, OPS, T) < T >>                      \
+               (const_cast<T *>(static_cast<const T *>(&u)), OpObj);           \
+    \                                             
+  return *tmp;                                                                 \
   }
-
-public:
-  // Block index
-  const size_t m_nidx{};
-  // Cache for reverse AD
-  OMPair m_cache;
-
-  // Constructor
-  constexpr GenericUnaryC0Function(Func1 f1, Func2 f2) : m_f1{f1}, 
-                                                         m_f2{f2}, 
-                                                         m_nidx{this->m_idx_count++} 
-  {}
-
-  template <typename T, typename = std::enable_if_t<is_valid_v<T>>>
-  constexpr const auto &operator()(const T &x) const {
-    auto exp = Allocate<Expression>(UnaryC0Function(m_f1, m_f2).setOperand(x));
-    return *exp;
-  }
-
-  // Symbolic evaluation
-  V_OVERRIDE(Variable *symEval()) {
-    ASSERT(false,
-           "Invalid symbolic evaluation operation for GenericUnaryC0Function");
-    return &Variable::t0;
-  }
-
-  // Symbolic Differentiation
-  V_OVERRIDE(Variable *symDeval(const Variable &)) {
-    ASSERT(false,
-           "Invalid symbolic derivative operation for GenericUnaryC0Function");
-    return &Variable::t0;
-  }
-
-  // Eval in run-time
-  V_OVERRIDE(Type eval()) {
-    // Returned evaluation
-    const Type u = Eval(*mp_left);
-    return (m_f1(u));
-  }
-
-  // Deval in run-time for forward derivative
-  V_OVERRIDE(Type devalF(const Variable &var)) {
-    // Return derivative
-    const Type du = DevalF(*mp_left, var);
-    const Type u = Eval(*mp_left);
-    return (m_f2(u) * du);
-  }
-
-  // Traverse run-time
-  V_OVERRIDE(void traverse(OMPair *cache = nullptr)) {
-    // If cache is nullptr, i.e. for the first step
-    if (cache == nullptr) {
-      // cache is m_cache
-      cache = &m_cache;
-      cache->reserve(g_map_reserve);
-      // Clear cache in the first entry
-      if (false == (*cache).empty()) {
-        (*cache).clear();
-      }
-
-      // Traverse left node
-      if (false == mp_left->m_visited) {
-        mp_left->traverse(cache);
-      }
-
-      /* IMPORTANT: The derivative is computed here */
-      const Type u = m_f2(Eval(*mp_left));
-      (*cache)[mp_left->m_nidx] += (u);
-
-      // Modify cache for left node
-      if (u != (Type)(0)) {
-        std::for_each(EXECUTION_PAR mp_left->m_cache.begin(),
-                      mp_left->m_cache.end(), [u, &cache](const auto &item) {
-                        const auto idx = item.first;
-                        const auto val = item.second;
-                        (*cache)[idx] += (val * u);
-                      });
-      }
-    } else {
-      // Cached value
-      const Type cCache = (*cache)[m_nidx];
-
-      // Traverse left node
-      if (false == mp_left->m_visited) {
-        mp_left->traverse(cache);
-      }
-
-      /* IMPORTANT: The derivative is computed here */
-      const Type ustar = (m_f2(Eval(*mp_left)) * cCache);
-      (*cache)[mp_left->m_nidx] += (ustar);
-
-      // Modify cache for left node
-      if (ustar != (Type)(0)) {
-        std::for_each(EXECUTION_PAR mp_left->m_cache.begin(),
-                      mp_left->m_cache.end(), [ustar, &cache](auto &item) {
-                        const auto idx = item.first;
-                        const auto val = item.second;
-                        (*cache)[idx] += (val * ustar);
-                      });
-      }
-    }
-    // Traverse left/right nodes
-    if (false == mp_left->m_visited) {
-      mp_left->traverse(cache);
-    }
-  }
-
-  // Get m_cache
-  V_OVERRIDE(OMPair &getCache()) { return m_cache; }
-
-  // Reset visit run-time
-  V_OVERRIDE(void reset()) { UNARY_RESET(); }
-
-  // Get type
-  V_OVERRIDE(std::string_view getType() const) {
-    return "GenericUnaryC0Function";
-  }
-
-  // Find me
-  V_OVERRIDE(bool findMe(void *v) const) { UNARY_FIND_ME(); }
-
-  // Destructor
-  V_DTR(~GenericUnaryC0Function()) = default;
-};
-
-// Function computation
-template <typename Func1, typename Func2>
-constexpr const auto &UnaryC0Function(Func1 f1, Func2 f2) {
-  static_assert(true == std::is_invocable_v<Func1, Type>,
-                "Eval function is not invocable");
-  static_assert(true == std::is_invocable_v<Func2, Type>,
-                "Deval function is not invocable");
-  auto tmp = Allocate<GenericUnaryC0Function<Func1, Func2>>(f1, f2);
-  return *tmp;
-}

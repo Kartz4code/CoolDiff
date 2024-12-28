@@ -44,14 +44,13 @@ void MatrixHandler::handle(const Matrix<Type> *mat, Matrix<Type> *&result) {
   }
 }
 
-
-void MatrixHandler::handle(const Matrix<Type>* mat, const FunctionType1& func, Matrix<Type>*& result) {
+void MatrixHandler::handle(const Matrix<Type> *mat, const FunctionType1 &func,
+                           Matrix<Type> *&result) {
   ASSERT(this != mp_handler, "The handle is recursive");
   if (nullptr != mp_handler) {
     mp_handler->handle(mat, func, result);
   }
 }
-
 
 void MatrixHandler::handle(const size_t nrows_f, const size_t ncols_f,
                            const size_t nrows_x, const size_t ncols_x,

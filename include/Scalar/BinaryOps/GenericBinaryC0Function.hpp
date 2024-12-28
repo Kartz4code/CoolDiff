@@ -49,7 +49,7 @@ private:
 
   template <typename T1, typename T2,
             typename = std::enable_if_t<is_valid_v<T1> && is_valid_v<T2>>>
-  constexpr const auto &setOperand(const T1 &x1, const T2 &x2) const {
+  constexpr const auto &setOperand(const T1 &x1, const T2 &x2) const & {
     // Set left operand
     if constexpr (true == is_numeric_v<T1>) {
       mp_left = Allocate<Expression>(*Allocate<Parameter>(x1)).get();
@@ -77,10 +77,10 @@ public:
   constexpr GenericBinaryC0Function(Func f, FuncLHS flhs, FuncRHS frhs)
       : m_f{f}, m_flhs{flhs}, m_frhs{frhs}, m_nidx{this->m_idx_count++} {}
 
-  template <typename T1, typename T2, typename = std::enable_if_t<is_valid_v<T1> && is_valid_v<T2>>>
-  constexpr const auto &operator()(const T1 &x1, const T2 &x2) const {
-    auto exp = Allocate<Expression>(BinaryC0Function(m_f, m_flhs, m_frhs).setOperand(x1,x2));
-    return *exp;
+  template <typename T1, typename T2,
+            typename = std::enable_if_t<is_valid_v<T1> && is_valid_v<T2>>>
+  constexpr const auto &operator()(const T1 &x1, const T2 &x2) const & {
+    return BinaryC0Function(m_f, m_flhs, m_frhs).setOperand(x1, x2);
   }
 
   // Symbolic evaluation
@@ -100,19 +100,19 @@ public:
   // Eval in run-time
   V_OVERRIDE(Type eval()) {
     // Returned evaluation
-    const Type u = Eval(*mp_left);
-    const Type v = Eval(*mp_right);
+    const Type u = mp_left->eval();
+    const Type v = mp_right->eval();
     return m_f(u, v);
   }
 
   // Deval 1st in run-time for forward derivative
   V_OVERRIDE(Type devalF(const Variable &var)) {
     // Return derivative
-    const Type du = DevalF(*mp_left, var);
-    const Type dv = DevalF(*mp_right, var);
+    const Type du = mp_left->devalF(var);
+    const Type dv = mp_right->devalF(var);
     // Returned evaluation
-    const Type u = Eval(*mp_left);
-    const Type v = Eval(*mp_right);
+    const Type u = mp_left->eval();
+    const Type v = mp_right->eval();
     // Chain rule
     return m_flhs(u, v) * du + m_frhs(u, v) * dv;
   }
@@ -139,8 +139,8 @@ public:
       }
 
       /* IMPORTANT: The derivative is computed here */
-      const Type u = Eval(*mp_left);
-      const Type v = Eval(*mp_right);
+      const Type u = mp_left->eval();
+      const Type v = mp_right->eval();
       (*cache)[mp_left->m_nidx] += m_flhs(u, v);
       (*cache)[mp_right->m_nidx] += m_frhs(u, v);
 
@@ -176,8 +176,8 @@ public:
       }
 
       /* IMPORTANT: The derivative is computed here */
-      const Type u = Eval(*mp_left);
-      const Type v = Eval(*mp_right);
+      const Type u = mp_left->eval();
+      const Type v = mp_right->eval();
       (*cache)[mp_left->m_nidx] += (m_flhs(u, v) * cCache);
       (*cache)[mp_right->m_nidx] += (m_frhs(u, v) * cCache);
 

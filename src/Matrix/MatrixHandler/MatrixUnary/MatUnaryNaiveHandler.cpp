@@ -24,7 +24,9 @@
 #include "Matrix.hpp"
 #include "MatrixEyeOps.hpp"
 
-void MatUnaryNaiveHandler::handle(const Matrix<Type>* mat, const FunctionType1& func, Matrix<Type>*& result) {
+void MatUnaryNaiveHandler::handle(const Matrix<Type> *mat,
+                                  const FunctionType1 &func,
+                                  Matrix<Type> *&result) {
 
   const size_t nrows{mat->getNumRows()};
   const size_t ncols{mat->getNumColumns()};
@@ -34,10 +36,11 @@ void MatUnaryNaiveHandler::handle(const Matrix<Type>* mat, const FunctionType1& 
 
   // Get raw pointers to result and right matrix
   Type *res = result->getMatrixPtr();
-  const Type* right = mat->getMatrixPtr();
+  const Type *right = mat->getMatrixPtr();
 
   const size_t size{nrows * ncols};
 
   // For each element, perform operation
-  std::transform(EXECUTION_PAR right, right + size, res, [func](const Type a) { return func(a); });
+  std::transform(EXECUTION_PAR right, right + size, res,
+                 [func](const Type a) { return func(a); });
 }

@@ -32,6 +32,7 @@
 #include <memory>
 #include <numeric>
 #include <sstream>
+#include <stddef.h>
 #include <string_view>
 #include <thread>
 #include <tuple>
@@ -46,17 +47,22 @@
 //#define MATRIX_TRANSPOSED_MUL
 
 #ifndef BUILD_TYPE
-  #define SCALAR_TYPE double
-  #define USE_COMPLEX_MATH
-  #define USE_ROBIN_HOOD_MAP
-  #define USE_VIRTUAL_FUNCTIONS
-  #define USE_PARALLEL_POLICY
+#define SCALAR_TYPE double
+#define USE_COMPLEX_MATH
+#define USE_ROBIN_HOOD_MAP
+#define USE_VIRTUAL_FUNCTIONS
+#define USE_PARALLEL_POLICY
+//#define ENABLE_PARALLEL_EXECUTION
 #endif
 
 // Use parallel policy
 #if defined(USE_PARALLEL_POLICY)
 #include <execution>
+#if defined(ENABLE_PARALLEL_EXECUTION)
 #define EXECUTION_PAR std::execution::par,
+#else
+#define EXECUTION_PAR std::execution::seq,
+#endif
 #define EXECUTION_SEQ std::execution::seq,
 inline static constexpr const std::string_view g_execution_par = "Parallel";
 inline static constexpr const std::string_view g_execution_seq = "Sequential";
@@ -328,3 +334,8 @@ template <> struct std::hash<Pair<size_t, size_t>> {
     return res;
   }
 };
+
+// Useful macros for Generic unary/binary operators
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+#define CONCAT3(STR1, STR2, STR3) STR1##STR2##STR3

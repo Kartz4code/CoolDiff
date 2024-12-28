@@ -24,7 +24,9 @@
 #include "Matrix.hpp"
 #include "MatrixEyeOps.hpp"
 
-void EyeMatUnaryHandler::handle(const Matrix<Type>* mat, const FunctionType1& func, Matrix<Type>*& result) {
+void EyeMatUnaryHandler::handle(const Matrix<Type> *mat,
+                                const FunctionType1 &func,
+                                Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
   if (true == IsEyeMatrix(mat)) {
@@ -37,12 +39,11 @@ void EyeMatUnaryHandler::handle(const Matrix<Type>* mat, const FunctionType1& fu
 
     // Eye matrix
     const auto idx = Range<size_t>(0, (nrows * ncols));
-    std::for_each(EXECUTION_PAR idx.begin(), idx.end(), 
-                  [&](const size_t n) {
-                        const size_t j = (n % ncols);
-                        const size_t i = ((n - j) / ncols);
-                        (*result)(i,j) = ((i == j) ? func((Type)1) : func((Type)0));
-                  });
+    std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t n) {
+      const size_t j = (n % ncols);
+      const size_t i = ((n - j) / ncols);
+      (*result)(i, j) = ((i == j) ? func((Type)1) : func((Type)0));
+    });
     return;
   }
 #endif

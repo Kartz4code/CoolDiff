@@ -27,7 +27,8 @@ class ZeroMatUnaryHandler : public MatrixHandler {
 public:
   using MatrixHandler::MatrixHandler;
 
-  V_OVERRIDE(void handle(const Matrix<Type>*, const FunctionType1&, Matrix<Type>*&));
+  V_OVERRIDE(void handle(const Matrix<Type> *, const FunctionType1 &,
+                         Matrix<Type> *&));
 
   // Destructor
   V_DTR(~ZeroMatUnaryHandler() = default);

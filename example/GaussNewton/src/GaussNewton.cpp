@@ -64,8 +64,9 @@ void GaussNewton::computeABScalar(const size_t var_size) {
     setDataUnit(i);
 
     // Eval and jacobian
-    const Type eval = static_cast<OracleScalar*>(m_oracle)->eval();
-    const Matrix<Type>* jacobian = static_cast<OracleScalar*>(m_oracle)->jacobian();
+    const Type eval = static_cast<OracleScalar *>(m_oracle)->eval();
+    const Matrix<Type> *jacobian =
+        static_cast<OracleScalar *>(m_oracle)->jacobian();
 
     // Compute A matrix
     MatrixTranspose(jacobian, m_tempA1);
@@ -98,8 +99,9 @@ void GaussNewton::computeABMatrix(const size_t var_size) {
     setDataUnit(i);
 
     // Eval and jacobian
-    const Matrix<Type>* eval = static_cast<OracleMatrix*>(m_oracle)->evalMat();
-    const Matrix<Type>* jacobian = static_cast<OracleMatrix*>(m_oracle)->jacobian();
+    const Matrix<Type> *eval = static_cast<OracleMatrix *>(m_oracle)->evalMat();
+    const Matrix<Type> *jacobian =
+        static_cast<OracleMatrix *>(m_oracle)->jacobian();
 
     // Compute A matrix
     MatrixTranspose(jacobian, m_tempA1);
@@ -140,9 +142,9 @@ void GaussNewton::updateMatrix(const size_t var_size) {
   auto &X = static_cast<OracleMatrix *>(m_oracle)->getVariables();
   // Update all variable values
   const auto idx = Range<size_t>(0, var_size);
-  std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
-                [this, &X](const size_t i) { X[i] = Eval(X[i]) - (*m_delX)[i]; }
-               );
+  std::for_each(
+      EXECUTION_PAR idx.begin(), idx.end(),
+      [this, &X](const size_t i) { X[i] = Eval(X[i]) - (*m_delX)[i]; });
 }
 
 // Update
@@ -209,8 +211,8 @@ void GaussNewton::solve() {
     computeAB(var_size);
 
     // Raw pointer for A and B matrices
-    Type* A = m_A->getMatrixPtr();
-    Type* B = m_B->getMatrixPtr();
+    Type *A = m_A->getMatrixPtr();
+    Type *B = m_B->getMatrixPtr();
 
     NULL_CHECK(A, "A matrix is a null pointer");
     NULL_CHECK(B, "B matrix is a null pointer");
@@ -224,7 +226,8 @@ void GaussNewton::solve() {
     const Eigen::LLT<Eigen::MatrixXcd> llt(eigA);
     // Solve and store results
     const auto delX = llt.solve(eigB);
-    Eigen::Map<Eigen::MatrixXcd>(m_delX->getMatrixPtr(), delX.rows(), delX.cols()) = delX;
+    Eigen::Map<Eigen::MatrixXcd>(m_delX->getMatrixPtr(), delX.rows(),
+                                 delX.cols()) = delX;
 #elif (SCALAR_TYPE == float)
     // Convert A and B to Eigen matrix
     const Eigen::Map<Eigen::MatrixXcf> eigA(A, var_size, var_size);
