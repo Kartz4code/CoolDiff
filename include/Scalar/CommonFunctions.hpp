@@ -50,14 +50,12 @@
 #include "GenericSqrt.hpp"
 #include "GenericTan.hpp"
 #include "GenericTanh.hpp"
-#include "GenericUnaryC0Function.hpp"
+#include "GenericScalarUnary.hpp"
 
-UNARY_SCALAR_OPERATOR(
-    SinS, [](Type a) { return std::sin(a); },
-    [](Type b) { return std::cos(b); })
-UNARY_SCALAR_OPERATOR(
-    CosS, [](Type a) { return std::cos(a); },
-    [](Type b) { return -std::sin(b); })
+UNARY_SCALAR_OPERATOR(SinS, [](Type a) { return std::sin(a); },
+                            [](Type b) { return std::cos(b); })
+UNARY_SCALAR_OPERATOR(CosS, [](Type a) { return std::cos(a); },
+                            [](Type b) { return -std::sin(b); })
 
 // Namespace details
 namespace details {

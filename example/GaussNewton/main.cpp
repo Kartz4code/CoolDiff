@@ -161,7 +161,7 @@ int main(int argc, char **argv) {
   X[0] = 1;
   X[1] = 3;
 
-  Matrix<Variable> V(1, 9);
+  Matrix<Variable> V(9,1);
   for (size_t i{}; i < 9; ++i) {
     V[i] = 1;
   }
@@ -188,6 +188,9 @@ int main(int argc, char **argv) {
 
   std::cout << Eval(E) << "\n";
   std::cout << DevalF(E, V) << "\n";
+
+  TIME_IT_US(Eval(E));
+  TIME_IT_US(DevalF(E, V));
 
   P = 2;
 
