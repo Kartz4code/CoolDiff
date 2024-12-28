@@ -1,5 +1,5 @@
 /**
- * @file include/Scalar/UnaryOps/GenericUnaryC0Function.hpp
+ * @file include/Scalar/UnaryOps/GenericScalarUnary.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
