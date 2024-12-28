@@ -30,10 +30,6 @@ private:
   // Friend class Parameter
   friend class Parameter;
 
-  // Friend class GenericUnaryC0Function
-  template <typename Func1, typename Func2> 
-  friend class GenericUnaryC0Function;
-
   // Friend class GenericBinaryC0Function
   template <typename Func, typename FuncLHS, typename FuncRHS>
   friend class GenericBinaryC0Function;
@@ -45,18 +41,18 @@ protected:
   // Type real-time value
   SharedPtr<Type> m_value_var{std::make_shared<Type>()};
 
+  // Collection of meta variable expressions
+  Vector<MetaVariable *> m_gh_vec{};
+
+  // Exposed to user to compute symbolic differentiation
+  Variable &SymDiff(const Variable &);
+
+public:
   // Static variable for one seed
   static Variable t1;
   // Static variable for zero seed
   static Variable t0;
 
-  // Collection of meta variable expressions
-  Vector<MetaVariable *> m_gh_vec{};
-
-  // Exposed to user to compute symbolic differentiation
-  Variable& SymDiff(const Variable &);
-
-public:
   // Block index
   size_t m_nidx{};
   // Cache for reverse 1st AD

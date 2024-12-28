@@ -1187,14 +1187,10 @@ TEST(OpsTest, UnaryTest) {
   double epi{0.001};
   Variable x1{-1.2}, x2{0.1}, x3{6.2}, x4{13}, x5{108};
 
-  // Sin function as a unary function
-  auto Sin = UnaryC0Function([](Type x) { return std::sin(x); },
-                             [](Type x) { return std::cos(x); });
-
   // Split test
   Type a{-0.707, 0.5};
   Expression y = x4 * x5 * tanh(a * x2 * x3);
-  y = x2 * y * tan(x4) * cos(x3) + tanh(y * 2) * Sin(sqrt(x1) * exp(x2 * x3));
+  y = x2 * y * tan(x4) * cos(x3) + tanh(y * 2) * SinS(sqrt(x1) * exp(x2 * x3));
 
   Variable *tmp[5] = {&x1, &x2, &x3, &x4, &x5};
   Expression DY[5];
@@ -1263,29 +1259,28 @@ TEST(OpsTest, BinaryTest) {
   ASSERT_EQ(results[4], DevalF(y, x5));
 }
 
-
-// Expression copy constructor and copy assignment 
+// Expression copy constructor and copy assignment
 TEST(OpsTest, ExpressionCopy) {
   Parameter phi1{1}, phi2{-1};
   Variable x1{1}, x2{2}, x3{-2}, x4{-1};
 
-  Expression exp = phi1*x1; 
-  exp = cos(exp)*x2 + phi2*tan(x1*x2); 
+  Expression exp = phi1 * x1;
+  exp = cos(exp) * x2 + phi2 * tan(x1 * x2);
 
-  // Copy constructor 
-  Expression exp2 = exp; 
-  Expression exp3; 
+  // Copy constructor
+  Expression exp2 = exp;
+  Expression exp3;
 
-  // Copy assignment 
+  // Copy assignment
   exp3 = exp2;
 
-  Type expeval = Eval(exp); 
+  Type expeval = Eval(exp);
   Type exp2eval = Eval(exp2);
-  Type exp3eval = Eval(exp3); 
+  Type exp3eval = Eval(exp3);
 
   PreComp(exp);
   PreComp(exp2);
-  PreComp(exp3); 
+  PreComp(exp3);
 
   // Evaluation
   ASSERT_EQ(expeval, exp2eval);
@@ -1293,25 +1288,25 @@ TEST(OpsTest, ExpressionCopy) {
   ASSERT_EQ(exp3eval, expeval);
 
   // Reverse derivatives w.r.t. x1
-  ASSERT_EQ(DevalR(expeval,x1), DevalR(exp2eval,x1));
-  ASSERT_EQ(DevalR(exp2eval,x1), DevalR(exp3eval,x1));
-  ASSERT_EQ(DevalR(exp3eval,x1), DevalR(expeval,x1));
+  ASSERT_EQ(DevalR(expeval, x1), DevalR(exp2eval, x1));
+  ASSERT_EQ(DevalR(exp2eval, x1), DevalR(exp3eval, x1));
+  ASSERT_EQ(DevalR(exp3eval, x1), DevalR(expeval, x1));
 
   // Reverse derivatives w.r.t. x2
-  ASSERT_EQ(DevalR(expeval,x2), DevalR(exp2eval,x2));
-  ASSERT_EQ(DevalR(exp2eval,x2), DevalR(exp3eval,x2));
-  ASSERT_EQ(DevalR(exp3eval,x2), DevalR(expeval,x2));
+  ASSERT_EQ(DevalR(expeval, x2), DevalR(exp2eval, x2));
+  ASSERT_EQ(DevalR(exp2eval, x2), DevalR(exp3eval, x2));
+  ASSERT_EQ(DevalR(exp3eval, x2), DevalR(expeval, x2));
 
   // Forward derivatives w.r.t. x1
-  ASSERT_EQ(DevalF(expeval,x1), DevalF(exp2eval,x1));
-  ASSERT_EQ(DevalF(exp2eval,x1), DevalF(exp3eval,x1));
-  ASSERT_EQ(DevalF(exp3eval,x1), DevalF(expeval,x1));
+  ASSERT_EQ(DevalF(expeval, x1), DevalF(exp2eval, x1));
+  ASSERT_EQ(DevalF(exp2eval, x1), DevalF(exp3eval, x1));
+  ASSERT_EQ(DevalF(exp3eval, x1), DevalF(expeval, x1));
 
   // Forward derivatives w.r.t. x2
-  ASSERT_EQ(DevalF(expeval,x2), DevalF(exp2eval,x2));
-  ASSERT_EQ(DevalF(exp2eval,x2), DevalF(exp3eval,x2));
-  ASSERT_EQ(DevalF(exp3eval,x2), DevalF(expeval,x2));
-} 
+  ASSERT_EQ(DevalF(expeval, x2), DevalF(exp2eval, x2));
+  ASSERT_EQ(DevalF(exp2eval, x2), DevalF(exp3eval, x2));
+  ASSERT_EQ(DevalF(exp3eval, x2), DevalF(expeval, x2));
+}
 
 #endif
 

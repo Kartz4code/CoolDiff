@@ -39,7 +39,8 @@ public:
 
   V_UNPURE(void handle(const Matrix<Type> *, Matrix<Type> *&));
 
-  V_UNPURE(void handle(const Matrix<Type>*, const FunctionType1&, Matrix<Type>*&));
+  V_UNPURE(void handle(const Matrix<Type> *, const FunctionType1 &,
+                       Matrix<Type> *&));
 
   V_UNPURE(void handle(const size_t, const size_t, const size_t, const size_t,
                        const Matrix<Type> *, Matrix<Type> *&));

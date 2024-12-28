@@ -113,15 +113,11 @@ public:
 
   // Matrix expressions constructor
   template <typename Z>
-  Matrix(const IMatrix<Z> &expr) : m_rows{expr.getNumRows()}, 
-                                   m_cols{expr.getNumColumns()},
-                                   m_type{(size_t)(-1)}, 
-                                   mp_mat{nullptr},
-                                   mp_result{nullptr}, 
-                                   mp_dresult{nullptr}, 
-                                   m_eval{false}, 
-                                   m_devalf{false},
-                                   m_nidx{this->m_idx_count++} {
+  Matrix(const IMatrix<Z> &expr)
+      : m_rows{expr.getNumRows()}, m_cols{expr.getNumColumns()},
+        m_type{(size_t)(-1)}, mp_mat{nullptr}, mp_result{nullptr},
+        mp_dresult{nullptr}, m_eval{false}, m_devalf{false},
+        m_nidx{this->m_idx_count++} {
     // Static assert so that type T is an expression
     static_assert(true == std::is_same_v<T, Expression>,
                   "[ERROR] The type T is not an expression");
@@ -133,30 +129,32 @@ public:
   /* Copy assignment for expression evaluation */
   template <typename Z> Matrix &operator=(const IMatrix<Z> &expr) {
     // Static assert so that type T is an expression
-    static_assert(true == std::is_same_v<T, Expression>, "[ERROR] The type T is not an expression");
-    // Clear buffer and set rows and columns if not recursive expression not found
+    static_assert(true == std::is_same_v<T, Expression>,
+                  "[ERROR] The type T is not an expression");
+    // Clear buffer and set rows and columns if not recursive expression not
+    // found
     if (static_cast<const Z &>(expr).findMe(this) == false) {
       m_gh_vec.clear();
     }
     // If the push back bector is zero
-    if(true == m_gh_vec.empty()) {
-       m_rows = expr.getNumRows(); 
-       m_cols = expr.getNumColumns();
-       m_type = size_t(-1); 
-       if(nullptr != mp_mat) {
+    if (true == m_gh_vec.empty()) {
+      m_rows = expr.getNumRows();
+      m_cols = expr.getNumColumns();
+      m_type = SIZE_MAX;
+      if (nullptr != mp_mat) {
         delete[] mp_mat;
         mp_mat = nullptr;
-       }
-       if(nullptr != mp_result) {
+      }
+      if (nullptr != mp_result) {
         delete[] mp_result;
         mp_result = nullptr;
-       }
-       if(nullptr != mp_dresult) {
+      }
+      if (nullptr != mp_dresult) {
         delete[] mp_dresult;
         mp_dresult = nullptr;
-       }
-       m_eval = false;
-       m_devalf = false;
+      }
+      m_eval = false;
+      m_devalf = false;
     }
     // Emplace the expression in a generic holder
     m_gh_vec.push_back((Matrix<Expression> *)&expr);

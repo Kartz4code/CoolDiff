@@ -24,7 +24,9 @@
 #include "Matrix.hpp"
 #include "MatrixZeroOps.hpp"
 
-void ZeroMatUnaryHandler::handle(const Matrix<Type>* mat, const FunctionType1& func, Matrix<Type>*& result) {
+void ZeroMatUnaryHandler::handle(const Matrix<Type> *mat,
+                                 const FunctionType1 &func,
+                                 Matrix<Type> *&result) {
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
   if (true == IsZeroMatrix(mat)) {
@@ -36,7 +38,8 @@ void ZeroMatUnaryHandler::handle(const Matrix<Type>* mat, const FunctionType1& f
     MemoryManager::MatrixPool(nrows, ncols, result);
 
     // Zero matrix fill
-    std::fill_n(EXECUTION_PAR result->getMatrixPtr(), result->getNumElem(), func((Type)0));
+    std::fill_n(EXECUTION_PAR result->getMatrixPtr(), result->getNumElem(),
+                func((Type)0));
     return;
   }
 #endif

@@ -1,0 +1,12 @@
+---
+AlignAfterOpenBracket: Align
+AlignConsecutiveMacros: 'true'
+AlignConsecutiveAssignments: 'false'
+AlignConsecutiveDeclarations: 'true'
+AlignEscapedNewlines: Left
+AlignOperands: 'true'
+AlwaysBreakTemplateDeclarations: 'Yes'
+ColumnLimit: '128'
+PointerAlignment: Left
+
+...

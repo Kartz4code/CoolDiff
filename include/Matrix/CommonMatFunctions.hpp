@@ -34,22 +34,24 @@
 #include "MatrixBasics.hpp"
 
 // Custom functions
-static auto Sin = MatUnaryFunction([](Type a){ return std::sin(a); }, 
-                                   [](Type b){ return std::cos(b); });
+UNARY_MATRIX_OPERATOR(
+    SinM, [](Type a) { return std::sin(a); },
+    [](Type b) { return std::cos(b); })
 
-static auto Cos = MatUnaryFunction([](Type a){ return std::cos(a); }, 
-                                   [](Type b){ return -1*std::sin(b); });
+UNARY_MATRIX_OPERATOR(
+    CosM, [](Type a) { return std::cos(a); },
+    [](Type b) { return -std::sin(b); })
 
-static auto Sigmoid = MatUnaryFunction([](Type a) { 
-                                            Type res = ((Type)(1))/(((Type)(1))+std::exp(-a));
-                                            return res; 
-                                          }, 
-                                       [](Type b) { 
-                                            Type res = ((Type)(1))/(((Type)(1))+std::exp(-b));
-                                            return res*(((Type)(1))-res); 
-                                          }
-                                      );
-
+UNARY_MATRIX_OPERATOR(
+    SigmoidM,
+    [](Type a) {
+      Type res = ((Type)(1)) / (((Type)(1)) + std::exp(-a));
+      return res;
+    },
+    [](Type b) {
+      Type res = ((Type)(1)) / (((Type)(1)) + std::exp(-b));
+      return res * (((Type)(1)) - res);
+    });
 
 // Matrix evaluation
 template <typename T> Matrix<Type> &Eval(Matrix<T> &Mexp) {

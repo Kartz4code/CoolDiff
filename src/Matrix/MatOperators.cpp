@@ -57,8 +57,8 @@
 #include "ZeroMatDervConvHandler.hpp"
 
 // Special matrix unary
-#include "ZeroMatUnaryHandler.hpp"
 #include "EyeMatUnaryHandler.hpp"
+#include "ZeroMatUnaryHandler.hpp"
 
 // Matrix operations
 #include "MatAddNaiveHandler.hpp"
@@ -305,9 +305,9 @@ void MatrixDervConv(const size_t nrows_x, const size_t ncols_x,
             drhs, result);
 }
 
-
 // Matrix unary
-void MatrixUnary(const Matrix<Type>* mat, const FunctionType1& func, Matrix<Type>*& result) {
+void MatrixUnary(const Matrix<Type> *mat, const FunctionType1 &func,
+                 Matrix<Type> *&result) {
   NULL_CHECK(mat, "Matrix mat is a nullptr");
 
   static MatUnaryNaiveHandler h1{nullptr};
@@ -317,4 +317,3 @@ void MatrixUnary(const Matrix<Type>* mat, const FunctionType1& func, Matrix<Type
   // Handle Unary Matrix
   h3.handle(mat, func, result);
 }
-

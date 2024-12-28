@@ -96,6 +96,7 @@ if(${BUILD_TYPE} STREQUAL Debug)
     add_definitions(-DUSE_ROBIN_HOOD_MAP)
     add_definitions(-DUSE_VIRTUAL_FUNCTIONS)
     add_definitions(-DUSE_PARALLEL_POLICY)
+    #add_definitions(-DENABLE_PARALLEL_EXECUTION)
 endif()
 
 # [Set target sources]

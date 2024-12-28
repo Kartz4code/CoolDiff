@@ -52,6 +52,13 @@
 #include "GenericTanh.hpp"
 #include "GenericUnaryC0Function.hpp"
 
+UNARY_SCALAR_OPERATOR(
+    SinS, [](Type a) { return std::sin(a); },
+    [](Type b) { return std::cos(b); })
+UNARY_SCALAR_OPERATOR(
+    CosS, [](Type a) { return std::cos(a); },
+    [](Type b) { return -std::sin(b); })
+
 // Namespace details
 namespace details {
 // Main evaluate expression function
@@ -71,7 +78,7 @@ OMPair &PreCompCacheExp(Expression &);
 
 // Symbolic Expression
 Expression &SymDiffExp(Expression &, const Variable &);
-} 
+} // namespace details
 
 template <typename T> inline Type Eval(T &v) {
   // If T is Expression
@@ -148,7 +155,8 @@ template <typename T> inline Type DevalR(T &v, const Variable &var) {
     return ((v.m_nidx == var.m_nidx) ? (Type)(1) : (Type)(0));
   }
   // If T is Parameter or Numeric type
-  else if constexpr (true == std::is_same_v<T, Parameter> || true == is_numeric_v<T>) {
+  else if constexpr (true == std::is_same_v<T, Parameter> ||
+                     true == is_numeric_v<T>) {
     return (Type)(0);
   }
   // If unknown type, throw error
