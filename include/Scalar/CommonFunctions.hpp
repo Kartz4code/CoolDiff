@@ -26,7 +26,7 @@
 #include "Variable.hpp"
 
 // Binary operators
-#include "GenericBinaryC0Function.hpp"
+#include "GenericScalarBinary.hpp"
 #include "GenericDiv.hpp"
 #include "GenericPow.hpp"
 #include "GenericProduct.hpp"
@@ -56,6 +56,11 @@ UNARY_SCALAR_OPERATOR(SinS, [](Type a) { return std::sin(a); },
                             [](Type b) { return std::cos(b); })
 UNARY_SCALAR_OPERATOR(CosS, [](Type a) { return std::cos(a); },
                             [](Type b) { return -std::sin(b); })
+
+BINARY_SCALAR_OPERATOR(ProductS, [](const Type u, const Type v) { return u * v; },
+                                 [](const Type u, const Type v) { return v; },
+                                 [](const Type u, const Type v) { return u; })
+
 
 // Namespace details
 namespace details {
