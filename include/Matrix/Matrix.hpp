@@ -334,6 +334,7 @@ public:
   V_DTR(~Matrix());
 };
 
+// Method implementation
 #include "MatrixAccessors.ipp"
 #include "MatrixConstructors.ipp"
 #include "MatrixUtils.ipp"

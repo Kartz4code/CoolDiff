@@ -147,56 +147,16 @@ void NonLinearSolve() {
   E(1, 0) = x - y + 2;
 
   GaussNewton gn;
-  gn.setOracle(Oracle::OracleFactory::CreateOracle(E, X)).setMaxIterations(7);
+  gn.setOracle(Oracle::OracleFactory::CreateOracle(E, X))
+    .setMaxIterations(5);
 
-  TIME_IT_MS(gn.solve());
+  TIME_IT_US(gn.solve());
 
   std::cout << "Computed values (x,y): " << Eval(x) << "," << Eval(y) << "\n";
   std::cout << "Actual values (x,y): (-4,-2) or (2,4)\n\n";
 }
 
 int main(int argc, char **argv) {
-
-  Matrix<Type> X(2, 1);
-  X[0] = 1;
-  X[1] = 3;
-
-  Matrix<Variable> V(9,1);
-  for (size_t i{}; i < 9; ++i) {
-    V[i] = 1;
-  }
-
-  Matrix<Variable> W(2, 2);
-  Matrix<Variable> B(2, 1);
-  Matrix<Variable> W2(1, 2);
-  Matrix<Variable> B2(1, 1);
-
-  W[0] = V[0];
-  W[1] = V[1];
-  W[2] = V[2];
-  W[3] = V[3];
-  B[0] = V[4];
-  B[1] = V[5];
-  W2[0] = V[6];
-  W2[1] = V[7];
-  B2[0] = V[8];
-
-  Parameter P{1};
-  Matrix<Expression> E;
-  E = SigmoidM(W * X + B);
-  E = P - SigmoidM(W2 * E + B2);
-
-  std::cout << Eval(E) << "\n";
-  std::cout << DevalF(E, V) << "\n";
-
-  TIME_IT_US(Eval(E));
-  TIME_IT_US(DevalF(E, V));
-
-  P = 2;
-
-  std::cout << Eval(E) << "\n";
-  std::cout << DevalF(E, V) << "\n";
-
   NonLinearSolve();
   GNMatrix();
   return 0;

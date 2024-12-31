@@ -23,33 +23,29 @@
 
 #include "Matrix.hpp"
 
-#define UNARY_MATRIX_OPERATOR(OPS, FUNC1, FUNC2)                               \
-  template <typename T, typename... Callables>                                 \
-  class GenericMat##OPS : public IMatrix<GenericMat##OPS<T, Callables...>> {   \
+#define UNARY_MATRIX_OPERATOR(OPS, FUNC1, FUNC2)\
+template <typename T, typename... Callables>                                   \
+class GenericMat##OPS : public IMatrix<GenericMat##OPS<T, Callables...>> {     \
   private:                                                                     \
-    T *mp_right{nullptr};                                                      \
+    T* mp_right{nullptr};                                                      \
     Tuples<Callables...> m_caller;                                             \
     DISABLE_COPY(GenericMat##OPS)                                              \
     DISABLE_MOVE(GenericMat##OPS)                                              \
     inline static constexpr const size_t m_size{4};                            \
     Matrix<Type> *mp_arr[m_size]{};                                            \
-                                                                               \
   public:                                                                      \
     const size_t m_nidx{};                                                     \
-    constexpr GenericMat##OPS(T *u, Callables &&...call)                       \
-        : mp_right{u}, m_caller{std::make_tuple(                               \
-                           std::forward<Callables>(call)...)},                 \
-          m_nidx{this->m_idx_count++} {                                        \
-      std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);                      \
+    constexpr GenericMat##OPS(T *u, Callables &&...call) : mp_right{u},        \
+                                                            m_caller{std::make_tuple(std::forward<Callables>(call)...)},\
+                                                            m_nidx{this->m_idx_count++}{ \
+        std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);                    \
     }                                                                          \
     V_OVERRIDE(size_t getNumRows() const) { return mp_right->getNumRows(); }   \
-    \                                                                       
-  V_OVERRIDE(size_t getNumColumns() const) {                                   \
+    V_OVERRIDE(size_t getNumColumns() const) {                                 \
       return mp_right->getNumColumns();                                        \
     }                                                                          \
     bool findMe(void *v) const { BINARY_RIGHT_FIND_ME(); }                     \
-    \      
-  V_OVERRIDE(Matrix<Type> *eval()) {                                           \
+    V_OVERRIDE(Matrix<Type> *eval()) {                                         \
       const Matrix<Type> *right_mat = mp_right->eval();                        \
       UNARY_OP_MAT(right_mat, FUNC1, mp_arr[0]);                               \
       return mp_arr[0];                                                        \
@@ -70,10 +66,9 @@
     }                                                                          \
     V_DTR(~GenericMat##OPS()) = default;                                       \
   };                                                                           \
-  template <typename T>                                                        \
-  using CONCAT3(GenericMat, OPS, T) = GenericMat##OPS<T, OpMatType>;           \
-  template <typename T> constexpr const auto &OPS(const IMatrix<T> &u) {       \
-    auto tmp = Allocate < CONCAT3(GenericMat, OPS, T) < T >>                   \
-               (const_cast<T *>(static_cast<const T *>(&u)), OpMatObj);        \
-    return *tmp;                                                               \
-  }
+template <typename T>                                                          \
+using CONCAT3(GenericMat, OPS, T) = GenericMat##OPS<T, OpMatType>;             \
+template <typename T> constexpr const auto &OPS(const IMatrix<T> &u) {         \
+  auto tmp = Allocate<CONCAT3(GenericMat, OPS, T)<T>>(const_cast<T *>(static_cast<const T *>(&u)), OpMatObj); \
+  return *tmp;                                                                 \
+}

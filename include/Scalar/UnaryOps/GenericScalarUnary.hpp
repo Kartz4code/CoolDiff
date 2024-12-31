@@ -24,9 +24,9 @@
 #include "IVariable.hpp"
 #include "Variable.hpp"
 
-#define UNARY_SCALAR_OPERATOR(OPS, FUNC1, FUNC2)                               \
-  template <typename T, typename... Callables>                                 \
-  class Generic##OPS : public IVariable<Generic##OPS<T, Callables...>> {       \
+#define UNARY_SCALAR_OPERATOR(OPS, FUNC1, FUNC2)\
+template <typename T, typename... Callables>                                   \
+class Generic##OPS : public IVariable<Generic##OPS<T, Callables...>> {         \
   private:                                                                     \
     T *mp_left{nullptr};                                                       \
     Tuples<Callables...> m_caller;                                             \
@@ -57,7 +57,6 @@
       return (FUNC2(u) * du);                                                  \
     }                                                                          \
     V_OVERRIDE(void traverse(OMPair *cache = nullptr)) {                       \
-      \  
     if (cache == nullptr) {                                                    \
         cache = &m_cache;                                                      \
         cache->reserve(g_map_reserve);                                         \
@@ -75,7 +74,6 @@
                         [u, &cache](const auto &item) {                        \
                           const auto idx = item.first;                         \
                           const auto val = item.second;                        \
-                          \   
                         (*cache)[idx] += (val * u);                            \
                         });                                                    \
         }                                                                      \
@@ -88,7 +86,6 @@
         const Type ustar = (FUNC2(mp_left->eval()) * cCache);                  \
         (*cache)[mp_left->m_nidx] += (ustar);                                  \
         if (ustar != (Type)(0)) {                                              \
-          \ 
         std::for_each(EXECUTION_PAR mp_left->m_cache.begin(),                  \
                       mp_left->m_cache.end(), [ustar, &cache](auto &item) {    \
                         const auto idx = item.first;                           \
@@ -109,12 +106,10 @@
     V_OVERRIDE(bool findMe(void *v) const) { UNARY_FIND_ME(); }                \
     V_DTR(~Generic##OPS()) = default;                                          \
   };                                                                           \
-  template <typename T>                                                        \
-  \   
+template <typename T>                                                          \
 using CONCAT3(Generic, OPS, T) = Generic##OPS<T, OpType>;                      \
-  template <typename T> constexpr const auto &OPS(const IVariable<T> &u) {     \
-    auto tmp = Allocate < CONCAT3(Generic, OPS, T) < T >>                      \
+template <typename T> constexpr const auto &OPS(const IVariable<T> &u) {       \
+  auto tmp = Allocate < CONCAT3(Generic, OPS, T) < T >>                        \
                (const_cast<T *>(static_cast<const T *>(&u)), OpObj);           \
-    \                                             
   return *tmp;                                                                 \
-  }
+}

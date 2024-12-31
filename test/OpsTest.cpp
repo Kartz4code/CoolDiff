@@ -1234,9 +1234,9 @@ TEST(OpsTest, UnaryTest) {
 TEST(OpsTest, BinaryTest) {
   Variable x1{1}, x2{2}, x3{-3}, x4{24}, x5{-99};
 
-  Parameter a{2}, b{3}, c{4};
-  Expression y = 9 + ProductS(ProductS((x1 + x2), (x3 + ProductS(x4, x5))), b);
-  y = y - ProductS(ProductS(a, x1), c) - 10;
+  Parameter c{4};
+  Expression y = 9 + ProductS(ProductS((x1 + x2), (x3 + ProductS(x4, x5))), 3);
+  y = y - ProductS(ProductS(2, x1), c) - 10;
 
   Type results[5] = {-7145, -7137, 9, -891, 216};
 
