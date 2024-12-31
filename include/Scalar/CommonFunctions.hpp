@@ -52,15 +52,18 @@
 #include "GenericTanh.hpp"
 #include "GenericScalarUnary.hpp"
 
+// Custom functions
+// Sin scalar 
 UNARY_SCALAR_OPERATOR(SinS, [](Type a) { return std::sin(a); },
                             [](Type b) { return std::cos(b); })
+// Cos scalar
 UNARY_SCALAR_OPERATOR(CosS, [](Type a) { return std::cos(a); },
                             [](Type b) { return -std::sin(b); })
 
+// Product scalar
 BINARY_SCALAR_OPERATOR(ProductS, [](const Type u, const Type v) { return u * v; },
                                  [](const Type u, const Type v) { return v; },
                                  [](const Type u, const Type v) { return u; })
-
 
 // Namespace details
 namespace details {
