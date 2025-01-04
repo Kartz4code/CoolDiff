@@ -148,8 +148,9 @@ void NonLinearSolve() {
 
   GaussNewton gn;
   gn.setOracle(Oracle::OracleFactory::CreateOracle(E, X))
-    .setMaxIterations(5);
+    .setMaxIterations(3);
 
+  TIME_IT_US(gn.solve());
   TIME_IT_US(gn.solve());
 
   std::cout << "Computed values (x,y): " << Eval(x) << "," << Eval(y) << "\n";
