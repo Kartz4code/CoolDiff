@@ -57,15 +57,16 @@
 
 // Use parallel policy
 #if defined(USE_PARALLEL_POLICY)
-#include <execution>
-#if defined(ENABLE_PARALLEL_EXECUTION)
-#define EXECUTION_PAR std::execution::par,
-#else
-#define EXECUTION_PAR std::execution::seq,
-#endif
-#define EXECUTION_SEQ std::execution::seq,
-inline static constexpr const std::string_view g_execution_par = "Parallel";
-inline static constexpr const std::string_view g_execution_seq = "Sequential";
+  #include <execution>
+  #if defined(ENABLE_PARALLEL_EXECUTION)
+    #define EXECUTION_PAR std::execution::par,
+  #else
+    #define EXECUTION_PAR std::execution::seq,
+  #endif
+  #define EXECUTION_SEQ std::execution::seq,
+#else 
+    #define EXECUTION_PAR 
+    #define EXECUTION_SEQ 
 #endif
 
 // Enable/disable copy/move operators
