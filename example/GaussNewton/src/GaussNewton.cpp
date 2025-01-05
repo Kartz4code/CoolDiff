@@ -27,6 +27,24 @@
 #include "MatScalarMulNaiveHandler.hpp"
 #include "MatTransposeNaiveHandler.hpp"
 
+#if defined(USE_COMPLEX_MATH)
+  #if COOLDIFF_SCALAR_TYPE == 2
+    using EigenMatrix = Eigen::MatrixXcd;
+  #elif COOLDIFF_SCALAR_TYPE == 1
+    using EigenMatrix = Eigen::MatrixXcf;
+  #else
+    ASSERT(false, "Unknown type");
+  #endif
+#else
+  #if COOLDIFF_SCALAR_TYPE == 2
+    using EigenMatrix = Eigen::MatrixXd;
+  #elif COOLDIFF_SCALAR_TYPE == 1
+    using EigenMatrix = Eigen::MatrixXf;
+  #else
+    ASSERT(false, "Unknown type");
+  #endif
+#endif
+
 // Set data unit
 void GaussNewton::setDataUnit(const size_t i) {
   // If parameter vector or data is empty, don't enter loop
@@ -217,52 +235,14 @@ void GaussNewton::solve() {
     NULL_CHECK(A, "A matrix is a null pointer");
     NULL_CHECK(B, "B matrix is a null pointer");
 
-/* Linear algebra solve A/B */
-#if defined(USE_COMPLEX_MATH)
-#if (SCALAR_TYPE == double)
+    /* Linear algebra solve A/B */
     // Convert A and B to Eigen matrix
-    const Eigen::Map<Eigen::MatrixXcd> eigA(A, var_size, var_size);
-    const Eigen::Map<Eigen::MatrixXcd> eigB(B, var_size, 1);
-    const Eigen::LLT<Eigen::MatrixXcd> llt(eigA);
+    const Eigen::Map<EigenMatrix> eigA(A, var_size, var_size);
+    const Eigen::Map<EigenMatrix> eigB(B, var_size, 1);
+    const Eigen::LLT<EigenMatrix> llt(eigA);
     // Solve and store results
     const auto delX = llt.solve(eigB);
-    Eigen::Map<Eigen::MatrixXcd>(m_delX->getMatrixPtr(), delX.rows(),
-                                 delX.cols()) = delX;
-#elif (SCALAR_TYPE == float)
-    // Convert A and B to Eigen matrix
-    const Eigen::Map<Eigen::MatrixXcf> eigA(A, var_size, var_size);
-    const Eigen::Map<Eigen::MatrixXcf> eigB(B, var_size, 1);
-    const Eigen::LLT<Eigen::MatrixXcf> llt(eigA);
-    // Solve and store results
-    const auto delX = llt.solve(eigB);
-    Eigen::Map<Eigen::MatrixXcf>(m_delX->getMatrixPtr(), delX.rows(),
-                                 delX.cols()) = delX;
-#else
-    ASSERT(false, "Unknown type");
-#endif
-#else
-#if (SCALAR_TYPE == double)
-    // Convert A and B to Eigen matrix
-    const Eigen::Map<Eigen::MatrixXd> eigA(A, var_size, var_size);
-    const Eigen::Map<Eigen::MatrixXd> eigB(B, var_size, 1);
-    const Eigen::LLT<Eigen::MatrixXd> llt(eigA);
-    // Solve and store results
-    const auto delX = llt.solve(eigB);
-    Eigen::Map<Eigen::MatrixXd>(m_delX->getMatrixPtr(), delX.rows(),
-                                delX.cols()) = delX;
-#elif (SCALAR_TYPE == float)
-    // Convert A and B to Eigen matrix
-    const Eigen::Map<Eigen::MatrixXf> eigA(A, var_size, var_size);
-    const Eigen::Map<Eigen::MatrixXf> eigB(B, var_size, 1);
-    const Eigen::LLT<Eigen::MatrixXf> llt(eigA);
-    // Solve and store results
-    const auto delX = llt.solve(eigB);
-    Eigen::Map<Eigen::MatrixXf>(m_delX->getMatrixPtr(), delX.rows(),
-                                delX.cols()) = delX;
-#else
-    ASSERT(false, "Unknown type");
-#endif
-#endif
+    Eigen::Map<EigenMatrix>(m_delX->getMatrixPtr(), delX.rows(), delX.cols()) = delX;
 
     /* Update variable values */
     update(var_size);

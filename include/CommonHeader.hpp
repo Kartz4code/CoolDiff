@@ -42,31 +42,21 @@
 // Naive implementation of matrix algorithms
 #define NAIVE_IMPL
 //#define NUMERICAL_CHECK
-
 // Matrix transpose based matrix multiplication (Naive implementation)
 //#define MATRIX_TRANSPOSED_MUL
 
-#ifndef BUILD_TYPE
-#define SCALAR_TYPE double
-#define USE_COMPLEX_MATH
-#define USE_ROBIN_HOOD_MAP
-#define USE_VIRTUAL_FUNCTIONS
-#define USE_PARALLEL_POLICY
-//#define ENABLE_PARALLEL_EXECUTION
-#endif
-
 // Use parallel policy
-#if defined(USE_PARALLEL_POLICY)
+#if defined(USE_CXX_PARALLEL_POLICY)
   #include <execution>
-  #if defined(ENABLE_PARALLEL_EXECUTION)
+  #define EXECUTION_SEQ std::execution::seq,
+  #if defined(USE_EXECUTION_PAR)
     #define EXECUTION_PAR std::execution::par,
   #else
-    #define EXECUTION_PAR std::execution::seq,
-  #endif
-  #define EXECUTION_SEQ std::execution::seq,
-#else 
     #define EXECUTION_PAR 
-    #define EXECUTION_SEQ 
+  #endif
+#else 
+    #define EXECUTION_SEQ
+    #define EXECUTION_PAR 
 #endif
 
 // Enable/disable copy/move operators
@@ -144,31 +134,36 @@ constexpr inline static const size_t g_vec_init{32};
 
 // Typedef double as Type (TODO: Replace Type with a class/struct based on
 // variants to support multiple types)
-using Real = SCALAR_TYPE;
+#if COOLDIFF_SCALAR_TYPE == 1
+  using Real = float;
+#elif COOLDIFF_SCALAR_TYPE == 2
+  using Real = double;
+#else
+  using Real = float;
+#endif
 
 #if defined(USE_COMPLEX_MATH)
+  using Type = std::complex<Real>;
 
-using Type = std::complex<Real>;
+  Type operator+(Real, const Type &);
+  Type operator+(const Type &, Real);
 
-Type operator+(Real, const Type &);
-Type operator+(const Type &, Real);
+  Type operator-(Real, const Type &);
+  Type operator-(const Type &, Real);
 
-Type operator-(Real, const Type &);
-Type operator-(const Type &, Real);
+  Type operator*(Real, const Type &);
+  Type operator*(const Type &, Real);
 
-Type operator*(Real, const Type &);
-Type operator*(const Type &, Real);
+  Type operator/(Real, const Type &);
+  Type operator/(const Type &, Real);
 
-Type operator/(Real, const Type &);
-Type operator/(const Type &, Real);
+  bool operator!=(const Type &, Real);
+  bool operator!=(Real, const Type &);
 
-bool operator!=(const Type &, Real);
-bool operator!=(Real, const Type &);
-
-bool operator==(const Type &, Real);
-bool operator==(Real, const Type &);
+  bool operator==(const Type &, Real);
+  bool operator==(Real, const Type &);
 #else
-using Type = Real;
+  using Type = Real;
 #endif
 
 // Predeclare a few classes (Scalar)
