@@ -56,10 +56,19 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 # Include CMake scripts
 include(Tools)
 
+# [Set compilation flags]
+add_definitions(-DCOOLDIFF_SCALAR_TYPE=1) # Float
+#add_definitions(-DCOOLDIFF_SCALAR_TYPE=2) # Double
+
+add_definitions(-DUSE_COMPLEX_MATH)
+add_definitions(-DUSE_ROBIN_HOOD_MAP)
+add_definitions(-DUSE_VIRTUAL_FUNCTIONS)
+#add_definitions(-DUSE_CXX_PARALLEL_POLICY)
+#add_definitions(-DUSE_EXECUTION_PAR)
+
 # Set build type
 if(${BUILD_TYPE} STREQUAL Debug)
     set(CMAKE_BUILD_TYPE Debug)
-    add_definitions(-DBUILD_TYPE)
     message("[${BUILD_TYPE}][${PROJECT_NAME}] Generating debug code")
 else()
     set(CMAKE_BUILD_TYPE Release)
@@ -87,16 +96,6 @@ if(${BUILD_TEST})
         GIT_SHALLOW TRUE)
     FetchContent_MakeAvailable(googletest)
     list(APPEND CMAKE_MODULE_PATH ${gtest_SOURCE_DIR}/cmake)
-endif()
-
-# [Set compilation flags]
-if(${BUILD_TYPE} STREQUAL Debug)
-    add_definitions(-DSCALAR_TYPE=double)
-    add_definitions(-DUSE_COMPLEX_MATH)
-    add_definitions(-DUSE_ROBIN_HOOD_MAP)
-    add_definitions(-DUSE_VIRTUAL_FUNCTIONS)
-    add_definitions(-DUSE_PARALLEL_POLICY)
-    #add_definitions(-DENABLE_PARALLEL_EXECUTION)
 endif()
 
 # [Set target sources]
