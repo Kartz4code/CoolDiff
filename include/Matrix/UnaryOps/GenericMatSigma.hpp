@@ -33,6 +33,9 @@ private:
   // Callables
   Tuples<Callables...> m_caller;
 
+  // Sigma axis
+  const Axis m_axis{Axis::ALL};
+
   // Disable copy and move constructors/assignments
   DISABLE_COPY(GenericMatSigma)
   DISABLE_MOVE(GenericMatSigma)
@@ -46,18 +49,36 @@ public:
   const size_t m_nidx{};
 
   // Constructor
-  constexpr GenericMatSigma(T *u, Callables &&...call)
-      : mp_right{u}, m_caller{std::make_tuple(
-                         std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {
+  constexpr GenericMatSigma(T *u, const Axis& axis, Callables &&...call) : mp_right{u}, 
+                                                                           m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                                           m_axis{axis},
+                                                                           m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
   // Get number of rows
-  V_OVERRIDE(size_t getNumRows() const) { return 1; }
+  V_OVERRIDE(size_t getNumRows() const) {
+    if(m_axis == Axis::ROW) { 
+      return 1;
+    } else if(m_axis == Axis::COLUMN) {
+      return mp_right->getNumRows();
+    } else {
+      return 1;
+    }
+  }
 
   // Get number of columns
-  V_OVERRIDE(size_t getNumColumns() const) { return 1; }
+  V_OVERRIDE(size_t getNumColumns() const) { 
+    if(m_axis == Axis::ROW) { 
+      return mp_right->getNumColumns();
+    } 
+    else if(m_axis == Axis::COLUMN) {
+      return 1;
+    } 
+    else {
+      return 1;
+    } 
+  }
 
   // Find me
   bool findMe(void *v) const { BINARY_RIGHT_FIND_ME(); }
@@ -71,11 +92,22 @@ public:
 
     // Sum of all matrix elements as matrix operation - e_r'*A*e_c, e_{r,c}
     // being a one vector of r,c rows and columns
-    MATRIX_MUL(Ones(1, rows), right_mat, mp_arr[2]);
-    MATRIX_MUL(mp_arr[2], Ones(cols, 1), mp_arr[0]);
-
-    // Return result pointer
-    return mp_arr[0];
+    if(m_axis == Axis::ROW) { 
+      MATRIX_MUL(Ones(1, rows), right_mat, mp_arr[0]);
+      // Return result pointer
+      return mp_arr[0];
+    } 
+    else if(m_axis == Axis::COLUMN) {
+      MATRIX_MUL(right_mat, Ones(cols, 1), mp_arr[0]);
+      // Return result pointer
+      return mp_arr[0];       
+    } 
+    else {
+      MATRIX_MUL(Ones(1, rows), right_mat, mp_arr[2]);
+      MATRIX_MUL(mp_arr[2], Ones(cols, 1), mp_arr[0]);
+      // Return result pointer
+      return mp_arr[0];
+    }
   }
 
   // Matrix devalF computation
@@ -90,13 +122,26 @@ public:
     const Matrix<Type> *drhs = mp_right->devalF(X);
 
     // Derivative of sigma function as a matrix operation
-    MATRIX_KRON(Ones(1, nrows_f), Eye(nrows_x), mp_arr[3]);
-    MATRIX_KRON(Ones(ncols_f, 1), Eye(ncols_x), mp_arr[4]);
-    MATRIX_MUL(mp_arr[3], drhs, mp_arr[5]);
-    MATRIX_MUL(mp_arr[5], mp_arr[4], mp_arr[1]);
-
-    // Return result pointer
-    return mp_arr[1];
+    if(m_axis == Axis::ROW) {
+      MATRIX_KRON(Ones(1, nrows_f), Eye(nrows_x), mp_arr[3]);
+      MATRIX_MUL(mp_arr[3], drhs, mp_arr[5]);
+      // Return result pointer
+      return mp_arr[5];
+    }
+    else if (m_axis == Axis::COLUMN) {
+      MATRIX_KRON(Ones(ncols_f, 1), Eye(ncols_x), mp_arr[4]);
+      MATRIX_MUL(drhs, mp_arr[4], mp_arr[1]);
+      // Return result pointer
+      return mp_arr[1];
+    }
+    else {
+      MATRIX_KRON(Ones(1, nrows_f), Eye(nrows_x), mp_arr[3]);
+      MATRIX_KRON(Ones(ncols_f, 1), Eye(ncols_x), mp_arr[4]);
+      MATRIX_MUL(mp_arr[3], drhs, mp_arr[5]);
+      MATRIX_MUL(mp_arr[5], mp_arr[4], mp_arr[1]);
+      // Return result pointer
+      return mp_arr[1];
+    }
   }
 
   // Reset visit run-time
@@ -113,8 +158,9 @@ public:
 template <typename T> using GenericMatSigmaT = GenericMatSigma<T, OpMatType>;
 
 // Function for sigma computation
-template <typename T> constexpr const auto &sigma(const IMatrix<T> &u) {
+template <typename T> 
+constexpr const auto &sigma(const IMatrix<T> &u, const Axis& axis = Axis::ALL) {
   auto tmp = Allocate<GenericMatSigmaT<T>>(
-      const_cast<T *>(static_cast<const T *>(&u)), OpMatObj);
+      const_cast<T*>(static_cast<const T*>(&u)), axis, OpMatObj);
   return *tmp;
 }
