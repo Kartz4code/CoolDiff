@@ -34,13 +34,14 @@
 #include "MatrixBasics.hpp"
 
 // Custom functions
-UNARY_MATRIX_OPERATOR(
-    SinM, [](Type a) { return std::sin(a); },
-    [](Type b) { return std::cos(b); })
+UNARY_MATRIX_OPERATOR(SinM, [](Type a) { return std::sin(a); },
+                            [](Type b) { return std::cos(b); })
 
-UNARY_MATRIX_OPERATOR(
-    CosM, [](Type a) { return std::cos(a); },
-    [](Type b) { return -std::sin(b); })
+UNARY_MATRIX_OPERATOR(CosM, [](Type a) { return std::cos(a); },
+                            [](Type b) { return -std::sin(b); })
+
+UNARY_MATRIX_OPERATOR(ExpM, [](Type a) { return std::exp(a); },
+                            [](Type b) { return std::exp(b); })
 
 UNARY_MATRIX_OPERATOR(
     SigmoidM,
