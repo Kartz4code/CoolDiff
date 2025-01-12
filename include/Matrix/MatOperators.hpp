@@ -64,3 +64,6 @@ void MatrixDervConv(const size_t, const size_t, const size_t, const size_t,
 
 // Matrix unary
 void MatrixUnary(const Matrix<Type> *, const FunctionType1 &, Matrix<Type> *&);
+
+// MatrixInverse
+void MatrixInverse(const Matrix<Type>*, Matrix<Type>*&);

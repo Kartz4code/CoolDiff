@@ -30,6 +30,7 @@
 #include "GenericMatTrace.hpp"
 #include "GenericMatTranspose.hpp"
 #include "GenericMatUnary.hpp"
+#include "GenericMatInv.hpp"
 #include "Matrix.hpp"
 #include "MatrixBasics.hpp"
 
