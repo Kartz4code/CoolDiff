@@ -33,6 +33,8 @@ project(
 
 find_package(TBB REQUIRED)
 find_package(Threads REQUIRED)
+find_package(Eigen3 REQUIRED)
+
 
 # [Custom flags]
 # Build type: Debug or Release
@@ -163,6 +165,8 @@ set(SRC
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixUnaryHandler/ZeroMatUnaryHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixUnaryHandler/EyeMatUnaryHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixUnary/MatUnaryNaiveHandler.cpp
+    # MatrixInverse folder 
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixInverse/MatInverseEigenHandler.cpp
     # Memory manager folder
     ${CMAKE_SOURCE_DIR}/src/MemoryManager/MemoryManager.cpp)
 
@@ -193,6 +197,7 @@ set(INCLUDES
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvolution
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnaryHandler
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInverse
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixSplOps
     ${CMAKE_SOURCE_DIR}/include/MemoryManager
     ${CMAKE_BINARY_DIR}/_deps/robin-hood-hashing-src/src/include)
@@ -203,7 +208,7 @@ add_library(${PROJECT_NAME} STATIC ${SRC})
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
 # [Set compile options]
 target_compile_options(${PROJECT_NAME} PRIVATE -fpermissive)
-target_link_libraries(${PROJECT_NAME} PUBLIC Threads::Threads TBB::tbb)
+target_link_libraries(${PROJECT_NAME} PUBLIC Threads::Threads TBB::tbb Eigen3::Eigen)
 
 if(${BUILD_TYPE} STREQUAL Debug)
     message("[${BUILD_TYPE}][${PROJECT_NAME}] Attaching address sanitizer")

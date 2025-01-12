@@ -74,6 +74,8 @@
 #include "MatTransposeNaiveHandler.hpp"
 #include "MatUnaryNaiveHandler.hpp"
 
+#include "MatInverseEigenHandler.hpp"
+
 // Matrix-Matrix addition - Left, Right, Result matrix pointer
 void MatrixAdd(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
                Matrix<Type> *&result) {
@@ -306,8 +308,7 @@ void MatrixDervConv(const size_t nrows_x, const size_t ncols_x,
 }
 
 // Matrix unary
-void MatrixUnary(const Matrix<Type> *mat, const FunctionType1 &func,
-                 Matrix<Type> *&result) {
+void MatrixUnary(const Matrix<Type> *mat, const FunctionType1 &func, Matrix<Type> *&result) {
   NULL_CHECK(mat, "Matrix mat is a nullptr");
 
   static MatUnaryNaiveHandler h1{nullptr};
@@ -316,4 +317,14 @@ void MatrixUnary(const Matrix<Type> *mat, const FunctionType1 &func,
 
   // Handle Unary Matrix
   h3.handle(mat, func, result);
+}
+
+// MatrixInverse
+void MatrixInverse(const Matrix<Type>* mat, Matrix<Type>*& result) {
+  NULL_CHECK(mat, "Matrix mat is a nullptr");
+
+  static MatInverseEigenHandler h1{nullptr};
+
+  // Handle Matrix Inverse
+  h1.handle(mat, result);
 }
