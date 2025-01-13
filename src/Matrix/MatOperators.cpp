@@ -75,6 +75,7 @@
 #include "MatUnaryNaiveHandler.hpp"
 
 #include "MatInverseEigenHandler.hpp"
+#include "EyeMatInvHandler.hpp"
 
 // Matrix-Matrix addition - Left, Right, Result matrix pointer
 void MatrixAdd(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
@@ -324,7 +325,8 @@ void MatrixInverse(const Matrix<Type>* mat, Matrix<Type>*& result) {
   NULL_CHECK(mat, "Matrix mat is a nullptr");
 
   static MatInverseEigenHandler h1{nullptr};
+  static EyeMatInvHandler h2{&h1};
 
   // Handle Matrix Inverse
-  h1.handle(mat, result);
+  h2.handle(mat, result);
 }

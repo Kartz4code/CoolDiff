@@ -52,8 +52,10 @@ void MatInverseEigenHandler::handle(const Matrix<Type>* mat, Matrix<Type>*& resu
   Type* res_ptr = result->getMatrixPtr();
   Type* mat_ptr = mat->getMatrixPtr();
 
+  // Eigen inverse
   const Eigen::Map<EigenMatrix> A(mat_ptr, nrows, ncols);
   const auto inv_A = A.inverse();
 
+  // Store result
   Eigen::Map<EigenMatrix>(res_ptr, nrows, ncols) = inv_A;
 }

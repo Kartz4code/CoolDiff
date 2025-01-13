@@ -1,6 +1,6 @@
 /**
- * @file include/Matrix/MatrixBasics.hpp
- *
+ * @file src/Matrix/MatrixHandler/MatrixInvHandler/EyeMatInvHandler.cpp
+ * 
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
 /*
@@ -19,26 +19,23 @@
  * associated repository.
  */
 
-#pragma once
+#include "EyeMatInvHandler.hpp"
+#include "Matrix.hpp"
+#include "MatrixEyeOps.hpp"
 
-#include "CommonHeader.hpp"
+void EyeMatInvHandler::handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
+#if defined(NAIVE_IMPL)
+  /* Zero matrix special check */
+  if (true == IsEyeMatrix(mat)) {
+    // Rows and columns of result matrix
+    const size_t nrows{mat->getNumRows()};
+    const size_t ncols{mat->getNumColumns()};
 
-/* Pointer semantics */
-// Numerical Eye matrix
-const Matrix<Type> *Eye(const size_t);
-
-// Numerical Zeros matrix
-const Matrix<Type> *Zeros(const size_t, const size_t);
-
-// Numerical Zeros square matrix
-const Matrix<Type> *Zeros(const size_t);
-
-// Numerical Ones matrix
-const Matrix<Type> *Ones(const size_t, const size_t);
-
-// Numerical Ones square matrix
-const Matrix<Type> *Ones(const size_t);
-
-// References
-// Numerical Eye matrix
-const Matrix<Type>& EyeRef(const size_t);
+    // Result matrix is transposed identity matrix
+    result = MemoryManager::MatrixSplPool(nrows, ncols, MatrixSpl::EYE);
+    return;
+  }
+#endif
+  // Chain of responsibility
+  MatrixHandler::handle(mat, result);
+}

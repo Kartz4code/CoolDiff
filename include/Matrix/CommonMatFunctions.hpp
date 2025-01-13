@@ -249,3 +249,7 @@ Matrix<Expression> &SymMatDiff(T &exp, const Matrix<Variable> &m) {
   }
   return result;
 }
+
+// Matrix exponential
+Matrix<Expression>& MatrixExponential(const Matrix<Expression>&, const size_t);
+
