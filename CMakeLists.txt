@@ -167,6 +167,8 @@ set(SRC
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixUnary/MatUnaryNaiveHandler.cpp
     # MatrixInverse folder 
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixInverse/MatInverseEigenHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixInvHandler/EyeMatInvHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixInvHandler/ZeroMatInvHandler.cpp
     # Memory manager folder
     ${CMAKE_SOURCE_DIR}/src/MemoryManager/MemoryManager.cpp)
 
@@ -198,6 +200,7 @@ set(INCLUDES
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnaryHandler
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInverse
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInvHandler
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixSplOps
     ${CMAKE_SOURCE_DIR}/include/MemoryManager
     ${CMAKE_BINARY_DIR}/_deps/robin-hood-hashing-src/src/include)

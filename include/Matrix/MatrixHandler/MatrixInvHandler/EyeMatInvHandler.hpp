@@ -1,6 +1,6 @@
 /**
- * @file include/Matrix/MatrixBasics.hpp
- *
+ * @file include/Matrix/MatrixHandler/MatrixInvHandler/EyeMatInvHandler.hpp
+ * 
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
 /*
@@ -21,24 +21,14 @@
 
 #pragma once
 
-#include "CommonHeader.hpp"
+#include "MatrixHandler.hpp"
 
-/* Pointer semantics */
-// Numerical Eye matrix
-const Matrix<Type> *Eye(const size_t);
+class EyeMatInvHandler : public MatrixHandler {
+public:
+  using MatrixHandler::MatrixHandler;
 
-// Numerical Zeros matrix
-const Matrix<Type> *Zeros(const size_t, const size_t);
+  V_OVERRIDE(void handle(const Matrix<Type>*, Matrix<Type>*&));
 
-// Numerical Zeros square matrix
-const Matrix<Type> *Zeros(const size_t);
-
-// Numerical Ones matrix
-const Matrix<Type> *Ones(const size_t, const size_t);
-
-// Numerical Ones square matrix
-const Matrix<Type> *Ones(const size_t);
-
-// References
-// Numerical Eye matrix
-const Matrix<Type>& EyeRef(const size_t);
+  // Destructor
+  V_DTR(~EyeMatInvHandler() = default);
+};

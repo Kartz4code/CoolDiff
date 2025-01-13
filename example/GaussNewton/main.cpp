@@ -157,21 +157,8 @@ void NonLinearSolve() {
   std::cout << "Actual values (x,y): (-4,-2) or (2,4)\n\n";
 }
 
+
 int main(int argc, char **argv) {
-
-  Matrix<Type> A(2,2);
-  A(0,0) = 1; A(0,1) = 2;
-  A(1,0) = 4; A(1,1) = 5;
-
-  Matrix<Variable> X(2,2);
-  X(0,0) = 1; X(0,1) = 2;
-  X(1,0) = 3; X(1,1) = 4;
-
-  Matrix<Expression> E = trace(A*inv(X)); 
-
-  std::cout << Eval(E) << "\n";
-  std::cout << DevalF(E,X) << "\n";
-
   NonLinearSolve();
   GNMatrix();
   return 0;

@@ -1,6 +1,6 @@
 /**
- * @file include/Matrix/MatrixBasics.hpp
- *
+ * @file src/Matrix/MatrixHandler/MatrixInvHandler/ZeroMatInvHandler.cpp
+ * 
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
 /*
@@ -19,26 +19,18 @@
  * associated repository.
  */
 
-#pragma once
+#include "ZeroMatInvHandler.hpp"
+#include "Matrix.hpp"
+#include "MatrixEyeOps.hpp"
 
-#include "CommonHeader.hpp"
-
-/* Pointer semantics */
-// Numerical Eye matrix
-const Matrix<Type> *Eye(const size_t);
-
-// Numerical Zeros matrix
-const Matrix<Type> *Zeros(const size_t, const size_t);
-
-// Numerical Zeros square matrix
-const Matrix<Type> *Zeros(const size_t);
-
-// Numerical Ones matrix
-const Matrix<Type> *Ones(const size_t, const size_t);
-
-// Numerical Ones square matrix
-const Matrix<Type> *Ones(const size_t);
-
-// References
-// Numerical Eye matrix
-const Matrix<Type>& EyeRef(const size_t);
+void ZeroMatInvHandler::handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
+#if defined(NAIVE_IMPL)
+  /* Zero matrix special check */
+  if (true == IsEyeMatrix(mat)) {
+    ASSERT(false, "Inverse of a zero matrix");
+    return;
+  }
+#endif
+  // Chain of responsibility
+  MatrixHandler::handle(mat, result);
+}
