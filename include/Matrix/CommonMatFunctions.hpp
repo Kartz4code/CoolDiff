@@ -251,5 +251,5 @@ Matrix<Expression> &SymMatDiff(T &exp, const Matrix<Variable> &m) {
 }
 
 // Matrix exponential
-Matrix<Expression>& MatrixExponential(const Matrix<Expression>&, const size_t);
+Matrix<Expression>& MatrixExponential(const Matrix<Expression>&, const size_t = 20);
 

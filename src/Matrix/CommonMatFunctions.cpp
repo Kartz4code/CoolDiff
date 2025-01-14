@@ -22,7 +22,7 @@
 #include "CommonMatFunctions.hpp"
 
 // Factorial of n 
-size_t Factorial(size_t n) {
+const size_t Factorial(size_t n) {
    static UnOrderedMap<size_t, size_t> map{{1,1}}; 
    if(auto it = map.find(n); it == map.end()) {
       map[n] = n*Factorial(n-1); 

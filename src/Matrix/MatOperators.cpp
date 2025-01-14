@@ -76,6 +76,7 @@
 
 #include "MatInverseEigenHandler.hpp"
 #include "EyeMatInvHandler.hpp"
+#include "ZeroMatInvHandler.hpp"
 
 // Matrix-Matrix addition - Left, Right, Result matrix pointer
 void MatrixAdd(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
@@ -326,7 +327,8 @@ void MatrixInverse(const Matrix<Type>* mat, Matrix<Type>*& result) {
 
   static MatInverseEigenHandler h1{nullptr};
   static EyeMatInvHandler h2{&h1};
+  static ZeroMatInvHandler h3{&h2};
 
   // Handle Matrix Inverse
-  h2.handle(mat, result);
+  h3.handle(mat, result);
 }
