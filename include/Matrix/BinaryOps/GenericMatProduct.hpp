@@ -357,6 +357,11 @@ constexpr const auto &operator*(const T1 &v, const IMatrix<T2> &u) {
   return *tmp;
 }
 
+template <typename T1, typename T2, typename = ExpType<T1>>
+constexpr const auto &operator/(const IMatrix<T2> &u, const T1 &v) {
+  return (u * (1/v));
+}
+
 // Matrix sum with scalar (RHS) - SFINAE'd
 template <typename T1, typename T2, typename = ExpType<T2>>
 constexpr const auto &operator*(const IMatrix<T1> &u, const T2 &v) {
