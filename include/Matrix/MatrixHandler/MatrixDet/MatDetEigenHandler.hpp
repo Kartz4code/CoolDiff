@@ -1,6 +1,6 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixInvHandler/ZeroMatInvHandler.cpp
- * 
+ * @file include/Matrix/MatrixHandler/MatDetHandler/MatDetEigenHandler.hpp
+ *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
 /*
@@ -19,18 +19,16 @@
  * associated repository.
  */
 
-#include "ZeroMatInvHandler.hpp"
-#include "Matrix.hpp"
-#include "MatrixZeroOps.hpp"
+#pragma once
 
-void ZeroMatInvHandler::handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
-#if defined(NAIVE_IMPL)
-  /* Zero matrix special check */
-  if (true == IsZeroMatrix(mat)) {
-    ASSERT(false, "Inverse of a zero matrix");
-    return;
-  }
-#endif
-  // Chain of responsibility
-  MatrixHandler::handle(mat, result);
-}
+#include "MatrixHandler.hpp"
+
+class MatDetEigenHandler : public MatrixHandler {
+public:
+  using MatrixHandler::MatrixHandler;
+
+  V_OVERRIDE(void handle(const Matrix<Type>*, Matrix<Type>*&));
+
+  // Destructor
+  V_DTR(~MatDetEigenHandler() = default);
+};

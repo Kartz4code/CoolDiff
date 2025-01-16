@@ -59,8 +59,9 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 include(Tools)
 
 # [Set compilation flags]
-add_definitions(-DCOOLDIFF_SCALAR_TYPE=1) # Float
-#add_definitions(-DCOOLDIFF_SCALAR_TYPE=2) # Double
+#add_definitions(-DCOOLDIFF_SCALAR_TYPE=1) # Float
+add_definitions(-DCOOLDIFF_SCALAR_TYPE=2) # Double
+add_definitions(-DBUILD_TYPE)
 
 add_definitions(-DUSE_COMPLEX_MATH)
 add_definitions(-DUSE_ROBIN_HOOD_MAP)
@@ -169,6 +170,10 @@ set(SRC
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixInverse/MatInverseEigenHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixInvHandler/EyeMatInvHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixInvHandler/ZeroMatInvHandler.cpp
+    # MatrixDet folder 
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixDet/MatDetEigenHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixDetHandler/EyeMatDetHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixDetHandler/ZeroMatDetHandler.cpp
     # Memory manager folder
     ${CMAKE_SOURCE_DIR}/src/MemoryManager/MemoryManager.cpp)
 
@@ -201,6 +206,8 @@ set(INCLUDES
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInverse
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInvHandler
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDet
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDetHandler
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixSplOps
     ${CMAKE_SOURCE_DIR}/include/MemoryManager
     ${CMAKE_BINARY_DIR}/_deps/robin-hood-hashing-src/src/include)

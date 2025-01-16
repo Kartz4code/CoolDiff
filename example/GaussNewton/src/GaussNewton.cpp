@@ -83,8 +83,7 @@ void GaussNewton::computeABScalar(const size_t var_size) {
 
     // Eval and jacobian
     const Type eval = static_cast<OracleScalar *>(m_oracle)->eval();
-    const Matrix<Type> *jacobian =
-        static_cast<OracleScalar *>(m_oracle)->jacobian();
+    const Matrix<Type> *jacobian = static_cast<OracleScalar *>(m_oracle)->jacobian();
 
     // Compute A matrix
     MatrixTranspose(jacobian, m_tempA1);
@@ -118,8 +117,7 @@ void GaussNewton::computeABMatrix(const size_t var_size) {
 
     // Eval and jacobian
     const Matrix<Type> *eval = static_cast<OracleMatrix *>(m_oracle)->evalMat();
-    const Matrix<Type> *jacobian =
-        static_cast<OracleMatrix *>(m_oracle)->jacobian();
+    const Matrix<Type> *jacobian = static_cast<OracleMatrix *>(m_oracle)->jacobian();
 
     // Compute A matrix
     MatrixTranspose(jacobian, m_tempA1);
@@ -192,8 +190,7 @@ GaussNewton &GaussNewton::setData(Matrix<Type> *X, Matrix<Type> *Y) {
 }
 
 // Set data parameters
-GaussNewton &GaussNewton::setDataParameters(Matrix<Parameter> *PX,
-                                            Matrix<Parameter> *PY) {
+GaussNewton &GaussNewton::setDataParameters(Matrix<Parameter> *PX, Matrix<Parameter> *PY) {
   m_DX = PX;
   m_DY = PY;
   return *this;

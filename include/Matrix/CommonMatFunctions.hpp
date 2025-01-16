@@ -31,6 +31,8 @@
 #include "GenericMatTranspose.hpp"
 #include "GenericMatUnary.hpp"
 #include "GenericMatInv.hpp"
+#include "GenericMatDet.hpp"
+
 #include "Matrix.hpp"
 #include "MatrixBasics.hpp"
 
@@ -43,6 +45,13 @@ UNARY_MATRIX_OPERATOR(CosM, [](Type a) { return std::cos(a); },
 
 UNARY_MATRIX_OPERATOR(ExpM, [](Type a) { return std::exp(a); },
                             [](Type b) { return std::exp(b); })
+
+UNARY_MATRIX_OPERATOR(LogM, [](Type a) { return std::log(a); },
+                            [](Type b) { return ((Type)(1)/b); })
+
+UNARY_MATRIX_OPERATOR(SqrtM, [](Type a) { return std::sqrt(a); },
+                             [](Type b) { return ((Type)(1)/(2*std::sqrt(b))); })
+
 
 UNARY_MATRIX_OPERATOR(
     SigmoidM,

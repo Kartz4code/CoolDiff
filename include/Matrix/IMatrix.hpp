@@ -101,6 +101,7 @@ enum OpMat : size_t {
   CONV_DERV_MAT,
   UNARY_OP_MAT,
   INV_MAT,
+  DET_MAT,
   COUNT_MAT
 };
 
@@ -126,6 +127,7 @@ enum OpMat : size_t {
 
 #define UNARY_OP_MAT(X, Y, Z) std::get<OpMat::UNARY_OP_MAT>(m_caller)(X, Y, Z)
 #define MATRIX_INVERSE(X, Y) std::get<OpMat::INV_MAT>(m_caller)(X, Y)
+#define MATRIX_DET(X, Y) std::get<OpMat::DET_MAT>(m_caller)(X, Y)
 
 // Operation type [Order matters!]
 #define OpMatType                                                              \
@@ -146,10 +148,11 @@ enum OpMat : size_t {
                const Matrix<Type> *, const Matrix<Type> *,                     \
                const Matrix<Type> *, Matrix<Type> *&),                         \
       void (*)(const Matrix<Type> *, const FunctionType1 &, Matrix<Type> *&),  \
+      void (*)(const Matrix<Type> *, Matrix<Type> *&),                         \
       void (*)(const Matrix<Type> *, Matrix<Type> *&)
 
 // Operation objects [Order matters!]
 #define OpMatObj                                                               \
   MatrixAdd, MatrixMul, MatrixKron, MatrixSub, MatrixHadamard,                 \
       MatrixScalarAdd, MatrixScalarMul, MatrixTranspose, MatrixDervTranspose,  \
-      MatrixConv, MatrixDervConv, MatrixUnary, MatrixInverse
+      MatrixConv, MatrixDervConv, MatrixUnary, MatrixInverse, MatrixDet
