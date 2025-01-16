@@ -67,3 +67,6 @@ void MatrixUnary(const Matrix<Type> *, const FunctionType1 &, Matrix<Type> *&);
 
 // MatrixInverse
 void MatrixInverse(const Matrix<Type>*, Matrix<Type>*&);
+
+// Matrix Determinant
+void MatrixDet(const Matrix<Type>*, Matrix<Type>*&);

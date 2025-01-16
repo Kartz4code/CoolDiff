@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixInvHandler/ZeroMatInvHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixDetHandler/ZeroMatDetHandler.cpp
  * 
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,15 +19,15 @@
  * associated repository.
  */
 
-#include "ZeroMatInvHandler.hpp"
+#include "ZeroMatDetHandler.hpp"
 #include "Matrix.hpp"
 #include "MatrixZeroOps.hpp"
 
-void ZeroMatInvHandler::handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
+void ZeroMatDetHandler::handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
 #if defined(NAIVE_IMPL)
   /* Zero matrix special check */
   if (true == IsZeroMatrix(mat)) {
-    ASSERT(false, "Inverse of a zero matrix");
+    ASSERT(false, "Determinant of a zero matrix");
     return;
   }
 #endif

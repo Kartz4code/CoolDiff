@@ -157,8 +157,7 @@ void NonLinearSolve() {
   std::cout << "Actual values (x,y): (-4,-2) or (2,4)\n\n";
 }
 
-
-int main(int argc, char **argv) {
+int main(int argc, char **argv) { 
   NonLinearSolve();
   GNMatrix();
   return 0;
