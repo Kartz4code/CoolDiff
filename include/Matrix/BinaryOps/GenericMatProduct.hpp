@@ -348,6 +348,12 @@ constexpr const auto &operator/(const IMatrix<T> &v, Type u) {
   return (((Type)(1)/u) * v);
 }
 
+template <typename T1, typename T2>
+constexpr const auto &operator/(const IMatrix<T1> &u, const IMatrix<T2> &v) {
+  return (u*inv(v));
+}
+
+
 // Matrix multiplication with scalar (LHS) - SFINAE'd
 template <typename T1, typename T2, typename = ExpType<T1>>
 constexpr const auto &operator*(const T1 &v, const IMatrix<T2> &u) {

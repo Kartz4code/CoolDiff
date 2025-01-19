@@ -98,3 +98,8 @@ const Matrix<Type> *Ones(const size_t n) { return Ones(n, n); }
 const Matrix<Type>& EyeRef(const size_t n) {
   return *Eye(n);
 }
+
+// Numerical Ones matrix
+const Matrix<Type>& OnesRef(const size_t n, const size_t m) {
+  return *Ones(n,m);
+}

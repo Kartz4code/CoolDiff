@@ -59,4 +59,4 @@ Matrix<Expression>& MatrixExponential(const Matrix<Expression>& X, const size_t 
   // Return result
   return result;
 }
-
+ 
