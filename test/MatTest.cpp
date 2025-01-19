@@ -22,6 +22,26 @@
 #include "CoolDiff.hpp"
 #include <gtest/gtest.h>
 
+// Matrix softmax (TODO)
+TEST(MatTest, Test11) {
+
+  Matrix<Variable> X(1,4); 
+  X[0] = 1; X[1] = 2; X[2] = 3; X[3] = 4;
+
+  Matrix<Type> A(2,2);
+  A(0,0) = 1; A(0,1) = 2;
+  A(1,0) = 4; A(1,1) = 5;
+ 
+  Matrix<Expression> S(2,2);
+  S(0,0) = X[0]; S(0,1) = X[1];
+  S(1,0) = X[2]; S(1,1) = X[3];
+
+  Matrix<Expression> E = SoftMax<Axis::COLUMN>(A*S);
+
+  Eval(E);
+  DevalF(E,X);
+}
+
 // Matrix determinant (TODO)
 TEST(MatTest, Test10) {
   Matrix<Variable> X(1,4); 

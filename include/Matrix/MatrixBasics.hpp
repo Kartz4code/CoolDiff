@@ -42,3 +42,6 @@ const Matrix<Type> *Ones(const size_t);
 // References
 // Numerical Eye matrix
 const Matrix<Type>& EyeRef(const size_t);
+
+// Numerical Ones matrix
+const Matrix<Type>& OnesRef(const size_t, const size_t);

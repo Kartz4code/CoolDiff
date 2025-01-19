@@ -53,16 +53,33 @@ UNARY_MATRIX_OPERATOR(SqrtM, [](Type a) { return std::sqrt(a); },
                              [](Type b) { return ((Type)(1)/(2*std::sqrt(b))); })
 
 
-UNARY_MATRIX_OPERATOR(
-    SigmoidM,
-    [](Type a) {
-      Type res = ((Type)(1)) / (((Type)(1)) + std::exp(-a));
-      return res;
-    },
-    [](Type b) {
-      Type res = ((Type)(1)) / (((Type)(1)) + std::exp(-b));
-      return res * (((Type)(1)) - res);
-    });
+UNARY_MATRIX_OPERATOR(SigmoidM, [](Type a) { 
+                                   Type res = ((Type)(1)) / (((Type)(1)) + std::exp(-a));
+                                   return res;
+                                  },
+                                [](Type b) {
+                                   Type res = ((Type)(1)) / (((Type)(1)) + std::exp(-b));
+                                   return res * (((Type)(1)) - res);
+                                  });
+
+// Frobenius norm 
+template <typename T>
+constexpr const auto& MatrixFrobeniusNorm(const IMatrix<T>& X) {
+  return SqrtM(trace(transpose(X)*X));
+}
+
+template<Axis axis = Axis::ALL, typename T>
+constexpr const auto& SoftMax(const IMatrix<T>& X) {
+  const size_t rows = X.getNumRows();
+  const size_t cols = X.getNumColumns();
+  if constexpr(Axis::ROW == axis) {
+    return ExpM(X - (OnesRef(rows,1))*LogM(sigma<Axis::ROW>(ExpM(X))));
+  } else if constexpr(Axis::COLUMN == axis) {
+    return ExpM(X - LogM(sigma<Axis::COLUMN>(ExpM(X)))*(OnesRef(1,cols)));
+  } else {
+    return ExpM(X - (OnesRef(rows,1))*LogM(sigma<Axis::ALL>(ExpM(X)))*(OnesRef(1,cols)));
+  }
+}
 
 // Matrix evaluation
 template <typename T> Matrix<Type> &Eval(Matrix<T> &Mexp) {
