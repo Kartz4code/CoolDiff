@@ -113,3 +113,4 @@ template <typename T> constexpr const auto &OPS(const IVariable<T> &u) {       \
                (const_cast<T *>(static_cast<const T *>(&u)), OpObj);           \
   return *tmp;                                                                 \
 }
+

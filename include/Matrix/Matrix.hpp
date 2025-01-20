@@ -83,6 +83,9 @@ private:
   bool m_eval{false};
   bool m_devalf{false};
 
+  // Should destructor be called? 
+  bool m_dest{true};
+
   // Matrix pointer for evaluation result (Type)
   Matrix<Type> *mp_result{nullptr};
   // Matrix pointer for forward derivative (Type)
@@ -110,6 +113,8 @@ public:
   Matrix(const size_t, const size_t);
   // Constructor with rows and columns with initial values
   Matrix(const size_t, const size_t, const T &);
+  // Constructor with pointer stealer
+  Matrix(const size_t, const size_t, T*);
 
   // Matrix expressions constructor
   template <typename Z>
