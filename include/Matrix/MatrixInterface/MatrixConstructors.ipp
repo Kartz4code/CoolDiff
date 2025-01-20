@@ -42,6 +42,7 @@ Matrix<T>::Matrix() : m_rows{1},
                       mp_dresult{nullptr}, 
                       m_eval{false}, 
                       m_devalf{false},
+                      m_dest{true},
                       m_nidx{this->m_idx_count++} 
 {}
 
@@ -55,11 +56,28 @@ Matrix<T>::Matrix(const size_t rows, const size_t cols) : m_rows{rows},
                                                           mp_dresult{nullptr},
                                                           m_eval{false}, 
                                                           m_devalf{false}, 
+                                                          m_dest{true},
                                                           m_nidx{this->m_idx_count++} {
   // Assert for strictly non-negative values for rows and columns
   ASSERT(rows > 0 && cols > 0, "Row/Column size is not strictly non-negative");  
   mp_mat = new T[getNumElem()]{};                                                      
 }
+
+  // Constructor with pointer stealer
+  template<typename T>
+  Matrix<T>::Matrix(const size_t rows, const size_t cols, T* ptr)  :    m_rows{rows}, 
+                                                                        m_cols{cols}, 
+                                                                        m_type{(size_t)(-1)},
+                                                                        mp_result{nullptr}, 
+                                                                        mp_dresult{nullptr},
+                                                                        m_eval{false}, 
+                                                                        m_devalf{false}, 
+                                                                        m_dest{false},
+                                                                        m_nidx{this->m_idx_count++} {
+    // Assert for strictly non-negative values for rows and columns
+    ASSERT(rows > 0 && cols > 0, "Row/Column size is not strictly non-negative");  
+    mp_mat = ptr;                                                                     
+  }
 
 // Constructor with rows and columns with initial values
 template<typename T>
@@ -75,6 +93,7 @@ Matrix<T>::Matrix(const Matrix& m) : m_rows{m.m_rows},
                                      m_type{m.m_type},
                                      m_eval{m.m_eval}, 
                                      m_devalf{m.m_devalf},
+                                     m_dest{m.m_dest},
                                      m_cache{m.m_cache}, 
                                      m_nidx{m.m_nidx} {
   // If T is an Expression type
@@ -100,6 +119,7 @@ Matrix<T>& Matrix<T>::operator=(const Matrix& m) {
     m_type = m.m_type;
     m_eval = m.m_eval;
     m_devalf = m.m_devalf;
+    m_dest = m.m_dest;
     m_cache = m.m_cache;
     m_nidx = m.m_nidx;
 
@@ -136,6 +156,7 @@ Matrix<T>::Matrix(Matrix&& m) noexcept : m_rows{std::exchange(m.m_rows, -1)},
                                          mp_dresult{std::exchange(m.mp_dresult, nullptr)}, 
                                          m_eval{std::exchange(m.m_eval, false)},
                                          m_devalf{std::exchange(m.m_devalf, false)}, 
+                                         m_dest{std::exchange(m.m_dest, true)},
                                          m_cache{std::move(m.m_cache)},
                                          m_gh_vec{std::exchange(m.m_gh_vec, {})}, 
                                          m_nidx{std::exchange(m.m_nidx, -1)} 
@@ -160,6 +181,7 @@ Matrix<T>& Matrix<T>::operator=(Matrix&& m) noexcept {
   mp_dresult = std::exchange(m.mp_dresult, nullptr);
   m_eval = std::exchange(m.m_eval, false);
   m_devalf = std::exchange(m.m_devalf, false);
+  m_dest = std::exchange(m.m_dest, true);
   m_cache = std::move(m.m_cache);
   m_nidx = std::exchange(m.m_nidx, -1);
   m_gh_vec = std::exchange(m.m_gh_vec, {});
@@ -172,8 +194,10 @@ Matrix<T>& Matrix<T>::operator=(Matrix&& m) noexcept {
 template<typename T>
 Matrix<T>::~Matrix() {
   // If mp_mat is not nullptr, delete it
-  if (nullptr != mp_mat) {
-    delete[] mp_mat;
-    mp_mat = nullptr;
+  if(true == m_dest) {
+    if (nullptr != mp_mat) {
+      delete[] mp_mat;
+      mp_mat = nullptr;
+    }
   }
 }

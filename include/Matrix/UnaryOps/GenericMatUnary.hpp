@@ -72,3 +72,4 @@ template <typename T> constexpr const auto &OPS(const IMatrix<T> &u) {         \
   auto tmp = Allocate<CONCAT3(GenericMat, OPS, T)<T>>(const_cast<T *>(static_cast<const T *>(&u)), OpMatObj); \
   return *tmp;                                                                 \
 }
+

@@ -49,7 +49,7 @@ void MatDetEigenHandler::handle(const Matrix<Type>* mat, Matrix<Type>*& result) 
   // Pool matrix
   MemoryManager::MatrixPool(1, 1, result);
 
-  Type* mat_ptr = mat->getMatrixPtr();
+  Type* mat_ptr = const_cast<Matrix<Type>*>(mat)->getMatrixPtr();
 
   // Eigen inverse
   const Eigen::Map<EigenMatrix> A(mat_ptr, nrows, ncols);
