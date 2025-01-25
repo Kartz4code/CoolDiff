@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixAddition/MatAddNaiveHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixAddition/MatScalarAddNaiveHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,36 +19,25 @@
  * associated repository.
  */
 
-#include "MatAddNaiveHandler.hpp"
+#include "MatScalarAddNaiveHandler.hpp"
 #include "Matrix.hpp"
 
-void MatAddNaiveHandler::handle(const Matrix<Type> *lhs,
-                                const Matrix<Type> *rhs,
-                                Matrix<Type> *&result) {
-  /* Matrix-Matrix numerical addition */
+void MatScalarAddNaiveHandler::handle(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
+  /* Matrix-Scalar numerical addition */
   // Rows and columns of result matrix and if result is nullptr, then create a
   // new resource
-
-  const size_t nrows{lhs->getNumRows()};
+  const size_t nrows{rhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
-  const size_t lcols{lhs->getNumColumns()};
-  const size_t rrows{rhs->getNumRows()};
-
-  // Assert dimensions
-  ASSERT((nrows == rrows) && (ncols == lcols),
-         "Matrix addition dimensions mismatch");
 
   // Pool matrix
   MemoryManager::MatrixPool(nrows, ncols, result);
 
   // Get raw pointers to result, left and right matrices
   Type *res = result->getMatrixPtr();
-  const Type *left = lhs->getMatrixPtr();
   const Type *right = rhs->getMatrixPtr();
 
   const size_t size{nrows * ncols};
   // For each element, perform addition
-  std::transform(EXECUTION_PAR left, left + size, right, res,
-                 [](const Type a, const Type b) { return a + b; });
-  return;
+  std::transform(EXECUTION_PAR right, right + size, res,
+                 [&lhs](const Type value) { return lhs + value; });
 }

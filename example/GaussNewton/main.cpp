@@ -107,14 +107,13 @@ void GNMatrix() {
   V[1] = 20;
   V[2] = -10;
 
-  // Rotation and translation matrices
-  Matrix<Expression> R(2, 2), t(2, 1);
-  R(0, 0) = cos(V[0]);
-  R(0, 1) = sin(V[0]);
-  R(1, 0) = -sin(V[0]);
-  R(1, 1) = cos(V[0]);
-  t[0] = V[1];
-  t[1] = V[2];
+  // Rotation matrix
+  Matrix<Expression> R(2, 2);
+  R(0, 0) = cos(V[0]); R(0, 1) = sin(V[0]);
+  R(1, 0) = -sin(V[0]); R(1, 1) = cos(V[0]);
+
+  // Translation matrices
+  Matrix<Variable> t(2,1,V.getMatrixPtr()+1);
 
   // Parameter for input/output data
   Matrix<Parameter> PX(2, 1), PY(2, 1);
@@ -124,9 +123,9 @@ void GNMatrix() {
 
   GaussNewton gn;
   gn.setData(data.first, data.second)
-      .setOracle(Oracle::OracleFactory::CreateOracle(J, V))
-      .setDataParameters(&PX, &PY)
-      .setMaxIterations(3);
+    .setOracle(Oracle::OracleFactory::CreateOracle(J, V))
+    .setDataParameters(&PX, &PY)
+    .setMaxIterations(3);
 
   TIME_IT_MS(gn.solve());
 

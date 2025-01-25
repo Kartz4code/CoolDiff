@@ -82,9 +82,18 @@
 #include "EyeMatDetHandler.hpp"
 #include "ZeroMatDetHandler.hpp"
 
+#include "EyeMatAddStaticHandler.hpp"
+#include "ZeroMatAddStaticHandler.hpp"
+#include "MatAddNaiveStaticHandler.hpp"
+
+#include "EyeMatScalarAddStaticHandler.hpp"
+#include "ZeroMatScalarAddStaticHandler.hpp"
+#include "MatScalarAddNaiveStaticHandler.hpp"
+
+#define HANDLER3(X,Y,Z) X<Y<Z<MatrixStaticHandler>>>
+
 // Matrix-Matrix addition - Left, Right, Result matrix pointer
-void MatrixAdd(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
-               Matrix<Type> *&result) {
+void MatrixAdd(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -95,12 +104,12 @@ void MatrixAdd(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
       3) Matrix-Matrix addition
   */
 
-  static MatAddNaiveHandler h1{nullptr};
-  static ZeroMatAddHandler h2{&h1};
-  static EyeMatAddHandler h3{&h2};
+  static HANDLER3(EyeMatAddStaticHandler, 
+                  ZeroMatAddStaticHandler,
+                  MatAddNaiveStaticHandler) handler;
 
   // Handle matrix addition
-  h3.handle(lhs, rhs, result);
+  handler.handle(lhs, rhs, result);
 }
 
 // Matrix-Matrix subtraction - Left, Right, Result matrix pointer
@@ -198,12 +207,12 @@ void MatrixScalarAdd(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
       3) Matrix-Matrix Hadamard product
   */
 
-  static MatScalarAddNaiveHandler h1{nullptr};
-  static ZeroMatScalarAddHandler h2{&h1};
-  static EyeMatScalarAddHandler h3{&h2};
+  static HANDLER3(EyeMatScalarAddStaticHandler, 
+                  ZeroMatScalarAddStaticHandler,
+                  MatScalarAddNaiveStaticHandler) handler;
 
   // Handle Matrix-Scalar addition
-  h3.handle(lhs, rhs, result);
+  handler.handle(lhs, rhs, result);
 }
 
 // Matrix-Scalar multiplication
