@@ -82,7 +82,8 @@ constexpr const auto& SoftMax(const IMatrix<T>& X) {
 }
 
 // Matrix evaluation
-template <typename T> Matrix<Type> &Eval(Matrix<T> &Mexp) {
+template <typename T> 
+Matrix<Type> &Eval(Matrix<T> &Mexp) {
   // Reset graph/tree
   Mexp.resetImpl();
   // Return evaluation value
@@ -149,7 +150,8 @@ Matrix<Type> &DevalF(T &exp, const Matrix<Variable> &m, bool serial = true) {
 }
 
 // Reverse mode algorithmic differentiation (Matrix)
-template <typename T> Matrix<Type> &DevalR(T &exp, const Matrix<Variable> &m) {
+template <typename T> 
+Matrix<Type> &DevalR(T &exp, const Matrix<Variable> &m) {
   const size_t n = m.getNumElem();
   auto &result = Matrix<Type>::MatrixFactory::CreateMatrix(m.getNumRows(),
                                                            m.getNumColumns());
@@ -276,6 +278,37 @@ Matrix<Expression> &SymMatDiff(T &exp, const Matrix<Variable> &m) {
   return result;
 }
 
+// Factorial of n 
+const size_t Factorial(const size_t);
+
 // Matrix exponential
-Matrix<Expression>& MatrixExponential(const Matrix<Expression>&, const size_t = 20);
+template<typename T>
+Matrix<Expression>& MatrixExponential(const IMatrix<T>& X, const size_t trunc = 20) {
+  // Dimensions of matrix X
+  const size_t rows = X.getNumRows();
+  const size_t cols = X.getNumColumns();
+
+  // Assert for square matrix
+  ASSERT(rows == cols, "X matrix is not a square matrix");
+
+  // Create result matrix
+  auto& result = Matrix<Expression>::MatrixFactory::CreateMatrix();
+
+  // Temporary matrix array
+  Matrix<Expression>* tmp[trunc+1];
+  for(size_t i{}; i <= trunc; ++i) {
+    tmp[i] = Matrix<Expression>::MatrixFactory::CreateMatrixPtr();
+  }
+
+  // Run loop till truncation
+  (*tmp[0]) = EyeRef(rows);
+  result = (*tmp[0]);
+  for(size_t i{1}; i <= trunc; ++i) {
+      (*tmp[i]) = (*tmp[i-1])*X;
+      result = result + ((*tmp[i])/Factorial(i));
+  }
+
+  // Return result
+  return result;
+}
 

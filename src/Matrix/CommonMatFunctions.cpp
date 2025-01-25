@@ -21,42 +21,11 @@
 
 #include "CommonMatFunctions.hpp"
 
-// Factorial of n 
-const size_t Factorial(size_t n) {
+const size_t Factorial(const size_t n) {
    static UnOrderedMap<size_t, size_t> map{{1,1}}; 
    if(auto it = map.find(n); it == map.end()) {
       map[n] = n*Factorial(n-1); 
    }
    return map[n]; 
-}
-
-// Matrix exponential
-Matrix<Expression>& MatrixExponential(const Matrix<Expression>& X, const size_t trunc) {
-  // Dimensions of matrix X
-  const size_t rows = X.getNumRows();
-  const size_t cols = X.getNumColumns();
-
-  // Assert for square matrix
-  ASSERT(rows == cols, "X matrix is not a square matrix");
-
-  // Create result matrix
-  auto& result = Matrix<Expression>::MatrixFactory::CreateMatrix();
-
-  // Temporary matrix array
-  Matrix<Expression>* tmp[trunc+1];
-  for(size_t i{}; i <= trunc; ++i) {
-    tmp[i] = Matrix<Expression>::MatrixFactory::CreateMatrixPtr();
-  }
-
-  // Run loop till truncation
-  (*tmp[0]) = EyeRef(rows);
-  result = (*tmp[0]);
-  for(size_t i{1}; i <= trunc; ++i) {
-      (*tmp[i]) = (*tmp[i-1])*X;
-      result = result + ((*tmp[i])/Factorial(i));
-  }
-
-  // Return result
-  return result;
 }
  
