@@ -68,3 +68,6 @@ const Matrix<Type> *EyeMatHadamardNum(const Matrix<Type> *,
 void AddEye(const Matrix<Type>*, Matrix<Type>*&);
 void Add2Eye(const Matrix<Type>*, Matrix<Type>*&);
 void AddEye(Type, const Matrix<Type>*, Matrix<Type>*&);
+
+
+void MulEye(Type, const Matrix<Type>*, Matrix<Type>*&);

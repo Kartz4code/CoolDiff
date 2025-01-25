@@ -1,5 +1,6 @@
 /**
- * @file include/Matrix/MatrixHandler/MatrixMulHandler/EyeMatMulHandler.hpp
+ * @file
+ * include/Matrix/MatrixHandler/MatrixMultiplication/DyanmicHandlers/MatScalarMulNaiveHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -23,13 +24,12 @@
 
 #include "MatrixHandler.hpp"
 
-class EyeMatMulHandler : public MatrixHandler {
+class MatScalarMulNaiveHandler : public MatrixHandler {
 public:
   using MatrixHandler::MatrixHandler;
 
-  V_OVERRIDE(void handle(const Matrix<Type> *, const Matrix<Type> *,
-                         Matrix<Type> *&));
+  V_OVERRIDE(void handle(Type, const Matrix<Type> *, Matrix<Type> *&));
 
   // Destructor
-  V_DTR(~EyeMatMulHandler() = default);
+  V_DTR(~MatScalarMulNaiveHandler() = default);
 };

@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixAddition/MatScalarAddNaiveHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixAddition/DynamicHandlers/MatScalarAddNaiveHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

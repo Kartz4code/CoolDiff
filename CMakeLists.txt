@@ -132,13 +132,13 @@ set(SRC
     # MatrixKronProduct folder
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixKronProduct/MatKronNaiveHandler.cpp
     # MatrixMulHandler folder
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixMulHandler/ZeroMatMulHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixMulHandler/ZeroMatScalarMulHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixMulHandler/EyeMatMulHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixMulHandler/EyeMatScalarMulHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixMulHandler/DynamicHandlers/ZeroMatMulHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixMulHandler/DynamicHandlers/ZeroMatScalarMulHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixMulHandler/DynamicHandlers/EyeMatMulHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixMulHandler/DynamicHandlers/EyeMatScalarMulHandler.cpp
     # MatrixMultiplication folder
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixMultiplication/MatMulNaiveHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixMultiplication/MatScalarMulNaiveHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixMultiplication/DynamicHandlers/MatMulNaiveHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixMultiplication/DynamicHandlers/MatScalarMulNaiveHandler.cpp
     # MatrixSubHandler folder
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixSubHandler/ZeroMatSubHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixSubHandler/EyeMatSubHandler.cpp
@@ -188,16 +188,24 @@ set(INCLUDES
     ${CMAKE_SOURCE_DIR}/include/Matrix/BinaryOps
     ${CMAKE_SOURCE_DIR}/include/Matrix/UnaryOps
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler
+    
     # Dynamic addition handlers
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddHandler/DynamicHandlers
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/DynamicHandlers
     # Static addition handlers
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddHandler/StaticHandlers
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/StaticHandlers
+    
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronHandler
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMulHandler
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication
+    
+    # Dynamic multiplication handlers
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMulHandler/DynamicHandlers
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/DynamicHandlers
+    # Static multiplication handlers
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMulHandler/StaticHandlers
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/StaticHandlers
+
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubHandler 
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamardHandler 

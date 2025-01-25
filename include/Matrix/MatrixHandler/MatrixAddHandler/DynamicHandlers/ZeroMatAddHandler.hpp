@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/MatrixHandler/MatrixAddHandler/ZeroMatAddHandler.hpp
+ * @file include/Matrix/MatrixHandler/MatrixAddHandler/DynamicHandlers/ZeroMatAddHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -27,8 +27,7 @@ class ZeroMatAddHandler : public MatrixHandler {
 public:
   using MatrixHandler::MatrixHandler;
 
-  V_OVERRIDE(void handle(const Matrix<Type> *, const Matrix<Type> *,
-                         Matrix<Type> *&));
+  V_OVERRIDE(void handle(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&));
 
   // Destructor
   V_DTR(~ZeroMatAddHandler() = default);

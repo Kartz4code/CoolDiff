@@ -1,6 +1,6 @@
 /**
  * @file
- * include/Matrix/MatrixHandler/MatrixAddHandler/ZeroMatScalarAddHandler.hpp
+ * include/Matrix/MatrixHandler/MatrixAddHandler/DynamicHandlers/ZeroMatScalarAddHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

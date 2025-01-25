@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/MatrixHandler/MatrixAddHandler/EyeMatAddHandler.hpp
+ * @file include/Matrix/MatrixHandler/MatrixAddHandler/DynamicHandlers/EyeMatAddHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -27,8 +27,7 @@ class EyeMatAddHandler : public MatrixHandler {
 public:
   using MatrixHandler::MatrixHandler;
 
-  V_OVERRIDE(void handle(const Matrix<Type> *, const Matrix<Type> *,
-                         Matrix<Type> *&));
+  V_OVERRIDE(void handle(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&));
 
   // Destructor
   V_DTR(~EyeMatAddHandler() = default);
