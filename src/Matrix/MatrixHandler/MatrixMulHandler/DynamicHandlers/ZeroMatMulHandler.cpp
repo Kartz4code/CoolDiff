@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixMulHandler/EyeMatMulHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixMulHandler/DynamicHandlers/ZeroMatMulHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,12 +19,12 @@
  * associated repository.
  */
 
-#include "EyeMatMulHandler.hpp"
+#include "ZeroMatMulHandler.hpp"
 #include "Matrix.hpp"
-#include "MatrixEyeOps.hpp"
+#include "MatrixZeroOps.hpp"
 
-void EyeMatMulHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
-                              Matrix<Type> *&result) {
+void ZeroMatMulHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
+
   // If result is nullptr, then create a new resource
   const size_t lrows{lhs->getNumRows()};
   const size_t lcols{lhs->getNumColumns()};
@@ -34,21 +34,21 @@ void EyeMatMulHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
   // Assert dimensions
   ASSERT(lcols == rrows, "Matrix multiplication dimensions mismatch");
 
-#if defined(NAIVE_IMPL)
-  /* Eye matrix special check */
-  if (auto *it = EyeMatMul(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type> *>(it);
-    return;
-  }
+  #if defined(NAIVE_IMPL)
+    /* Zero matrix special check */
+    if (auto *it = ZeroMatMul(lhs, rhs); nullptr != it) {
+      result = const_cast<Matrix<Type> *>(it);
+      return;
+    }
 
-/* Eye matrix numerical check */
-#if defined(NUMERICAL_CHECK)
-  else if (auto *it = EyeMatMulNum(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type> *>(it);
-    return;
-  }
-#endif
-#endif
+    /* Zero matrix numerical check */
+    #if defined(NUMERICAL_CHECK)
+      else if (auto *it = ZeroMatMulNum(lhs, rhs); nullptr != it) {
+        result = const_cast<Matrix<Type> *>(it);
+        return;
+      }
+    #endif
+  #endif
 
   // Chain of responsibility
   MatrixHandler::handle(lhs, rhs, result);

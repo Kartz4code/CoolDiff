@@ -1,6 +1,6 @@
 /**
  * @file
- * include/Matrix/MatrixHandler/MatrixMulHandler/ZeroMatScalarMulHandler.hpp
+ * include/Matrix/MatrixHandler/MatrixMultiplication/DyanmicHandlers/MatMulNaiveHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -24,12 +24,15 @@
 
 #include "MatrixHandler.hpp"
 
-class ZeroMatScalarMulHandler : public MatrixHandler {
+class MatMulNaiveHandler : public MatrixHandler {
+private:
+  Matrix<Type> *mp_rhs_transpose{nullptr};
+
 public:
   using MatrixHandler::MatrixHandler;
 
-  V_OVERRIDE(void handle(Type, const Matrix<Type> *, Matrix<Type> *&));
+  V_OVERRIDE(void handle(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&));
 
   // Destructor
-  V_DTR(~ZeroMatScalarMulHandler() = default);
+  V_DTR(~MatMulNaiveHandler() = default);
 };

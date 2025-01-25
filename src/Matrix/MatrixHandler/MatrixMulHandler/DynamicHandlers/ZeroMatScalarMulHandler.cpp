@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixAddHandler/DynamicHandlers/ZeroMatAddHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixMulHandler/DynamicHandlers/ZeroMatScalarMulHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,29 +19,21 @@
  * associated repository.
  */
 
-#include "ZeroMatAddHandler.hpp"
+#include "ZeroMatScalarMulHandler.hpp"
 #include "Matrix.hpp"
 #include "MatrixZeroOps.hpp"
 
-void ZeroMatAddHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
-  // LHS and RHS dimensions
-  const size_t nrows{lhs->getNumRows()};
-  const size_t ncols{rhs->getNumColumns()};
-  const size_t lcols{lhs->getNumColumns()};
-  const size_t rrows{rhs->getNumRows()};
-
-  // Assert dimensions
-  ASSERT((nrows == rrows) && (ncols == lcols), "Matrix addition dimensions mismatch");
-
+void ZeroMatScalarMulHandler::handle(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
   #if defined(NAIVE_IMPL)
-    /* Zero matrix special check */
-    if (auto *it = ZeroMatAdd(lhs, rhs); nullptr != it) {
-      result = const_cast<Matrix<Type> *>(it);
-      return;
-    }
+      /* Zero matrix special check */
+      if (auto *it = ZeroMatScalarMul(lhs, rhs); nullptr != it) {
+        result = const_cast<Matrix<Type> *>(it);
+        return;
+      }
+
     /* Zero matrix numerical check */
     #if defined(NUMERICAL_CHECK)
-      else if (auto *it = ZeroMatAddNum(lhs, rhs); nullptr != it) {
+      else if (auto *it = ZeroMatScalarMulNum(lhs, rhs); nullptr != it) {
         result = const_cast<Matrix<Type> *>(it);
         return;
       }

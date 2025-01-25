@@ -394,3 +394,20 @@ void AddEye(Type val, const Matrix<Type> *it, Matrix<Type> *&result) {
       EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
       [&](const size_t i) { (*result)(i, i) = (*result)(i, i) + (Type)(1); });
 }
+
+void MulEye(Type val, const Matrix<Type> *it, Matrix<Type> *&result) {
+  /*
+    Rows and columns of result matrix and if result is nullptr or if dimensions
+    mismatch, then create a new matrix resource
+  */
+  const size_t nrows{it->getNumRows()};
+  const size_t ncols{it->getNumColumns()};
+
+  // Pool matrix
+  MemoryManager::MatrixPool(nrows, ncols, result);
+
+  // Diagonal indices (Modification)
+  const auto diag_idx = Range<size_t>(0, nrows);
+  std::for_each(EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
+                [&](const size_t i) { (*result)(i, i) = val; });
+}

@@ -82,13 +82,26 @@
 #include "EyeMatDetHandler.hpp"
 #include "ZeroMatDetHandler.hpp"
 
+// Static handlers
+// Matrix-Matrix addition
 #include "EyeMatAddStaticHandler.hpp"
 #include "ZeroMatAddStaticHandler.hpp"
 #include "MatAddNaiveStaticHandler.hpp"
 
+// Matrix-scalar addition
 #include "EyeMatScalarAddStaticHandler.hpp"
 #include "ZeroMatScalarAddStaticHandler.hpp"
 #include "MatScalarAddNaiveStaticHandler.hpp"
+
+// Matrix-Matrix multiplication
+#include "EyeMatMulStaticHandler.hpp"
+#include "ZeroMatMulStaticHandler.hpp"
+#include "MatMulNaiveStaticHandler.hpp"
+
+// Matrix-scalar multiplication
+#include "EyeMatScalarMulStaticHandler.hpp"
+#include "ZeroMatScalarMulStaticHandler.hpp"
+#include "MatScalarMulNaiveStaticHandler.hpp"
 
 #define HANDLER3(X,Y,Z) X<Y<Z<MatrixStaticHandler>>>
 
@@ -134,8 +147,7 @@ void MatrixSub(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
 }
 
 // Matrix-Matrix multiplication - Left, Right, Result matrix pointer
-void MatrixMul(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
-               Matrix<Type> *&result) {
+void MatrixMul(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -146,12 +158,12 @@ void MatrixMul(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
       3) Matrix-Matrix multiplication
   */
 
-  static MatMulNaiveHandler h1{nullptr};
-  static ZeroMatMulHandler h2{&h1};
-  static EyeMatMulHandler h3{&h2};
+  static HANDLER3(EyeMatMulStaticHandler,
+                  ZeroMatMulStaticHandler,
+                  MatMulNaiveStaticHandler) handler;
 
   // Handle matrix multiplication
-  h3.handle(lhs, rhs, result);
+  handler.handle(lhs, rhs, result);
 }
 
 // Matrix-Matrix Kronocker product - Left, Right, Result matrix pointer
@@ -226,12 +238,12 @@ void MatrixScalarMul(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
      3) Matrix-Matrix Hadamard product
  */
 
-  static MatScalarMulNaiveHandler h1{nullptr};
-  static ZeroMatScalarMulHandler h2{&h1};
-  static EyeMatScalarMulHandler h3{&h2};
+  static HANDLER3(EyeMatScalarMulStaticHandler,
+                  ZeroMatScalarMulStaticHandler,
+                  MatScalarMulNaiveStaticHandler) handler;
 
   // Handle Matrix-Scalar multiplication
-  h3.handle(lhs, rhs, result);
+  handler.handle(lhs, rhs, result);
 }
 
 // Matrix transpose

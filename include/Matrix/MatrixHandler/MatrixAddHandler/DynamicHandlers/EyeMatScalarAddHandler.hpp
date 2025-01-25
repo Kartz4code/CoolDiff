@@ -1,6 +1,6 @@
 /**
  * @file
- * include/Matrix/MatrixHandler/MatrixAddHandler/EyeMatScalarAddHandler.hpp
+ * include/Matrix/MatrixHandler/MatrixAddHandler/DynamicHandlers/EyeMatScalarAddHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

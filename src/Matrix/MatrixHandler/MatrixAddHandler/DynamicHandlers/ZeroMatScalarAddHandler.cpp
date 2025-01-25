@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixAddHandler/ZeroMatScalarAddHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixAddHandler/DynamicHandlers/ZeroMatScalarAddHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
