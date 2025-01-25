@@ -50,7 +50,7 @@ void MatInverseEigenHandler::handle(const Matrix<Type>* mat, Matrix<Type>*& resu
   MemoryManager::MatrixPool(nrows, ncols, result);
 
   Type* res_ptr = result->getMatrixPtr();
-  Type* mat_ptr = mat->getMatrixPtr();
+  Type* mat_ptr = const_cast<Matrix<Type>*>(mat)->getMatrixPtr();
 
   // Eigen inverse
   const Eigen::Map<EigenMatrix> A(mat_ptr, nrows, ncols);

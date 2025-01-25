@@ -337,3 +337,60 @@ const Matrix<Type> *EyeMatHadamardNum(const Matrix<Type> *lhs,
     return nullptr;
   }
 }
+
+void AddEye(const Matrix<Type> *it, Matrix<Type> *&result) {
+  /*
+    Rows and columns of result matrix and if result is nullptr or if dimensions
+    mismatch, then create a new matrix resource
+  */
+  const size_t nrows{it->getNumRows()};
+  const size_t ncols{it->getNumColumns()};
+
+  // Pool matrix
+  MemoryManager::MatrixPool(nrows, ncols, result);
+
+  // Copy all elements from it to result matrix
+  *result = *it;
+
+  // Diagonal indices (Modification)
+  const auto diag_idx = Range<size_t>(0, nrows);
+  std::for_each(
+      EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
+      [&](const size_t i) { (*result)(i, i) = (*it)(i, i) + (Type)(1); });
+}
+
+void Add2Eye(const Matrix<Type> *it, Matrix<Type> *&result) {
+  /*
+    Rows and columns of result matrix and if result is nullptr or if dimensions
+    mismatch, then create a new matrix resource
+  */
+  const size_t nrows{it->getNumRows()};
+  const size_t ncols{it->getNumColumns()};
+
+  // Pool matrix
+  MemoryManager::MatrixPool(nrows, ncols, result);
+
+  // Diagonal indices
+  const auto diag_idx = Range<size_t>(0, nrows);
+  // Case when both left and right matrices are eye
+  std::for_each(EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
+                [&](const size_t i) { (*result)(i, i) = (Type)(2); });
+}
+
+void AddEye(Type val, const Matrix<Type> *it, Matrix<Type> *&result) {
+  /*
+    Rows and columns of result matrix and if result is nullptr or if dimensions
+    mismatch, then create a new matrix resource
+  */
+  const size_t nrows{it->getNumRows()};
+  const size_t ncols{it->getNumColumns()};
+
+  // Pool matrix
+  MemoryManager::MatrixPool(nrows, ncols, result, val);
+
+  // Diagonal indices (Modification)
+  const auto diag_idx = Range<size_t>(0, nrows);
+  std::for_each(
+      EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
+      [&](const size_t i) { (*result)(i, i) = (*result)(i, i) + (Type)(1); });
+}

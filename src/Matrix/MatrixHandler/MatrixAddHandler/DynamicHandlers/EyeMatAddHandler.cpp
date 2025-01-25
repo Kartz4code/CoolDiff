@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixAddHandler/ZeroMatAddHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixAddHandler/EyeMatAddHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,13 +19,12 @@
  * associated repository.
  */
 
-#include "ZeroMatAddHandler.hpp"
+#include "EyeMatAddHandler.hpp"
 #include "Matrix.hpp"
-#include "MatrixZeroOps.hpp"
+#include "MatrixEyeOps.hpp"
 
-void ZeroMatAddHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
-                               Matrix<Type> *&result) {
-
+void EyeMatAddHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
+  // LHS and RHS dimensions
   const size_t nrows{lhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
   const size_t lcols{lhs->getNumColumns()};
@@ -35,20 +34,37 @@ void ZeroMatAddHandler::handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
   ASSERT((nrows == rrows) && (ncols == lcols),
          "Matrix addition dimensions mismatch");
 
-#if defined(NAIVE_IMPL)
-  /* Zero matrix special check */
-  if (auto *it = ZeroMatAdd(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type> *>(it);
-    return;
-  }
-/* Zero matrix numerical check */
-#if defined(NUMERICAL_CHECK)
-  else if (auto *it = ZeroMatAddNum(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type> *>(it);
-    return;
-  }
-#endif
-#endif
+  #if defined(NAIVE_IMPL)
+      /* Eye matrix special check */
+      if (auto *it = EyeMatAdd(lhs, rhs); nullptr != it) {
+        if (it == lhs || it == rhs) {
+          if (-1 == it->getMatType()) {
+            AddEye(it, result);
+          } else {
+            MatrixHandler::handle(lhs, rhs, result);
+          }
+        } else {
+          Add2Eye(it, result);
+        }
+        return;
+      }
+
+    /* Eye matrix numerical check */
+    #if defined(NUMERICAL_CHECK)
+      else if (auto *it = EyeMatAddNum(lhs, rhs); nullptr != it) {
+        if (it == lhs || it == rhs) {
+          if (-1 == it->getMatType()) {
+            AddEye(it, result);
+          } else {
+            MatrixHandler::handle(lhs, rhs, result);
+          }
+        } else {
+          Add2Eye(it, result);
+        }
+        return;
+      }
+    #endif
+  #endif
 
   // Chain of responsibility
   MatrixHandler::handle(lhs, rhs, result);

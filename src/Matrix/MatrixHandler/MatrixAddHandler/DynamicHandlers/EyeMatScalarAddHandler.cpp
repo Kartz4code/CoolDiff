@@ -1,5 +1,5 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixAddHandler/ZeroMatScalarAddHandler.cpp
+ * @file src/Matrix/MatrixHandler/MatrixAddHandler/EyeMatScalarAddHandler.cpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,26 +19,25 @@
  * associated repository.
  */
 
-#include "ZeroMatScalarAddHandler.hpp"
+#include "EyeMatScalarAddHandler.hpp"
 #include "Matrix.hpp"
-#include "MatrixZeroOps.hpp"
+#include "MatrixEyeOps.hpp"
 
-void ZeroMatScalarAddHandler::handle(Type lhs, const Matrix<Type> *rhs,
-                                     Matrix<Type> *&result) {
-#if defined(NAIVE_IMPL)
-  /* Zero matrix special check */
-  if (auto *it = ZeroMatScalarAdd(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type> *>(it);
-    return;
-  }
-/* Zero matrix numerical check */
-#if defined(NUMERICAL_CHECK)
-  else if (auto *it = ZeroMatScalarAddNum(lhs, rhs); nullptr != it) {
-    result = const_cast<Matrix<Type> *>(it);
-    return;
-  }
-#endif
-#endif
+void EyeMatScalarAddHandler::handle(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
+  #if defined(NAIVE_IMPL)
+    /* Eye matrix special check */
+    if (auto *it = EyeMatScalarAdd(lhs, rhs); nullptr != it) {
+      AddEye(lhs, rhs, result);
+      return;
+    }
+    /* Eye matrix numerical check */
+    #if defined(NUMERICAL_CHECK)
+      else if (auto *it = EyeMatScalarAddNum(lhs, rhs); nullptr != it) {
+        AddEye(lhs, rhs, result);
+        return;
+      }
+    #endif
+  #endif
 
   // Chain of responsibility
   MatrixHandler::handle(lhs, rhs, result);
