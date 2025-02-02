@@ -36,51 +36,6 @@
 #include "Matrix.hpp"
 #include "MatrixBasics.hpp"
 
-// Custom functions
-UNARY_MATRIX_OPERATOR(SinM, [](Type a) { return std::sin(a); },
-                            [](Type b) { return std::cos(b); })
-
-UNARY_MATRIX_OPERATOR(CosM, [](Type a) { return std::cos(a); },
-                            [](Type b) { return -std::sin(b); })
-
-UNARY_MATRIX_OPERATOR(ExpM, [](Type a) { return std::exp(a); },
-                            [](Type b) { return std::exp(b); })
-
-UNARY_MATRIX_OPERATOR(LogM, [](Type a) { return std::log(a); },
-                            [](Type b) { return ((Type)(1)/b); })
-
-UNARY_MATRIX_OPERATOR(SqrtM, [](Type a) { return std::sqrt(a); },
-                             [](Type b) { return ((Type)(1)/(2*std::sqrt(b))); })
-
-
-UNARY_MATRIX_OPERATOR(SigmoidM, [](Type a) { 
-                                   Type res = ((Type)(1)) / (((Type)(1)) + std::exp(-a));
-                                   return res;
-                                  },
-                                [](Type b) {
-                                   Type res = ((Type)(1)) / (((Type)(1)) + std::exp(-b));
-                                   return res * (((Type)(1)) - res);
-                                  });
-
-// Frobenius norm 
-template <typename T>
-constexpr const auto& MatrixFrobeniusNorm(const IMatrix<T>& X) {
-  return SqrtM(trace(transpose(X)*X));
-}
-
-template<Axis axis = Axis::ALL, typename T>
-constexpr const auto& SoftMax(const IMatrix<T>& X) {
-  const size_t rows = X.getNumRows();
-  const size_t cols = X.getNumColumns();
-  if constexpr(Axis::ROW == axis) {
-    return ExpM(X - (OnesRef(rows,1))*LogM(sigma<Axis::ROW>(ExpM(X))));
-  } else if constexpr(Axis::COLUMN == axis) {
-    return ExpM(X - LogM(sigma<Axis::COLUMN>(ExpM(X)))*(OnesRef(1,cols)));
-  } else {
-    return ExpM(X - (OnesRef(rows,1))*LogM(sigma<Axis::ALL>(ExpM(X)))*(OnesRef(1,cols)));
-  }
-}
-
 // Matrix evaluation
 template <typename T> 
 Matrix<Type> &Eval(Matrix<T> &Mexp) {
@@ -281,6 +236,76 @@ Matrix<Expression> &SymMatDiff(T &exp, const Matrix<Variable> &m) {
 // Factorial of n 
 const size_t Factorial(const size_t);
 
+// Custom functions
+UNARY_MATRIX_OPERATOR(SinM, [](Type a) { return std::sin(a); },
+                            [](Type b) { return std::cos(b); })
+
+UNARY_MATRIX_OPERATOR(CosM, [](Type a) { return std::cos(a); },
+                            [](Type b) { return -std::sin(b); })
+
+UNARY_MATRIX_OPERATOR(ExpM, [](Type a) { return std::exp(a); },
+                            [](Type b) { return std::exp(b); })
+
+UNARY_MATRIX_OPERATOR(LogM, [](Type a) { return std::log(a); },
+                            [](Type b) { return ((Type)(1)/b); })
+
+UNARY_MATRIX_OPERATOR(SqrtM, [](Type a) { return std::sqrt(a); },
+                             [](Type b) { return ((Type)(1)/(2*std::sqrt(b))); })
+
+UNARY_MATRIX_OPERATOR(SigmoidM, [](Type a) { 
+                                   Type res = ((Type)(1)) / (((Type)(1)) + std::exp(-a));
+                                   return res;
+                                  },
+                                [](Type b) {
+                                   Type res = ((Type)(1)) / (((Type)(1)) + std::exp(-b));
+                                   return res * (((Type)(1)) - res); });
+
+// Frobenius norm 
+template <typename T>
+constexpr const auto& MatrixFrobeniusNorm(const IMatrix<T>& X) {
+  return SqrtM(trace(transpose(X)*X));
+}
+
+// Softmax function
+template<Axis axis = Axis::ALL, typename T>
+constexpr const auto& SoftMax(const IMatrix<T>& X) {
+  const size_t rows = X.getNumRows();
+  const size_t cols = X.getNumColumns();
+  if constexpr(Axis::ROW == axis) {
+    return ExpM(X - (OnesRef(rows,1))*LogM(sigma<Axis::ROW>(ExpM(X))));
+  } else if constexpr(Axis::COLUMN == axis) {
+    return ExpM(X - LogM(sigma<Axis::COLUMN>(ExpM(X)))*(OnesRef(1,cols)));
+  } else {
+    return ExpM(X - (OnesRef(rows,1))*LogM(sigma<Axis::ALL>(ExpM(X)))*(OnesRef(1,cols)));
+  }
+}
+
+// Matrix pow
+template<typename T>
+Matrix<Expression>& pow(const IMatrix<T>& X, const size_t n) {
+  // Dimensions of matrix X
+  const size_t rows = X.getNumRows();
+  const size_t cols = X.getNumColumns();
+
+  // Assert for square matrix
+  ASSERT(rows == cols, "X matrix is not a square matrix");
+
+  // Temporary matrix array
+  Matrix<Expression>* tmp[n+1];
+  for(size_t i{}; i <= n; ++i) {
+    tmp[i] = Matrix<Expression>::MatrixFactory::CreateMatrixPtr();
+  }
+
+  // Run loop till truncation
+  (*tmp[0]) = EyeRef(rows);
+  for(size_t i{1}; i <= n; ++i) {
+      (*tmp[i]) = (*tmp[i-1])*(X);
+  }
+
+  // Return result
+  return (*tmp[n]);
+}
+
 // Matrix exponential
 template<typename T>
 Matrix<Expression>& MatrixExponential(const IMatrix<T>& X, const size_t trunc = 20) {
@@ -312,3 +337,33 @@ Matrix<Expression>& MatrixExponential(const IMatrix<T>& X, const size_t trunc = 
   return result;
 }
 
+// Matrix log
+template<typename T>
+Matrix<Expression>& MatrixLog(const IMatrix<T>& X, const size_t trunc = 20) {
+  // Dimensions of matrix X
+  const size_t rows = X.getNumRows();
+  const size_t cols = X.getNumColumns();
+
+  // Assert for square matrix
+  ASSERT(rows == cols, "X matrix is not a square matrix");
+
+  // Create result matrix
+  auto& result = Matrix<Expression>::MatrixFactory::CreateMatrix();
+  
+  // Temporary matrix array
+  Matrix<Expression>* tmp[trunc+1];
+  for(size_t i{}; i <= trunc; ++i) {
+    tmp[i] = Matrix<Expression>::MatrixFactory::CreateMatrixPtr();
+  }
+
+  // Run loop till truncation
+  (*tmp[0]) = EyeRef(rows);
+  result = ZerosRef(rows, cols);
+  for(size_t i{1}; i <= trunc; ++i) {
+      (*tmp[i]) = (*tmp[i-1])*(X - EyeRef(rows));
+      result = result + (std::pow(((Type)(-1)), i+1)/i)*((*tmp[i]));
+  }
+
+  // Return result
+  return result;
+}

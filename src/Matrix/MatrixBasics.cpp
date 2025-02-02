@@ -103,3 +103,8 @@ const Matrix<Type>& EyeRef(const size_t n) {
 const Matrix<Type>& OnesRef(const size_t n, const size_t m) {
   return *Ones(n,m);
 }
+
+// Numerical Zero matrix
+const Matrix<Type>& ZerosRef(const size_t n, const size_t m) {
+  return *Zeros(n,m);
+}

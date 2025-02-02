@@ -59,6 +59,27 @@
     #define EXECUTION_PAR 
 #endif
 
+// Eigen library
+#include <eigen3/Eigen/Dense>
+#if defined(USE_COMPLEX_MATH)
+  #if COOLDIFF_SCALAR_TYPE == 2
+    using EigenMatrix = Eigen::MatrixXcd;
+  #elif COOLDIFF_SCALAR_TYPE == 1
+    using EigenMatrix = Eigen::MatrixXcf;
+  #else
+    ASSERT(false, "Unknown type");
+  #endif
+#else
+  #if COOLDIFF_SCALAR_TYPE == 2
+    using EigenMatrix = Eigen::MatrixXd;
+  #elif COOLDIFF_SCALAR_TYPE == 1
+    using EigenMatrix = Eigen::MatrixXf;
+  #else
+    ASSERT(false, "Unknown type");
+  #endif
+#endif
+
+
 // Enable/disable copy/move operators
 #ifndef ENABLE_COPY_MOVE
 #define DISABLE_COPY(X)                                                        \

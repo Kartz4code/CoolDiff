@@ -20,30 +20,11 @@
  */
 
 #include "GaussNewton.hpp"
-#include <eigen3/Eigen/Dense>
 
 #include "MatAddNaiveHandler.hpp"
 #include "MatMulNaiveHandler.hpp"
 #include "MatScalarMulNaiveHandler.hpp"
 #include "MatTransposeNaiveHandler.hpp"
-
-#if defined(USE_COMPLEX_MATH)
-  #if COOLDIFF_SCALAR_TYPE == 2
-    using EigenMatrix = Eigen::MatrixXcd;
-  #elif COOLDIFF_SCALAR_TYPE == 1
-    using EigenMatrix = Eigen::MatrixXcf;
-  #else
-    ASSERT(false, "Unknown type");
-  #endif
-#else
-  #if COOLDIFF_SCALAR_TYPE == 2
-    using EigenMatrix = Eigen::MatrixXd;
-  #elif COOLDIFF_SCALAR_TYPE == 1
-    using EigenMatrix = Eigen::MatrixXf;
-  #else
-    ASSERT(false, "Unknown type");
-  #endif
-#endif
 
 // Set data unit
 void GaussNewton::setDataUnit(const size_t i) {
