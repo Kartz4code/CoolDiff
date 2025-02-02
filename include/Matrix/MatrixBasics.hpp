@@ -45,3 +45,6 @@ const Matrix<Type>& EyeRef(const size_t);
 
 // Numerical Ones matrix
 const Matrix<Type>& OnesRef(const size_t, const size_t);
+
+// Numerical Zero matrix
+const Matrix<Type>& ZerosRef(const size_t, const size_t);
