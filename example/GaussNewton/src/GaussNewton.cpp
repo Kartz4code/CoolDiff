@@ -21,11 +21,6 @@
 
 #include "GaussNewton.hpp"
 
-#include "MatAddNaiveHandler.hpp"
-#include "MatMulNaiveHandler.hpp"
-#include "MatScalarMulNaiveHandler.hpp"
-#include "MatTransposeNaiveHandler.hpp"
-
 // Set data unit
 void GaussNewton::setDataUnit(const size_t i) {
   // If parameter vector or data is empty, don't enter loop

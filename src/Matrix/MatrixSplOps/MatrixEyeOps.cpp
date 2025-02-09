@@ -411,3 +411,49 @@ void MulEye(Type val, const Matrix<Type> *it, Matrix<Type> *&result) {
   std::for_each(EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
                 [&](const size_t i) { (*result)(i, i) = val; });
 }
+
+
+void SubEyeRHS(const Matrix<Type> *it, Matrix<Type> *&result) {
+  /*
+    Rows and columns of result matrix and if result is nullptr or if dimensions
+    mismatch, then create a new matrix resource
+  */
+  const size_t nrows{it->getNumRows()};
+  const size_t ncols{it->getNumColumns()};
+
+  // Pool matrix
+  MemoryManager::MatrixPool(nrows, ncols, result);
+
+  // Copy all LHS matrix value into result
+  *result = *it;
+
+  // Iteration elements (Along the diagonal)
+  const auto idx = Range<size_t>(0, nrows);
+  // For each execution
+  std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t i) {
+    (*result)(i, i) = (*it)(i, i) - (Type)(1);
+  });
+}
+
+void SubEyeLHS(const Matrix<Type> *it, Matrix<Type> *&result) {
+  /*
+    Rows and columns of result matrix and if result is nullptr or if dimensions
+    mismatch, then create a new matrix resource
+  */
+  const size_t nrows{it->getNumRows()};
+  const size_t ncols{it->getNumColumns()};
+
+  // Pool matrix
+  MemoryManager::MatrixPool(nrows, ncols, result);
+
+  // Iteration elements
+  const auto idx = Range<size_t>(0, nrows * ncols);
+  // For each execution
+  std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t n) {
+    const size_t j = (n % ncols);
+    const size_t i = ((n - j) / ncols);
+    (*result)(i, j) =
+        ((i == j) ? ((Type)(1) - (*it)(i, j)) : ((Type)(-1) * (*it)(i, j)));
+  });
+}
+

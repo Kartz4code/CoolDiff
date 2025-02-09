@@ -22,22 +22,6 @@
 #include "MatOperators.hpp"
 #include "Matrix.hpp"
 
-// Special matrix addition
-#include "EyeMatAddHandler.hpp"
-#include "EyeMatScalarAddHandler.hpp"
-#include "ZeroMatAddHandler.hpp"
-#include "ZeroMatScalarAddHandler.hpp"
-
-// Special matrix subtraction
-#include "EyeMatSubHandler.hpp"
-#include "ZeroMatSubHandler.hpp"
-
-// Special matrix multiplication
-#include "EyeMatMulHandler.hpp"
-#include "EyeMatScalarMulHandler.hpp"
-#include "ZeroMatMulHandler.hpp"
-#include "ZeroMatScalarMulHandler.hpp"
-
 // Special matrix Kronocker product
 #include "EyeMatKronHandler.hpp"
 #include "ZeroMatKronHandler.hpp"
@@ -61,16 +45,11 @@
 #include "ZeroMatUnaryHandler.hpp"
 
 // Matrix operations
-#include "MatAddNaiveHandler.hpp"
 #include "MatConvNaiveHandler.hpp"
 #include "MatDervConvNaiveHandler.hpp"
 #include "MatDervTransposeNaiveHandler.hpp"
 #include "MatHadamardNaiveHandler.hpp"
 #include "MatKronNaiveHandler.hpp"
-#include "MatMulNaiveHandler.hpp"
-#include "MatScalarAddNaiveHandler.hpp"
-#include "MatScalarMulNaiveHandler.hpp"
-#include "MatSubNaiveHandler.hpp"
 #include "MatTransposeNaiveHandler.hpp"
 #include "MatUnaryNaiveHandler.hpp"
 
@@ -84,26 +63,36 @@
 
 // Static handlers
 // Matrix-Matrix addition
-#include "EyeMatAddStaticHandler.hpp"
-#include "ZeroMatAddStaticHandler.hpp"
-#include "MatAddNaiveStaticHandler.hpp"
+#include "EyeMatAddHandler.hpp"
+#include "ZeroMatAddHandler.hpp"
+#include "MatAddNaiveHandler.hpp"
 
 // Matrix-scalar addition
-#include "EyeMatScalarAddStaticHandler.hpp"
-#include "ZeroMatScalarAddStaticHandler.hpp"
-#include "MatScalarAddNaiveStaticHandler.hpp"
+#include "EyeMatScalarAddHandler.hpp"
+#include "ZeroMatScalarAddHandler.hpp"
+#include "MatScalarAddNaiveHandler.hpp"
 
 // Matrix-Matrix multiplication
-#include "EyeMatMulStaticHandler.hpp"
-#include "ZeroMatMulStaticHandler.hpp"
-#include "MatMulNaiveStaticHandler.hpp"
+#include "EyeMatMulHandler.hpp"
+#include "ZeroMatMulHandler.hpp"
+#include "MatMulNaiveHandler.hpp"
 
 // Matrix-scalar multiplication
-#include "EyeMatScalarMulStaticHandler.hpp"
-#include "ZeroMatScalarMulStaticHandler.hpp"
-#include "MatScalarMulNaiveStaticHandler.hpp"
+#include "EyeMatScalarMulHandler.hpp"
+#include "ZeroMatScalarMulHandler.hpp"
+#include "MatScalarMulNaiveHandler.hpp"
 
-#define HANDLER3(X,Y,Z) X<Y<Z<MatrixStaticHandler>>>
+// Matrix-Matrix subtraction
+#include "EyeMatSubHandler.hpp"
+#include "ZeroMatSubHandler.hpp"
+#include "MatSubNaiveHandler.hpp"
+
+#define HANDLER2(X1,X2) X1<X2<MatrixStaticHandler>>
+#define HANDLER3(X1,X2,X3) X1<X2<X3<MatrixStaticHandler>>>
+#define HANDLER4(X1,X2,X3,X4) X1<X2<X3<X4<MatrixStaticHandler>>>>
+#define HANDLER5(X1,X2,X3,X4,X5) X1<X2<X3<X4<X5<MatrixStaticHandler>>>>>
+#define HANDLER6(X1,X2,X3,X4,X5,X6) X1<X2<X3<X4<X5<X6<MatrixStaticHandler>>>>>>
+#define HANDLER7(X1,X2,X3,X4,X5,X6,X7) X1<X2<X3<X4<X5<X6<X7<MatrixStaticHandler>>>>>>>
 
 // Matrix-Matrix addition - Left, Right, Result matrix pointer
 void MatrixAdd(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
@@ -117,17 +106,35 @@ void MatrixAdd(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&
       3) Matrix-Matrix addition
   */
 
-  static HANDLER3(EyeMatAddStaticHandler, 
-                  ZeroMatAddStaticHandler,
-                  MatAddNaiveStaticHandler) handler;
+  static HANDLER3(EyeMatAddHandler, 
+                  ZeroMatAddHandler,
+                  MatAddNaiveHandler) handler;
 
   // Handle matrix addition
   handler.handle(lhs, rhs, result);
 }
 
+// Matrix-Scalar addition
+void MatrixScalarAdd(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
+  // Null pointer check
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+
+  /* Chain of responsibility (Order matters)
+      1) Eye matrix check
+      2) Zero matrix check
+      3) Matrix-Matrix Hadamard product
+  */
+
+  static HANDLER3(EyeMatScalarAddHandler, 
+                  ZeroMatScalarAddHandler,
+                  MatScalarAddNaiveHandler) handler;
+
+  // Handle Matrix-Scalar addition
+  handler.handle(lhs, rhs, result);
+}
+
 // Matrix-Matrix subtraction - Left, Right, Result matrix pointer
-void MatrixSub(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
-               Matrix<Type> *&result) {
+void MatrixSub(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -138,12 +145,12 @@ void MatrixSub(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
       3) Matrix-Matrix subtraction
   */
 
-  static MatSubNaiveHandler h1{nullptr};
-  static ZeroMatSubHandler h2{&h1};
-  static EyeMatSubHandler h3{&h2};
+  static HANDLER3(EyeMatSubHandler, 
+                  ZeroMatSubHandler,
+                  MatSubNaiveHandler) handler;
 
-  // Handle matrix subtraction
-  h3.handle(lhs, rhs, result);
+  // Handle matrix addition
+  handler.handle(lhs, rhs, result);
 }
 
 // Matrix-Matrix multiplication - Left, Right, Result matrix pointer
@@ -158,11 +165,30 @@ void MatrixMul(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&
       3) Matrix-Matrix multiplication
   */
 
-  static HANDLER3(EyeMatMulStaticHandler,
-                  ZeroMatMulStaticHandler,
-                  MatMulNaiveStaticHandler) handler;
+  static HANDLER3(EyeMatMulHandler,
+                  ZeroMatMulHandler,
+                  MatMulNaiveHandler) handler;
 
   // Handle matrix multiplication
+  handler.handle(lhs, rhs, result);
+}
+
+// Matrix-Scalar multiplication
+void MatrixScalarMul(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
+  // Null pointer check
+  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
+
+  /* Chain of responsibility (Order matters)
+     1) Eye matrix check
+     2) Zero matrix check
+     3) Matrix-Matrix Hadamard product
+ */
+
+  static HANDLER3(EyeMatScalarMulHandler,
+                  ZeroMatScalarMulHandler,
+                  MatScalarMulNaiveHandler) handler;
+
+  // Handle Matrix-Scalar multiplication
   handler.handle(lhs, rhs, result);
 }
 
@@ -206,44 +232,6 @@ void MatrixHadamard(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
 
   // Handle Hadamard product
   h3.handle(lhs, rhs, result);
-}
-
-// Matrix-Scalar addition
-void MatrixScalarAdd(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
-  // Null pointer check
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-
-  /* Chain of responsibility (Order matters)
-      1) Eye matrix check
-      2) Zero matrix check
-      3) Matrix-Matrix Hadamard product
-  */
-
-  static HANDLER3(EyeMatScalarAddStaticHandler, 
-                  ZeroMatScalarAddStaticHandler,
-                  MatScalarAddNaiveStaticHandler) handler;
-
-  // Handle Matrix-Scalar addition
-  handler.handle(lhs, rhs, result);
-}
-
-// Matrix-Scalar multiplication
-void MatrixScalarMul(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
-  // Null pointer check
-  NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
-
-  /* Chain of responsibility (Order matters)
-     1) Eye matrix check
-     2) Zero matrix check
-     3) Matrix-Matrix Hadamard product
- */
-
-  static HANDLER3(EyeMatScalarMulStaticHandler,
-                  ZeroMatScalarMulStaticHandler,
-                  MatScalarMulNaiveStaticHandler) handler;
-
-  // Handle Matrix-Scalar multiplication
-  handler.handle(lhs, rhs, result);
 }
 
 // Matrix transpose

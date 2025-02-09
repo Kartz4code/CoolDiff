@@ -28,4 +28,8 @@ class MatrixStaticHandler {
     void handle(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&) {
       ASSERT(false, "Invalid Handler - Entered MatrixBaseHandler");
     }
+
+    void handle(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
+      ASSERT(false, "Invalid Handler - Entered MatrixBaseHandler");
+    }
 };
