@@ -71,3 +71,6 @@ void AddEye(Type, const Matrix<Type>*, Matrix<Type>*&);
 
 
 void MulEye(Type, const Matrix<Type>*, Matrix<Type>*&);
+
+void SubEyeRHS(const Matrix<Type>*, Matrix<Type>*&);
+void SubEyeLHS(const Matrix<Type>*, Matrix<Type>*&);
