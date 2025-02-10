@@ -32,6 +32,7 @@ Variable::Variable() : m_nidx{this->m_idx_count++} {
 
 // Variables with concrete values
 Variable::Variable(const Type &value) : m_nidx{this->m_idx_count++} {
+  // Set value
   *m_value_var = value;
   // Set all the values for VarWrap
   m_var->setConstructor(value);

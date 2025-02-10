@@ -59,9 +59,12 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 include(Tools)
 
 # [Set compilation flags]
-#add_definitions(-DCOOLDIFF_SCALAR_TYPE=1) # Floatz
+#add_definitions(-DCOOLDIFF_SCALAR_TYPE=1) # Float
 add_definitions(-DCOOLDIFF_SCALAR_TYPE=2) # Double
-add_definitions(-DBUILD_TYPE)
+
+if(${BUILD_TYPE} STREQUAL "Debug")
+    add_definitions(-DBUILD_TYPE)
+endif()
 
 add_definitions(-DUSE_COMPLEX_MATH)
 add_definitions(-DUSE_ROBIN_HOOD_MAP)
@@ -118,11 +121,6 @@ set(SRC
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixSplOps/MatrixZeroOps.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixSplOps/MatrixEyeOps.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHandler.cpp
-    # MatrixKronHandler folder
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixKronHandler/ZeroMatKronHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixKronHandler/EyeMatKronHandler.cpp
-    # MatrixKronProduct folder
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixKronProduct/MatKronNaiveHandler.cpp
     # MatrixHadamardHandler folder
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHadamardHandler/ZeroMatHadamardHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHadamardHandler/EyeMatHadamardHandler.cpp
@@ -149,10 +147,6 @@ set(SRC
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixInverse/MatInverseEigenHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixInvHandler/EyeMatInvHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixInvHandler/ZeroMatInvHandler.cpp
-    # MatrixDet folder 
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixDet/MatDetEigenHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixDetHandler/EyeMatDetHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixDetHandler/ZeroMatDetHandler.cpp
     # Memory manager folder
     ${CMAKE_SOURCE_DIR}/src/MemoryManager/MemoryManager.cpp)
 
@@ -180,8 +174,10 @@ set(INCLUDES
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubHandler/NaiveCPU
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/NaiveCPU
 
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronHandler
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct
+    # Naive CPU Kronecker product handlers
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronHandler/NaiveCPU
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/NaiveCPU
+
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamardHandler 
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTransposeHandler
@@ -192,8 +188,11 @@ set(INCLUDES
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInverse
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInvHandler
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDet
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDetHandler
+
+    # Determinant handlers
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDet/Eigen
+    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDetHandler/NaiveCPU
+
     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixSplOps
     ${CMAKE_SOURCE_DIR}/include/MemoryManager
     ${CMAKE_BINARY_DIR}/_deps/robin-hood-hashing-src/src/include)

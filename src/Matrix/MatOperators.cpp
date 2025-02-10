@@ -22,9 +22,7 @@
 #include "MatOperators.hpp"
 #include "Matrix.hpp"
 
-// Special matrix Kronocker product
-#include "EyeMatKronHandler.hpp"
-#include "ZeroMatKronHandler.hpp"
+
 
 // Special matrix Hadamard product
 #include "EyeMatHadamardHandler.hpp"
@@ -49,7 +47,7 @@
 #include "MatDervConvNaiveHandler.hpp"
 #include "MatDervTransposeNaiveHandler.hpp"
 #include "MatHadamardNaiveHandler.hpp"
-#include "MatKronNaiveHandler.hpp"
+
 #include "MatTransposeNaiveHandler.hpp"
 #include "MatUnaryNaiveHandler.hpp"
 
@@ -57,9 +55,7 @@
 #include "EyeMatInvHandler.hpp"
 #include "ZeroMatInvHandler.hpp"
 
-#include "MatDetEigenHandler.hpp"
-#include "EyeMatDetHandler.hpp"
-#include "ZeroMatDetHandler.hpp"
+
 
 // Static handlers
 // Matrix-Matrix addition
@@ -87,6 +83,17 @@
 #include "ZeroMatSubHandler.hpp"
 #include "MatSubNaiveHandler.hpp"
 
+// Matrix-Matrix Kronocker product
+#include "EyeMatKronHandler.hpp"
+#include "ZeroMatKronHandler.hpp"
+#include "MatKronNaiveHandler.hpp"
+
+// Matrix determinant product
+#include "MatDetEigenHandler.hpp"
+#include "EyeMatDetHandler.hpp"
+#include "ZeroMatDetHandler.hpp"
+
+// Handler of sizes 2,3,4,5,6,7
 #define HANDLER2(X1,X2) X1<X2<MatrixStaticHandler>>
 #define HANDLER3(X1,X2,X3) X1<X2<X3<MatrixStaticHandler>>>
 #define HANDLER4(X1,X2,X3,X4) X1<X2<X3<X4<MatrixStaticHandler>>>>
@@ -193,8 +200,7 @@ void MatrixScalarMul(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
 }
 
 // Matrix-Matrix Kronocker product - Left, Right, Result matrix pointer
-void MatrixKron(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
-                Matrix<Type> *&result) {
+void MatrixKron(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -205,12 +211,12 @@ void MatrixKron(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
       3) Matrix-Matrix Kronocker product
   */
 
-  static MatKronNaiveHandler h1{nullptr};
-  static ZeroMatKronHandler h2{&h1};
-  static EyeMatKronHandler h3{&h2};
+  static HANDLER3(EyeMatKronHandler, 
+                  ZeroMatKronHandler,
+                  MatKronNaiveHandler) handler;
 
   // Handle Kronocker product
-  h3.handle(lhs, rhs, result);
+  handler.handle(lhs, rhs, result);
 }
 
 // Matrix-Matrix Hadamard product - Left, Right, Result matrix pointer
@@ -348,12 +354,19 @@ void MatrixInverse(const Matrix<Type>* mat, Matrix<Type>*& result) {
 
 // MatrixDeterminant
 void MatrixDet(const Matrix<Type>* mat, Matrix<Type>*& result) {
+  // Null pointer check
   NULL_CHECK(mat, "Matrix mat is a nullptr");
 
-  static MatDetEigenHandler h1{nullptr};
-  static EyeMatDetHandler h2{&h1};
-  static ZeroMatDetHandler h3{&h2};
+  /* Chain of responsibility (Order matters)
+    1) Eye matrix check
+    2) Zero matrix check
+    3) Matrix convolution derivative
+  */
 
-  // Handle Matrix Inverse
-  h3.handle(mat, result);
+  static HANDLER3(EyeMatDetHandler, 
+                  ZeroMatDetHandler,
+                  MatDetEigenHandler) handler;
+
+  // Handle matrix determinant
+  handler.handle(mat, result);
 }

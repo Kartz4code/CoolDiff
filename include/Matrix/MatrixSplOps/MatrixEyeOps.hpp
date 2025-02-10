@@ -64,13 +64,14 @@ const Matrix<Type> *EyeMatHadamardNum(const Matrix<Type> *,
                                       const Matrix<Type> *);
 
 
-
 void AddEye(const Matrix<Type>*, Matrix<Type>*&);
 void Add2Eye(const Matrix<Type>*, Matrix<Type>*&);
 void AddEye(Type, const Matrix<Type>*, Matrix<Type>*&);
-
 
 void MulEye(Type, const Matrix<Type>*, Matrix<Type>*&);
 
 void SubEyeRHS(const Matrix<Type>*, Matrix<Type>*&);
 void SubEyeLHS(const Matrix<Type>*, Matrix<Type>*&);
+
+void KronEyeLHS(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&);
+void KronEyeRHS(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&);
