@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/MatrixHandler/MatrixAddition/NaiveCPU/MatSubNaiveHandler.hpp
+ * @file include/Matrix/MatrixHandler/MatrixSubtraction/NaiveCPU/MatSubNaiveHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */

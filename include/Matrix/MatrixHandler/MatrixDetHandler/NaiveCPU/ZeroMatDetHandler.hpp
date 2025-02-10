@@ -1,6 +1,6 @@
 /**
- * @file src/Matrix/MatrixHandler/MatrixDetHandler/EyeMatDetHandler.cpp
- * 
+ * @file include/Matrix/MatrixHandler/MatrixDetHandler/NaiveCPU/ZeroMatDetHandler.hpp
+ *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
 /*
@@ -19,19 +19,25 @@
  * associated repository.
  */
 
-#include "EyeMatDetHandler.hpp"
-#include "Matrix.hpp"
-#include "MatrixEyeOps.hpp"
+ #pragma once
 
-void EyeMatDetHandler::handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
-#if defined(NAIVE_IMPL)
-  /* Zero matrix special check */
-  if (true == IsEyeMatrix(mat)) {
-    // Result matrix is transposed identity matrix
-    result = MemoryManager::MatrixSplPool(1, 1, MatrixSpl::EYE);
-    return;
-  }
-#endif
-  // Chain of responsibility
-  MatrixHandler::handle(mat, result);
-}
+ #include "MatrixStaticHandler.hpp"
+ 
+ #include "Matrix.hpp"
+#include "MatrixZeroOps.hpp"
+ 
+ template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
+ class ZeroMatDetHandler : public T {
+   public:
+    void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
+      #if defined(NAIVE_IMPL)
+        /* Zero matrix special check */
+        if (true == IsZeroMatrix(mat)) {
+          ASSERT(false, "Determinant of a zero matrix");
+          return;
+        }
+      #endif
+        // Chain of responsibility
+        T::handle(mat, result);
+      }
+ };

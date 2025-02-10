@@ -263,36 +263,36 @@ template <typename T> std::string ToString(const T &value) {
 
 // Null pointer check
 #if defined(BUILD_TYPE)
-// Check null poineter
-#define NULL_CHECK(PTR, MSG)                                                   \
-  {                                                                            \
-    if (nullptr == PTR) {                                                      \
-      std::ostringstream oss;                                                  \
-      oss << "[ERROR MSG]: " << MSG << "\n"                                    \
-          << "[FILENAME]: " << __FILE__ << "\n"                                \
-          << "[FUNCTION]: " << __FUNCTION__ << "\n"                            \
-          << "[LINE NO]: " << __LINE__ << "\n";                                \
-      std::cout << oss.str() << "\n";                                          \
-      assert(false);                                                           \
-    }                                                                          \
-  }
+  // Check null poineter
+  #define NULL_CHECK(PTR, MSG)                                                   \
+    {                                                                            \
+      if (nullptr == PTR) {                                                      \
+        std::ostringstream oss;                                                  \
+        oss << "[ERROR MSG]: " << MSG << "\n"                                    \
+            << "[FILENAME]: " << __FILE__ << "\n"                                \
+            << "[FUNCTION]: " << __FUNCTION__ << "\n"                            \
+            << "[LINE NO]: " << __LINE__ << "\n";                                \
+        std::cout << oss.str() << "\n";                                          \
+        assert(false);                                                           \
+      }                                                                          \
+    }
 
-// Check boolean
-#define ASSERT(X, MSG)                                                         \
-  {                                                                            \
-    if (false == (X)) {                                                        \
-      std::ostringstream oss;                                                  \
-      oss << "[ERROR MSG]: " << MSG << "\n"                                    \
-          << "[FILENAME]: " << __FILE__ << "\n"                                \
-          << "[FUNCTION]: " << __FUNCTION__ << "\n"                            \
-          << "[LINE NO]: " << __LINE__ << "\n";                                \
-      std::cout << oss.str() << "\n";                                          \
-      assert(false);                                                           \
-    }                                                                          \
-  }
+  // Check boolean
+  #define ASSERT(X, MSG)                                                         \
+    {                                                                            \
+      if (false == (X)) {                                                        \
+        std::ostringstream oss;                                                  \
+        oss << "[ERROR MSG]: " << MSG << "\n"                                    \
+            << "[FILENAME]: " << __FILE__ << "\n"                                \
+            << "[FUNCTION]: " << __FUNCTION__ << "\n"                            \
+            << "[LINE NO]: " << __LINE__ << "\n";                                \
+        std::cout << oss.str() << "\n";                                          \
+        assert(false);                                                           \
+      }                                                                          \
+    }
 #else
-#define NULL_CHECK(PTR, MSG)
-#define ASSERT(X, MSG)
+  #define NULL_CHECK(PTR, MSG)
+  #define ASSERT(X, MSG)
 #endif
 
 // Time it base

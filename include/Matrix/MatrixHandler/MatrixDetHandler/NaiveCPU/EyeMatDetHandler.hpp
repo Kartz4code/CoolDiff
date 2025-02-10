@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/MatrixHandler/MatDetHandler/MatDetEigenHandler.hpp
+ * @file include/Matrix/MatrixHandler/MatrixDetHandler/NaiveCPU/EyeMatDetHandler.hpp
  *
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -21,14 +21,24 @@
 
 #pragma once
 
-#include "MatrixHandler.hpp"
+#include "MatrixStaticHandler.hpp"
 
-class MatDetEigenHandler : public MatrixHandler {
-public:
-  using MatrixHandler::MatrixHandler;
+#include "Matrix.hpp"
+#include "MatrixEyeOps.hpp"
 
-  V_OVERRIDE(void handle(const Matrix<Type>*, Matrix<Type>*&));
-
-  // Destructor
-  V_DTR(~MatDetEigenHandler() = default);
+template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
+class EyeMatDetHandler : public T {
+  public:
+    void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
+      #if defined(NAIVE_IMPL)
+        /* Zero matrix special check */
+        if (true == IsEyeMatrix(mat)) {
+          // Result matrix is transposed identity matrix
+          result = MemoryManager::MatrixSplPool(1, 1, MatrixSpl::EYE);
+          return;
+        }
+      #endif
+        // Chain of responsibility
+        T::handle(mat, result);
+      }
 };

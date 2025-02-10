@@ -58,8 +58,8 @@ void GaussNewton::computeABScalar(const size_t var_size) {
     setDataUnit(i);
 
     // Eval and jacobian
-    const Type eval = static_cast<OracleScalar *>(m_oracle)->eval();
-    const Matrix<Type> *jacobian = static_cast<OracleScalar *>(m_oracle)->jacobian();
+    const Type eval = static_cast<OracleScalar*>(m_oracle)->eval();
+    const Matrix<Type>* jacobian = static_cast<OracleScalar*>(m_oracle)->jacobian();
 
     // Compute A matrix
     MatrixTranspose(jacobian, m_tempA1);
@@ -92,8 +92,8 @@ void GaussNewton::computeABMatrix(const size_t var_size) {
     setDataUnit(i);
 
     // Eval and jacobian
-    const Matrix<Type> *eval = static_cast<OracleMatrix *>(m_oracle)->evalMat();
-    const Matrix<Type> *jacobian = static_cast<OracleMatrix *>(m_oracle)->jacobian();
+    const Matrix<Type>* eval = static_cast<OracleMatrix*>(m_oracle)->evalMat();
+    const Matrix<Type>* jacobian = static_cast<OracleMatrix*>(m_oracle)->jacobian();
 
     // Compute A matrix
     MatrixTranspose(jacobian, m_tempA1);
@@ -120,7 +120,7 @@ void GaussNewton::computeAB(const size_t var_size) {
 // Update values for scalar solve
 void GaussNewton::updateScalar(const size_t var_size) {
   // Get variables
-  auto &X = static_cast<OracleScalar *>(m_oracle)->getVariables();
+  auto& X = static_cast<OracleScalar *>(m_oracle)->getVariables();
   // Update all variable values
   const auto idx = Range<size_t>(0, var_size);
   std::for_each(
@@ -131,12 +131,11 @@ void GaussNewton::updateScalar(const size_t var_size) {
 // Update values for matrix solve
 void GaussNewton::updateMatrix(const size_t var_size) {
   // Get variables
-  auto &X = static_cast<OracleMatrix *>(m_oracle)->getVariables();
+  auto& X = static_cast<OracleMatrix*>(m_oracle)->getVariables();
   // Update all variable values
   const auto idx = Range<size_t>(0, var_size);
-  std::for_each(
-      EXECUTION_PAR idx.begin(), idx.end(),
-      [this, &X](const size_t i) { X[i] = Eval(X[i]) - (*m_delX)[i]; });
+  std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
+                [this, &X](const size_t i) { X[i] = Eval(X[i]) - (*m_delX)[i]; });
 }
 
 // Update
@@ -154,7 +153,7 @@ void GaussNewton::update(const size_t var_size) {
 }
 
 // Set data (X,Y,size)
-GaussNewton &GaussNewton::setData(Matrix<Type> *X, Matrix<Type> *Y) {
+GaussNewton& GaussNewton::setData(Matrix<Type> *X, Matrix<Type> *Y) {
   ASSERT((X->getNumRows() == Y->getNumRows()),
          "Number of input/output rows are not equal");
   ASSERT((X->getNumColumns() == Y->getNumColumns()),
@@ -166,21 +165,21 @@ GaussNewton &GaussNewton::setData(Matrix<Type> *X, Matrix<Type> *Y) {
 }
 
 // Set data parameters
-GaussNewton &GaussNewton::setDataParameters(Matrix<Parameter> *PX, Matrix<Parameter> *PY) {
+GaussNewton& GaussNewton::setDataParameters(Matrix<Parameter> *PX, Matrix<Parameter> *PY) {
   m_DX = PX;
   m_DY = PY;
   return *this;
 }
 
 // Set oracle
-GaussNewton &GaussNewton::setOracle(Oracle *oracle) {
+GaussNewton& GaussNewton::setOracle(Oracle *oracle) {
   m_oracle = oracle;
   m_oracle_type = oracle->getOracleType();
   return *this;
 }
 
 // Set maximum number of iterations
-GaussNewton &GaussNewton::setMaxIterations(const size_t max_iter) {
+GaussNewton& GaussNewton::setMaxIterations(const size_t max_iter) {
   m_max_iter = max_iter;
   return *this;
 }
@@ -202,8 +201,8 @@ void GaussNewton::solve() {
     computeAB(var_size);
 
     // Raw pointer for A and B matrices
-    Type *A = m_A->getMatrixPtr();
-    Type *B = m_B->getMatrixPtr();
+    Type* A = m_A->getMatrixPtr();
+    Type* B = m_B->getMatrixPtr();
 
     NULL_CHECK(A, "A matrix is a null pointer");
     NULL_CHECK(B, "B matrix is a null pointer");
