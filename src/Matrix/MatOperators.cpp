@@ -241,7 +241,7 @@ void MatrixHadamard(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
 }
 
 // Matrix transpose
-void MatrixTranspose(const Matrix<Type> *mat, Matrix<Type> *&result) {
+void MatrixTranspose(const Matrix<Type>* mat, Matrix<Type>*& result) {
   // Null pointer check
   NULL_CHECK(mat, "Matrix (mat) is a nullptr");
 
@@ -250,19 +250,18 @@ void MatrixTranspose(const Matrix<Type> *mat, Matrix<Type> *&result) {
      2) Zero matrix check
      3) Matrix transpose
  */
-
-  static MatTransposeNaiveHandler h1{nullptr};
-  static ZeroMatTransposeHandler h2{&h1};
-  static EyeMatTransposeHandler h3{&h2};
+  static HANDLER3(MatTransposeNaiveHandler, 
+                  ZeroMatTransposeHandler,
+                  EyeMatTransposeHandler) handler;
 
   // Handle Matrix transpose
-  h3.handle(mat, result);
+  handler.handle(mat, result);
 }
 
 // Matrix derivative transpose
 void MatrixDervTranspose(const size_t nrows_f, const size_t ncols_f,
                          const size_t nrows_x, const size_t ncols_x,
-                         const Matrix<Type> *mat, Matrix<Type> *&result) {
+                         const Matrix<Type>* mat, Matrix<Type>*& result) {
   // Null pointer check
   NULL_CHECK(mat, "Matrix (mat) is a nullptr");
 
@@ -271,13 +270,12 @@ void MatrixDervTranspose(const size_t nrows_f, const size_t ncols_f,
       2) Zero matrix check
       3) Matrix transpose
   */
-
-  static MatDervTransposeNaiveHandler h1{nullptr};
-  static ZeroMatDervTransposeHandler h2{&h1};
-  static EyeMatDervTransposeHandler h3{&h2};
+  static HANDLER3(MatDervTransposeNaiveHandler, 
+                  ZeroMatDervTransposeHandler,
+                  EyeMatDervTransposeHandler) handler;
 
   // Handle Matrix transpose
-  h3.handle(nrows_f, ncols_f, nrows_x, ncols_x, mat, result);
+  handler.handle(nrows_f, ncols_f, nrows_x, ncols_x, mat, result);
 }
 
 // Matrix convolution
@@ -362,7 +360,6 @@ void MatrixDet(const Matrix<Type>* mat, Matrix<Type>*& result) {
     2) Zero matrix check
     3) Matrix convolution derivative
   */
-
   static HANDLER3(EyeMatDetHandler, 
                   ZeroMatDetHandler,
                   MatDetEigenHandler) handler;

@@ -60,7 +60,7 @@
 #endif
 
 // Eigen library
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 #if defined(USE_COMPLEX_MATH)
   #if COOLDIFF_SCALAR_TYPE == 2
     using EigenMatrix = Eigen::MatrixXcd;
@@ -262,7 +262,7 @@ template <typename T> std::string ToString(const T &value) {
 }
 
 // Null pointer check
-#if defined(BUILD_TYPE)
+#if defined(BUILD_TYPE_DEBUG)
   // Check null poineter
   #define NULL_CHECK(PTR, MSG)                                                   \
     {                                                                            \

@@ -25,45 +25,62 @@
 cmake_minimum_required(VERSION 3.20)
 
 # [Project name and description]
-project(
-    CoolDiff
-    VERSION 1.0.1.0
-    DESCRIPTION "CoolDiff - Symbolic/Auto differentiation C++ tool"
-    LANGUAGES C CXX)
+project(CoolDiff VERSION 1.0.1.0
+                 DESCRIPTION "CoolDiff - Symbolic/Auto differentiation C++ tool"
+                 LANGUAGES C CXX)
 
-find_package(TBB REQUIRED)
-find_package(Threads REQUIRED)
-find_package(Eigen3 REQUIRED)
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
+                                    # [CMAKE internal flags]
+########################################################################################################################
+########################################################################################################################
+######################################################################################################################## 
 
+# Custom flags
+set(CMAKE_BUILD_TYPE Release)
 
-# [Custom flags]
-# Build type: Debug or Release
-set(BUILD_TYPE Debug)
-
-option(BUILD_TEST "Building unit test executables" ON)
-option(BUILD_EXAMPLE "Building example executables" ON)
-option(ENABLE_CLANG_TIDY "Enable clang-tidy static linter" ON)
-option(ENABLE_CMAKE_FORMAT "Enable cmake formatter" ON)
-option(ENABLE_CLANG_FORMAT "Enable clang format" ON)
-
-# [CMAKE internal flags]
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+#LTO and IPO
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+# Set CXX flags for maximum performance
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -ffast-math -funroll-loops -funroll-all-loops -ftree-vectorize -finline-functions -floop-block")
 
 # Include CMake scripts
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 include(Tools)
+
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
+                                    # [CMAKE build options]
+########################################################################################################################
+########################################################################################################################
+######################################################################################################################## 
+
+option(BUILD_TEST "Building unit test executables" ON)
+option(BUILD_EXAMPLE "Building example executables" ON)
+option(ENABLE_CLANG_TIDY "Enable clang-tidy static linter" OFF)
+option(ENABLE_CMAKE_FORMAT "Enable cmake formatter" OFF)
+option(ENABLE_CLANG_FORMAT "Enable clang format" OFF)
+
+
+find_package(Threads REQUIRED)
+
 
 # [Set compilation flags]
 #add_definitions(-DCOOLDIFF_SCALAR_TYPE=1) # Float
 add_definitions(-DCOOLDIFF_SCALAR_TYPE=2) # Double
 
-if(${BUILD_TYPE} STREQUAL "Debug")
-    add_definitions(-DBUILD_TYPE)
+if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
+    add_definitions(-DBUILD_TYPE_DEBUG)
 endif()
 
 add_definitions(-DUSE_COMPLEX_MATH)
@@ -72,157 +89,197 @@ add_definitions(-DUSE_VIRTUAL_FUNCTIONS)
 #add_definitions(-DUSE_CXX_PARALLEL_POLICY)
 #add_definitions(-DUSE_EXECUTION_PAR)
 
-# Set build type
-if(${BUILD_TYPE} STREQUAL Debug)
-    set(CMAKE_BUILD_TYPE Debug)
-    message("[${BUILD_TYPE}][${PROJECT_NAME}] Generating debug code")
-else()
-    set(CMAKE_BUILD_TYPE Release)
-    message("[${BUILD_TYPE}][${PROJECT_NAME}] Generating production code")
-endif()
 
-#LTO
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
-# [External dependencies]
-# Find google test package
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
+                                    # [External dependencies]
+########################################################################################################################
+########################################################################################################################
+######################################################################################################################## 
+
 include(FetchContent)
+
 FetchContent_Declare(
     robin-hood-hashing
     GIT_REPOSITORY https://github.com/martinus/robin-hood-hashing.git
     GIT_TAG 3.11.5
-    GIT_SHALLOW TRUE)
-FetchContent_MakeAvailable(robin-hood-hashing)
-
-if(${BUILD_TEST})
-    FetchContent_Declare(
-        googletest
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG v1.15.2
-        GIT_SHALLOW TRUE)
-    FetchContent_MakeAvailable(googletest)
-    list(APPEND CMAKE_MODULE_PATH ${gtest_SOURCE_DIR}/cmake)
+    GIT_SHALLOW TRUE
+) 
+# Check if the dependency has already been downloaded and built
+FetchContent_GetProperties(robin-hood-hashing)
+if(NOT robin-hood-hashing_POPULATED)
+    message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Setting robin-hood library")
+    FetchContent_MakeAvailable(robin-hood-hashing)
 endif()
 
-# [Set target sources]
-set(SRC
-    ${CMAKE_SOURCE_DIR}/src/CommonHeader.cpp
-    ${CMAKE_SOURCE_DIR}/src/Scalar/VarWrap.cpp
-    ${CMAKE_SOURCE_DIR}/src/Scalar/Variable.cpp
-    ${CMAKE_SOURCE_DIR}/src/Scalar/Parameter.cpp
-    ${CMAKE_SOURCE_DIR}/src/Scalar/MetaVariable.cpp
-    ${CMAKE_SOURCE_DIR}/src/Scalar/Expression.cpp
-    ${CMAKE_SOURCE_DIR}/src/Scalar/CommonFunctions.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/CommonMatFunctions.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatOperators.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MetaMatrix.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixBasics.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/Matrix.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixSplOps/MatrixZeroOps.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixSplOps/MatrixEyeOps.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHandler.cpp
-    # MatrixHadamardHandler folder
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHadamardHandler/ZeroMatHadamardHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHadamardHandler/EyeMatHadamardHandler.cpp
-    # MatrixHadamard folder
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHadamard/MatHadamardNaiveHandler.cpp
-    # MatrixTransposeHandler folder
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixTransposeHandler/ZeroMatTransposeHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixTransposeHandler/EyeMatTransposeHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixTransposeHandler/ZeroMatDervTransposeHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixTransposeHandler/EyeMatDervTransposeHandler.cpp
-    # MatrixHadamard folder
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixTranspose/MatTransposeNaiveHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixTranspose/MatDervTransposeNaiveHandler.cpp
-    # MatrixConvolution folder
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvolution/MatDervConvNaiveHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvolution/MatConvNaiveHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvHandler/ZeroMatConvHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvHandler/ZeroMatDervConvHandler.cpp
-    # MatrixUnary folder 
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixUnaryHandler/ZeroMatUnaryHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixUnaryHandler/EyeMatUnaryHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixUnary/MatUnaryNaiveHandler.cpp
-    # MatrixInverse folder 
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixInverse/MatInverseEigenHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixInvHandler/EyeMatInvHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixInvHandler/ZeroMatInvHandler.cpp
-    # Memory manager folder
-    ${CMAKE_SOURCE_DIR}/src/MemoryManager/MemoryManager.cpp)
+# Find and install Eigen package
+FetchContent_Declare(
+  Eigen
+  GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+  GIT_TAG master
+  GIT_SHALLOW TRUE
+) 
+# Check if the dependency has already been downloaded and built
+FetchContent_GetProperties(Eigen)
+if(NOT Eigen_POPULATED)
+    message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Setting Eigen library")
+    FetchContent_MakeAvailable(Eigen)
+endif()
 
-# [Set target includes]
-set(INCLUDES
-    ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/include/Scalar/BinaryOps
-    ${CMAKE_SOURCE_DIR}/include/Scalar/UnaryOps
-    ${CMAKE_SOURCE_DIR}/include/Scalar
-    ${CMAKE_SOURCE_DIR}/include/Matrix
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixInterface
-    ${CMAKE_SOURCE_DIR}/include/Matrix/BinaryOps
-    ${CMAKE_SOURCE_DIR}/include/Matrix/UnaryOps
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler
-    
-    # Naive CPU addition handlers
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddHandler/NaiveCPU
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/NaiveCPU
-    
-    # Naive CPU multiplication handlers
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMulHandler/NaiveCPU
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/NaiveCPU
+# Find and install Gtest package for test build
+FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG v1.15.2
+    GIT_SHALLOW TRUE
+)
+# Check if the dependency has already been downloaded and built
+FetchContent_GetProperties(googletest)
+if(NOT googletest_POPULATED)
+    message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Setting GTest library")
+    FetchContent_MakeAvailable(googletest)
+endif()
+list(APPEND CMAKE_MODULE_PATH ${gtest_SOURCE_DIR}/cmake)
 
-    # Naive CPU subtraction handlers
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubHandler/NaiveCPU
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/NaiveCPU
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
+                                # [Set target sources]
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
 
-    # Naive CPU Kronecker product handlers
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronHandler/NaiveCPU
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/NaiveCPU
+set(SRC ${CMAKE_SOURCE_DIR}/src/CommonHeader.cpp
+        ${CMAKE_SOURCE_DIR}/src/Scalar/VarWrap.cpp
+        ${CMAKE_SOURCE_DIR}/src/Scalar/Variable.cpp
+        ${CMAKE_SOURCE_DIR}/src/Scalar/Parameter.cpp
+        ${CMAKE_SOURCE_DIR}/src/Scalar/MetaVariable.cpp
+        ${CMAKE_SOURCE_DIR}/src/Scalar/Expression.cpp
+        ${CMAKE_SOURCE_DIR}/src/Scalar/CommonFunctions.cpp
+        ${CMAKE_SOURCE_DIR}/src/Matrix/CommonMatFunctions.cpp
+        ${CMAKE_SOURCE_DIR}/src/Matrix/MatOperators.cpp
+        ${CMAKE_SOURCE_DIR}/src/Matrix/MetaMatrix.cpp
+        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixBasics.cpp
+        ${CMAKE_SOURCE_DIR}/src/Matrix/Matrix.cpp
+        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixSplOps/MatrixZeroOps.cpp
+        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixSplOps/MatrixEyeOps.cpp
+        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHandler.cpp
+        # MatrixHadamardHandler folder
+        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHadamardHandler/ZeroMatHadamardHandler.cpp
+        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHadamardHandler/EyeMatHadamardHandler.cpp
+        # MatrixHadamard folder
+        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHadamard/MatHadamardNaiveHandler.cpp
+        # MatrixConvolution folder
+        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvolution/MatDervConvNaiveHandler.cpp
+        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvolution/MatConvNaiveHandler.cpp
+        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvHandler/ZeroMatConvHandler.cpp
+        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvHandler/ZeroMatDervConvHandler.cpp
+        # MatrixUnary folder 
+        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixUnaryHandler/ZeroMatUnaryHandler.cpp
+        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixUnaryHandler/EyeMatUnaryHandler.cpp
+        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixUnary/MatUnaryNaiveHandler.cpp
+        # MatrixInverse folder 
+        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixInverse/MatInverseEigenHandler.cpp
+        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixInvHandler/EyeMatInvHandler.cpp
+        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixInvHandler/ZeroMatInvHandler.cpp
+        # Memory manager folder
+        ${CMAKE_SOURCE_DIR}/src/MemoryManager/MemoryManager.cpp)
 
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamardHandler 
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTransposeHandler
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvHandler
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvolution
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnaryHandler
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInverse
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInvHandler
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
+                                # [Set target includes]
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
 
-    # Determinant handlers
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDet/Eigen
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDetHandler/NaiveCPU
+set(INCLUDES ${CMAKE_SOURCE_DIR}/include
+             ${CMAKE_SOURCE_DIR}/include/Scalar/BinaryOps
+             ${CMAKE_SOURCE_DIR}/include/Scalar/UnaryOps
+             ${CMAKE_SOURCE_DIR}/include/Scalar
+             ${CMAKE_SOURCE_DIR}/include/Matrix
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixInterface
+             ${CMAKE_SOURCE_DIR}/include/Matrix/BinaryOps
+             ${CMAKE_SOURCE_DIR}/include/Matrix/UnaryOps
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler
+            
+             # Naive CPU addition handlers
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddHandler/NaiveCPU
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/NaiveCPU
+            
+             # Naive CPU multiplication handlers
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMulHandler/NaiveCPU
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/NaiveCPU
 
-    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixSplOps
-    ${CMAKE_SOURCE_DIR}/include/MemoryManager
-    ${CMAKE_BINARY_DIR}/_deps/robin-hood-hashing-src/src/include)
+             # Naive CPU subtraction handlers
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubHandler/NaiveCPU
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/NaiveCPU
+
+             # Naive CPU Kronecker product handlers
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronHandler/NaiveCPU
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/NaiveCPU
+
+             # Naive CPU Transpose product handlers
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTransposeHandler/NaiveCPU
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose/NaiveCPU
+
+             # Determinant handlers
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDet/Eigen
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDetHandler/NaiveCPU
+
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamardHandler 
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvHandler
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvolution
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnaryHandler
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInverse
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInvHandler
+
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixSplOps
+             ${CMAKE_SOURCE_DIR}/include/MemoryManager
+             ${CMAKE_BINARY_DIR}/_deps/robin-hood-hashing-src/src/include)
+
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
+                                # [Set target properties]
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
 
 # [Add executable (target executable)]
 add_library(${PROJECT_NAME} STATIC ${SRC})
+
 # [Set target include directories]
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
+
 # [Set compile options]
 target_compile_options(${PROJECT_NAME} PRIVATE -fpermissive)
-target_link_libraries(${PROJECT_NAME} PUBLIC Threads::Threads TBB::tbb Eigen3::Eigen)
+target_link_libraries(${PROJECT_NAME} PUBLIC Threads::Threads Eigen3::Eigen)
 
-if(${BUILD_TYPE} STREQUAL Debug)
-    message("[${BUILD_TYPE}][${PROJECT_NAME}] Attaching address sanitizer")
-    target_compile_options(${PROJECT_NAME} PRIVATE -fno-omit-frame-pointer
-                                                   -fsanitize=address)
-    target_link_options(
-        ${PROJECT_NAME}
-        PRIVATE
-        -fno-omit-frame-pointer
-        -fsanitize=address)
+# [Attach address sanitizer]
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Attaching address sanitizer")
+    target_compile_options(${PROJECT_NAME} PRIVATE -fno-omit-frame-pointer -fsanitize=address)
+    target_link_options(${PROJECT_NAME} PRIVATE -fno-omit-frame-pointer -fsanitize=address)
 else()
-    message("[${BUILD_TYPE}][${PROJECT_NAME}] Address sanitizer disabled")
+    message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Address sanitizer disabled")
 endif()
 
-#[[--------------------------------------------------------------------------
------------------------------------------------------------------------------
------------------------------------------------------------------------------
------------------------------------------------------------------------------
-]]
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
+                                    # 1. [Build test scripts]
+                                    # 2. [Build examples]
+                                    # 3. [Enable clang tidy]
+                                    # 4. [Enable cmake formatter]
+                                    # 5. [Enable clang formatter]
+########################################################################################################################
+########################################################################################################################
+######################################################################################################################## 
 
 # Build test scripts
 if(${BUILD_TEST})
@@ -230,33 +287,33 @@ if(${BUILD_TEST})
     enable_testing()
     add_subdirectory(${CMAKE_SOURCE_DIR}/test)
 else()
-    message("[${BUILD_TYPE}][${PROJECT_NAME}] Unit test build is skipped")
+    message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Unit test build is skipped")
 endif()
 
 # Build examples
 if(${BUILD_EXAMPLE})
     add_subdirectory(${CMAKE_SOURCE_DIR}/example)
 else()
-    message("[${BUILD_TYPE}][${PROJECT_NAME}] Example build is skipped")
+    message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Example build is skipped")
 endif()
 
 # Enable clang tidy
 if(${ENABLE_CLANG_TIDY})
     add_clang_tidy_to_target(${PROJECT_NAME})
 else()
-    message("[${BUILD_TYPE}][${PROJECT_NAME}] Clang-tidy disabled")
+    message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Clang-tidy disabled")
 endif()
 
 # Enable cmake formatter
 if(${ENABLE_CMAKE_FORMAT})
     add_cmake_format_target()
 else()
-    message("[${BUILD_TYPE}][${PROJECT_NAME}] CMake formatter disabled")
+    message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] CMake formatter disabled")
 endif()
 
-# Enable CLANG formatter
+# Enable clang formatter
 if(${ENABLE_CLANG_FORMAT})
     add_clang_format_target()
 else()
-    message("[${BUILD_TYPE}][${PROJECT_NAME}] Clang formatter disabled")
+    message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Clang formatter disabled")
 endif()

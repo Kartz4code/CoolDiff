@@ -22,9 +22,13 @@
 ]]
 
 if(${BUILD_EXAMPLE})
-    #[[
-        Gaussian example
-    ]]
+    ########################################################################################################################
+    ########################################################################################################################
+    ########################################################################################################################
+                                        # [Gaussian example]
+    ########################################################################################################################
+    ########################################################################################################################
+    ######################################################################################################################## 
 
     # Add executable (target testing)
     add_executable(Gaussian ${CMAKE_SOURCE_DIR}/example/Gaussian.cpp)
@@ -32,17 +36,19 @@ if(${BUILD_EXAMPLE})
     target_include_directories(Gaussian PUBLIC ${INCLUDES})
     # Set compile options
     target_compile_options(Gaussian PRIVATE -fpermissive)
-    if(${BUILD_TYPE} STREQUAL Debug)
+    if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
         target_compile_options(Gaussian PRIVATE -fno-omit-frame-pointer -fsanitize=address)
         target_link_options(Gaussian PRIVATE -fno-omit-frame-pointer -fsanitize=address)
     endif()
     target_link_libraries(Gaussian PRIVATE CoolDiff)
 
-    #[[
-        GaussNewton example
-    ]]
-
-    find_package(Eigen3 REQUIRED)
+    ########################################################################################################################
+    ########################################################################################################################
+    ########################################################################################################################
+                                        # [GaussNewton example]
+    ########################################################################################################################
+    ########################################################################################################################
+    ######################################################################################################################## 
 
     # Add executable (target testing)
     set(SOURCES ${CMAKE_SOURCE_DIR}/example/GaussNewton/src/OracleMatrix.cpp
@@ -66,11 +72,9 @@ if(${BUILD_EXAMPLE})
                                                   ${CMAKE_CURRENT_BINARY_DIR})
     # Set compile options
     target_compile_options(GaussNewton PRIVATE -fpermissive)
-    if(${BUILD_TYPE} STREQUAL Debug)
+    if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
         target_compile_options(GaussNewton PRIVATE -fno-omit-frame-pointer -fsanitize=address)
         target_link_options(GaussNewton PRIVATE -fno-omit-frame-pointer -fsanitize=address)
     endif()
-    target_link_libraries(GaussNewton PRIVATE CoolDiff Eigen3::Eigen)
-
-    
+    target_link_libraries(GaussNewton PRIVATE CoolDiff)
 endif()

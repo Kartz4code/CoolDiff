@@ -307,8 +307,8 @@ Matrix<Expression>& pow(const IMatrix<T>& X, const size_t n) {
 }
 
 // Matrix exponential
-template<typename T>
-Matrix<Expression>& MatrixExponential(const IMatrix<T>& X, const size_t trunc = 20) {
+template<size_t N = 20, typename T>
+Matrix<Expression>& MatrixExponential(const IMatrix<T>& X) {
   // Dimensions of matrix X
   const size_t rows = X.getNumRows();
   const size_t cols = X.getNumColumns();
@@ -320,15 +320,15 @@ Matrix<Expression>& MatrixExponential(const IMatrix<T>& X, const size_t trunc = 
   auto& result = Matrix<Expression>::MatrixFactory::CreateMatrix();
 
   // Temporary matrix array
-  Matrix<Expression>* tmp[trunc+1];
-  for(size_t i{}; i <= trunc; ++i) {
+  Matrix<Expression>* tmp[N+1];
+  for(size_t i{}; i <= N; ++i) {
     tmp[i] = Matrix<Expression>::MatrixFactory::CreateMatrixPtr();
   }
 
   // Run loop till truncation
   (*tmp[0]) = EyeRef(rows);
   result = (*tmp[0]);
-  for(size_t i{1}; i <= trunc; ++i) {
+  for(size_t i{1}; i <= N; ++i) {
       (*tmp[i]) = (*tmp[i-1])*X;
       result = result + ((*tmp[i])/Factorial(i));
   }
@@ -338,8 +338,8 @@ Matrix<Expression>& MatrixExponential(const IMatrix<T>& X, const size_t trunc = 
 }
 
 // Matrix log
-template<typename T>
-Matrix<Expression>& MatrixLog(const IMatrix<T>& X, const size_t trunc = 20) {
+template<size_t N = 20, typename T>
+Matrix<Expression>& MatrixLog(const IMatrix<T>& X) {
   // Dimensions of matrix X
   const size_t rows = X.getNumRows();
   const size_t cols = X.getNumColumns();
@@ -351,15 +351,15 @@ Matrix<Expression>& MatrixLog(const IMatrix<T>& X, const size_t trunc = 20) {
   auto& result = Matrix<Expression>::MatrixFactory::CreateMatrix();
   
   // Temporary matrix array
-  Matrix<Expression>* tmp[trunc+1];
-  for(size_t i{}; i <= trunc; ++i) {
+  Matrix<Expression>* tmp[N+1];
+  for(size_t i{}; i <= N; ++i) {
     tmp[i] = Matrix<Expression>::MatrixFactory::CreateMatrixPtr();
   }
 
   // Run loop till truncation
   (*tmp[0]) = EyeRef(rows);
   result = ZerosRef(rows, cols);
-  for(size_t i{1}; i <= trunc; ++i) {
+  for(size_t i{1}; i <= N; ++i) {
       (*tmp[i]) = (*tmp[i-1])*(X - EyeRef(rows));
       result = result + (std::pow(((Type)(-1)), i+1)/i)*((*tmp[i]));
   }
