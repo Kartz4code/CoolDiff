@@ -105,7 +105,7 @@ void GNMatrix() {
   Matrix<Variable> V(1, 3);
   V[0] = 0.5142;
   V[1] = 20;
-  V[2] = -10;
+  V[2] = -20;
 
   // Rotation matrix
   Matrix<Expression> R(2, 2);

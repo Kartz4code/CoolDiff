@@ -150,7 +150,7 @@ public:
     if (true == m_gh_vec.empty()) {
       m_rows = expr.getNumRows();
       m_cols = expr.getNumColumns();
-      m_type = SIZE_MAX;
+      m_type = MatrixSpl::NONE;
       if (nullptr != mp_mat) {
         delete[] mp_mat;
         mp_mat = nullptr;

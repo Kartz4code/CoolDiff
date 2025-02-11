@@ -83,7 +83,8 @@ enum MatrixSpl : size_t {
   EYE = 1 << 2,
   ONES = 1 << 3,
   DIAG = 1 << 4,
-  SYMM = 1 << 5
+  SYMM = 1 << 5,
+  NONE = 1 << 30
 };
 
 // Operations enum [Order matters!]
