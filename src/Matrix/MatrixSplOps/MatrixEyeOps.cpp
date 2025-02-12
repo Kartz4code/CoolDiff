@@ -338,196 +338,211 @@ const Matrix<Type> *EyeMatHadamardNum(const Matrix<Type> *lhs,
   }
 }
 
-void AddEye(const Matrix<Type> *it, Matrix<Type> *&result) {
-  /*
-    Rows and columns of result matrix and if result is nullptr or if dimensions
-    mismatch, then create a new matrix resource
-  */
-  const size_t nrows{it->getNumRows()};
-  const size_t ncols{it->getNumColumns()};
+namespace BaselineCPU {
+  void AddEye(const Matrix<Type> *it, Matrix<Type> *&result) {
+    /*
+      Rows and columns of result matrix and if result is nullptr or if dimensions
+      mismatch, then create a new matrix resource
+    */
+    const size_t nrows{it->getNumRows()};
+    const size_t ncols{it->getNumColumns()};
+
+    // Pool matrix
+    MemoryManager::MatrixPool(nrows, ncols, result);
+
+    // Copy all elements from it to result matrix
+    *result = *it;
+
+    // Diagonal indices (Modification)
+    const auto diag_idx = Range<size_t>(0, nrows);
+    std::for_each(
+        EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
+        [&](const size_t i) { (*result)(i, i) = (*it)(i, i) + (Type)(1); });
+  }
+
+  void Add2Eye(const Matrix<Type> *it, Matrix<Type> *&result) {
+    /*
+      Rows and columns of result matrix and if result is nullptr or if dimensions
+      mismatch, then create a new matrix resource
+    */
+    const size_t nrows{it->getNumRows()};
+    const size_t ncols{it->getNumColumns()};
+
+    // Pool matrix
+    MemoryManager::MatrixPool(nrows, ncols, result);
+
+    // Diagonal indices
+    const auto diag_idx = Range<size_t>(0, nrows);
+    // Case when both left and right matrices are eye
+    std::for_each(EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
+                  [&](const size_t i) { (*result)(i, i) = (Type)(2); });
+  }
+
+  void AddEye(Type val, const Matrix<Type> *it, Matrix<Type> *&result) {
+    /*
+      Rows and columns of result matrix and if result is nullptr or if dimensions
+      mismatch, then create a new matrix resource
+    */
+    const size_t nrows{it->getNumRows()};
+    const size_t ncols{it->getNumColumns()};
+
+    // Pool matrix
+    MemoryManager::MatrixPool(nrows, ncols, result, val);
+
+    // Diagonal indices (Modification)
+    const auto diag_idx = Range<size_t>(0, nrows);
+    std::for_each(
+        EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
+        [&](const size_t i) { (*result)(i, i) = (*result)(i, i) + (Type)(1); });
+  }
+
+  void MulEye(Type val, const Matrix<Type> *it, Matrix<Type> *&result) {
+    /*
+      Rows and columns of result matrix and if result is nullptr or if dimensions
+      mismatch, then create a new matrix resource
+    */
+    const size_t nrows{it->getNumRows()};
+    const size_t ncols{it->getNumColumns()};
+
+    // Pool matrix
+    MemoryManager::MatrixPool(nrows, ncols, result);
+
+    // Diagonal indices (Modification)
+    const auto diag_idx = Range<size_t>(0, nrows);
+    std::for_each(EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
+                  [&](const size_t i) { (*result)(i, i) = val; });
+  }
+
+  void SubEyeRHS(const Matrix<Type> *it, Matrix<Type> *&result) {
+    /*
+      Rows and columns of result matrix and if result is nullptr or if dimensions
+      mismatch, then create a new matrix resource
+    */
+    const size_t nrows{it->getNumRows()};
+    const size_t ncols{it->getNumColumns()};
+
+    // Pool matrix
+    MemoryManager::MatrixPool(nrows, ncols, result);
+
+    // Copy all LHS matrix value into result
+    *result = *it;
+
+    // Iteration elements (Along the diagonal)
+    const auto idx = Range<size_t>(0, nrows);
+    // For each execution
+    std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t i) {
+      (*result)(i, i) = (*it)(i, i) - (Type)(1);
+    });
+  }
+
+  void SubEyeLHS(const Matrix<Type> *it, Matrix<Type> *&result) {
+    /*
+      Rows and columns of result matrix and if result is nullptr or if dimensions
+      mismatch, then create a new matrix resource
+    */
+    const size_t nrows{it->getNumRows()};
+    const size_t ncols{it->getNumColumns()};
+
+    // Pool matrix
+    MemoryManager::MatrixPool(nrows, ncols, result);
+
+    // Iteration elements
+    const auto idx = Range<size_t>(0, nrows * ncols);
+    // For each execution
+    std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t n) {
+      const size_t j = (n % ncols);
+      const size_t i = ((n - j) / ncols);
+      (*result)(i, j) =
+          ((i == j) ? ((Type)(1) - (*it)(i, j)) : ((Type)(-1) * (*it)(i, j)));
+    });
+  }
+
+  // When left matrix is special matrix of identity type
+  void KronEyeLHS(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
+  /* Matrix-Matrix numerical Kronocker product */
+  // Rows and columns of result matrix and if result is nullptr, then create a
+  // new resource
+  const size_t lr{lhs->getNumRows()};
+  const size_t lc{lhs->getNumColumns()};
+  const size_t rr{rhs->getNumRows()};
+  const size_t rc{rhs->getNumColumns()};
 
   // Pool matrix
-  MemoryManager::MatrixPool(nrows, ncols, result);
+  MemoryManager::MatrixPool((lr * rr), (lc * rc), result);
 
-  // Copy all elements from it to result matrix
-  *result = *it;
+  const auto lhs_idx = Range<size_t>(0, lr * lc);
+  const auto rhs_idx = Range<size_t>(0, rr * rc);
+  std::for_each(EXECUTION_PAR lhs_idx.begin(), lhs_idx.end(),
+    [&](const size_t n1) {
+      const size_t j = (n1 % lc);
+      const size_t i = ((n1 - j) / lc);
 
-  // Diagonal indices (Modification)
-  const auto diag_idx = Range<size_t>(0, nrows);
-  std::for_each(
-      EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
-      [&](const size_t i) { (*result)(i, i) = (*it)(i, i) + (Type)(1); });
-}
+      // If i == j, then val is 1, else zero (LHS identity creation)
+      Type val = ((i == j) ? (Type)(1) : (Type)(0));
 
-void Add2Eye(const Matrix<Type> *it, Matrix<Type> *&result) {
-  /*
-    Rows and columns of result matrix and if result is nullptr or if dimensions
-    mismatch, then create a new matrix resource
-  */
-  const size_t nrows{it->getNumRows()};
-  const size_t ncols{it->getNumColumns()};
+      // If val is not zero
+      if ((Type)(0) != val) {
+        std::for_each(EXECUTION_PAR rhs_idx.begin(), rhs_idx.end(),
+                      [&](const size_t n2) {
+                        const size_t m = (n2 % rc);
+                        const size_t l = ((n2 - m) / rc);
+                        (*result)((i * rr) + l, (j * rc) + m) =
+                            ((*rhs)(l, m) * val);
+                      });
+      }
+    });
+  }
 
-  // Pool matrix
-  MemoryManager::MatrixPool(nrows, ncols, result);
-
-  // Diagonal indices
-  const auto diag_idx = Range<size_t>(0, nrows);
-  // Case when both left and right matrices are eye
-  std::for_each(EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
-                [&](const size_t i) { (*result)(i, i) = (Type)(2); });
-}
-
-void AddEye(Type val, const Matrix<Type> *it, Matrix<Type> *&result) {
-  /*
-    Rows and columns of result matrix and if result is nullptr or if dimensions
-    mismatch, then create a new matrix resource
-  */
-  const size_t nrows{it->getNumRows()};
-  const size_t ncols{it->getNumColumns()};
+  // When right matrix is special matrix of identity type
+  void KronEyeRHS(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
+  /* Matrix-Matrix numerical Kronocker product */
+  // Rows and columns of result matrix and if result is nullptr, then create a
+  // new resource
+  const size_t lr{lhs->getNumRows()};
+  const size_t lc{lhs->getNumColumns()};
+  const size_t rr{rhs->getNumRows()};
+  const size_t rc{rhs->getNumColumns()};
 
   // Pool matrix
-  MemoryManager::MatrixPool(nrows, ncols, result, val);
+  MemoryManager::MatrixPool((lr * rr), (lc * rc), result);
 
-  // Diagonal indices (Modification)
-  const auto diag_idx = Range<size_t>(0, nrows);
-  std::for_each(
-      EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
-      [&](const size_t i) { (*result)(i, i) = (*result)(i, i) + (Type)(1); });
-}
+  const auto lhs_idx = Range<size_t>(0, lr * lc);
+  const auto rhs_idx = Range<size_t>(0, rr * rc);
+  std::for_each(EXECUTION_PAR lhs_idx.begin(), lhs_idx.end(),
+    [&](const size_t n1) {
+      const size_t j = (n1 % lc);
+      const size_t i = ((n1 - j) / lc);
 
-void MulEye(Type val, const Matrix<Type> *it, Matrix<Type> *&result) {
-  /*
-    Rows and columns of result matrix and if result is nullptr or if dimensions
-    mismatch, then create a new matrix resource
-  */
-  const size_t nrows{it->getNumRows()};
-  const size_t ncols{it->getNumColumns()};
+      // Value of LHS matrix at (i,j) index
+      Type val = (*lhs)(i, j);
 
-  // Pool matrix
-  MemoryManager::MatrixPool(nrows, ncols, result);
+      // If val is not zero
+      if ((Type)(0) != val) {
+        std::for_each(EXECUTION_PAR rhs_idx.begin(), rhs_idx.end(),
+                      [&](const size_t n2) {
+                        const size_t m = (n2 % rc);
+                        const size_t l = ((n2 - m) / rc);
+                        (*result)((i * rr) + l, (j * rc) + m) =
+                            ((l == m) ? val : (Type)(0));
+                      });
+      }
+    });
+  }
 
-  // Diagonal indices (Modification)
-  const auto diag_idx = Range<size_t>(0, nrows);
-  std::for_each(EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
-                [&](const size_t i) { (*result)(i, i) = val; });
-}
+  void HadamardEye(const Matrix<Type> *it, Matrix<Type> *&result) {
+    /*
+      Rows and columns of result matrix and if result is nullptr or if dimensions
+      mismatch, then create a new matrix resource
+    */
+    const size_t nrows{it->getNumRows()};
+    const size_t ncols{it->getNumColumns()};
 
+    // Pool matrix
+    MemoryManager::MatrixPool(nrows, ncols, result);
 
-void SubEyeRHS(const Matrix<Type> *it, Matrix<Type> *&result) {
-  /*
-    Rows and columns of result matrix and if result is nullptr or if dimensions
-    mismatch, then create a new matrix resource
-  */
-  const size_t nrows{it->getNumRows()};
-  const size_t ncols{it->getNumColumns()};
-
-  // Pool matrix
-  MemoryManager::MatrixPool(nrows, ncols, result);
-
-  // Copy all LHS matrix value into result
-  *result = *it;
-
-  // Iteration elements (Along the diagonal)
-  const auto idx = Range<size_t>(0, nrows);
-  // For each execution
-  std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t i) {
-    (*result)(i, i) = (*it)(i, i) - (Type)(1);
-  });
-}
-
-void SubEyeLHS(const Matrix<Type> *it, Matrix<Type> *&result) {
-  /*
-    Rows and columns of result matrix and if result is nullptr or if dimensions
-    mismatch, then create a new matrix resource
-  */
-  const size_t nrows{it->getNumRows()};
-  const size_t ncols{it->getNumColumns()};
-
-  // Pool matrix
-  MemoryManager::MatrixPool(nrows, ncols, result);
-
-  // Iteration elements
-  const auto idx = Range<size_t>(0, nrows * ncols);
-  // For each execution
-  std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t n) {
-    const size_t j = (n % ncols);
-    const size_t i = ((n - j) / ncols);
-    (*result)(i, j) =
-        ((i == j) ? ((Type)(1) - (*it)(i, j)) : ((Type)(-1) * (*it)(i, j)));
-  });
-}
-
-
-// When left matrix is special matrix of identity type
-void KronEyeLHS(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
-/* Matrix-Matrix numerical Kronocker product */
-// Rows and columns of result matrix and if result is nullptr, then create a
-// new resource
-const size_t lr{lhs->getNumRows()};
-const size_t lc{lhs->getNumColumns()};
-const size_t rr{rhs->getNumRows()};
-const size_t rc{rhs->getNumColumns()};
-
-// Pool matrix
-MemoryManager::MatrixPool((lr * rr), (lc * rc), result);
-
-const auto lhs_idx = Range<size_t>(0, lr * lc);
-const auto rhs_idx = Range<size_t>(0, rr * rc);
-std::for_each(EXECUTION_PAR lhs_idx.begin(), lhs_idx.end(),
-  [&](const size_t n1) {
-    const size_t j = (n1 % lc);
-    const size_t i = ((n1 - j) / lc);
-
-    // If i == j, then val is 1, else zero (LHS identity creation)
-    Type val = ((i == j) ? (Type)(1) : (Type)(0));
-
-    // If val is not zero
-    if ((Type)(0) != val) {
-      std::for_each(EXECUTION_PAR rhs_idx.begin(), rhs_idx.end(),
-                    [&](const size_t n2) {
-                      const size_t m = (n2 % rc);
-                      const size_t l = ((n2 - m) / rc);
-                      (*result)((i * rr) + l, (j * rc) + m) =
-                          ((*rhs)(l, m) * val);
-                    });
-    }
-  });
-}
-
-// When right matrix is special matrix of identity type
-void KronEyeRHS(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
-/* Matrix-Matrix numerical Kronocker product */
-// Rows and columns of result matrix and if result is nullptr, then create a
-// new resource
-const size_t lr{lhs->getNumRows()};
-const size_t lc{lhs->getNumColumns()};
-const size_t rr{rhs->getNumRows()};
-const size_t rc{rhs->getNumColumns()};
-
-// Pool matrix
-MemoryManager::MatrixPool((lr * rr), (lc * rc), result);
-
-const auto lhs_idx = Range<size_t>(0, lr * lc);
-const auto rhs_idx = Range<size_t>(0, rr * rc);
-std::for_each(EXECUTION_PAR lhs_idx.begin(), lhs_idx.end(),
-  [&](const size_t n1) {
-    const size_t j = (n1 % lc);
-    const size_t i = ((n1 - j) / lc);
-
-    // Value of LHS matrix at (i,j) index
-    Type val = (*lhs)(i, j);
-
-    // If val is not zero
-    if ((Type)(0) != val) {
-      std::for_each(EXECUTION_PAR rhs_idx.begin(), rhs_idx.end(),
-                    [&](const size_t n2) {
-                      const size_t m = (n2 % rc);
-                      const size_t l = ((n2 - m) / rc);
-                      (*result)((i * rr) + l, (j * rc) + m) =
-                          ((l == m) ? val : (Type)(0));
-                    });
-    }
-  });
-}
-
-
+    // Diagonal indices (Modification)
+    const auto diag_idx = Range<size_t>(0, nrows);
+    std::for_each(EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
+                  [&](const size_t i) { (*result)(i, i) = (*it)(i, i); });
+  }
+};

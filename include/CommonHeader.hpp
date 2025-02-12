@@ -353,6 +353,6 @@ template <> struct std::hash<Pair<size_t, size_t>> {
 };
 
 // Useful macros for Generic unary/binary operators
-#define STRINGIFY(x) #x
-#define TOSTRING(x) STRINGIFY(x)
+#define STRINGIFY(X) #X
+#define TOSTRING(X) STRINGIFY(X)
 #define CONCAT3(STR1, STR2, STR3) STR1##STR2##STR3

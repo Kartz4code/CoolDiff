@@ -44,13 +44,13 @@
                 if (auto *it = EyeMatSub(lhs, rhs); nullptr != it) {
                     if (it == lhs) {
                     if (-1 == it->getMatType()) {
-                        SubEyeRHS(it, result);
+                        BaselineCPU::SubEyeRHS(it, result);
                     } else {
                         T::handle(lhs, rhs, result);
                     }
                     } else if (it == rhs) {
                     if (-1 == it->getMatType()) {
-                        SubEyeLHS(it, result);
+                        BaselineCPU::SubEyeLHS(it, result);
                     } else {
                         T::handle(lhs, rhs, result);
                     }
@@ -64,13 +64,13 @@
                     else if (auto *it = EyeMatSubNum(lhs, rhs); nullptr != it) {
                         if (it == lhs) {
                         if (-1 == it->getMatType()) {
-                            SubEyeRHS(it, result);
+                            BaselineCPU::SubEyeRHS(it, result);
                         } else {
                             T::handle(lhs, rhs, result);
                         }
                         } else if (it == rhs) {
                         if (-1 == it->getMatType()) {
-                            SubEyeLHS(it, result);
+                            BaselineCPU::SubEyeLHS(it, result);
                         } else {
                             T::handle(lhs, rhs, result);
                         }

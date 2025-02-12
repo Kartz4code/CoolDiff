@@ -33,13 +33,13 @@ class EyeMatScalarAddHandler : public T {
             #if defined(NAIVE_IMPL)
                 /* Eye matrix special check */
                 if (auto *it = EyeMatScalarAdd(lhs, rhs); nullptr != it) {
-                    AddEye(lhs, rhs, result);
+                    BaselineCPU::AddEye(lhs, rhs, result);
                     return;
                 }
                 /* Eye matrix numerical check */
                 #if defined(NUMERICAL_CHECK)
                     else if (auto *it = EyeMatScalarAddNum(lhs, rhs); nullptr != it) {
-                        AddEye(lhs, rhs, result);
+                        BaselineCPU::AddEye(lhs, rhs, result);
                         return;
                     }
                 #endif

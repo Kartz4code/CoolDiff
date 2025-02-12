@@ -24,16 +24,6 @@
 
 
 
-// Special matrix Hadamard product
-#include "EyeMatHadamardHandler.hpp"
-#include "ZeroMatHadamardHandler.hpp"
-
-// Special matrix transpose product
-#include "EyeMatDervTransposeHandler.hpp"
-#include "EyeMatTransposeHandler.hpp"
-#include "ZeroMatDervTransposeHandler.hpp"
-#include "ZeroMatTransposeHandler.hpp"
-
 // Special matrix convolution
 #include "ZeroMatConvHandler.hpp"
 #include "ZeroMatDervConvHandler.hpp"
@@ -45,17 +35,12 @@
 // Matrix operations
 #include "MatConvNaiveHandler.hpp"
 #include "MatDervConvNaiveHandler.hpp"
-#include "MatDervTransposeNaiveHandler.hpp"
-#include "MatHadamardNaiveHandler.hpp"
 
-#include "MatTransposeNaiveHandler.hpp"
 #include "MatUnaryNaiveHandler.hpp"
 
 #include "MatInverseEigenHandler.hpp"
 #include "EyeMatInvHandler.hpp"
 #include "ZeroMatInvHandler.hpp"
-
-
 
 // Static handlers
 // Matrix-Matrix addition
@@ -92,6 +77,19 @@
 #include "MatDetEigenHandler.hpp"
 #include "EyeMatDetHandler.hpp"
 #include "ZeroMatDetHandler.hpp"
+
+// Matrix Hadamard product
+#include "MatHadamardNaiveHandler.hpp"
+#include "EyeMatHadamardHandler.hpp"
+#include "ZeroMatHadamardHandler.hpp"
+
+// Matrix transpose
+#include "MatDervTransposeNaiveHandler.hpp"
+#include "MatTransposeNaiveHandler.hpp"
+#include "EyeMatDervTransposeHandler.hpp"
+#include "EyeMatTransposeHandler.hpp"
+#include "ZeroMatDervTransposeHandler.hpp"
+#include "ZeroMatTransposeHandler.hpp"
 
 // Handler of sizes 2,3,4,5,6,7
 #define HANDLER2(X1,X2) X1<X2<MatrixStaticHandler>>
@@ -220,8 +218,7 @@ void MatrixKron(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*&
 }
 
 // Matrix-Matrix Hadamard product - Left, Right, Result matrix pointer
-void MatrixHadamard(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
-                    Matrix<Type> *&result) {
+void MatrixHadamard(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
   // Null pointer check
   NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
   NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
@@ -232,12 +229,12 @@ void MatrixHadamard(const Matrix<Type> *lhs, const Matrix<Type> *rhs,
       3) Matrix-Matrix Hadamard product
   */
 
-  static MatHadamardNaiveHandler h1{nullptr};
-  static ZeroMatHadamardHandler h2{&h1};
-  static EyeMatHadamardHandler h3{&h2};
+  static HANDLER3(EyeMatHadamardHandler, 
+                  ZeroMatHadamardHandler,
+                  MatHadamardNaiveHandler) handler;
 
   // Handle Hadamard product
-  h3.handle(lhs, rhs, result);
+  handler.handle(lhs, rhs, result);
 }
 
 // Matrix transpose

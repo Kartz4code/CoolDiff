@@ -33,14 +33,14 @@ class EyeMatScalarMulHandler : public T {
             #if defined(NAIVE_IMPL)
                 /* Eye matrix special check */
                 if (auto *it = EyeMatScalarMul(lhs, rhs); nullptr != it) {
-                    MulEye(lhs, rhs, result);
+                    BaselineCPU::MulEye(lhs, rhs, result);
                     return;
                 }
 
                 /* Eye matrix numerical check */
                 #if defined(NUMERICAL_CHECK)
                     else if (auto *it = EyeMatScalarMulNum(lhs, rhs); nullptr != it) {
-                        MulEye(lhs, rhs, result);
+                        BaselineCPU::MulEye(lhs, rhs, result);
                         return;
                     }
                 #endif

@@ -44,13 +44,13 @@ class EyeMatAddHandler : public T {
             if (auto *it = EyeMatAdd(lhs, rhs); nullptr != it) {
                 if (it == lhs || it == rhs) {
                     if (-1 == it->getMatType()) {
-                        AddEye(it, result);
+                        BaselineCPU::AddEye(it, result);
                     } else {
                         T::handle(lhs, rhs, result);
                     }
                 } 
                 else {
-                    Add2Eye(it, result);
+                    BaselineCPU::Add2Eye(it, result);
                 }
                 return;
             }
@@ -60,13 +60,13 @@ class EyeMatAddHandler : public T {
                 else if (auto *it = EyeMatAddNum(lhs, rhs); nullptr != it) {
                     if (it == lhs || it == rhs) {
                         if (-1 == it->getMatType()) {
-                            AddEye(it, result);
+                            BaselineCPU::AddEye(it, result);
                         } else {
                             T::handle(lhs, rhs, result);
                         }
                     } 
                     else {
-                        Add2Eye(it, result);
+                        BaselineCPU::Add2Eye(it, result);
                     }
                     return;
                 }

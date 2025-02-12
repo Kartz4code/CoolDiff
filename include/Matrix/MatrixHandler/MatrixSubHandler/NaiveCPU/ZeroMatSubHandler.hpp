@@ -43,15 +43,17 @@ class ZeroMatSubHandler : public T {
                 /* Zero matrix special check */
                 if (auto *it = ZeroMatSub(lhs, rhs); nullptr != it) {
                     if (it == lhs) {
-                    result = const_cast<Matrix<Type> *>(lhs);
-                    } else if (it == rhs) {
-                    if (-1 == it->getMatType()) {
-                        SubZero(it, result);
-                    } else {
-                        T::handle(lhs, rhs, result);
-                    }
-                    } else {
-                    result = const_cast<Matrix<Type> *>(it);
+                        result = const_cast<Matrix<Type> *>(lhs);
+                    } 
+                    else if (it == rhs) {
+                        if (-1 == it->getMatType()) {
+                            BaselineCPU::SubZero(it, result);
+                        } else {
+                            T::handle(lhs, rhs, result);
+                        }
+                    } 
+                    else {
+                        result = const_cast<Matrix<Type> *>(it);
                     }
                     return;
                 }
@@ -59,15 +61,17 @@ class ZeroMatSubHandler : public T {
                 #if defined(NUMERICAL_CHECK)
                     else if (auto *it = ZeroMatSubNum(lhs, rhs); nullptr != it) {
                         if (it == lhs) {
-                        result = const_cast<Matrix<Type> *>(lhs);
-                        } else if (it == rhs) {
-                        if (-1 == it->getMatType()) {
-                            SubZero(it, result);
-                        } else {
-                            T::handle(lhs, rhs, result);
-                        }
-                        } else {
-                        result = const_cast<Matrix<Type> *>(it);
+                            result = const_cast<Matrix<Type> *>(lhs);
+                        } 
+                        else if (it == rhs) {
+                            if (-1 == it->getMatType()) {
+                                BaselineCPU::SubZero(it, result);
+                            } else {
+                                T::handle(lhs, rhs, result);
+                            }
+                        } 
+                        else {
+                            result = const_cast<Matrix<Type> *>(it);
                         }
                         return;
                     }
