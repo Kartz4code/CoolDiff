@@ -35,13 +35,13 @@ class EyeMatKronHandler : public T {
         if (auto *it = EyeMatKron(lhs, rhs); nullptr != it) {
           if (it == lhs) {
             if (-1 == it->getMatType()) {
-              KronEyeRHS(lhs, rhs, result);
+              BaselineCPU::KronEyeRHS(lhs, rhs, result);
             } else {
               T::handle(lhs, rhs, result);
             }
           } else if (it == rhs) {
             if (-1 == it->getMatType()) {
-              KronEyeLHS(lhs, rhs, result);
+              BaselineCPU::KronEyeLHS(lhs, rhs, result);
             } else {
               T::handle(lhs, rhs, result);
             }
@@ -56,13 +56,13 @@ class EyeMatKronHandler : public T {
           else if (auto *it = EyeMatKronNum(lhs, rhs); nullptr != it) {
             if (it == lhs) {
               if (-1 == lhs->getMatType()) {
-                KronEyeRHS(lhs, rhs, result);
+                BaselineCPU::KronEyeRHS(lhs, rhs, result);
               } else {
                 T::handle(lhs, rhs, result);
               }
             } else if (it == rhs) {
               if (-1 == rhs->getMatType()) {
-                KronEyeLHS(lhs, rhs, result);
+                BaselineCPU::KronEyeLHS(lhs, rhs, result);
               } else {
                 T::handle(lhs, rhs, result);
               }

@@ -409,19 +409,20 @@ const Matrix<Type> *ZeroMatDervConvNum(const size_t rows, const size_t cols,
   }
 }
 
+namespace BaselineCPU {
+  void SubZero(const Matrix<Type> *it, Matrix<Type> *&result) {
+    /*
+      Rows and columns of result matrix and if result is nullptr or if dimensions
+      mismatch, then create a new matrix resource
+    */
+    const size_t nrows{it->getNumRows()};
+    const size_t ncols{it->getNumColumns()};
 
-void SubZero(const Matrix<Type> *it, Matrix<Type> *&result) {
-  /*
-    Rows and columns of result matrix and if result is nullptr or if dimensions
-    mismatch, then create a new matrix resource
-  */
-  const size_t nrows{it->getNumRows()};
-  const size_t ncols{it->getNumColumns()};
+    // Pool matrix
+    MemoryManager::MatrixPool(nrows, ncols, result);
 
-  // Pool matrix
-  MemoryManager::MatrixPool(nrows, ncols, result);
-
-  std::transform(EXECUTION_PAR it->getMatrixPtr(),
-                 it->getMatrixPtr() + it->getNumElem(), result->getMatrixPtr(),
-                 [](const auto &i) { return ((Type)(-1) * i); });
+    std::transform(EXECUTION_PAR it->getMatrixPtr(),
+                  it->getMatrixPtr() + it->getNumElem(), result->getMatrixPtr(),
+                  [](const auto &i) { return ((Type)(-1) * i); });
+  }
 }

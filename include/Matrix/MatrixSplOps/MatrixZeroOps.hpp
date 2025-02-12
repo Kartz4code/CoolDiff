@@ -83,5 +83,6 @@ const Matrix<Type> *ZeroMatDervConvNum(const size_t, const size_t,
                                        const Matrix<Type> *,
                                        const Matrix<Type> *);
 
-
-void SubZero(const Matrix<Type>*, Matrix<Type>*&);
+namespace BaselineCPU {
+    void SubZero(const Matrix<Type>*, Matrix<Type>*&);
+};

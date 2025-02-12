@@ -166,11 +166,6 @@ set(SRC ${CMAKE_SOURCE_DIR}/src/CommonHeader.cpp
         ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixSplOps/MatrixZeroOps.cpp
         ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixSplOps/MatrixEyeOps.cpp
         ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHandler.cpp
-        # MatrixHadamardHandler folder
-        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHadamardHandler/ZeroMatHadamardHandler.cpp
-        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHadamardHandler/EyeMatHadamardHandler.cpp
-        # MatrixHadamard folder
-        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHadamard/MatHadamardNaiveHandler.cpp
         # MatrixConvolution folder
         ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvolution/MatDervConvNaiveHandler.cpp
         ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvolution/MatConvNaiveHandler.cpp
@@ -217,6 +212,10 @@ set(INCLUDES ${CMAKE_SOURCE_DIR}/include
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubHandler/NaiveCPU
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/NaiveCPU
 
+             # Naive CPU Hadamard handlers
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamardHandler/NaiveCPU
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/NaiveCPU
+
              # Naive CPU Kronecker product handlers
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronHandler/NaiveCPU
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/NaiveCPU
@@ -229,8 +228,6 @@ set(INCLUDES ${CMAKE_SOURCE_DIR}/include
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDet/Eigen
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDetHandler/NaiveCPU
 
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamardHandler 
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvHandler
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvolution
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnaryHandler
