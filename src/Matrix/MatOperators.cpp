@@ -20,27 +20,6 @@
  */
 
 #include "MatOperators.hpp"
-#include "Matrix.hpp"
-
-
-
-// Special matrix convolution
-#include "ZeroMatConvHandler.hpp"
-#include "ZeroMatDervConvHandler.hpp"
-
-// Special matrix unary
-#include "EyeMatUnaryHandler.hpp"
-#include "ZeroMatUnaryHandler.hpp"
-
-// Matrix operations
-#include "MatConvNaiveHandler.hpp"
-#include "MatDervConvNaiveHandler.hpp"
-
-#include "MatUnaryNaiveHandler.hpp"
-
-#include "MatInverseEigenHandler.hpp"
-#include "EyeMatInvHandler.hpp"
-#include "ZeroMatInvHandler.hpp"
 
 // Static handlers
 // Matrix-Matrix addition
@@ -90,6 +69,22 @@
 #include "EyeMatTransposeHandler.hpp"
 #include "ZeroMatDervTransposeHandler.hpp"
 #include "ZeroMatTransposeHandler.hpp"
+
+// Matrix unary
+#include "MatUnaryNaiveHandler.hpp"
+#include "EyeMatUnaryHandler.hpp"
+#include "ZeroMatUnaryHandler.hpp"
+
+// Matrix convolution
+#include "ZeroMatConvHandler.hpp"
+#include "ZeroMatDervConvHandler.hpp"
+#include "MatConvNaiveHandler.hpp"
+#include "MatDervConvNaiveHandler.hpp"
+
+// Matrix inverse
+#include "MatInverseEigenHandler.hpp"
+#include "EyeMatInvHandler.hpp"
+#include "ZeroMatInvHandler.hpp"
 
 // Handler of sizes 2,3,4,5,6,7
 #define HANDLER2(X1,X2) X1<X2<MatrixStaticHandler>>
@@ -275,6 +270,48 @@ void MatrixDervTranspose(const size_t nrows_f, const size_t ncols_f,
   handler.handle(nrows_f, ncols_f, nrows_x, ncols_x, mat, result);
 }
 
+// MatrixInverse
+void MatrixInverse(const Matrix<Type>* mat, Matrix<Type>*& result) {
+  NULL_CHECK(mat, "Matrix mat is a nullptr");
+
+  static HANDLER3(EyeMatInvHandler, 
+                  ZeroMatInvHandler,
+                  MatInverseEigenHandler) handler;
+
+  // Handle Matrix Inverse
+  handler.handle(mat, result);
+}
+
+// MatrixDeterminant
+void MatrixDet(const Matrix<Type>* mat, Matrix<Type>*& result) {
+  // Null pointer check
+  NULL_CHECK(mat, "Matrix mat is a nullptr");
+
+  /* Chain of responsibility (Order matters)
+    1) Eye matrix check
+    2) Zero matrix check
+    3) Matrix convolution derivative
+  */
+  static HANDLER3(EyeMatDetHandler, 
+                  ZeroMatDetHandler,
+                  MatDetEigenHandler) handler;
+
+  // Handle matrix determinant
+  handler.handle(mat, result);
+}
+
+// Matrix unary
+void MatrixUnary(const Matrix<Type> *mat, const FunctionType1 &func, Matrix<Type> *&result) {
+  NULL_CHECK(mat, "Matrix mat is a nullptr");
+
+  static HANDLER3(EyeMatUnaryHandler, 
+                  ZeroMatUnaryHandler,
+                  MatUnaryNaiveHandler) handler;
+
+  // Handle Unary Matrix
+  handler.handle(mat, func, result);
+}
+
 // Matrix convolution
 void MatrixConv(const size_t stride_x, const size_t stride_y,
                 const size_t pad_x, const size_t pad_y, const Matrix<Type> *lhs,
@@ -288,11 +325,12 @@ void MatrixConv(const size_t stride_x, const size_t stride_y,
       2) Zero matrix check
       3) Matrix convolution
   */
-  static MatConvNaiveHandler h1{nullptr};
-  static ZeroMatConvHandler h2{&h1};
+
+  static HANDLER2(ZeroMatConvHandler, 
+                  MatConvNaiveHandler) handler;
 
   // Handle Matrix convolution
-  h2.handle(stride_x, stride_y, pad_x, pad_y, lhs, rhs, result);
+  handler.handle(stride_x, stride_y, pad_x, pad_y, lhs, rhs, result);
 }
 
 // Matrix derivative convolution
@@ -315,52 +353,10 @@ void MatrixDervConv(const size_t nrows_x, const size_t ncols_x,
       3) Matrix convolution derivative
   */
 
-  static MatDervConvNaiveHandler h1{nullptr};
-  static ZeroMatDervConvHandler h2{&h1};
+  static HANDLER2(ZeroMatDervConvHandler, 
+                  MatDervConvNaiveHandler) handler;
 
   // Handle Matrix convolution derivative
-  h2.handle(nrows_x, ncols_x, stride_x, stride_y, pad_x, pad_y, lhs, dlhs, rhs,
-            drhs, result);
+  handler.handle(nrows_x, ncols_x, stride_x, stride_y, pad_x, pad_y, lhs, dlhs, rhs, drhs, result);
 }
 
-// Matrix unary
-void MatrixUnary(const Matrix<Type> *mat, const FunctionType1 &func, Matrix<Type> *&result) {
-  NULL_CHECK(mat, "Matrix mat is a nullptr");
-
-  static MatUnaryNaiveHandler h1{nullptr};
-  static EyeMatUnaryHandler h2{&h1};
-  static ZeroMatUnaryHandler h3{&h2};
-
-  // Handle Unary Matrix
-  h3.handle(mat, func, result);
-}
-
-// MatrixInverse
-void MatrixInverse(const Matrix<Type>* mat, Matrix<Type>*& result) {
-  NULL_CHECK(mat, "Matrix mat is a nullptr");
-
-  static MatInverseEigenHandler h1{nullptr};
-  static EyeMatInvHandler h2{&h1};
-  static ZeroMatInvHandler h3{&h2};
-
-  // Handle Matrix Inverse
-  h3.handle(mat, result);
-}
-
-// MatrixDeterminant
-void MatrixDet(const Matrix<Type>* mat, Matrix<Type>*& result) {
-  // Null pointer check
-  NULL_CHECK(mat, "Matrix mat is a nullptr");
-
-  /* Chain of responsibility (Order matters)
-    1) Eye matrix check
-    2) Zero matrix check
-    3) Matrix convolution derivative
-  */
-  static HANDLER3(EyeMatDetHandler, 
-                  ZeroMatDetHandler,
-                  MatDetEigenHandler) handler;
-
-  // Handle matrix determinant
-  handler.handle(mat, result);
-}

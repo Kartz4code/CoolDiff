@@ -36,8 +36,7 @@ void MatrixMul(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&);
 void MatrixKron(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&);
 
 // Matrix-Matrix Hadamard product - Left, Right, Result matrix pointer
-void MatrixHadamard(const Matrix<Type> *, const Matrix<Type> *,
-                    Matrix<Type> *&);
+void MatrixHadamard(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&);
 
 // Matrix-Scalar addition
 void MatrixScalarAdd(Type, const Matrix<Type> *, Matrix<Type> *&);

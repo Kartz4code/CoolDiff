@@ -165,20 +165,6 @@ set(SRC ${CMAKE_SOURCE_DIR}/src/CommonHeader.cpp
         ${CMAKE_SOURCE_DIR}/src/Matrix/Matrix.cpp
         ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixSplOps/MatrixZeroOps.cpp
         ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixSplOps/MatrixEyeOps.cpp
-        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixHandler.cpp
-        # MatrixConvolution folder
-        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvolution/MatDervConvNaiveHandler.cpp
-        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvolution/MatConvNaiveHandler.cpp
-        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvHandler/ZeroMatConvHandler.cpp
-        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixConvHandler/ZeroMatDervConvHandler.cpp
-        # MatrixUnary folder 
-        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixUnaryHandler/ZeroMatUnaryHandler.cpp
-        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixUnaryHandler/EyeMatUnaryHandler.cpp
-        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixUnary/MatUnaryNaiveHandler.cpp
-        # MatrixInverse folder 
-        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixInverse/MatInverseEigenHandler.cpp
-        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixInvHandler/EyeMatInvHandler.cpp
-        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixHandler/MatrixInvHandler/ZeroMatInvHandler.cpp
         # Memory manager folder
         ${CMAKE_SOURCE_DIR}/src/MemoryManager/MemoryManager.cpp)
 
@@ -228,12 +214,17 @@ set(INCLUDES ${CMAKE_SOURCE_DIR}/include
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDet/Eigen
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDetHandler/NaiveCPU
 
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvHandler
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvolution
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnaryHandler
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInverse
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInvHandler
+             # Unary handlers
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnaryHandler/NaiveCPU
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary/NaiveCPU
+
+             # Inverse handlers
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInverse/Eigen
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInvHandler/NaiveCPU
+
+             # Convolution handlers            
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvHandler/NaiveCPU
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvolution/NaiveCPU
 
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixSplOps
              ${CMAKE_SOURCE_DIR}/include/MemoryManager
