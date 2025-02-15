@@ -26,31 +26,31 @@
 class MatrixStaticHandler {
   public:
     void handle(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&) {
-      ASSERT(false, "Invalid Handler - Entered MatrixBaseHandler");
+      ASSERT(false, "Invalid Handler - Entered base case");
     }
 
     void handle(Type, const Matrix<Type>*, Matrix<Type>*&) {
-      ASSERT(false, "Invalid Handler - Entered MatrixBaseHandler");
+      ASSERT(false, "Invalid Handler - Entered base case");
     }
 
     void handle(const Matrix<Type>*, Matrix<Type>*&) {
-      ASSERT(false, "Invalid Handler - Entered MatrixBaseHandler");
+      ASSERT(false, "Invalid Handler - Entered base case");
     }
 
     void handle(const size_t, const size_t, const size_t, const size_t, const Matrix<Type>*, Matrix<Type>*&) {
-      ASSERT(false, "Invalid Handler - Entered MatrixBaseHandler");
+      ASSERT(false, "Invalid Handler - Entered base case");
     }
 
     void handle(const Matrix<Type>*, const FunctionType1&, Matrix<Type>*&) {
-      ASSERT(false, "Invalid Handler - Entered MatrixBaseHandler");
+      ASSERT(false, "Invalid Handler - Entered base case");
     }
 
     void handle(const size_t, const size_t, const size_t, const size_t, const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&) {
-        ASSERT(false, "Invalid Handler - Entered MatrixBaseHandler");
+      ASSERT(false, "Invalid Handler - Entered base case");
     }
 
-    void handle(const size_t, const size_t, const size_t, const size_t, const size_t, const size_t, 
-                const Matrix<Type>*, const Matrix<Type>*, const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&) {
-        ASSERT(false, "Invalid Handler - Entered MatrixBaseHandler");
+    void handle(const size_t, const size_t, const size_t, const size_t, const size_t, const size_t, const Matrix<Type>*, const Matrix<Type>*, 
+                const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&) {
+      ASSERT(false, "Invalid Handler - Entered base case");
     }
 };
