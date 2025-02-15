@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/MatrixHandler/MatrixInvHandler/EyeMatInvHandler.hpp
+ * @file include/Matrix/MatrixHandler/MatrixInvHandler/NaiveCPU/ZeroMatInvHandler.hpp
  * 
  * @copyright 2023-2024 Karthik Murali Madhavan Rathai
  */
@@ -19,16 +19,24 @@
  * associated repository.
  */
 
-#pragma once
+ #pragma once
 
-#include "MatrixHandler.hpp"
+ #include "MatrixStaticHandler.hpp"
+ #include "Matrix.hpp"
+ #include "MatrixZeroOps.hpp"
 
-class EyeMatInvHandler : public MatrixHandler {
-public:
-  using MatrixHandler::MatrixHandler;
-
-  V_OVERRIDE(void handle(const Matrix<Type>*, Matrix<Type>*&));
-
-  // Destructor
-  V_DTR(~EyeMatInvHandler() = default);
-};
+ template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
+ class ZeroMatInvHandler : public T {
+    public:
+    void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
+      #if defined(NAIVE_IMPL)
+        /* Zero matrix special check */
+        if (true == IsZeroMatrix(mat)) {
+          ASSERT(false, "Inverse of a zero matrix");
+          return;
+        }
+      #endif
+        // Chain of responsibility
+        T::handle(mat, result);
+      }
+ };
