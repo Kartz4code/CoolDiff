@@ -27,7 +27,7 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatAddNaiveHandler : public T {
     public:
-        void handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
+        void handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
             /* Matrix-Matrix numerical addition */
 
             // Dimensions of LHS and RHS matrices
@@ -43,7 +43,7 @@ class MatAddNaiveHandler : public T {
             MemoryManager::MatrixPool(nrows, ncols, result);
 
             // Get raw pointers to result, left and right matrices
-            Type *res = result->getMatrixPtr();
+            Type* res = result->getMatrixPtr();
             const Type *left = lhs->getMatrixPtr();
             const Type *right = rhs->getMatrixPtr();
 

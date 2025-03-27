@@ -23,13 +23,13 @@
 #include "CommonMatFunctions.hpp"
 
 // Is the matrix square
-bool IsSquareMatrix(const Matrix<Type> *m) {
+bool IsSquareMatrix(const Matrix<Type>* m) {
   // Check for square matrix
   return (m->getNumColumns() == m->getNumRows());
 }
 
 // Is the matrix identity
-bool IsEyeMatrix(const Matrix<Type> *m) {
+bool IsEyeMatrix(const Matrix<Type>* m) {
   // If matrix not square, return false
   if (false == IsSquareMatrix(m)) {
     return false;

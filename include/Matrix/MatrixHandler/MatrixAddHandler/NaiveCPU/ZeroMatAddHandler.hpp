@@ -29,7 +29,7 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class ZeroMatAddHandler : public T {
     public:
-        void handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
+        void handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
             // Dimensions of LHS and RHS matrices
             const size_t nrows{lhs->getNumRows()};
             const size_t ncols{rhs->getNumColumns()};
@@ -41,14 +41,14 @@ class ZeroMatAddHandler : public T {
 
             #if defined(NAIVE_IMPL)
                 /* Zero matrix special check */
-                if (auto *it = ZeroMatAdd(lhs, rhs); nullptr != it) {
-                    result = const_cast<Matrix<Type> *>(it);
+                if (auto* it = ZeroMatAdd(lhs, rhs); nullptr != it) {
+                    result = const_cast<Matrix<Type>*>(it);
                     return;
                 }
                 /* Zero matrix numerical check */
                 #if defined(NUMERICAL_CHECK)
-                    else if (auto *it = ZeroMatAddNum(lhs, rhs); nullptr != it) {
-                        result = const_cast<Matrix<Type> *>(it);
+                    else if (auto* it = ZeroMatAddNum(lhs, rhs); nullptr != it) {
+                        result = const_cast<Matrix<Type>*>(it);
                         return;
                     }
                 #endif

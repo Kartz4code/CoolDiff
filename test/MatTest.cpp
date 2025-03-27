@@ -22,8 +22,23 @@
 #include "CoolDiff.hpp"
 #include <gtest/gtest.h>
 
-// Matrix softmax (TODO)
+// Matrix softmax
 TEST(MatTest, Test11) {
+  double epi = 0.001;
+
+  // Eval and Deval result 1
+  Type Xres1[2][2] = {{(Type)0.02371293659, (Type)0.4762870634},
+                      {(Type)0.00006169728799, (Type)0.4999383027}};
+
+  Type DXres1[2][8] = {{(Type)-0.001124606723, (Type)-0.03444479816, (Type)0.04517665973, (Type)-0.04517665973, (Type)-0.4988753933, (Type)-0.2155552018, (Type)-0.04517665973, (Type)0.04517665973},
+                       {(Type)0.0001850614115, (Type)-0.0002776073435, (Type)0.0003084483744, (Type)-0.0003084483744, (Type)-0.5001850614, (Type)-0.2497223927, (Type)-0.0003084483744, (Type)0.0003084483744}};
+
+  // Eval and Deval result 2
+  Type Xres2[2][2] = {{(Type)0.001580862439, (Type)0.03175247089},
+                      {(Type)0.000004113152533, (Type)0.03332922018}};
+
+  Type DXres2[2][8] = {{(Type)0.00118971617, (Type)-0.001769365731, (Type)0.003011777315, (Type)-0.003011777315, (Type)-0.007856382837, (Type)-0.003786189825, (Type)-0.003011777315, (Type)0.003011777315},
+                       {(Type)0.00001562794946, (Type)-0.00001713610539, (Type)0.00002056322496, (Type)-0.00002056322496, (Type)-0.006682294616, (Type)-0.00553841945, (Type)-0.00002056322496, (Type)0.00002056322496}};
 
   Matrix<Variable> X(1,4); 
   X[0] = 1; X[1] = 2; X[2] = 3; X[3] = 4;
@@ -37,9 +52,36 @@ TEST(MatTest, Test11) {
   S(1,0) = X[2]; S(1,1) = X[3];
 
   Matrix<Expression> E = SoftMax<Axis::COLUMN>(A*S);
+  E = E/(X[0]*X[1]);
 
-  Eval(E);
-  DevalF(E,X);
+  // Verification eval function
+  auto verify_eval_function = [&](auto Xres) {
+    auto &R = Eval(E);
+    for (size_t i{}; i < R.getNumRows(); ++i) {
+      for (size_t j{}; j < R.getNumColumns(); ++j) {
+        ASSERT_NEAR(std::abs(R(i, j)), std::abs(Xres[i][j]), epi);
+      }
+    }
+  };
+  
+  // Verification deval function
+  auto verify_deval_function = [&](auto DXres) {
+    auto &DR = DevalF(E, X);
+    for (size_t i{}; i < DR.getNumRows(); ++i) {
+      for (size_t j{}; j < DR.getNumColumns(); ++j) {
+        ASSERT_NEAR(std::abs(DR(i, j)), std::abs(DXres[i][j]), epi);
+      }
+    }
+  };
+
+  verify_eval_function(Xres1);
+  verify_deval_function(DXres1);
+
+  X[0] = 5; X[1] = 6; X[2] = 7; X[3] = 8;
+
+  verify_eval_function(Xres2);
+  verify_deval_function(DXres2);
+
 }
 
 // Matrix determinant (TODO)
