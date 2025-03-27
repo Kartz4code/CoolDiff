@@ -29,16 +29,16 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class EyeMatScalarAddHandler : public T {
     public:
-        void handle(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
+        void handle(Type lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
             #if defined(NAIVE_IMPL)
                 /* Eye matrix special check */
-                if (auto *it = EyeMatScalarAdd(lhs, rhs); nullptr != it) {
+                if (auto* it = EyeMatScalarAdd(lhs, rhs); nullptr != it) {
                     BaselineCPU::AddEye(lhs, rhs, result);
                     return;
                 }
                 /* Eye matrix numerical check */
                 #if defined(NUMERICAL_CHECK)
-                    else if (auto *it = EyeMatScalarAddNum(lhs, rhs); nullptr != it) {
+                    else if (auto* it = EyeMatScalarAddNum(lhs, rhs); nullptr != it) {
                         BaselineCPU::AddEye(lhs, rhs, result);
                         return;
                     }
