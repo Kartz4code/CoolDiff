@@ -25,6 +25,9 @@
 
 // Parameter class for l-value data variables
 class Parameter : public IVariable<Parameter> {
+private:
+  void swap(Parameter&) noexcept;
+
 public:
   // Block index
   size_t m_nidx{};

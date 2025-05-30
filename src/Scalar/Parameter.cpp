@@ -22,6 +22,12 @@
 #include "Parameter.hpp"
 #include "Variable.hpp"
 
+// Swap for assignment operator
+void Parameter::swap(Parameter& other) noexcept {
+  std::swap(m_nidx, other.m_nidx);
+  std::swap(m_cache, other.m_cache);
+}
+
 // Constructors
 Parameter::Parameter() : m_nidx{this->m_idx_count++} {
   auto tmp = Allocate<Variable>((Type)0);
@@ -48,17 +54,13 @@ Parameter::Parameter(Parameter&& s) noexcept
 
 // Copy assignment
 Parameter& Parameter::operator=(const Parameter& s) {
-  m_nidx = s.m_nidx;
-  m_cache = s.m_cache;
-  this->mp_tmp = s.mp_tmp;
+  Parameter{s}.swap(*this);
   return *this;
 }
 
 // Move assignment
 Parameter& Parameter::operator=(Parameter&& s) noexcept {
-  m_nidx = std::exchange(s.m_nidx, -1);
-  m_cache = std::move(s.m_cache);
-  this->mp_tmp = std::exchange(s.mp_tmp, nullptr);
+  Parameter{std::move(s)}.swap(*this);
   return *this;
 }
 

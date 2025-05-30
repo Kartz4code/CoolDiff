@@ -50,6 +50,9 @@ public:
   };
 
 private:
+  // Swap for assignment
+  void swap(Matrix&) noexcept;
+
   // Allocate friend function
   template <typename Z, typename... Argz>
   friend SharedPtr<Z> Allocate(Argz&&...);
