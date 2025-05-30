@@ -81,7 +81,6 @@ TEST(MatTest, Test11) {
 
   verify_eval_function(Xres2);
   verify_deval_function(DXres2);
-
 }
 
 // Matrix determinant (TODO)

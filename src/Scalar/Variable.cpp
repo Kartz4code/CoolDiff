@@ -24,6 +24,16 @@
 Variable Variable::t1{(Type)1};
 Variable Variable::t0{(Type)0};
 
+// Swap for assignment 
+void Variable::swap(Variable& exp) noexcept {
+  std::swap(m_nidx, exp.m_nidx);
+  std::swap(m_cache, exp.m_cache);
+  std::swap(m_var, exp.m_var);
+  std::swap(m_value_var, exp.m_value_var);
+  std::swap(m_visited, exp.m_visited);
+  std::swap(m_gh_vec, exp.m_gh_vec);
+}
+
 // Dummy variables are nameless variables counted negatively
 Variable::Variable() : m_nidx{this->m_idx_count++} {
   // Reserve a buffer of expressions
@@ -77,25 +87,14 @@ Variable::Variable(Variable&& exp) noexcept : m_nidx{std::exchange(exp.m_nidx, -
 
 // Copy assignment from one variable to another
 Variable &Variable::operator=(const Variable& exp) {
-  if (&exp != this) {
-    // Copy all members
-    m_nidx = exp.m_nidx;
-    m_cache = exp.m_cache;
-    m_var = exp.m_var;
-    m_value_var = exp.m_value_var;
-    m_visited = exp.m_visited;
-    m_gh_vec = exp.m_gh_vec;
-  }
+  // Copy-swap idiom
+  Variable{exp}.swap(*this);
   return *this;
 }
 
 Variable &Variable::operator=(Variable&& exp) noexcept {
-  m_nidx = std::exchange(exp.m_nidx, -1);
-  m_cache = std::move(exp.m_cache);
-  m_var = std::move(exp.m_var);
-  m_value_var = std::exchange(exp.m_value_var, nullptr);
-  m_gh_vec = std::move(exp.m_gh_vec);
-  m_visited = std::exchange(exp.m_visited, false);
+  // Copy-swap idiom
+  Variable{std::move(exp)}.swap(*this);
   return *this;
 }
 

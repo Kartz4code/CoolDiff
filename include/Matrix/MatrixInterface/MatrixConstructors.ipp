@@ -23,6 +23,23 @@
 
 #include "Matrix.hpp"
  
+template<typename T>
+void Matrix<T>::swap(Matrix& other) noexcept {
+  std::swap(m_rows, other.m_rows);
+  std::swap(m_cols, other.m_cols);
+  std::swap(m_type, other.m_type);
+  std::swap(mp_mat, other.mp_mat);
+  std::swap(m_gh_vec, other.m_gh_vec);
+  std::swap(m_free, other.m_free);
+  std::swap(m_eval, other.m_eval);
+  std::swap(m_devalf, other.m_devalf);
+  std::swap(m_dest, other.m_dest);
+  std::swap(mp_result, other.mp_result);
+  std::swap(mp_dresult, other.mp_dresult);
+  std::swap(m_nidx, other.m_nidx);
+  std::swap(m_cache, other.m_cache);
+}
+
 // Special matrix constructor (Privatized, only for internal factory view)
 template<typename T>
 Matrix<T>::Matrix(const size_t rows, const size_t cols, const MatrixSpl& type) : m_rows{rows}, 
@@ -112,36 +129,8 @@ Matrix<T>::Matrix(const Matrix& m) : m_rows{m.m_rows},
 // Copy assignment operator
 template<typename T>
 Matrix<T>& Matrix<T>::operator=(const Matrix& m) {
-  if (&m != this) {
-    // Assign resources
-    m_rows = m.m_rows;
-    m_cols = m.m_cols;
-    m_type = m.m_type;
-    m_eval = m.m_eval;
-    m_devalf = m.m_devalf;
-    m_dest = m.m_dest;
-    m_cache = m.m_cache;
-    m_nidx = m.m_nidx;
-
-    // Reset mp_mat
-    if (nullptr != mp_mat) {
-      delete[] mp_mat;
-      mp_mat = nullptr;
-    }
-
-    // If T is an Expression type
-    if constexpr(false == std::is_same_v<T,Expression>) {
-      if(nullptr != m.mp_mat) {
-        // Copy values
-        mp_mat = new T[getNumElem()]{};
-        std::copy(EXECUTION_PAR m.mp_mat, m.mp_mat + getNumElem(), mp_mat);
-      }
-    } else {
-        // Pushback the expression in a generic holder
-        m_gh_vec.push_back((Matrix<Expression>*)&m);
-    }
-  }
-
+  // Copy-swap idiom
+  Matrix<T>{m}.swap(*this);
   // Return this reference
   return *this;
 }
@@ -166,28 +155,10 @@ Matrix<T>::Matrix(Matrix&& m) noexcept : m_rows{std::exchange(m.m_rows, -1)},
 // Move assignment operator
 template<typename T>
 Matrix<T>& Matrix<T>::operator=(Matrix&& m) noexcept {
-   // Reset mp_mat
-  if (nullptr != mp_mat) {
-    delete[] mp_mat;
-    mp_mat = nullptr;
-  }
-
-  // Exchange values
-  mp_mat = std::exchange(m.mp_mat, nullptr);
-  m_rows = std::exchange(m.m_rows, -1);
-  m_cols = std::exchange(m.m_cols, -1);
-  m_type = std::exchange(m.m_type, -1);
-  mp_result = std::exchange(m.mp_result, nullptr);
-  mp_dresult = std::exchange(m.mp_dresult, nullptr);
-  m_eval = std::exchange(m.m_eval, false);
-  m_devalf = std::exchange(m.m_devalf, false);
-  m_dest = std::exchange(m.m_dest, true);
-  m_cache = std::move(m.m_cache);
-  m_nidx = std::exchange(m.m_nidx, -1);
-  m_gh_vec = std::exchange(m.m_gh_vec, {});
-
-  // Return this reference
-  return *this;
+    // Copy-swap idiom
+    Matrix<T>{std::move(m)}.swap(*this);
+    // Return this reference
+    return *this;
 }
 
 // Destructor

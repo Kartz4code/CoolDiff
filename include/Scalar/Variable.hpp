@@ -34,6 +34,10 @@ private:
   template <typename Func, typename FuncLHS, typename FuncRHS>
   friend class GenericBinaryC0Function;
 
+    // Swap for assignment 
+  void swap(Variable& other) noexcept;
+
+
 protected:
   // Underlying symbolic variable
   SharedPtr<VarWrap> m_var{std::make_shared<VarWrap>()};
