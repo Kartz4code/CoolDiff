@@ -29,6 +29,11 @@
  class ZeroMatInvHandler : public T {
     public:
     void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
+      const size_t nrows{mat->getNumRows()};
+      const size_t ncols{mat->getNumColumns()};
+      // Assert squareness
+      ASSERT((nrows == ncols), "Matrix is not square for inverse computation");
+
       #if defined(NAIVE_IMPL)
         /* Zero matrix special check */
         if (true == IsZeroMatrix(mat)) {

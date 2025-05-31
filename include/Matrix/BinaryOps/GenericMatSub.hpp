@@ -61,21 +61,27 @@ public:
   const size_t m_nidx{};
 
   // Constructor
-  constexpr GenericMatSub(T1 *u, T2 *v, Callables &&...call)
-      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
-                                     std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {
+  constexpr GenericMatSub(T1 *u, T2 *v, Callables &&...call) : mp_left{u}, 
+                                                               mp_right{v}, 
+                                                               m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                               m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
   // Get number of rows
-  V_OVERRIDE(size_t getNumRows() const) { return mp_left->getNumRows(); }
+  V_OVERRIDE(size_t getNumRows() const) { 
+    return mp_left->getNumRows(); 
+  }
 
   // Get number of columns
-  V_OVERRIDE(size_t getNumColumns() const) { return mp_right->getNumColumns(); }
+  V_OVERRIDE(size_t getNumColumns() const) { 
+    return mp_right->getNumColumns(); 
+  }
 
   // Find me
-  bool findMe(void *v) const { BINARY_FIND_ME(); }
+  bool findMe(void *v) const { 
+    BINARY_FIND_ME(); 
+  }
 
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type> *eval()) {
@@ -110,10 +116,14 @@ public:
   }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { BINARY_MAT_RESET(); }
+  V_OVERRIDE(void reset()) { 
+    BINARY_MAT_RESET(); 
+  }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { return "GenericMatSub"; }
+  V_OVERRIDE(std::string_view getType() const) { 
+    return "GenericMatSub"; 
+  }
 
   // Destructor
   V_DTR(~GenericMatSub()) = default;

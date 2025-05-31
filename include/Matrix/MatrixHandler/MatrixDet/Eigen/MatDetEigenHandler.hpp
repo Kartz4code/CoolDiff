@@ -30,6 +30,8 @@ class MatDetEigenHandler : public T {
       void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
         const size_t nrows{mat->getNumRows()};
         const size_t ncols{mat->getNumColumns()};
+        // Assert squareness
+        ASSERT((nrows == ncols), "Matrix is not square for determinant computation");
       
         // Pool matrix
         MemoryManager::MatrixPool(1, 1, result);

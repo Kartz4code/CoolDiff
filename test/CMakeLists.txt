@@ -35,11 +35,13 @@ if(${BUILD_TEST})
     target_include_directories(${TEST_EXECUTABLE} PUBLIC ${INCLUDES})
     # Set compile options
     target_compile_options(${TEST_EXECUTABLE} PRIVATE -fpermissive)
+    
+    target_link_libraries(${TEST_EXECUTABLE} PRIVATE gtest_main CoolDiff)
+    
     if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
         target_compile_options(${TEST_EXECUTABLE} PRIVATE -fno-omit-frame-pointer -fsanitize=address)
         target_link_options(${TEST_EXECUTABLE} PRIVATE -fno-omit-frame-pointer -fsanitize=address)
     endif()
-    target_link_libraries(${TEST_EXECUTABLE} PRIVATE gtest_main CoolDiff)
 
 ##################################################################################################################################
 
@@ -49,11 +51,13 @@ if(${BUILD_TEST})
     target_include_directories(${TEST_EXECUTABLE2} PUBLIC ${INCLUDES})
     # Set compile options
     target_compile_options(${TEST_EXECUTABLE2} PRIVATE -fpermissive)
+    
+    target_link_libraries(${TEST_EXECUTABLE2} PRIVATE gtest_main CoolDiff)
+    
     if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
         target_compile_options(${TEST_EXECUTABLE2} PRIVATE -fno-omit-frame-pointer -fsanitize=address)
         target_link_options(${TEST_EXECUTABLE2} PRIVATE -fno-omit-frame-pointer -fsanitize=address)
     endif()
-    target_link_libraries(${TEST_EXECUTABLE2} PRIVATE gtest_main CoolDiff)
 
 endif()
 

@@ -1,19 +1,27 @@
-# CoolDiff :sunglasses:: A Symbolic/Auto differentiation C++ tool 
----
-* **CoolDiff** is a C++ 17 library dedicated to compute both automatic as well as symbolic differentiation of mathematical expressions. 
 
-* **CoolDiff** APIs provide an easy and simple way of modeling and evaluating scalar and matrix expressions, computing forward/reverse(adjoint) mode derivatives and symbolic derivatives (objects). 
+# CoolDiff :sunglasses:: A Symbolic/Auto differentiation C++ tool  
+
+---
+
+* **CoolDiff** is a C++ 17 library dedicated to compute both automatic as well as symbolic differentiation of mathematical expressions.
+
+* **CoolDiff** APIs provide an easy and simple way of modeling and evaluating scalar and matrix expressions, computing forward/reverse(adjoint) mode derivatives and symbolic derivatives (objects).
   
 ---
+
 ## Building the CoolDiff library :white_check_mark:
 
 The following steps will build the library  
 
 1. Clone the git repository using
+
  - `git clone https://github.com/Kartz4code/CoolDiff.git`
-2. Build the library using following steps 
+
+2. Build the library using following steps
+
 - `cmake -S . -B build`
 - `cmake --build build -j16 `
+
 3. Execute the Gaussian example to verify the success of the build
 - `./build/example/Gaussian`
 
