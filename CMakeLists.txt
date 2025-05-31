@@ -241,13 +241,6 @@ set(INCLUDES ${CMAKE_SOURCE_DIR}/include
 # [Add executable (target executable)]
 add_library(${PROJECT_NAME} STATIC ${SRC})
 
-# [Set target include directories]
-target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
-
-# [Set compile options]
-target_compile_options(${PROJECT_NAME} PRIVATE -fpermissive)
-target_link_libraries(${PROJECT_NAME} PUBLIC Threads::Threads Eigen3::Eigen)
-
 # [Attach address sanitizer]
 if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Attaching address sanitizer")
@@ -256,6 +249,14 @@ if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 else()
     message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Address sanitizer disabled")
 endif()
+
+# [Set target include directories]
+target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
+
+# [Set compile options]
+target_compile_options(${PROJECT_NAME} PRIVATE -fpermissive)
+target_link_libraries(${PROJECT_NAME} PUBLIC Threads::Threads Eigen3::Eigen)
+
 
 ########################################################################################################################
 ########################################################################################################################

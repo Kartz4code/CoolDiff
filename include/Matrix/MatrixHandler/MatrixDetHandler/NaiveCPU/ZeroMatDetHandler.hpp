@@ -25,15 +25,21 @@
  
  #include "Matrix.hpp"
 #include "MatrixZeroOps.hpp"
- 
+
  template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
  class ZeroMatDetHandler : public T {
    public:
     void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
+      const size_t nrows{mat->getNumRows()};
+      const size_t ncols{mat->getNumColumns()};
+      // Assert squareness
+        ASSERT((nrows == ncols), "Matrix is not square for determinant computation");
+
       #if defined(NAIVE_IMPL)
         /* Zero matrix special check */
         if (true == IsZeroMatrix(mat)) {
-          ASSERT(false, "Determinant of a zero matrix");
+          // Result matrix is transposed identity matrix
+          result = MemoryManager::MatrixSplPool(1, 1, MatrixSpl::ZEROS);
           return;
         }
       #endif

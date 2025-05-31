@@ -34,13 +34,15 @@ if(${BUILD_EXAMPLE})
     add_executable(Gaussian ${CMAKE_SOURCE_DIR}/example/Gaussian.cpp)
     # Set target include directories
     target_include_directories(Gaussian PUBLIC ${INCLUDES})
+
+    target_link_libraries(Gaussian PRIVATE CoolDiff)
+
     # Set compile options
     target_compile_options(Gaussian PRIVATE -fpermissive)
     if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
         target_compile_options(Gaussian PRIVATE -fno-omit-frame-pointer -fsanitize=address)
         target_link_options(Gaussian PRIVATE -fno-omit-frame-pointer -fsanitize=address)
     endif()
-    target_link_libraries(Gaussian PRIVATE CoolDiff)
 
     ########################################################################################################################
     ########################################################################################################################
@@ -70,11 +72,13 @@ if(${BUILD_EXAMPLE})
     target_include_directories(GaussNewton PUBLIC ${INCLUDES} 
                                                   ${CMAKE_SOURCE_DIR}/example/GaussNewton/include
                                                   ${CMAKE_CURRENT_BINARY_DIR})
+
+    target_link_libraries(GaussNewton PRIVATE CoolDiff)
+
     # Set compile options
     target_compile_options(GaussNewton PRIVATE -fpermissive)
     if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
         target_compile_options(GaussNewton PRIVATE -fno-omit-frame-pointer -fsanitize=address)
         target_link_options(GaussNewton PRIVATE -fno-omit-frame-pointer -fsanitize=address)
     endif()
-    target_link_libraries(GaussNewton PRIVATE CoolDiff)
 endif()

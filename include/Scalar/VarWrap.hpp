@@ -25,6 +25,9 @@
 
 class VarWrap {
 private:
+  // Swap 
+  void swap(VarWrap&) noexcept; 
+
   // Resources
   Type m_value{}, m_dvalue{};
 

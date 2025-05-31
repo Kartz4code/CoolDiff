@@ -21,31 +21,39 @@
 
 #include "VarWrap.hpp"
 
-VarWrap::VarWrap(Type val) : m_value{val}, m_dvalue{(Type)(0)} 
+// Copy-swap idiom 
+void VarWrap::swap(VarWrap& vw) noexcept {
+  std::swap(m_value, vw.m_value);
+  std::swap(m_dvalue, vw.m_dvalue);
+}
+
+VarWrap::VarWrap(Type val) : m_value{val}, 
+                             m_dvalue{(Type)(0)} 
 {}
 
-VarWrap::VarWrap() : m_value{(Type)(0)}, m_dvalue{(Type)(0)} 
+VarWrap::VarWrap() : m_value{(Type)(0)}, 
+                     m_dvalue{(Type)(0)} 
 {}
 
 // Copy constructor
-VarWrap::VarWrap(const VarWrap& vw) : m_value{vw.m_value}, m_dvalue{vw.m_dvalue} 
+VarWrap::VarWrap(const VarWrap& vw) : m_value{vw.m_value}, 
+                                      m_dvalue{vw.m_dvalue} 
 {}
 
 // Move constructor
-VarWrap::VarWrap(VarWrap&& vw) noexcept : m_value{std::exchange(vw.m_value, {})}, m_dvalue{std::exchange(vw.m_dvalue, {})} 
+VarWrap::VarWrap(VarWrap&& vw) noexcept : m_value{std::exchange(vw.m_value, {})}, 
+                                          m_dvalue{std::exchange(vw.m_dvalue, {})} 
 {}
 
 // Copy assignment
 VarWrap& VarWrap::operator=(const VarWrap& vw) {
-  m_value = vw.m_value;
-  m_dvalue = vw.m_dvalue;
+  VarWrap{vw}.swap(*this);
   return *this;
 }
 
 // Move assignment
 VarWrap& VarWrap::operator=(VarWrap&& vw) noexcept {
-  m_value = std::exchange(vw.m_value, {});
-  m_dvalue = std::exchange(vw.m_dvalue, {});
+  VarWrap{std::move(vw)}.swap(*this);
   return *this;
 }
 

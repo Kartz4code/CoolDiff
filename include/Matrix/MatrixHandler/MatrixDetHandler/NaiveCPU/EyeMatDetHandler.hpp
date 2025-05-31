@@ -30,6 +30,11 @@ template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticH
 class EyeMatDetHandler : public T {
   public:
     void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
+      const size_t nrows{mat->getNumRows()};
+      const size_t ncols{mat->getNumColumns()};
+      // Assert squareness
+      ASSERT((nrows == ncols), "Matrix is not square for determinant computation");
+
       #if defined(NAIVE_IMPL)
         /* Zero matrix special check */
         if (true == IsEyeMatrix(mat)) {

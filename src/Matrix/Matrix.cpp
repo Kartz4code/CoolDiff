@@ -22,12 +22,11 @@
 #include "Matrix.hpp"
 #include "MemoryManager.hpp"
 
-Matrix<Type> *DervMatrix(const size_t frows, const size_t fcols,
+Matrix<Type>* DervMatrix(const size_t frows, const size_t fcols,
                          const size_t xrows, const size_t xcols) {
   const size_t drows = frows * xrows;
   const size_t dcols = fcols * xcols;
-  Matrix<Type> *dresult =
-      Matrix<Type>::MatrixFactory::CreateMatrixPtr(drows, dcols);
+  Matrix<Type> *dresult = Matrix<Type>::MatrixFactory::CreateMatrixPtr(drows, dcols);
 
   // Vector of indices in X matrix
   const auto idx = Range<size_t>(0, xrows * xcols);
@@ -36,7 +35,7 @@ Matrix<Type> *DervMatrix(const size_t frows, const size_t fcols,
     const size_t j = n % xcols;
     const size_t i = (n - j) / xcols;
     // Inner loop
-    (*dresult)(i * xrows + i, j * xcols + j) = (Type)(1);
+    (*dresult)((i * xrows) + i, (j * xcols) + j) = (Type)(1);
   });
 
   return dresult;
