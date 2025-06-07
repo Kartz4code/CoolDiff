@@ -87,5 +87,8 @@ public:
   // Solve Gauss Newton problem
   void solve();
 
+  // Allocate resources
+  void allocateMem(const size_t);
+
   ~GaussNewton() = default;
 };
