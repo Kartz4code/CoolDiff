@@ -40,15 +40,6 @@ void GaussNewton::setDataUnit(const size_t i) {
 
 // Get A,B for matrix solve
 void GaussNewton::computeABScalar(const size_t var_size) {
-  // If m_A is a nullptr
-  if (nullptr == m_A) {
-    m_A = Matrix<Type>::MatrixFactory::CreateMatrixPtr(var_size, var_size);
-  }
-  // If m_B is a nullptr
-  if (nullptr == m_B) {
-    m_B = Matrix<Type>::MatrixFactory::CreateMatrixPtr(var_size, 1);
-  }
-
   // Reset m_A and m_B
   ResetZero(m_A);
   ResetZero(m_B);
@@ -67,22 +58,13 @@ void GaussNewton::computeABScalar(const size_t var_size) {
     MatrixAdd(m_A, m_tempA2, m_A);
 
     // Compute B matrix
-    MatrixScalarAdd(eval, m_tempA1, m_tempB);
+    MatrixScalarMul(eval, m_tempA1, m_tempB);
     MatrixAdd(m_B, m_tempB, m_B);
   }
 }
 
 // Get A,B for matrix solve
 void GaussNewton::computeABMatrix(const size_t var_size) {
-  // If m_A is a nullptr
-  if (nullptr == m_A) {
-    m_A = Matrix<Type>::MatrixFactory::CreateMatrixPtr(var_size, var_size);
-  }
-  // If m_B is a nullptr
-  if (nullptr == m_B) {
-    m_B = Matrix<Type>::MatrixFactory::CreateMatrixPtr(var_size, 1);
-  }
-
   // Reset m_A and m_B
   ResetZero(m_A);
   ResetZero(m_B);
@@ -103,6 +85,18 @@ void GaussNewton::computeABMatrix(const size_t var_size) {
     // Compute B matrix
     MatrixMul(m_tempA1, eval, m_tempB);
     MatrixAdd(m_B, m_tempB, m_B);
+  }
+}
+
+// Allocate resources
+void GaussNewton::allocateMem(const size_t var_size) {
+  // If m_A is a nullptr
+  if (nullptr == m_A) {
+    m_A = Matrix<Type>::MatrixFactory::CreateMatrixPtr(var_size, var_size);
+  }
+  // If m_B is a nullptr
+  if (nullptr == m_B) {
+    m_B = Matrix<Type>::MatrixFactory::CreateMatrixPtr(var_size, 1);
   }
 }
 
@@ -154,20 +148,15 @@ void GaussNewton::update(const size_t var_size) {
 
 // Set data (X,Y,size)
 GaussNewton& GaussNewton::setData(Matrix<Type> *X, Matrix<Type> *Y) {
-  ASSERT((X->getNumRows() == Y->getNumRows()),
-         "Number of input/output rows are not equal");
-  ASSERT((X->getNumColumns() == Y->getNumColumns()),
-         "Number of input/output rows are not equal");
-  m_size = X->getNumRows();
-  m_X = X;
-  m_Y = Y;
+  ASSERT((X->getNumRows() == Y->getNumRows()), "Number of input/output rows are not equal");
+  ASSERT((X->getNumColumns() == Y->getNumColumns()), "Number of input/output rows are not equal");
+  m_size = X->getNumRows(); m_X = X; m_Y = Y;
   return *this;
 }
 
 // Set data parameters
 GaussNewton& GaussNewton::setDataParameters(Matrix<Parameter> *PX, Matrix<Parameter> *PY) {
-  m_DX = PX;
-  m_DY = PY;
+  m_DX = PX; m_DY = PY;
   return *this;
 }
 
@@ -195,22 +184,26 @@ void GaussNewton::solve() {
     m_delX = Matrix<Type>::MatrixFactory::CreateMatrixPtr(var_size, 1);
   }
 
+  // Allocate memory
+  allocateMem(var_size);
+
+  // Raw pointer for A and B matrices
+  Type* A = m_A->getMatrixPtr();
+  Type* B = m_B->getMatrixPtr();
+
+  NULL_CHECK(A, "A matrix is a null pointer");
+  NULL_CHECK(B, "B matrix is a null pointer");
+
+  /* Linear algebra solve A/B */
+  // Convert A and B to Eigen matrix
+  const Eigen::Map<EigenMatrix> eigA(A, var_size, var_size);
+  const Eigen::Map<EigenMatrix> eigB(B, var_size, 1);
+
   // Gauss Newton iterations
   for (size_t iter{}; iter < m_max_iter; ++iter) {
     /* Compute A and B matrices */
     computeAB(var_size);
-
-    // Raw pointer for A and B matrices
-    Type* A = m_A->getMatrixPtr();
-    Type* B = m_B->getMatrixPtr();
-
-    NULL_CHECK(A, "A matrix is a null pointer");
-    NULL_CHECK(B, "B matrix is a null pointer");
-
-    /* Linear algebra solve A/B */
-    // Convert A and B to Eigen matrix
-    const Eigen::Map<EigenMatrix> eigA(A, var_size, var_size);
-    const Eigen::Map<EigenMatrix> eigB(B, var_size, 1);
+    
     const Eigen::LLT<EigenMatrix> llt(eigA);
     // Solve and store results
     const auto delX = llt.solve(eigB);
