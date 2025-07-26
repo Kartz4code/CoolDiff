@@ -155,6 +155,22 @@ void NonLinearSolve() {
   std::cout << "Actual values (x,y): (-4,-2) or (2,4)\n\n";
 }
 
+void ScalarSolve() {
+  Variable x{10};
+
+  Expression E = x*x - 2*x + 1;
+  Matrix<Variable> X(1, 1);
+  X(0,0) = x;
+
+  GaussNewton gn;
+  gn.setOracle(Oracle::OracleFactory::CreateOracle(E, X))
+    .setMaxIterations(10);
+
+  TIME_IT_US(gn.solve());
+
+  std::cout << "Computed values: " << Eval(x) << "\n";
+}
+
 int main(int argc, char **argv) { 
   NonLinearSolve();
   GNMatrix();
