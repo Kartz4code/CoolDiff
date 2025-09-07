@@ -38,7 +38,7 @@ project(CoolDiff VERSION 1.0.1.0
 ######################################################################################################################## 
 
 # Custom flags
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -51,7 +51,7 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Set CXX flags for maximum performance
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -ffast-math -funroll-loops -funroll-all-loops -ftree-vectorize -finline-functions -floop-block")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -ffast-math -funroll-loops -funroll-all-loops -ftree-vectorize -finline-functions -floop-block")
 
 # Include CMake scripts
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -189,6 +189,9 @@ set(INCLUDES ${CMAKE_SOURCE_DIR}/include
              # Naive CPU addition handlers
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddHandler/NaiveCPU
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/NaiveCPU
+             
+             # Eigen library addition hanlder
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/Eigen
             
              # Naive CPU multiplication handlers
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMulHandler/NaiveCPU
