@@ -26,11 +26,13 @@
 #include "EyeMatAddHandler.hpp"
 #include "ZeroMatAddHandler.hpp"
 #include "MatAddNaiveHandler.hpp"
+#include "MatAddEigenHandler.hpp"
 
 // Matrix-scalar addition
 #include "EyeMatScalarAddHandler.hpp"
 #include "ZeroMatScalarAddHandler.hpp"
 #include "MatScalarAddNaiveHandler.hpp"
+#include "MatScalarAddEigenHandler.hpp"
 
 // Matrix-Matrix multiplication
 #include "EyeMatMulHandler.hpp"
@@ -106,9 +108,16 @@ void MatrixAdd(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&
       3) Matrix-Matrix addition
   */
 
+  #ifdef NAIVE_HANDLER
+    static HANDLER3(EyeMatAddHandler, 
+                    ZeroMatAddHandler,
+                    MatAddNaiveHandler) handler;
+  #endif
+
   static HANDLER3(EyeMatAddHandler, 
                   ZeroMatAddHandler,
-                  MatAddNaiveHandler) handler;
+                  MatAddEigenHandler) handler;
+    
 
   // Handle matrix addition
   handler.handle(lhs, rhs, result);
@@ -125,10 +134,16 @@ void MatrixScalarAdd(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
       3) Matrix-Matrix Hadamard product
   */
 
+  #ifdef NAIVE_HANDLER
+    static HANDLER3(EyeMatScalarAddHandler, 
+                    ZeroMatScalarAddHandler,
+                    MatScalarAddNaiveHandler) handler;
+  #endif
+
   static HANDLER3(EyeMatScalarAddHandler, 
                   ZeroMatScalarAddHandler,
-                  MatScalarAddNaiveHandler) handler;
-
+                  MatScalarAddEigenHandler) handler;
+                  
   // Handle Matrix-Scalar addition
   handler.handle(lhs, rhs, result);
 }
