@@ -197,9 +197,15 @@ set(INCLUDES ${CMAKE_SOURCE_DIR}/include
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMulHandler/NaiveCPU
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/NaiveCPU
 
+             # Eigen library multiplication hanlder
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/Eigen
+
              # Naive CPU subtraction handlers
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubHandler/NaiveCPU
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/NaiveCPU
+
+            # Eigen library subtraction hanlder
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/Eigen
 
              # Naive CPU Hadamard handlers
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamardHandler/NaiveCPU
