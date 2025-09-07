@@ -38,16 +38,19 @@
 #include "EyeMatMulHandler.hpp"
 #include "ZeroMatMulHandler.hpp"
 #include "MatMulNaiveHandler.hpp"
+#include "MatMulEigenHandler.hpp"
 
 // Matrix-scalar multiplication
 #include "EyeMatScalarMulHandler.hpp"
 #include "ZeroMatScalarMulHandler.hpp"
 #include "MatScalarMulNaiveHandler.hpp"
+#include "MatScalarMulEigenHandler.hpp"
 
 // Matrix-Matrix subtraction
 #include "EyeMatSubHandler.hpp"
 #include "ZeroMatSubHandler.hpp"
 #include "MatSubNaiveHandler.hpp"
+#include "MatSubEigenHandler.hpp"
 
 // Matrix-Matrix Kronocker product
 #include "EyeMatKronHandler.hpp"
@@ -160,10 +163,17 @@ void MatrixSub(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&
       3) Matrix-Matrix subtraction
   */
 
+  #ifdef NAIVE_HANDLER
+    static HANDLER3(EyeMatSubHandler, 
+                    ZeroMatSubHandler,
+                    MatSubNaiveHandler) handler;
+  #endif
+
+  
   static HANDLER3(EyeMatSubHandler, 
                   ZeroMatSubHandler,
-                  MatSubNaiveHandler) handler;
-
+                  MatSubEigenHandler) handler;
+  
   // Handle matrix addition
   handler.handle(lhs, rhs, result);
 }
@@ -180,9 +190,15 @@ void MatrixMul(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&
       3) Matrix-Matrix multiplication
   */
 
+  #ifdef NAIVE_HANDLER
+    static HANDLER3(EyeMatMulHandler,
+                    ZeroMatMulHandler,
+                    MatMulNaiveHandler) handler;
+  #endif
+
   static HANDLER3(EyeMatMulHandler,
                   ZeroMatMulHandler,
-                  MatMulNaiveHandler) handler;
+                  MatMulEigenHandler) handler;
 
   // Handle matrix multiplication
   handler.handle(lhs, rhs, result);
@@ -199,10 +215,16 @@ void MatrixScalarMul(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
      3) Matrix-Matrix Hadamard product
  */
 
+  #ifdef NAIVE_HANDLER
+    static HANDLER3(EyeMatScalarMulHandler,
+                    ZeroMatScalarMulHandler,
+                    MatScalarMulNaiveHandler) handler;
+  #endif
+
   static HANDLER3(EyeMatScalarMulHandler,
                   ZeroMatScalarMulHandler,
-                  MatScalarMulNaiveHandler) handler;
-
+                  MatScalarMulEigenHandler) handler;
+  
   // Handle Matrix-Scalar multiplication
   handler.handle(lhs, rhs, result);
 }

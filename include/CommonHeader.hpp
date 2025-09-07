@@ -63,17 +63,17 @@
 #include <Eigen/Dense>
 #if defined(USE_COMPLEX_MATH)
   #if COOLDIFF_SCALAR_TYPE == 2
-    using EigenMatrix = Eigen::MatrixXcd;
+    using EigenMatrix = Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
   #elif COOLDIFF_SCALAR_TYPE == 1
-    using EigenMatrix = Eigen::MatrixXcf;
+    using EigenMatrix = Eigen::Matrix<std::complex<float>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
   #else
     ASSERT(false, "Unknown type");
   #endif
 #else
   #if COOLDIFF_SCALAR_TYPE == 2
-    using EigenMatrix = Eigen::MatrixXd;
+    using EigenMatrix = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
   #elif COOLDIFF_SCALAR_TYPE == 1
-    using EigenMatrix = Eigen::MatrixXf;
+    using EigenMatrix = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
   #else
     ASSERT(false, "Unknown type");
   #endif
