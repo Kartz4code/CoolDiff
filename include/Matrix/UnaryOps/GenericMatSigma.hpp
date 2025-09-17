@@ -44,6 +44,8 @@ private:
 public:
   // Block index
   const size_t m_nidx{};
+  // Cache for reverse AD 1st
+  OMMatPair m_cache;
 
   // Constructor
   constexpr GenericMatSigma(T* u, Callables&&... call) : mp_right{u}, 
@@ -83,6 +85,13 @@ public:
   V_OVERRIDE(Matrix<Type>* eval()) {
     // Get raw pointers to result and right matrices
     const Matrix<Type>* right_mat = mp_right->eval();
+
+    std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
+      if (nullptr != m) {                                                        
+        m = ((right_mat == m) ? nullptr : m);                                                               
+      }                                                                          
+    });
+
     const size_t rows = mp_right->getNumRows();
     const size_t cols = mp_right->getNumColumns();
 
@@ -106,30 +115,36 @@ public:
 
   // Matrix devalF computation
   V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable>& X)) {
+    // Right matrix derivative
+    const Matrix<Type>* dright_mat = mp_right->devalF(X);
+
+    std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
+      if (nullptr != m) {                                                        
+        m = ((dright_mat == m) ? nullptr : m);                                                               
+      }                                                                          
+    });
+
     // Rows and columns of function and variable
     const size_t nrows_x = X.getNumRows();
     const size_t ncols_x = X.getNumColumns();
     const size_t nrows_f = mp_right->getNumRows();
     const size_t ncols_f = mp_right->getNumColumns();
 
-    // Right matrix derivative
-    const Matrix<Type>* drhs = mp_right->devalF(X);
-
     // Derivative of sigma function as a matrix operation
     if constexpr(axis == Axis::ROW) {
       MATRIX_KRON(Ones(1, nrows_f), Eye(nrows_x), mp_arr[3]);
-      MATRIX_MUL(mp_arr[3], drhs, mp_arr[5]);
+      MATRIX_MUL(mp_arr[3], dright_mat, mp_arr[5]);
       // Return result pointer
       return mp_arr[5];
     } else if constexpr(axis == Axis::COLUMN) {
       MATRIX_KRON(Ones(ncols_f, 1), Eye(ncols_x), mp_arr[4]);
-      MATRIX_MUL(drhs, mp_arr[4], mp_arr[1]);
+      MATRIX_MUL(dright_mat, mp_arr[4], mp_arr[1]);
       // Return result pointer
       return mp_arr[1];
     } else {
       MATRIX_KRON(Ones(1, nrows_f), Eye(nrows_x), mp_arr[3]);
       MATRIX_KRON(Ones(ncols_f, 1), Eye(ncols_x), mp_arr[4]);
-      MATRIX_MUL(mp_arr[3], drhs, mp_arr[5]);
+      MATRIX_MUL(mp_arr[3], dright_mat, mp_arr[5]);
       MATRIX_MUL(mp_arr[5], mp_arr[4], mp_arr[1]);
       // Return result pointer
       return mp_arr[1];

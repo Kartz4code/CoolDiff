@@ -30,7 +30,7 @@ class MemoryManager {
 private:
   // Allocate friend function
   template <typename T, typename... Args>
-  friend SharedPtr<T> Allocate(Args &&...args);
+  friend SharedPtr<T> Allocate(Args&&... args);
 
   // Vector of deleted or to be deleted MetaVariable resources
   inline static Vector<SharedPtr<MetaVariable>> m_del_ptr;
@@ -46,15 +46,13 @@ public:
   static size_t size();
 
   // Special matrix pool allocation
-  static Matrix<Type> *MatrixSplPool(const size_t, const size_t,
-                                     const MatrixSpl &);
+  static Matrix<Type>* MatrixSplPool(const size_t, const size_t, const MatrixSpl&);
   // Matrix pool allocation
-  static void MatrixPool(const size_t, const size_t, Matrix<Type> *&,
-                         const Type & = (Type)0);
+  static void MatrixPool(const size_t, const size_t, Matrix<Type>*&, const Type& = (Type)0);
 };
 
 // Delete resource
-template <typename T> void DelPtr(T *ptr) {
+template <typename T> void DelPtr(T* ptr) {
   if (nullptr != ptr) {
     delete ptr;
     ptr = nullptr;
@@ -63,7 +61,7 @@ template <typename T> void DelPtr(T *ptr) {
 
 // Scalar allocator
 template <typename T, typename... Args>
-inline SharedPtr<T> Allocate(Args &&...args) {
+inline SharedPtr<T> Allocate(Args&&... args) {
   const size_t size = sizeof(T);
   const size_t align = 0;
 

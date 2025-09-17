@@ -46,7 +46,7 @@ Matrix<T>::Matrix(const size_t rows, const size_t cols, const MatrixSpl& type) :
                                                                                  m_cols{cols},
                                                                                  m_type{type} {
   // Assert for strictly non-negative values for rows and columns
-  ASSERT(rows > 0 && cols > 0, "Row/Column size is not strictly non-negative");                                                                                  
+  ASSERT((rows > 0) && (cols > 0), "Row/Column size is not strictly non-negative");                                                                                  
 }
 
 // Default constructor - Zero arguments
@@ -64,6 +64,10 @@ Matrix<T>::Matrix() : m_rows{1},
 {}
 
 
+// Default constructor - For cloning 
+template<typename T>
+Matrix<T>::Matrix(void*) {}
+
 // Constructor with rows and columns
 template<typename T>
 Matrix<T>::Matrix(const size_t rows, const size_t cols) : m_rows{rows}, 
@@ -72,29 +76,48 @@ Matrix<T>::Matrix(const size_t rows, const size_t cols) : m_rows{rows},
                                                           mp_result{nullptr}, 
                                                           mp_dresult{nullptr},
                                                           m_eval{false}, 
-                                                          m_devalf{false}, 
+                                                          m_devalf{false},
                                                           m_dest{true},
                                                           m_nidx{this->m_idx_count++} {
   // Assert for strictly non-negative values for rows and columns
-  ASSERT(rows > 0 && cols > 0, "Row/Column size is not strictly non-negative");  
+  ASSERT((rows > 0) && (cols > 0), "Row/Column size is not strictly non-negative");  
   mp_mat = new T[getNumElem()]{};                                                      
 }
 
-  // Constructor with pointer stealer
-  template<typename T>
-  Matrix<T>::Matrix(const size_t rows, const size_t cols, T* ptr)  :    m_rows{rows}, 
-                                                                        m_cols{cols}, 
-                                                                        m_type{(size_t)(-1)},
-                                                                        mp_result{nullptr}, 
-                                                                        mp_dresult{nullptr},
-                                                                        m_eval{false}, 
-                                                                        m_devalf{false}, 
-                                                                        m_dest{false},
-                                                                        m_nidx{this->m_idx_count++} {
-    // Assert for strictly non-negative values for rows and columns
-    ASSERT(rows > 0 && cols > 0, "Row/Column size is not strictly non-negative");  
-    mp_mat = ptr;                                                                     
-  }
+// Constructor with pointer stealer
+template<typename T>
+Matrix<T>::Matrix(const size_t rows, const size_t cols, T* ptr)  :    m_rows{rows}, 
+                                                                      m_cols{cols}, 
+                                                                      m_type{(size_t)(-1)},
+                                                                      mp_result{nullptr}, 
+                                                                      mp_dresult{nullptr},
+                                                                      m_eval{false}, 
+                                                                      m_devalf{false}, 
+                                                                      m_dest{false},
+                                                                      m_nidx{this->m_idx_count++} {
+  // Assert for strictly non-negative values for rows and columns
+  ASSERT((rows > 0) && (cols > 0), "Row/Column size is not strictly non-negative");  
+  mp_mat = ptr;                                                                     
+}
+
+// Matrix clone
+template<typename T>
+Matrix<T> Matrix<T>::reshapedClone(const size_t rows, const size_t cols) const {
+  Matrix<T> mat{nullptr};
+
+  mat.m_rows = rows;
+  mat.m_cols = cols;
+  mat.m_type = m_type;
+  mat.mp_mat = mp_mat;
+  mat.mp_result = mp_result;
+  mat.mp_dresult = mp_dresult;
+  mat.m_eval = m_eval;
+  mat.m_devalf = m_devalf;
+  mat.m_dest = false;
+  mat.m_nidx = this->m_idx_count++;
+
+  return mat;
+} 
 
 // Constructor with rows and columns with initial values
 template<typename T>

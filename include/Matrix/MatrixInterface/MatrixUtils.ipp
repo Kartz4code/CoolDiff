@@ -159,7 +159,7 @@ void Matrix<T>::resetImpl() {
 
 // To output stream
 template<typename T>
-std::ostream &operator<<(std::ostream& os, Matrix<T>& mat) {
+std::ostream &operator<<(std::ostream& os, const Matrix<T>& mat) {
     const size_t rows = mat.getFinalNumRows();
     const size_t cols = mat.getFinalNumColumns();
     if constexpr (true == std::is_same_v<T, Type>) {

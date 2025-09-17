@@ -201,8 +201,7 @@ public:
 
 // Left/Right side is a number
 template <typename T, typename... Callables>
-class GenericProduct<Type, T, Callables...>
-    : public IVariable<GenericProduct<Type, T, Callables...>> {
+class GenericProduct<Type, T, Callables...> : public IVariable<GenericProduct<Type, T, Callables...>> {
 private:
   // Resources
   Type mp_left{0};
@@ -222,10 +221,11 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericProduct(const Type &u, T *v, Callables &&...call)
-      : mp_left{u}, mp_right{v}, m_caller{std::make_tuple(
-                                     std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {}
+  constexpr GenericProduct(const Type &u, T *v, Callables &&...call) : mp_left{u}, 
+                                                                       mp_right{v}, 
+                                                                       m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                                       m_nidx{this->m_idx_count++} 
+  {}
 
   V_OVERRIDE(Variable *symEval()) {
     // Evaluate variable in run-time

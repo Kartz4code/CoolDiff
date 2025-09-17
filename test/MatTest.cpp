@@ -22,6 +22,250 @@
 #include "CoolDiff.hpp"
 #include <gtest/gtest.h>
 
+// Matrix derivative order test #4
+TEST(MatTest, Test15) {
+  double epi = 0.001;
+
+  Type DXres1[3][3] = {{(Type)540.0,  (Type)900.0, (Type)1260.0},
+                       {(Type)720.0, (Type)1080.0, (Type)1440.0},
+                       {(Type)900.0, (Type)1260.0, (Type)1620.0}};
+
+  Matrix<Variable> R1(1,4);
+  Matrix<Variable> R2(4,3);
+  Matrix<Variable> R3(3,1);
+  Matrix<Variable> R4(3,3);
+
+  // Set R1
+  for(int i{}; i < 1; i++) {
+    for(int j{}; j < 4; j++) {
+      R1(i,j) = i+j+1;
+    }
+  }
+  // Set R2
+  for(int i{}; i < 4; i++) {
+    for(int j{}; j < 3; j++) {
+      R2(i,j) = i+2*j+2;
+    }
+  }
+  // Set R3
+   for(int i{}; i < 3; i++) {
+    for(int j{}; j < 1; j++) {
+      R3(i,j) = 1+j+i*2;
+    }
+  }
+  // Set R4
+   for(int i{}; i < 3; i++) {
+    for(int j{}; j < 3; j++) {
+      R4(i,j) = 1;
+    }
+  }
+
+  // Matrix Expression 
+  Matrix<Expression> res = R1*R2;
+  res = res*R4*R4;
+  res = res*R3;
+
+  // Evaluated at different locations
+  auto d1 = DevalF(res, R1);
+  auto d4 = DevalF(res, R4);
+  auto d2 = DevalF(res, R2);
+  auto d3 = DevalF(res, R3);
+
+  // Verification deval function
+  auto verify_deval_function = [&](auto DXres) {
+    for (size_t i{}; i < d4.getNumRows(); ++i) {
+      for (size_t j{}; j < d4.getNumColumns(); ++j) {
+        ASSERT_NEAR(std::abs(d4(i, j)), std::abs(DXres[i][j]), epi);
+      }
+    }
+  };
+
+  verify_deval_function(DXres1);
+}
+
+// Matrix derivative order test #3
+TEST(MatTest, Test14) {
+  double epi = 0.001;
+
+  Type DXres1[3][3] = {{(Type)540.0,  (Type)900.0, (Type)1260.0},
+                       {(Type)720.0, (Type)1080.0, (Type)1440.0},
+                       {(Type)900.0, (Type)1260.0, (Type)1620.0}};
+
+  Matrix<Variable> R1(1,4);
+  Matrix<Variable> R2(4,3);
+  Matrix<Variable> R3(3,1);
+  Matrix<Variable> R4(3,3);
+
+  // Set R1
+  for(int i{}; i < 1; i++) {
+    for(int j{}; j < 4; j++) {
+      R1(i,j) = i+j+1;
+    }
+  }
+  // Set R2
+  for(int i{}; i < 4; i++) {
+    for(int j{}; j < 3; j++) {
+      R2(i,j) = i+2*j+2;
+    }
+  }
+  // Set R3
+   for(int i{}; i < 3; i++) {
+    for(int j{}; j < 1; j++) {
+      R3(i,j) = 1+j+i*2;
+    }
+  }
+  // Set R4
+   for(int i{}; i < 3; i++) {
+    for(int j{}; j < 3; j++) {
+      R4(i,j) = 1;
+    }
+  }
+
+  // Matrix Expression 
+  Matrix<Expression> res = R1*R2;
+  res = res*R4*R4;
+  res = res*R3;
+
+  // Evaluated at different locations
+  auto d1 = DevalF(res, R1);
+  auto d2 = DevalF(res, R2);
+  auto d4 = DevalF(res, R4);
+  auto d3 = DevalF(res, R3);
+
+  // Verification deval function
+  auto verify_deval_function = [&](auto DXres) {
+    for (size_t i{}; i < d4.getNumRows(); ++i) {
+      for (size_t j{}; j < d4.getNumColumns(); ++j) {
+        ASSERT_NEAR(std::abs(d4(i, j)), std::abs(DXres[i][j]), epi);
+      }
+    }
+  };
+
+  verify_deval_function(DXres1);
+}
+
+// Matrix derivative order test #2
+TEST(MatTest, Test13) {
+  double epi = 0.001;
+
+  Type DXres1[3][3] = {{(Type)540.0,  (Type)900.0, (Type)1260.0},
+                       {(Type)720.0, (Type)1080.0, (Type)1440.0},
+                       {(Type)900.0, (Type)1260.0, (Type)1620.0}};
+
+  Matrix<Variable> R1(1,4);
+  Matrix<Variable> R2(4,3);
+  Matrix<Variable> R3(3,1);
+  Matrix<Variable> R4(3,3);
+
+  // Set R1
+  for(int i{}; i < 1; i++) {
+    for(int j{}; j < 4; j++) {
+      R1(i,j) = i+j+1;
+    }
+  }
+  // Set R2
+  for(int i{}; i < 4; i++) {
+    for(int j{}; j < 3; j++) {
+      R2(i,j) = i+2*j+2;
+    }
+  }
+  // Set R3
+   for(int i{}; i < 3; i++) {
+    for(int j{}; j < 1; j++) {
+      R3(i,j) = 1+j+i*2;
+    }
+  }
+  // Set R4
+   for(int i{}; i < 3; i++) {
+    for(int j{}; j < 3; j++) {
+      R4(i,j) = 1;
+    }
+  }
+
+  // Matrix Expression 
+  Matrix<Expression> res = R1*R2;
+  res = res*R4*R4;
+  res = res*R3;
+
+  // Evaluated at different locations
+  auto d1 = DevalF(res, R1);
+  auto d2 = DevalF(res, R2);
+  auto d3 = DevalF(res, R3);
+  auto d4 = DevalF(res, R4);
+
+  // Verification deval function
+  auto verify_deval_function = [&](auto DXres) {
+    for (size_t i{}; i < d4.getNumRows(); ++i) {
+      for (size_t j{}; j < d4.getNumColumns(); ++j) {
+        ASSERT_NEAR(std::abs(d4(i, j)), std::abs(DXres[i][j]), epi);
+      }
+    }
+  };
+
+  verify_deval_function(DXres1);
+}
+
+// Matrix derivative order test #1
+TEST(MatTest, Test12) {
+  double epi = 0.001;
+
+  Type DXres1[3][3] = {{(Type)540.0,  (Type)900.0, (Type)1260.0},
+                       {(Type)720.0, (Type)1080.0, (Type)1440.0},
+                       {(Type)900.0, (Type)1260.0, (Type)1620.0}};
+
+  Matrix<Variable> R1(1,4);
+  Matrix<Variable> R2(4,3);
+  Matrix<Variable> R3(3,1);
+  Matrix<Variable> R4(3,3);
+
+  // Set R1
+  for(int i{}; i < 1; i++) {
+    for(int j{}; j < 4; j++) {
+      R1(i,j) = i+j+1;
+    }
+  }
+  // Set R2
+  for(int i{}; i < 4; i++) {
+    for(int j{}; j < 3; j++) {
+      R2(i,j) = i+2*j+2;
+    }
+  }
+  // Set R3
+   for(int i{}; i < 3; i++) {
+    for(int j{}; j < 1; j++) {
+      R3(i,j) = 1+j+i*2;
+    }
+  }
+  // Set R4
+   for(int i{}; i < 3; i++) {
+    for(int j{}; j < 3; j++) {
+      R4(i,j) = 1;
+    }
+  }
+
+  // Matrix Expression 
+  Matrix<Expression> res = R1*R2;
+  res = res*R4*R4;
+  res = res*R3;
+
+  // Evaluated at different locations
+  auto d4 = DevalF(res, R4);
+  auto d1 = DevalF(res, R1);
+  auto d2 = DevalF(res, R2);
+  auto d3 = DevalF(res, R3);
+
+  // Verification deval function
+  auto verify_deval_function = [&](auto DXres) {
+    for (size_t i{}; i < d4.getNumRows(); ++i) {
+      for (size_t j{}; j < d4.getNumColumns(); ++j) {
+        ASSERT_NEAR(std::abs(d4(i, j)), std::abs(DXres[i][j]), epi);
+      }
+    }
+  };
+
+  verify_deval_function(DXres1);
+}
+
 // Matrix softmax
 TEST(MatTest, Test11) {
   double epi = 0.001;

@@ -60,6 +60,8 @@ private:
 public:
   // Block index
   const size_t m_nidx{};
+  // Cache for reverse AD 1st
+  OMMatPair m_cache;
 
   // Constructor
   constexpr GenericMatHadamard(T1* u, T2* v, Callables&&... call) : mp_left{u}, 
@@ -93,6 +95,13 @@ public:
     const Matrix<Type>* left_mat = mp_left->eval();
     const Matrix<Type>* right_mat = mp_right->eval();
 
+    std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
+      if (nullptr != m) {                     
+        m = ((left_mat == m) ? nullptr : m);
+        m = ((right_mat == m) ? nullptr : m);                                                               
+      }                                                                          
+    });
+
     // Matrix-Matrix Hadamard product evaluation (Policy design)
     MATRIX_HADAMARD(left_mat, right_mat, mp_arr[0]);
 
@@ -111,6 +120,15 @@ public:
     // Left and right matrices evaluation
     const Matrix<Type>* left_mat = mp_left->eval();
     const Matrix<Type>* right_mat = mp_right->eval();
+
+    std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
+      if (nullptr != m) {                                                        
+        m = ((dleft_mat == m) ? nullptr : m);
+        m = ((dright_mat == m) ? nullptr : m);
+        m = ((left_mat == m) ? nullptr : m);
+        m = ((right_mat == m) ? nullptr : m);                                                               
+      }                                                                          
+    });
 
     const size_t nrows_x = X.getNumRows();
     const size_t ncols_x = X.getNumColumns();
