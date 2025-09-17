@@ -112,6 +112,76 @@ void GNMatrix() {
   R(0, 0) = cos(V[0]); R(0, 1) = sin(V[0]);
   R(1, 0) = -sin(V[0]); R(1, 1) = cos(V[0]);
 
+  Matrix<Type> X(4,1);
+  X(0,0) = 1; 
+  X(1,0) = 2; 
+  X(2,0) = 3; 
+  X(3,0) = 4;
+
+
+  Matrix<Variable> W1(4,4);
+  Matrix<Variable> W2(4,4);
+  Matrix<Variable> W3(4,4);
+  Matrix<Variable> W4(1,4);
+
+  Matrix<Variable> B1(4,1);
+
+
+  // Set W1
+  for(int i{}; i < 4; i++) {
+    for(int j{}; j < 4; j++) {
+      W1(i,j) = i+j+1;
+    }
+  }
+  // Set W2
+  for(int i{}; i < 4; i++) {
+    for(int j{}; j < 4; j++) {
+      W2(i,j) = i+2*j+2;
+    }
+  }
+  // Set W3
+   for(int i{}; i < 4; i++) {
+    for(int j{}; j < 4; j++) {
+      W3(i,j) = 1+j+i*2;
+    }
+  }
+  // Set W4
+   for(int i{}; i < 1; i++) {
+    for(int j{}; j < 4; j++) {
+      W4(i,j) = 1;
+    }
+  }
+
+   // Set B1
+   for(int i{}; i < 4; i++) {
+    for(int j{}; j < 1; j++) {
+      B1(i,j) = 2;
+    }
+  }
+
+
+  auto Layer1 = W1*X + B1;
+  auto Layer2 = W2*Layer1;
+  auto Layer3 = W3*Layer2;
+  auto Layer4 = W4*Layer3;
+
+  Matrix<Expression> res = Layer4;
+  
+  res.resetImpl();
+  res.traverse();
+
+  auto it1 = res.getCache()[W1.m_nidx];
+  auto it2 = res.getCache()[W2.m_nidx];
+  auto it3 = res.getCache()[W3.m_nidx];
+  auto it4 = res.getCache()[W4.m_nidx];
+  auto it5 = res.getCache()[B1.m_nidx];
+  
+  std::cout << Eval(*it1) << "\n";
+  std::cout << Eval(*it2) << "\n";
+  std::cout << Eval(*it3) << "\n";
+  std::cout << Eval(*it4) << "\n";
+  std::cout << Eval(*it5) << "\n";
+
   // Translation matrices
   Matrix<Variable> t(2,1,V.getMatrixPtr()+1);
 

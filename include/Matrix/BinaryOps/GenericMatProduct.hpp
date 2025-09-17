@@ -36,9 +36,11 @@ private:
   // Callables
   Tuples<Callables...> m_caller;
 
-  // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericMatProduct)
-  DISABLE_MOVE(GenericMatProduct)
+  #if 0
+    // Disable copy and move constructors/assignments
+    DISABLE_COPY(GenericMatProduct)
+    DISABLE_MOVE(GenericMatProduct)
+  #endif
 
   // Verify dimensions of result matrix for multiplication operation
   inline constexpr bool verifyDim() const {
@@ -51,7 +53,7 @@ private:
   }
 
   // All matrices
-  inline static constexpr const size_t m_size{20};
+  inline static constexpr const size_t m_size{12};
   Matrix<Type>* mp_arr[m_size]{};
 
 public:
@@ -185,52 +187,7 @@ public:
       } else {
         (*cache)[mp_right->m_nidx] = mp_arr[7];
       }
-
-      // Modify cache for left node
-      std::for_each(EXECUTION_PAR mp_left->m_cache.begin(), mp_left->m_cache.end(), 
-                    [&](const auto& item) {
-                      const auto idx = item.first; const auto val = item.second;
-                      
-                      const size_t nrows1 = val->getNumRows();
-                      const size_t ncols1 = val->getNumColumns();
-                      const size_t nrows2 = mp_arr[6]->getNumRows();
-                      const size_t ncols2 = mp_arr[6]->getNumColumns();
-                      
-                      if(ncols1 == nrows2) {
-                        MATRIX_MUL(val, mp_arr[6], mp_arr[8]);
-                      } else {
-                        MATRIX_MUL(mp_arr[6], val, mp_arr[8]);
-                      }
-
-                      if(auto it2 = cache->find(idx); it2 != cache->end()) {
-                        MATRIX_ADD((*cache)[idx], mp_arr[8], (*cache)[idx]);
-                      } else {
-                        (*cache)[idx] = mp_arr[8];
-                      }
-      });
-  
-      // Modify cache for right node
-      std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(), 
-                    [&](const auto& item) {
-                      const auto idx = item.first; const auto val = item.second;
-
-                      const size_t nrows1 = val->getNumRows();
-                      const size_t ncols1 = val->getNumColumns();
-                      const size_t nrows2 = mp_arr[7]->getNumRows();
-                      const size_t ncols2 = mp_arr[7]->getNumColumns();
-
-                      if(ncols1 == nrows2) {
-                        MATRIX_MUL(val, mp_arr[7], mp_arr[9]);
-                      } else {
-                        MATRIX_MUL(mp_arr[7], val, mp_arr[9]);
-                      }
-
-                      if(auto it2 = cache->find(idx); it2 != cache->end()) {
-                        MATRIX_ADD((*cache)[idx], mp_arr[9], (*cache)[idx]);
-                      } else {
-                        (*cache)[idx] = mp_arr[9];
-                      }
-      });
+      
     } else {
       // Traverse left node
       if (false == mp_left->m_visited) {
@@ -250,71 +207,23 @@ public:
         const Matrix<Type>* right_mat = mp_right->eval();
 
         /* IMPORTANT: The derivative is computed here */
-        MATRIX_TRANSPOSE(left_mat, mp_arr[10]);
-        MATRIX_TRANSPOSE(right_mat, mp_arr[11]);  
+        MATRIX_TRANSPOSE(left_mat, mp_arr[9]);
+        MATRIX_TRANSPOSE(right_mat, mp_arr[8]);  
 
-        MATRIX_MUL(cCache, mp_arr[11], mp_arr[12]);
-        MATRIX_MUL(mp_arr[10], cCache, mp_arr[13]);
+        MATRIX_MUL(cCache, mp_arr[8], mp_arr[10]);
+        MATRIX_MUL(mp_arr[9], cCache, mp_arr[11]);
 
         if(auto it2 = cache->find(mp_left->m_nidx); it2 != cache->end()) {
-          MATRIX_ADD((*cache)[mp_left->m_nidx], mp_arr[12], (*cache)[mp_left->m_nidx]); 
+          MATRIX_ADD((*cache)[mp_left->m_nidx], mp_arr[10], (*cache)[mp_left->m_nidx]); 
         } else {
-          (*cache)[mp_left->m_nidx] = mp_arr[12];
+          (*cache)[mp_left->m_nidx] = mp_arr[10];
         }
 
         if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
-          MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[13], (*cache)[mp_right->m_nidx]); 
+          MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[11], (*cache)[mp_right->m_nidx]); 
         } else {
-          (*cache)[mp_right->m_nidx] = mp_arr[13];
+          (*cache)[mp_right->m_nidx] = mp_arr[11];
         }
-
-        // Modify cache for left node
-        std::for_each(EXECUTION_PAR mp_left->m_cache.begin(), mp_left->m_cache.end(), 
-                      [&](const auto& item) {
-                        const auto idx = item.first; const auto val = item.second;
-
-                        
-                        const size_t nrows1 = val->getNumRows();
-                        const size_t ncols1 = val->getNumColumns();
-                        const size_t nrows2 = mp_arr[12]->getNumRows();
-                        const size_t ncols2 = mp_arr[12]->getNumColumns();
-                        
-                        if(ncols1 == nrows2) {
-                          MATRIX_MUL(val, mp_arr[12], mp_arr[14]);
-                        } else if (ncols2 == nrows1) {
-                          MATRIX_MUL(mp_arr[12], val, mp_arr[14]);
-                        }
-
-
-                        if(auto it2 = cache->find(idx); it2 != cache->end()) {
-                          MATRIX_ADD((*cache)[idx], mp_arr[14], (*cache)[idx]);
-                        } else {
-                          (*cache)[idx] = val;
-                        }
-        });
-      
-        // Modify cache for right node
-        std::for_each(EXECUTION_PAR mp_right->m_cache.begin(),
-                      mp_right->m_cache.end(), [&](const auto &item) {
-                        const auto idx = item.first; const auto val = item.second;
-
-                        if(auto it2 = cache->find(idx); it2 != cache->end()) {
-                          const size_t nrows1 = val->getNumRows();
-                          const size_t ncols1 = val->getNumColumns();
-                          const size_t nrows2 = mp_arr[13]->getNumRows();
-                          const size_t ncols2 = mp_arr[13]->getNumColumns();
-
-                          if(ncols1 == nrows2) {
-                            MATRIX_MUL(val, mp_arr[13], mp_arr[15]);
-                          } else if (ncols2 == nrows1) {
-                            MATRIX_MUL(mp_arr[13], val, mp_arr[15]);
-                          }
-
-                          MATRIX_ADD((*cache)[idx], mp_arr[15], (*cache)[idx]);
-                        } else {
-                          (*cache)[idx] = val;
-                        }
-        });
       }
     }
 
@@ -445,7 +354,7 @@ public:
 
 // Left is Expression/Variable/Parameter and right is a matrix
 template <typename T1, typename T2, typename... Callables>
-class GenericMatScalarProductExp : public IMatrix<GenericMatScalarProductExp<T1, T2, Callables...>> {
+class GenericMatScalarProductExp : public IMatrix<GenericMatScalarProductExp<T1, T2, Callables...>> { 
 private:
   // Resources
   T1* mp_left{nullptr};
