@@ -28,7 +28,7 @@ template <typename T, typename... Callables>
 class GenericMatInv : public IMatrix<GenericMatInv<T, Callables...>> {
 private:
   // Resources
-  T *mp_right{nullptr};
+  T* mp_right{nullptr};
 
   // Callables
   Tuples<Callables...> m_caller;
@@ -54,9 +54,11 @@ private:
 public:
   // Block index
   const size_t m_nidx{};
+  // Cache for reverse AD 1st
+  OMMatPair m_cache;
 
   // Constructor
-  constexpr GenericMatInv(T *u, Callables &&...call) : mp_right{u}, 
+  constexpr GenericMatInv(T* u, Callables&&... call) : mp_right{u}, 
                                                        m_caller{std::make_tuple(std::forward<Callables>(call)...)},
                                                        m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
@@ -73,17 +75,23 @@ public:
   }
 
   // Find me
-  bool findMe(void *v) const { 
+  bool findMe(void* v) const { 
     BINARY_RIGHT_FIND_ME(); 
   }
 
   // Matrix eval computation
-  V_OVERRIDE(Matrix<Type> *eval()) {
+  V_OVERRIDE(Matrix<Type>* eval()) {
     // Check whether dimensions are correct
     ASSERT(verifyDim(), "Matrix is not a square matrix to compute inverse");
 
     // Get raw pointers to result and right matrices
     const Matrix<Type>* right_mat = mp_right->eval();
+
+    std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
+      if (nullptr != m) {                                                        
+        m = ((right_mat == m) ? nullptr : m);                                                               
+      }                                                                          
+    });
 
     // Matrix inverse
     MATRIX_INVERSE(right_mat, mp_arr[0]);
@@ -93,17 +101,24 @@ public:
   }
 
   // Matrix devalF computation
-  V_OVERRIDE(Matrix<Type> *devalF(Matrix<Variable> &X)) {
+  V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable> &X)) {
     // Check whether dimensions are correct
     ASSERT(verifyDim(), "Matrix is not a square matrix to compute inverse");
-
-    const size_t n_size = mp_right->getNumRows();
-    const size_t nrows_x = X.getNumRows();
-    const size_t ncols_x = X.getNumColumns();
 
     // Right matrix derivative
     const Matrix<Type>* dright_mat = mp_right->devalF(X);
     const Matrix<Type>* right_mat = mp_right->eval();
+
+    std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
+      if (nullptr != m) {                                                        
+        m = ((dright_mat == m) ? nullptr : m);
+        m = ((right_mat == m) ? nullptr : m);                                                               
+      }                                                                          
+    });
+    
+    const size_t n_size = mp_right->getNumRows();
+    const size_t nrows_x = X.getNumRows();
+    const size_t ncols_x = X.getNumColumns();
 
     // Matrix inverse
     MATRIX_INVERSE(right_mat, mp_arr[1]);
@@ -140,7 +155,7 @@ using GenericMatInvT = GenericMatInv<T, OpMatType>;
 
 // Function for inverse computation
 template <typename T> 
-constexpr const auto& inv(const IMatrix<T> &u) {
-  auto tmp = Allocate<GenericMatInvT<T>>(const_cast<T*>(static_cast<const T *>(&u)), OpMatObj);
+constexpr const auto& inv(const IMatrix<T>& u) {
+  auto tmp = Allocate<GenericMatInvT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpMatObj);
   return *tmp;
 }

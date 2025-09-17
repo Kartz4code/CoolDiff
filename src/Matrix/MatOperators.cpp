@@ -26,36 +26,49 @@
 #include "EyeMatAddHandler.hpp"
 #include "ZeroMatAddHandler.hpp"
 #include "MatAddNaiveHandler.hpp"
+
+// Eigen implementation
 #include "MatAddEigenHandler.hpp"
 
 // Matrix-scalar addition
 #include "EyeMatScalarAddHandler.hpp"
 #include "ZeroMatScalarAddHandler.hpp"
 #include "MatScalarAddNaiveHandler.hpp"
+
+// Eigen implementation
 #include "MatScalarAddEigenHandler.hpp"
 
 // Matrix-Matrix multiplication
 #include "EyeMatMulHandler.hpp"
 #include "ZeroMatMulHandler.hpp"
 #include "MatMulNaiveHandler.hpp"
+
+// Eigen implementation
 #include "MatMulEigenHandler.hpp"
 
 // Matrix-scalar multiplication
 #include "EyeMatScalarMulHandler.hpp"
 #include "ZeroMatScalarMulHandler.hpp"
 #include "MatScalarMulNaiveHandler.hpp"
+
+// Eigen implementation
 #include "MatScalarMulEigenHandler.hpp"
 
 // Matrix-Matrix subtraction
 #include "EyeMatSubHandler.hpp"
 #include "ZeroMatSubHandler.hpp"
 #include "MatSubNaiveHandler.hpp"
+
+// Eigen implementation
 #include "MatSubEigenHandler.hpp"
 
 // Matrix-Matrix Kronocker product
 #include "EyeMatKronHandler.hpp"
 #include "ZeroMatKronHandler.hpp"
 #include "MatKronNaiveHandler.hpp"
+
+// Eigen implementation
+#include "MatKronEigenHandler.hpp"
 
 // Matrix determinant product
 #include "MatDetEigenHandler.hpp"
@@ -66,6 +79,9 @@
 #include "MatHadamardNaiveHandler.hpp"
 #include "EyeMatHadamardHandler.hpp"
 #include "ZeroMatHadamardHandler.hpp"
+
+// Eigen implementation
+#include "MatHadamardEigenHandler.hpp"
 
 // Matrix transpose
 #include "MatDervTransposeNaiveHandler.hpp"
@@ -241,10 +257,16 @@ void MatrixKron(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*&
       3) Matrix-Matrix Kronocker product
   */
 
+  #ifdef NAIVE_HANDLER
+    static HANDLER3(EyeMatKronHandler, 
+                    ZeroMatKronHandler,
+                    MatKronNaiveHandler) handler;
+  #endif
+
   static HANDLER3(EyeMatKronHandler, 
                   ZeroMatKronHandler,
-                  MatKronNaiveHandler) handler;
-
+                  MatKronEigenHandler) handler;
+  
   // Handle Kronocker product
   handler.handle(lhs, rhs, result);
 }
@@ -261,10 +283,16 @@ void MatrixHadamard(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Typ
       3) Matrix-Matrix Hadamard product
   */
 
+  #ifdef NAIVE_HANDLER
+    static HANDLER3(EyeMatHadamardHandler, 
+                    ZeroMatHadamardHandler,
+                    MatHadamardNaiveHandler) handler;
+  #endif
+  
   static HANDLER3(EyeMatHadamardHandler, 
                   ZeroMatHadamardHandler,
-                  MatHadamardNaiveHandler) handler;
-
+                  MatHadamardEigenHandler) handler;
+  
   // Handle Hadamard product
   handler.handle(lhs, rhs, result);
 }

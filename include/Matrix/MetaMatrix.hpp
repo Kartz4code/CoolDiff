@@ -30,15 +30,23 @@ protected:
 public:
   // Visited flag
   bool m_visited{false};
+  // Cache for reverse AD
+  OMMatPair m_cache{};
 
   // Default constructor
   MetaMatrix() = default;
 
   // Evaluate run-time
-  V_PURE(Matrix<Type> *eval());
+  V_PURE(Matrix<Type>* eval());
 
   // Forward derivative
-  V_PURE(Matrix<Type> *devalF(Matrix<Variable> &));
+  V_PURE(Matrix<Type>* devalF(Matrix<Variable>&));
+
+  virtual void traverse(OMMatPair* = nullptr) {}
+
+  virtual OMMatPair& getCache() {
+    return m_cache;
+  }
 
   // Get number of rows and columns
   V_PURE(size_t getNumRows() const);
@@ -56,4 +64,4 @@ public:
 };
 
 // Reset type matrix (Set the values of MatType to zero)
-void ResetZero(Matrix<Type> *);
+void ResetZero(Matrix<Type>*);

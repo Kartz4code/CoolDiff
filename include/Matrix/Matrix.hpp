@@ -77,13 +77,15 @@ private:
   // Collection of meta variable expressions
   Vector<MetaMatrix*> m_gh_vec{};
 
+public:
   // Free matrix resource
   bool m_free{false};
 
+private:
   // Boolean to verify evaluation/forward derivative values
   bool m_eval{false};
   bool m_devalf{false};
-
+  
   // Should destructor be called? 
   bool m_dest{true};
 
@@ -113,12 +115,17 @@ public:
 
   // Default constructor - Zero arguments
   Matrix();
+  // Default constructor - For cloning 
+  Matrix(void*);
   // Constructor with rows and columns
   Matrix(const size_t, const size_t);
   // Constructor with rows and columns with initial values
   Matrix(const size_t, const size_t, const T&);
   // Constructor with pointer stealer
   Matrix(const size_t, const size_t, T*);
+
+  // Matrix clone
+  Matrix reshapedClone(const size_t, const size_t) const;
 
   // Matrix expressions constructor
   template <typename Z>
@@ -315,6 +322,14 @@ public:
   V_OVERRIDE(Matrix<Type>* eval());
   // Derivative matrix
   V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable>&));
+
+  virtual void traverse(OMMatPair* cache = nullptr) override;
+
+  virtual OMMatPair& getCache() override {
+    return m_cache;
+  }
+
+
   // Reset all visited flags
   V_OVERRIDE(void reset());
 
@@ -323,7 +338,7 @@ public:
 
   // To output stream
   template <typename Z>
-  friend std::ostream &operator<<(std::ostream&, Matrix<Z>&);
+  friend std::ostream &operator<<(std::ostream&, const Matrix<Z>&);
 
   // Destructor
   V_DTR(~Matrix());

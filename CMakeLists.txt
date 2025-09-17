@@ -84,7 +84,7 @@ if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
 endif()
 
 add_definitions(-DUSE_COMPLEX_MATH)
-add_definitions(-DUSE_ROBIN_HOOD_MAP)
+#add_definitions(-DUSE_ROBIN_HOOD_MAP)
 add_definitions(-DUSE_VIRTUAL_FUNCTIONS)
 #add_definitions(-DUSE_CXX_PARALLEL_POLICY)
 #add_definitions(-DUSE_EXECUTION_PAR)
@@ -190,30 +190,36 @@ set(INCLUDES ${CMAKE_SOURCE_DIR}/include
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddHandler/NaiveCPU
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/NaiveCPU
              
-             # Eigen library addition hanlder
+             # Eigen library addition handler
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/Eigen
             
              # Naive CPU multiplication handlers
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMulHandler/NaiveCPU
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/NaiveCPU
 
-             # Eigen library multiplication hanlder
+             # Eigen library multiplication handler
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/Eigen
 
              # Naive CPU subtraction handlers
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubHandler/NaiveCPU
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/NaiveCPU
 
-            # Eigen library subtraction hanlder
+            # Eigen library subtraction handler
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/Eigen
 
              # Naive CPU Hadamard handlers
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamardHandler/NaiveCPU
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/NaiveCPU
 
+             # Eigen library Hadamard handler
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/Eigen
+
              # Naive CPU Kronecker product handlers
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronHandler/NaiveCPU
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/NaiveCPU
+
+            # Eigen library Kronecker handler
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/Eigen
 
              # Naive CPU Transpose product handlers
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTransposeHandler/NaiveCPU

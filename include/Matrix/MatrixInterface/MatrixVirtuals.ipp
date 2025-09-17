@@ -36,8 +36,7 @@ Matrix<Type>* Matrix<T>::eval() {
 
     // If value not evaluated, compute it again
     if (false == m_eval) {
-        setEval();
-        m_eval = true;
+        setEval(); m_eval = true;
     }
 
     // If visited already
@@ -79,14 +78,14 @@ Matrix<Type>* Matrix<T>::devalF(Matrix<Variable>& X) {
 
     // If derivative not evaluated, compute it again
     if (false == m_devalf) {
-        setDevalF(X);
-        m_devalf = true;
+        setDevalF(X); m_devalf = true;
     }
 
     // If visited already
     if (false == this->m_visited) {
         // Set visit flag to true
         this->m_visited = true;
+        
         // Loop on internal equations
         std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(),
                     [this, &X](auto* i) {
@@ -103,6 +102,28 @@ Matrix<Type>* Matrix<T>::devalF(Matrix<Variable>& X) {
     return mp_dresult;
 }
 
+// Traverse tree
+template<typename T>
+void Matrix<T>::traverse(OMMatPair* cache) {
+  if (false == this->m_visited) {
+    this->m_visited = true;
+    // Reset states
+    std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(),
+                    [this, &cache](auto* i) {
+                        if (nullptr != i) {
+                            // Traverse the tree
+                            i->traverse();
+                            // Set value
+                            mp_result = i->eval();  m_eval = true;
+                            // Save cache
+                            m_cache = i->getCache();
+                            m_rows = i->getNumRows();
+                            m_cols = i->getNumColumns();
+                        }
+                    });
+  }
+}
+
 // Reset all visited flags
 template<typename T>
 void Matrix<T>::reset() {
@@ -116,7 +137,7 @@ void Matrix<T>::reset() {
         std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(), 
                     [](auto* item) {
                         if (nullptr != item) {
-                        item->reset();
+                            item->reset();
                         }
                     });
     }

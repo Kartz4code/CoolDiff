@@ -72,13 +72,19 @@ public:
   }
 
   // Get number of rows
-  V_OVERRIDE(size_t getNumRows() const) { return mp_left->getNumRows(); }
+  V_OVERRIDE(size_t getNumRows() const) { 
+    return mp_left->getNumRows(); 
+  }
 
   // Get number of columns
-  V_OVERRIDE(size_t getNumColumns() const) { return mp_right->getNumColumns(); }
+  V_OVERRIDE(size_t getNumColumns() const) { 
+    return mp_right->getNumColumns(); 
+  }
 
   // Find me
-  bool findMe(void* v) const { BINARY_FIND_ME(); }
+  bool findMe(void* v) const { 
+    BINARY_FIND_ME(); 
+  }
 
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type>* eval()) {
@@ -88,6 +94,13 @@ public:
     // Get raw pointers to result, left and right matrices
     const Matrix<Type>* left_mat = mp_left->eval();
     const Matrix<Type>* right_mat = mp_right->eval();
+
+    std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
+      if (nullptr != m) {                     
+        m = ((left_mat == m) ? nullptr : m);
+        m = ((right_mat == m) ? nullptr : m);                                                               
+      }                                                                          
+    });
 
     // Matrix-Matrix addition computation (Policy design)
     MATRIX_ADD(left_mat, right_mat, mp_arr[0]);
@@ -105,6 +118,13 @@ public:
     const Matrix<Type>* dleft_mat = mp_left->devalF(X);
     const Matrix<Type>* dright_mat = mp_right->devalF(X);
 
+    std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
+      if (nullptr != m) {                                                        
+        m = ((dleft_mat == m) ? nullptr : m);
+        m = ((dright_mat == m) ? nullptr : m);                                                               
+      }                                                                          
+    });
+
     // Matrix-Matrix derivative addition computation (Policy design)
     MATRIX_ADD(dleft_mat, dright_mat, mp_arr[1]);
 
@@ -113,10 +133,14 @@ public:
   }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { BINARY_MAT_RESET(); }
+  V_OVERRIDE(void reset()) { 
+    BINARY_MAT_RESET(); 
+  }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { return "GenericMatSum"; }
+  V_OVERRIDE(std::string_view getType() const) { 
+    return "GenericMatSum"; 
+  }
 
   // Destructor
   V_DTR(~GenericMatSum()) = default;
@@ -144,6 +168,8 @@ private:
 public:
   // Block index
   const size_t m_nidx{};
+  // Cache for reverse AD 1st
+  OMMatPair m_cache;
 
   // Constructor
   constexpr GenericMatScalarSum(Type u, T* v, Callables&&... call) : m_left{u}, 
@@ -154,18 +180,30 @@ public:
   }
 
   // Get number of rows
-  V_OVERRIDE(size_t getNumRows() const) { return mp_right->getNumRows(); }
+  V_OVERRIDE(size_t getNumRows() const) { 
+    return mp_right->getNumRows(); 
+  }
 
   // Get number of columns
-  V_OVERRIDE(size_t getNumColumns() const) { return mp_right->getNumColumns(); }
+  V_OVERRIDE(size_t getNumColumns() const) { 
+    return mp_right->getNumColumns(); 
+  }
 
   // Find me
-  bool findMe(void* v) const { BINARY_RIGHT_FIND_ME(); }
+  bool findMe(void* v) const { 
+    BINARY_RIGHT_FIND_ME(); 
+  }
 
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type>* eval()) {
     // Get raw pointers to result and right matrices
     const Matrix<Type>* right_mat = mp_right->eval();
+
+    std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
+      if (nullptr != m) {                   
+        m = ((right_mat == m) ? nullptr : m);                                                               
+      }                                                                          
+    });
 
     // Matrix-Scalar addition computation (Policy design)
     MATRIX_SCALAR_ADD(m_left, right_mat, mp_arr[0]);
@@ -183,10 +221,14 @@ public:
   }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { BINARY_MAT_RIGHT_RESET(); }
+  V_OVERRIDE(void reset()) { 
+    BINARY_MAT_RIGHT_RESET(); 
+  }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { return "GenericMatScalarSum"; }
+  V_OVERRIDE(std::string_view getType() const) { 
+    return "GenericMatScalarSum"; 
+  }
 
   // Destructor
   V_DTR(~GenericMatScalarSum()) = default;
@@ -225,22 +267,34 @@ public:
   }
 
   // Get number of rows
-  V_OVERRIDE(size_t getNumRows() const) { return mp_right->getNumRows(); }
+  V_OVERRIDE(size_t getNumRows() const) { 
+    return mp_right->getNumRows(); 
+  }
 
   // Get number of columns
-  V_OVERRIDE(size_t getNumColumns() const) { return mp_right->getNumColumns(); }
+  V_OVERRIDE(size_t getNumColumns() const) { 
+    return mp_right->getNumColumns(); 
+  }
 
   // Find me
-  bool findMe(void* v) const { BINARY_RIGHT_FIND_ME(); }
+  bool findMe(void* v) const { 
+    BINARY_RIGHT_FIND_ME(); 
+  }
 
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type>* eval()) {
     // Get raw pointers to result and right matrices
-    const Matrix<Type>* rhs = mp_right->eval();
+    const Matrix<Type>* right_mat = mp_right->eval();
     const Type val = Eval((*mp_left));
 
+    std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
+      if (nullptr != m) {                   
+        m = ((right_mat == m) ? nullptr : m);                                                               
+      }                                                                          
+    });
+
     // Matrix-Scalar addition computation (Policy design)
-    MATRIX_SCALAR_ADD(val, rhs, mp_arr[0]);
+    MATRIX_SCALAR_ADD(val, right_mat, mp_arr[0]);
 
     // Return result pointer
     return mp_arr[0];
@@ -249,7 +303,13 @@ public:
   // Matrix devalF computation
   V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable>& X)) {
     // Right matrix derivative
-    const Matrix<Type>* drhs = mp_right->devalF(X);
+    const Matrix<Type>* dright_mat = mp_right->devalF(X);
+
+    std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
+      if (nullptr != m) {                     
+        m = ((dright_mat == m) ? nullptr : m);                                                        
+      }                                                                          
+    });
 
     const size_t nrows_x = X.getNumRows();
     const size_t ncols_x = X.getNumColumns();
@@ -261,14 +321,16 @@ public:
 
     // Kronecker product with ones and add with right derivatives
     MATRIX_KRON(Ones(nrows_f, ncols_f), mp_arr[2], mp_arr[3]);
-    MATRIX_ADD(mp_arr[3], drhs, mp_arr[1]);
+    MATRIX_ADD(mp_arr[3], dright_mat, mp_arr[1]);
 
     // Return result pointer
     return mp_arr[1];
   }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { BINARY_MAT_RIGHT_RESET(); }
+  V_OVERRIDE(void reset()) { 
+    BINARY_MAT_RIGHT_RESET(); 
+  }
 
   // Get type
   V_OVERRIDE(std::string_view getType() const) {

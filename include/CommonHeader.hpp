@@ -61,6 +61,7 @@
 
 // Eigen library
 #include <Eigen/Dense>
+#include <unsupported/Eigen/KroneckerProduct>
 #if defined(USE_COMPLEX_MATH)
   #if COOLDIFF_SCALAR_TYPE == 2
     using EigenMatrix = Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
@@ -212,15 +213,14 @@ template <typename T, typename U> using Pair = std::pair<T, U>;
 #if defined(USE_ROBIN_HOOD_MAP)
 #include <robin_hood.h>
 using OMPair = robin_hood::unordered_flat_map<size_t, Type>;
-using OMMatPair =
-    robin_hood::unordered_flat_map<Pair<size_t, size_t>, Matrix<Type> *>;
+using OMMatPair = robin_hood::unordered_flat_map<size_t, Matrix<Type>*>;
 // A generic unorderedmap
 template <typename T, typename U>
 using UnOrderedMap = robin_hood::unordered_flat_map<T, U>;
 #else
 #include <unordered_map>
 using OMPair = std::unordered_map<size_t, Type>;
-using OMMatPair = std::unordered_map<Pair<size_t, size_t>, Matrix<Type> *>;
+using OMMatPair = std::unordered_map<size_t, Matrix<Type> *>;
 // A generic unorderedmap
 template <typename T, typename U> using UnOrderedMap = std::unordered_map<T, U>;
 #endif

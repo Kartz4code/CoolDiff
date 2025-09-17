@@ -52,7 +52,7 @@ public:
   this->m_visited = false;                                                     \
   mp_left->reset();                                                            \
   mp_right->reset();                                                           \
-  std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type> *m) {   \
+  std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type>*& m) {  \
     if (nullptr != m) {                                                        \
       m->free();                                                               \
     }                                                                          \
@@ -61,7 +61,7 @@ public:
 #define BINARY_MAT_RIGHT_RESET()                                               \
   this->m_visited = false;                                                     \
   mp_right->reset();                                                           \
-  std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type> *m) {   \
+  std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type>*& m) {  \
     if (nullptr != m) {                                                        \
       m->free();                                                               \
     }                                                                          \

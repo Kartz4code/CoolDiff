@@ -47,7 +47,7 @@ Matrix<Type> &Eval(Matrix<T> &Mexp) {
 
 // Matrix-Matrix derivative evaluation
 template <typename T>
-Matrix<Type> &DevalF(Matrix<T> &Mexp, Matrix<Variable> &X) {
+Matrix<Type>& DevalF(Matrix<T> &Mexp, Matrix<Variable> &X) {
   // Reset graph/tree
   Mexp.resetImpl();
   // Return evaluation value
@@ -237,21 +237,27 @@ Matrix<Expression> &SymMatDiff(T &exp, const Matrix<Variable> &m) {
 const size_t Factorial(const size_t);
 
 // Custom functions
+// Matrix Sin function
 UNARY_MATRIX_OPERATOR(SinM, [](Type a) { return std::sin(a); },
                             [](Type b) { return std::cos(b); })
 
+// Matrix Cos function
 UNARY_MATRIX_OPERATOR(CosM, [](Type a) { return std::cos(a); },
                             [](Type b) { return -std::sin(b); })
 
+// Matrix Exp function
 UNARY_MATRIX_OPERATOR(ExpM, [](Type a) { return std::exp(a); },
                             [](Type b) { return std::exp(b); })
 
+// Matrix Log function
 UNARY_MATRIX_OPERATOR(LogM, [](Type a) { return std::log(a); },
                             [](Type b) { return ((Type)(1)/b); })
 
+// Matrix Sqrt function
 UNARY_MATRIX_OPERATOR(SqrtM, [](Type a) { return std::sqrt(a); },
                              [](Type b) { return ((Type)(1)/(2*std::sqrt(b))); })
 
+// Matrix Sigmoid function
 UNARY_MATRIX_OPERATOR(SigmoidM, [](Type a) { 
                                    Type res = ((Type)(1)) / (((Type)(1)) + std::exp(-a));
                                    return res;
@@ -259,6 +265,11 @@ UNARY_MATRIX_OPERATOR(SigmoidM, [](Type a) {
                                 [](Type b) {
                                    Type res = ((Type)(1)) / (((Type)(1)) + std::exp(-b));
                                    return res * (((Type)(1)) - res); });
+// Matrix ReLU function
+#ifndef USE_COMPLEX_MATH
+  UNARY_MATRIX_OPERATOR(ReLUM, [](Type a) { return ((a >= (Type)(0)) ? a : 0);  },
+                               [](Type b) { return ((b >= (Type)(0)) ? 1 : 0); })
+#endif
 
 // Frobenius norm 
 template <typename T>

@@ -28,7 +28,7 @@ template <typename T, typename... Callables>
 class GenericMatTrace : public IMatrix<GenericMatTrace<T, Callables...>> {
 private:
   // Resources
-  T *mp_right{nullptr};
+  T* mp_right{nullptr};
 
   // Callables
   Tuples<Callables...> m_caller;
@@ -49,36 +49,50 @@ private:
 
   // All matrices
   inline static constexpr const size_t m_size{9};
-  Matrix<Type> *mp_arr[m_size]{};
+  Matrix<Type>* mp_arr[m_size]{};
 
 public:
   // Block index
   const size_t m_nidx{};
+  // Cache for reverse AD 1st
+  OMMatPair m_cache;
 
   // Constructor
-  constexpr GenericMatTrace(T *u, Callables &&...call)
-      : mp_right{u}, m_caller{std::make_tuple(
-                         std::forward<Callables>(call)...)},
-        m_nidx{this->m_idx_count++} {
+  constexpr GenericMatTrace(T* u, Callables&&... call) : mp_right{u}, 
+                                                         m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                         m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
   // Get number of rows
-  V_OVERRIDE(size_t getNumRows() const) { return 1; }
+  V_OVERRIDE(size_t getNumRows() const) { 
+    return 1; 
+  }
 
   // Get number of columns
-  V_OVERRIDE(size_t getNumColumns() const) { return 1; }
+  V_OVERRIDE(size_t getNumColumns() const) { 
+    return 1; 
+  }
 
   // Find me
-  bool findMe(void *v) const { BINARY_RIGHT_FIND_ME(); }
+  bool findMe(void* v) const { 
+    BINARY_RIGHT_FIND_ME(); 
+  }
 
   // Matrix eval computation
-  V_OVERRIDE(Matrix<Type> *eval()) {
+  V_OVERRIDE(Matrix<Type>* eval()) {
     // Check whether dimensions are correct
     ASSERT(verifyDim(), "Matrix is not a square matrix to compute trace");
 
     // Get raw pointers to result and right matrices
-    const Matrix<Type> *right_mat = mp_right->eval();
+    const Matrix<Type>* right_mat = mp_right->eval();
+    
+    std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
+      if (nullptr != m) {                                                        
+        m = ((right_mat == m) ? nullptr : m);                                                               
+      }                                                                          
+    });  
+
     const size_t n_size = mp_right->getNumRows();
 
     // Hadamard product with identity matrix
@@ -97,12 +111,18 @@ public:
     // Check whether dimensions are correct
     ASSERT(verifyDim(), "Matrix is not a square matrix to compute trace");
 
+    // Right matrix derivative
+    const Matrix<Type> *dright_mat = mp_right->devalF(X);
+
+    std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
+      if (nullptr != m) {                                                        
+        m = ((dright_mat == m) ? nullptr : m);                                                               
+      }                                                                          
+    });
+
     const size_t n_size = mp_right->getNumRows();
     const size_t nrows_x = X.getNumRows();
     const size_t ncols_x = X.getNumColumns();
-
-    // Right matrix derivative
-    const Matrix<Type> *dright_mat = mp_right->devalF(X);
 
     // L (X) I - Left matrix and identity Kronocker product (Policy design)
     MATRIX_KRON(Eye(n_size), Ones(nrows_x, ncols_x), mp_arr[3]);
@@ -120,21 +140,26 @@ public:
   }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { BINARY_MAT_RIGHT_RESET(); }
+  V_OVERRIDE(void reset()) { 
+    BINARY_MAT_RIGHT_RESET(); 
+  }
 
   // Get type
-  V_OVERRIDE(std::string_view getType() const) { return "GenericMatTrace"; }
+  V_OVERRIDE(std::string_view getType() const) { 
+    return "GenericMatTrace"; 
+  }
 
   // Destructor
   V_DTR(~GenericMatTrace()) = default;
 };
 
 // GenericMatTrace with 1 typename and callables
-template <typename T> using GenericMatTraceT = GenericMatTrace<T, OpMatType>;
+template <typename T> 
+using GenericMatTraceT = GenericMatTrace<T, OpMatType>;
 
 // Function for trace computation
-template <typename T> constexpr const auto &trace(const IMatrix<T> &u) {
-  auto tmp = Allocate<GenericMatTraceT<T>>(
-      const_cast<T *>(static_cast<const T *>(&u)), OpMatObj);
+template <typename T> 
+constexpr const auto &trace(const IMatrix<T>& u) {
+  auto tmp = Allocate<GenericMatTraceT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpMatObj);
   return *tmp;
 }
