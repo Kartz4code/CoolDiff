@@ -53,7 +53,7 @@ private:
   }
 
   // All matrices
-  inline static constexpr const size_t m_size{2};
+  inline static constexpr const size_t m_size{7};
   Matrix<Type>* mp_arr[m_size]{};
 
 public:
@@ -129,6 +129,97 @@ public:
 
     // Return result pointer
     return mp_arr[1];
+  }
+
+  V_OVERRIDE(void traverse(OMMatPair* cache = nullptr)) {
+    // If cache is nullptr, i.e. for the first step
+    if (cache == nullptr) {
+      // cache is m_cache
+      cache = &m_cache;
+      cache->reserve(g_map_reserve);
+      // Clear cache in the first entry
+      if (false == (*cache).empty()) {
+        (*cache).clear();
+      }
+
+      // Traverse left node
+      if (false == mp_left->m_visited) {
+        mp_left->traverse(cache);
+      }
+      // Traverse right node
+      if (false == mp_right->m_visited) {
+        mp_right->traverse(cache);
+      }
+
+      // Get raw pointers to result, left and right matrices
+      const Matrix<Type>* left_mat = mp_left->eval();
+      const Matrix<Type>* right_mat = mp_right->eval();
+      
+      /* IMPORTANT: The derivative is computed here */
+      const size_t n = left_mat->getNumRows();
+      mp_arr[3] = const_cast<MatType*>(Eye(n)); 
+      MATRIX_SCALAR_MUL(-1, mp_arr[3], mp_arr[6]);
+      mp_arr[2] = const_cast<MatType*>(Eye(n));
+
+      if(auto it2 = cache->find(mp_left->m_nidx); it2 != cache->end()) {
+        MATRIX_ADD((*cache)[mp_left->m_nidx], mp_arr[2], (*cache)[mp_left->m_nidx]); 
+      } else {
+        (*cache)[mp_left->m_nidx] = mp_arr[2];
+      }
+
+      if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
+        MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[6], (*cache)[mp_right->m_nidx]); 
+      } else {
+        (*cache)[mp_right->m_nidx] = mp_arr[6];
+      }
+      
+    } else {
+      // Traverse left node
+      if (false == mp_left->m_visited) {
+        mp_left->traverse(cache);
+      }
+      // Traverse right node
+      if (false == mp_right->m_visited) {
+        mp_right->traverse(cache);
+      }
+
+      // Cached value
+      if(auto it = cache->find(m_nidx); it != cache->end()) {
+        auto cCache = it->second;
+
+        // Get raw pointers to result, left and right matrices
+        const Matrix<Type>* left_mat = mp_left->eval();
+        const Matrix<Type>* right_mat = mp_right->eval();
+
+        /* IMPORTANT: The derivative is computed here */
+        MATRIX_SCALAR_MUL(-1, cCache, mp_arr[5]);
+        mp_arr[4] = cCache;
+
+        if(auto it2 = cache->find(mp_left->m_nidx); it2 != cache->end()) {
+          MATRIX_ADD((*cache)[mp_left->m_nidx], mp_arr[4], (*cache)[mp_left->m_nidx]); 
+        } else {
+          (*cache)[mp_left->m_nidx] = mp_arr[4];
+        }
+
+        if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
+          MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[5], (*cache)[mp_right->m_nidx]); 
+        } else {
+          (*cache)[mp_right->m_nidx] = mp_arr[5];
+        }
+      }
+    }
+
+    // Traverse left/right nodes
+    if (false == mp_left->m_visited) {
+      mp_left->traverse(cache);
+    }
+    if (false == mp_right->m_visited) {
+      mp_right->traverse(cache);
+    }
+  }
+
+  V_OVERRIDE(OMMatPair& getCache()) {
+    return m_cache;
   }
 
   // Reset visit run-time

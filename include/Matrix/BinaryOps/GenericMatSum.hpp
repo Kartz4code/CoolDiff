@@ -56,8 +56,19 @@ private:
   }
 
   // All matrices
-  inline static constexpr const size_t m_size{6};
+  inline static constexpr const size_t m_size{4};
   Matrix<Type>* mp_arr[m_size]{};
+
+
+  Vector<Matrix<Type>*> m_cloned{nullptr};
+  size_t m_counter{};
+
+  inline const size_t incFunc(const size_t scale = 2) {
+    if(const auto size = m_cloned.size(); m_counter >= (size-1)) {
+        m_cloned.resize(scale*size);
+    }
+    return m_counter++;
+  }
 
 public:
   // Block index
@@ -71,6 +82,8 @@ public:
                                                                m_caller{std::make_tuple(std::forward<Callables>(call)...)},
                                                                m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
+    m_cloned.resize(32); 
+    std::fill_n(EXECUTION_PAR m_cloned.begin(), 32, nullptr);
   }
 
   // Get number of rows
@@ -97,7 +110,10 @@ public:
     const Matrix<Type>* left_mat = mp_left->eval();
     const Matrix<Type>* right_mat = mp_right->eval();
 
-    std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
+    // Reset function
+    const size_t start = 0;
+    const size_t end = 1;
+    std::for_each(EXECUTION_PAR mp_arr + start, mp_arr + end, [&](Matrix<Type>*& m) {
       if (nullptr != m) {                     
         m = ((left_mat == m) ? nullptr : m);
         m = ((right_mat == m) ? nullptr : m);                                                               
@@ -120,7 +136,10 @@ public:
     const Matrix<Type>* dleft_mat = mp_left->devalF(X);
     const Matrix<Type>* dright_mat = mp_right->devalF(X);
 
-    std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
+    // Reset function
+    const size_t start = 1;
+    const size_t end = 2;
+    std::for_each(EXECUTION_PAR mp_arr + start, mp_arr + end, [&](Matrix<Type>*& m) {
       if (nullptr != m) {                                                        
         m = ((dleft_mat == m) ? nullptr : m);
         m = ((dright_mat == m) ? nullptr : m);                                                               
@@ -134,7 +153,7 @@ public:
     return mp_arr[1];
   }
 
-    virtual void traverse(OMMatPair* cache = nullptr) override {
+  V_OVERRIDE(void traverse(OMMatPair* cache = nullptr)) {
     // If cache is nullptr, i.e. for the first step
     if (cache == nullptr) {
       // cache is m_cache
@@ -153,66 +172,108 @@ public:
       if (false == mp_right->m_visited) {
         mp_right->traverse(cache);
       }
-
-      // Get raw pointers to result, left and right matrices
-      const Matrix<Type>* left_mat = mp_left->eval();
-      const Matrix<Type>* right_mat = mp_right->eval();
       
       /* IMPORTANT: The derivative is computed here */
-      const size_t n = left_mat->getNumRows();
-      mp_arr[3] = const_cast<MatType*>(Eye(n)); 
-      mp_arr[2] = const_cast<MatType*>(Eye(n));
+      const size_t n = mp_left->getNumRows();
+      const auto eye_n = const_cast<MatType*>(Eye(n)->clone(m_cloned[incFunc()]));
 
       if(auto it2 = cache->find(mp_left->m_nidx); it2 != cache->end()) {
-        MATRIX_ADD((*cache)[mp_left->m_nidx], mp_arr[2], (*cache)[mp_left->m_nidx]); 
+        MATRIX_ADD((*cache)[mp_left->m_nidx], eye_n, (*cache)[mp_left->m_nidx]); 
       } else {
-        (*cache)[mp_left->m_nidx] = mp_arr[2];
+        (*cache)[mp_left->m_nidx] = eye_n;
       }
 
       if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
-        MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[3], (*cache)[mp_right->m_nidx]); 
+        MATRIX_ADD((*cache)[mp_right->m_nidx], eye_n, (*cache)[mp_right->m_nidx]); 
       } else {
-        (*cache)[mp_right->m_nidx] = mp_arr[3];
-      }
-      
-    } else {
-      // Traverse left node
-      if (false == mp_left->m_visited) {
-        mp_left->traverse(cache);
-      }
-      // Traverse right node
-      if (false == mp_right->m_visited) {
-        mp_right->traverse(cache);
+        (*cache)[mp_right->m_nidx] = eye_n;
       }
 
+      // Clone the cache
+      for(const auto& [k,v] : (*cache)) {
+        (*cache)[k] = v->clone(m_cloned[incFunc()]);
+      }
+
+      // Modify cache for left node
+      std::for_each(EXECUTION_PAR mp_left->m_cache.begin(), mp_left->m_cache.end(), 
+                      [&](const auto& item) {
+                      const auto idx = item.first; const auto val = item.second;
+                      if(auto it2 = cache->find(idx); it2 != cache->end()) {
+                        MATRIX_ADD((*cache)[idx], val, (*cache)[idx]);
+                      } else {
+                        (*cache)[idx] = val;
+                      }
+      });
+  
+      // Modify cache for right node
+      std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                    [&](const auto& item) {
+                      const auto idx = item.first; const auto val = item.second;
+                      if(auto it2 = cache->find(idx); it2 != cache->end()) {
+                        MATRIX_ADD((*cache)[idx], val, (*cache)[idx]);
+                      } else {
+                        (*cache)[idx] = val;
+                      }
+      });
+
+    } else {      
       // Cached value
-      if(auto it = cache->find(m_nidx); it != cache->end()) {
-        auto cCache = it->second;
+      if(auto it = cache->find(m_nidx); it != cache->end()) {    
+        const auto cCache = it->second->clone(m_cloned[incFunc()]);
+        const auto cCache_val = (*cCache)(0,0);
+        
+        // Traverse left node
+        if (false == mp_left->m_visited) {
+          mp_left->traverse(cache);
+        }
 
-        // Get raw pointers to result, left and right matrices
-        const Matrix<Type>* left_mat = mp_left->eval();
-        const Matrix<Type>* right_mat = mp_right->eval();
-
-        /* IMPORTANT: The derivative is computed here */
-        const size_t n = left_mat->getNumRows();
-
-        mp_arr[4] = cCache;
-        mp_arr[5] = cCache;
+        // Traverse right node
+        if (false == mp_right->m_visited) {
+          mp_right->traverse(cache);         
+        }
 
         if(auto it2 = cache->find(mp_left->m_nidx); it2 != cache->end()) {
-          MATRIX_ADD((*cache)[mp_left->m_nidx], mp_arr[4], (*cache)[mp_left->m_nidx]); 
+          MATRIX_ADD((*cache)[mp_left->m_nidx], cCache, (*cache)[mp_left->m_nidx]); 
         } else {
-          (*cache)[mp_left->m_nidx] = mp_arr[4];
+          (*cache)[mp_left->m_nidx] = cCache;
         }
 
         if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
-          MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[5], (*cache)[mp_right->m_nidx]); 
+          MATRIX_ADD((*cache)[mp_right->m_nidx], cCache, (*cache)[mp_right->m_nidx]); 
         } else {
-          (*cache)[mp_right->m_nidx] = mp_arr[5];
+          (*cache)[mp_right->m_nidx] = cCache;
         }
+
+        // Clone the cache
+        for(const auto& [k,v] : (*cache)) {
+          (*cache)[k] = v->clone(m_cloned[incFunc()]);
+        }
+
+        // Modify cache for left node
+        std::for_each(EXECUTION_PAR mp_left->m_cache.begin(), mp_left->m_cache.end(), 
+                      [&](const auto& item) {
+                      const auto idx = item.first; const auto val = item.second;
+                      MATRIX_SCALAR_MUL(cCache_val, val, mp_arr[2]);
+                      if(auto it2 = cache->find(idx); it2 != cache->end()) {
+                        MATRIX_ADD((*cache)[idx], mp_arr[2], (*cache)[idx]);
+                      } else {
+                        (*cache)[idx] = mp_arr[2];
+                      }
+        });
+
+        // Modify cache for right node
+        std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                      [&](const auto &item) {
+                      const auto idx = item.first; const auto val = item.second;
+                      MATRIX_SCALAR_MUL(cCache_val, val, mp_arr[3]);
+                      if(auto it2 = cache->find(idx); it2 != cache->end()) {
+                        MATRIX_ADD((*cache)[idx], mp_arr[3], (*cache)[idx]);
+                      } else {
+                        (*cache)[idx] = mp_arr[3];
+                      }
+        });
       }
     }
-
     // Traverse left/right nodes
     if (false == mp_left->m_visited) {
       mp_left->traverse(cache);
@@ -222,12 +283,18 @@ public:
     }
   }
 
-  virtual OMMatPair& getCache() override {
+  V_OVERRIDE(OMMatPair& getCache()) {
     return m_cache;
   }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { 
+  V_OVERRIDE(void reset()) {
+    for(size_t i{}; i < m_counter; ++i) {
+      if(nullptr != m_cloned[i]) {
+        m_cloned[i]->free();
+      }
+    }
+    m_counter = 0;
     BINARY_MAT_RESET(); 
   }
 
@@ -350,6 +417,8 @@ private:
 public:
   // Block index
   const size_t m_nidx{};
+  // Cache for reverse AD 1st
+  OMMatPair m_cache{};
 
   // Constructor
   constexpr GenericMatScalarSumExp(T1* u, T2* v, Callables&&... call) : mp_left{u}, 

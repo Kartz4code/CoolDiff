@@ -96,28 +96,14 @@ Pair<Matrix<Type> *, Matrix<Type> *> LoadData() {
   return {X, Y};
 }
 
-// 2D data matching
-void GNMatrix() {
-  // Load data
-  auto data = LoadData();
-
-  // Matrix variables
-  Matrix<Variable> V(1, 3);
-  V[0] = 0.5142;
-  V[1] = 20;
-  V[2] = -20;
-
-  // Rotation matrix
-  Matrix<Expression> R(2, 2);
-  R(0, 0) = cos(V[0]); R(0, 1) = sin(V[0]);
-  R(1, 0) = -sin(V[0]); R(1, 1) = cos(V[0]);
-
+/*
+void func() {
+  
   Matrix<Type> X(4,1);
   X(0,0) = 1; 
   X(1,0) = 2; 
   X(2,0) = 3; 
   X(3,0) = 4;
-
 
   Matrix<Variable> W1(4,4);
   Matrix<Variable> W2(4,4);
@@ -125,7 +111,6 @@ void GNMatrix() {
   Matrix<Variable> W4(1,4);
 
   Matrix<Variable> B1(4,1);
-
 
   // Set W1
   for(int i{}; i < 4; i++) {
@@ -159,11 +144,10 @@ void GNMatrix() {
     }
   }
 
-
-  auto Layer1 = W1*X + B1;
-  auto Layer2 = W2*Layer1;
-  auto Layer3 = W3*Layer2;
-  auto Layer4 = W4*Layer3;
+  auto Layer1 = SinM(W1*X);
+  auto Layer2 = CosM(W2*Layer1 + B1);
+  auto Layer3 = SinM(W3*Layer2);
+  auto Layer4 = CosM(W4*Layer3);
 
   Matrix<Expression> res = Layer4;
   
@@ -181,6 +165,71 @@ void GNMatrix() {
   std::cout << Eval(*it3) << "\n";
   std::cout << Eval(*it4) << "\n";
   std::cout << Eval(*it5) << "\n";
+}
+*/
+
+// 2D data matching
+void GNMatrix() {
+  // Load data
+  auto data = LoadData();
+
+  // Matrix variables
+  Matrix<Variable> V(1, 3);
+  V[0] = 0.5142;
+  V[1] = 20;
+  V[2] = -20;
+
+  // Rotation matrix
+  Matrix<Expression> R(2, 2);
+  R(0, 0) = cos(V[0]); R(0, 1) = sin(V[0]);
+  R(1, 0) = -sin(V[0]); R(1, 1) = cos(V[0]);
+
+  Matrix<Type> X(2,2);
+  X(0,0) = 1;  X(0,1) = 2; 
+  X(1,0) = 3;  X(1,1) = 4;
+
+  Matrix<Variable> W1(1,2);
+  Matrix<Variable> W2(2,1);
+
+  // Set W1
+  for(int i{}; i < 1; i++) {
+    for(int j{}; j < 2; j++) {
+      W1(i,j) = i+j+1;
+    }
+  }
+  // Set W2
+  for(int i{}; i < 2; i++) {
+    for(int j{}; j < 1; j++) {
+      W2(i,j) = i+2*j+2;
+    }
+  }
+
+  Matrix<Expression> res = (W1*X*X*W2);
+  res = res + res + res + res + res;
+  res = res + res + res;
+  res = res + res + res + res;
+  
+  res.resetImpl();
+  res.traverse();
+
+  auto it1 = res.getCache()[W1.m_nidx];
+  auto it2 = res.getCache()[W2.m_nidx];
+  auto it3 = res.getCache()[X.m_nidx];
+  
+  std::cout << Eval(*it1) << "\n";
+  std::cout << Eval(*it2) << "\n";
+  std::cout << Eval(*it3) << "\n";
+
+  res.resetImpl();
+  res.traverse();
+
+  it1 = res.getCache()[W1.m_nidx];
+  it2 = res.getCache()[W2.m_nidx];
+  it3 = res.getCache()[X.m_nidx];
+  
+  std::cout << Eval(*it1) << "\n";
+  std::cout << Eval(*it2) << "\n";
+  std::cout << Eval(*it3) << "\n";
 
   // Translation matrices
   Matrix<Variable> t(2,1,V.getMatrixPtr()+1);

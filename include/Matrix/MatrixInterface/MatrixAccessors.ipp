@@ -61,7 +61,7 @@ const T& Matrix<T>::operator[](const size_t l) const {
 // Matrix 1D access using operator[] mutable
 template<typename T>
 T& Matrix<T>::operator[](const size_t l) {
-    //ASSERT((l >= 0 && l < getNumElem()), "Index out of bound");
+    ASSERT((l >= 0 && l < getNumElem()), "Index out of bound");
     return mp_mat[l];
 }
 

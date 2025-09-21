@@ -48,7 +48,7 @@ private:
   }
 
   // All matrices
-  inline static constexpr const size_t m_size{11};
+  inline static constexpr const size_t m_size{20};
   Matrix<Type>* mp_arr[m_size]{};
 
 public:
@@ -101,7 +101,7 @@ public:
   }
 
   // Matrix devalF computation
-  V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable> &X)) {
+  V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable>& X)) {
     // Check whether dimensions are correct
     ASSERT(verifyDim(), "Matrix is not a square matrix to compute determinant");
 
@@ -140,6 +140,84 @@ public:
 
     // Return result pointer
     return mp_arr[8];
+  }
+
+  V_OVERRIDE(void traverse(OMMatPair* cache = nullptr)) {
+    // If cache is nullptr, i.e. for the first step
+    if (cache == nullptr) {
+      // cache is m_cache
+      cache = &m_cache;
+      cache->reserve(g_map_reserve);
+      // Clear cache in the first entry
+      if (false == (*cache).empty()) {
+        (*cache).clear();
+      }
+
+      // Traverse right node
+      if (false == mp_right->m_visited) {
+        mp_right->traverse(cache);
+      }
+
+      // Get raw pointers to right matrix
+      const Matrix<Type>* right_mat = mp_right->eval();
+      
+      /* IMPORTANT: The derivative is computed here */
+      // Matrix inverse
+      MATRIX_INVERSE(right_mat, mp_arr[11]); 
+      // Matrix transpose
+      MATRIX_TRANSPOSE(mp_arr[11], mp_arr[12]);
+      // Matrix determinant
+      MATRIX_DET(right_mat, mp_arr[13]);
+      // Scalar multiplication
+      MATRIX_SCALAR_MUL((*mp_arr[13])(0,0), mp_arr[12], mp_arr[14]);
+
+      if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
+        MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[14], (*cache)[mp_right->m_nidx]); 
+      } else {
+        (*cache)[mp_right->m_nidx] = mp_arr[14];
+      }
+      
+    } else {
+      // Traverse right node
+      if (false == mp_right->m_visited) {
+        mp_right->traverse(cache);
+      }
+
+      // Cached value
+      if(auto it = cache->find(m_nidx); it != cache->end()) {
+        const auto cCache = it->second;
+
+        // Get raw pointers to right matrix
+        const Matrix<Type>* right_mat = mp_right->eval();
+
+        /* IMPORTANT: The derivative is computed here */
+        // Matrix inverse
+        MATRIX_INVERSE(right_mat, mp_arr[15]); 
+        // Matrix transpose
+        MATRIX_TRANSPOSE(mp_arr[15], mp_arr[16]);
+        // Matrix determinant
+        MATRIX_DET(right_mat, mp_arr[17]);
+        // Scalar multiplication
+        MATRIX_SCALAR_MUL((*mp_arr[17])(0,0), mp_arr[16], mp_arr[18]);
+
+        MATRIX_SCALAR_MUL((*cCache)(0,0), mp_arr[18], mp_arr[19]);
+
+        if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
+          MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[19], (*cache)[mp_right->m_nidx]); 
+        } else {
+          (*cache)[mp_right->m_nidx] = mp_arr[19];
+        }
+      }
+    }
+
+    // Traverse right node
+    if (false == mp_right->m_visited) {
+      mp_right->traverse(cache);
+    }
+  }
+
+  V_OVERRIDE(OMMatPair& getCache()) {
+    return m_cache;
   }
 
   // Reset visit run-time
