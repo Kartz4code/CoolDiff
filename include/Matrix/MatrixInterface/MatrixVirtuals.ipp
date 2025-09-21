@@ -154,7 +154,12 @@ void Matrix<T>::reset() {
         mp_dresult->free();
     }
 
-    // Empty cache
+    // Free all matrices from cache
+    for(auto& [k,v] : m_cache) {
+      v->m_free = true;
+    }
+
+    // Empty matrix cache
     if (false == m_cache.empty()) {
         m_cache.clear();
     }

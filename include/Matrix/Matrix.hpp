@@ -125,7 +125,7 @@ public:
   Matrix(const size_t, const size_t, T*);
 
   // Matrix clone
-  Matrix reshapedClone(const size_t, const size_t) const;
+  Matrix* clone(Matrix*&) const;
 
   // Matrix expressions constructor
   template <typename Z>

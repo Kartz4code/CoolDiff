@@ -41,7 +41,7 @@ protected:
 
 public:
   // Find me
-  bool findMe(void *v) const { return derived().findMe(v); }
+  bool findMe(void* v) const { return derived().findMe(v); }
 
   // Protected destructor
   V_DTR(~IMatrix()) = default;
@@ -50,6 +50,8 @@ public:
 // Binary matrix reset
 #define BINARY_MAT_RESET()                                                     \
   this->m_visited = false;                                                     \
+  for(auto& [k,v] : m_cache) { v->m_free = true; }                             \
+  if (false == m_cache.empty()) { m_cache.clear(); }                           \
   mp_left->reset();                                                            \
   mp_right->reset();                                                           \
   std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type>*& m) {  \
@@ -60,6 +62,8 @@ public:
 
 #define BINARY_MAT_RIGHT_RESET()                                               \
   this->m_visited = false;                                                     \
+  for(auto& [k,v] : m_cache) { v->m_free = true; }                             \
+  if (false == m_cache.empty()) { m_cache.clear(); }                           \
   mp_right->reset();                                                           \
   std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type>*& m) {  \
     if (nullptr != m) {                                                        \

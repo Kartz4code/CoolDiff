@@ -102,20 +102,9 @@ Matrix<T>::Matrix(const size_t rows, const size_t cols, T* ptr)  :    m_rows{row
 
 // Matrix clone
 template<typename T>
-Matrix<T> Matrix<T>::reshapedClone(const size_t rows, const size_t cols) const {
-  Matrix<T> mat{nullptr};
-
-  mat.m_rows = rows;
-  mat.m_cols = cols;
-  mat.m_type = m_type;
-  mat.mp_mat = mp_mat;
-  mat.mp_result = mp_result;
-  mat.mp_dresult = mp_dresult;
-  mat.m_eval = m_eval;
-  mat.m_devalf = m_devalf;
-  mat.m_dest = false;
-  mat.m_nidx = this->m_idx_count++;
-
+Matrix<T>* Matrix<T>::clone(Matrix<T>*& mat) const {
+  MemoryManager::MatrixPool(m_rows, m_cols, mat);
+  *mat = *this;
   return mat;
 } 
 

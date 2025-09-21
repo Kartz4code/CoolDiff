@@ -146,6 +146,16 @@ void Matrix<T>::resetImpl() {
         mp_dresult->free();
     }
 
+    // Free all matrices from cache
+    for(auto& [k,v] : m_cache) {
+        v->m_free = true;
+    }
+
+    // Empty matrix cache
+    if (false == m_cache.empty()) {
+        m_cache.clear();
+    }
+
     // For each element
     std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(),
                     [](auto* item) {
