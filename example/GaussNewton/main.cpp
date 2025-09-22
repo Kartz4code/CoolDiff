@@ -204,10 +204,10 @@ void GNMatrix() {
     }
   }
 
-  Matrix<Expression> res = (W1*X*X*W2);
-  res = res + res + res + res + res;
-  res = res + res + res;
-  res = res + res + res + res;
+  Matrix<Expression> res = (W1*X*W2);
+  res = res*res + res;
+  res = res*(res + res);
+  
   
   res.resetImpl();
   res.traverse();
