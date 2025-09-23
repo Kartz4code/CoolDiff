@@ -34,8 +34,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericMatDet)
-  DISABLE_MOVE(GenericMatDet)
+  #if 0
+    DISABLE_COPY(GenericMatDet)
+    DISABLE_MOVE(GenericMatDet)
+  #endif
 
   // Verify dimensions of result matrix for trace operation
   inline constexpr bool verifyDim() const {
@@ -48,7 +50,7 @@ private:
   }
 
   // All matrices
-  inline static constexpr const size_t m_size{20};
+  inline static constexpr const size_t m_size{22};
   Matrix<Type>* mp_arr[m_size]{};
 
 public:
@@ -87,8 +89,11 @@ public:
     // Get raw pointers to result and right matrices
     const Matrix<Type>* right_mat = mp_right->eval();
 
-    std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
-      if (nullptr != m) {                                                        
+    // Reset function
+    const size_t start = 0;
+    const size_t end = 1;
+    std::for_each(EXECUTION_PAR mp_arr + start, mp_arr + end, [&](Matrix<Type>*& m) {
+      if (nullptr != m) {                     
         m = ((right_mat == m) ? nullptr : m);                                                               
       }                                                                          
     });
@@ -109,7 +114,10 @@ public:
     const Matrix<Type>* dright_mat = mp_right->devalF(X);
     const Matrix<Type>* right_mat = mp_right->eval();
 
-    std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
+    // Reset function
+    const size_t start = 1;
+    const size_t end = 11;
+    std::for_each(EXECUTION_PAR mp_arr + start, mp_arr + end, [&](Matrix<Type>*& m) {
       if (nullptr != m) {                                                        
         m = ((dright_mat == m) ? nullptr : m);
         m = ((right_mat == m) ? nullptr : m);                                                               
@@ -168,24 +176,42 @@ public:
       MATRIX_TRANSPOSE(mp_arr[11], mp_arr[12]);
       // Matrix determinant
       MATRIX_DET(right_mat, mp_arr[13]);
+      const auto mp_arr13_val = (*mp_arr[13])(0,0); 
+      
       // Scalar multiplication
-      MATRIX_SCALAR_MUL((*mp_arr[13])(0,0), mp_arr[12], mp_arr[14]);
+      MATRIX_SCALAR_MUL(mp_arr13_val, mp_arr[12], mp_arr[14]);
+      const auto mp_arr14_val = (*mp_arr[14])(0,0);
 
       if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
         MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[14], (*cache)[mp_right->m_nidx]); 
       } else {
         (*cache)[mp_right->m_nidx] = mp_arr[14];
       }
-      
-    } else {
-      // Traverse right node
-      if (false == mp_right->m_visited) {
-        mp_right->traverse(cache);
-      }
 
+      for(const auto& [k,v] : (*cache)) {                                                       
+        (*cache)[k] = v->clone(this->m_cloned[this->incFunc()]);                                
+      }
+      
+      std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(),
+              [&](const auto& item) {                                                     
+                const auto idx = item.first; const auto val = item.second;                
+                MATRIX_SCALAR_MUL(mp_arr14_val, val, mp_arr[20]);                           
+                if(auto it2 = cache->find(idx); it2 != cache->end()) {                    
+                  MATRIX_ADD((*cache)[idx], mp_arr[20], (*cache)[idx]);                    
+                } else {                                                                  
+                  (*cache)[idx] = mp_arr[20];                                              
+              }});                                                                        
+    } else {
       // Cached value
       if(auto it = cache->find(m_nidx); it != cache->end()) {
+        // Cache
         const auto cCache = it->second;
+        const auto cCache_val = (*cCache)(0,0);
+
+        // Traverse right node
+        if (false == mp_right->m_visited) {
+          mp_right->traverse(cache);
+        }
 
         // Get raw pointers to right matrix
         const Matrix<Type>* right_mat = mp_right->eval();
@@ -197,16 +223,35 @@ public:
         MATRIX_TRANSPOSE(mp_arr[15], mp_arr[16]);
         // Matrix determinant
         MATRIX_DET(right_mat, mp_arr[17]);
-        // Scalar multiplication
-        MATRIX_SCALAR_MUL((*mp_arr[17])(0,0), mp_arr[16], mp_arr[18]);
+        const auto mp_arr17_val = (*mp_arr[17])(0,0); 
 
-        MATRIX_SCALAR_MUL((*cCache)(0,0), mp_arr[18], mp_arr[19]);
+        // Scalar multiplication
+        MATRIX_SCALAR_MUL(mp_arr17_val, mp_arr[16], mp_arr[18]);
+        
+        // Cache multiplication
+        MATRIX_SCALAR_MUL(cCache_val, mp_arr[18], mp_arr[19]);
+        const auto mp_arr19_val = (*mp_arr[19])(0,0);
 
         if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
           MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[19], (*cache)[mp_right->m_nidx]); 
         } else {
           (*cache)[mp_right->m_nidx] = mp_arr[19];
         }
+
+        for(const auto& [k,v] : (*cache)) {                                                     
+          (*cache)[k] = v->clone(this->m_cloned[this->incFunc()]);                              
+        }  
+
+        std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(),         
+                      [&](const auto &item) {                                                   
+                        const auto idx = item.first; const auto val = item.second;              
+                        MATRIX_SCALAR_MUL(mp_arr19_val, val, mp_arr[21]);                         
+                        if(auto it2 = cache->find(idx); it2 != cache->end()) {                  
+                          MATRIX_ADD((*cache)[idx], mp_arr[21], (*cache)[idx]);                  
+                        } else {                                                                
+                          (*cache)[idx] = mp_arr[21];                                            
+                        }                                                                       
+        });
       }
     }
 

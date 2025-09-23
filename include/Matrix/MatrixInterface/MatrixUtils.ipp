@@ -148,7 +148,7 @@ void Matrix<T>::resetImpl() {
 
     // Free all matrices from cache
     for(auto& [k,v] : m_cache) {
-        v->m_free = true;
+        v->free();
     }
 
     // Empty matrix cache
@@ -158,7 +158,7 @@ void Matrix<T>::resetImpl() {
 
     // For each element
     std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(),
-                    [](auto* item) {
+                    [](auto*& item) {
                         if (nullptr != item) {
                             item->reset();
                         }

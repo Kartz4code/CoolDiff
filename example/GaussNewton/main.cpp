@@ -185,8 +185,8 @@ void GNMatrix() {
   R(1, 0) = -sin(V[0]); R(1, 1) = cos(V[0]);
 
   Matrix<Type> X(2,2);
-  X(0,0) = 1;  X(0,1) = 2; 
-  X(1,0) = 3;  X(1,1) = 4;
+  X(0,0) = 4;  X(0,1) = 3; 
+  X(1,0) = 2;  X(1,1) = 1;
 
   Matrix<Variable> W1(1,2);
   Matrix<Variable> W2(2,1);
@@ -204,10 +204,14 @@ void GNMatrix() {
     }
   }
 
-  Matrix<Expression> res = (W1*X*W2);
-  res = res*res + res;
-  res = res*(res + res);
+  auto l1 = W1*SinM((X^X));
+  auto l2 = l1*X;
+  auto l3 = l2*W2;
   
+  Matrix<Expression> res = CosM(l3);
+  res = res*CosM(res*res) + res + trace(X)*det(X);
+  res = res + det(X) + SinM(res - res*res);
+  res = res + res;
   
   res.resetImpl();
   res.traverse();
@@ -219,6 +223,9 @@ void GNMatrix() {
   std::cout << Eval(*it1) << "\n";
   std::cout << Eval(*it2) << "\n";
   std::cout << Eval(*it3) << "\n";
+
+  X[0] = 1;  X[1] = 2; 
+  X[2] = 3;  X[3] = 4;
 
   res.resetImpl();
   res.traverse();

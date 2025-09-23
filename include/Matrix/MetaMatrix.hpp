@@ -26,6 +26,15 @@ class MetaMatrix {
 protected:
   // Index counter (A counter to count the number of matrix operations)
   inline static size_t m_idx_count{0};
+  // Vector of clones
+  Vector<Matrix<Type>*> m_cloned{nullptr};
+  // Counter values
+  size_t m_clone_counter{};
+  
+  // Clear clone
+  void clearClone();
+  // Counter increment function   
+  const size_t incFunc(const size_t = 2);
 
 public:
   // Visited flag
@@ -34,7 +43,11 @@ public:
   OMMatPair m_cache{};
 
   // Default constructor
-  MetaMatrix() = default;
+  MetaMatrix() {
+    const constexpr size_t init_size = 32;
+    m_cloned.resize(init_size); 
+    std::fill_n(EXECUTION_PAR m_cloned.begin(), init_size, nullptr);
+  }
 
   // Evaluate run-time
   V_PURE(Matrix<Type>* eval());

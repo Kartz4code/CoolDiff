@@ -69,24 +69,17 @@ void MemoryManager::MatrixPool(const size_t rows, const size_t cols, Matrix<Type
     result->m_free = false;
     return;
   } 
-  else if ((rows != result->getNumRows())    ||
-           (cols != result->getNumColumns()) || 
-           (-1 != result->getMatType())) {
-        if (auto it = std::find_if(EXECUTION_PAR mat_ptr.begin(), mat_ptr.end(), functor); 
-                 it != mat_ptr.end()) {
-          // Get underlying pointer
+  else if ((rows != result->getNumRows()) || (cols != result->getNumColumns()) || (-1 != result->getMatType())) {
+        if (auto it = std::find_if(EXECUTION_PAR mat_ptr.begin(), mat_ptr.end(), functor); it != mat_ptr.end()) {   
           Type *ptr = (*it)->getMatrixPtr();
-
-          // Fill n free
           std::fill(EXECUTION_PAR ptr, ptr + (*it)->getNumElem(), val);
-          (*it)->m_free = false;
-
-          // Store result
           result = it->get();
+          result->m_free = false;
           return;
         } 
         else {
           result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(rows, cols, val);
+          result->m_free = false;
           return;
         }
   } else {
