@@ -53,18 +53,8 @@ private:
   }
 
   // All matrices
-  inline static constexpr const size_t m_size{20};
+  inline static constexpr const size_t m_size{16};
   Matrix<Type>* mp_arr[m_size]{};
-
-  Vector<Matrix<Type>*> m_cloned{nullptr};
-  size_t m_counter{};
-
-  inline const size_t incFunc(const size_t scale = 2) {
-    if(const auto size = m_cloned.size(); m_counter >= (size-1)) {
-        m_cloned.resize(scale*size);
-    }
-    return m_counter++;
-  }
 
 public:
   // Block index
@@ -73,13 +63,12 @@ public:
   OMMatPair m_cache;
 
   // Constructor
-  constexpr GenericMatProduct(T1* u, T2* v, Callables&&... call) : mp_left{u}, 
-                                                                   mp_right{v}, 
-                                                                   m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                                   m_nidx{this->m_idx_count++} {
+  constexpr GenericMatProduct(T1* u, T2* v, Callables&&... call) :  mp_left{u}, 
+                                                                    mp_right{v}, 
+                                                                    m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                                    m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
-    m_cloned.resize(32); 
-    std::fill_n(EXECUTION_PAR m_cloned.begin(), 32, nullptr);
+
   }
 
   // Get number of rows
@@ -106,7 +95,10 @@ public:
     const Matrix<Type>* left_mat = mp_left->eval();
     const Matrix<Type>* right_mat = mp_right->eval();
 
-    std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
+    // Reset function
+    const size_t start = 0;
+    const size_t end = 1;
+    std::for_each(EXECUTION_PAR mp_arr + start, mp_arr + end, [&](Matrix<Type>*& m) {
       if (nullptr != m) {                     
         m = ((left_mat == m) ? nullptr : m);
         m = ((right_mat == m) ? nullptr : m);                                                               
@@ -132,7 +124,10 @@ public:
     const Matrix<Type>* left_mat = mp_left->eval();
     const Matrix<Type>* right_mat = mp_right->eval();
     
-    std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
+    // Reset function
+    const size_t start = 1;
+    const size_t end = 6;
+    std::for_each(EXECUTION_PAR mp_arr + start, mp_arr + end, [&](Matrix<Type>*& m) {
       if (nullptr != m) {                                                        
         m = ((dleft_mat == m) ? nullptr : m);
         m = ((dright_mat == m) ? nullptr : m);
@@ -205,7 +200,7 @@ public:
 
       // Clone the cache
       for(const auto& [k,v] : (*cache)) {
-        (*cache)[k] = v->clone(m_cloned[incFunc()]);
+        (*cache)[k] = v->clone(this->m_cloned[this->incFunc()]);
       }
 
       // Modify cache for left node
@@ -230,8 +225,7 @@ public:
                       } else {
                         (*cache)[idx] = mp_arr[13];
                       }
-      });
-      
+      });    
     } else {
       // Cached value
       if(auto it = cache->find(m_nidx); it != cache->end()) {
@@ -274,7 +268,7 @@ public:
 
         // Clone the cache
         for(const auto& [k,v] : (*cache)) {
-          (*cache)[k] = v->clone(m_cloned[incFunc()]);
+          (*cache)[k] = v->clone(this->m_cloned[this->incFunc()]);
         }
 
         // Modify cache for left node
@@ -317,13 +311,7 @@ public:
   }
 
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { 
-    for(size_t i{}; i < m_counter; ++i) {
-      if(nullptr != m_cloned[i]) {
-        m_cloned[i]->free();
-      }
-    }
-    m_counter = 0;
+  V_OVERRIDE(void reset()) {
     BINARY_MAT_RESET(); 
   }
 

@@ -114,9 +114,10 @@ void Matrix<T>::traverse(OMMatPair* cache) {
                             // Traverse the tree
                             i->traverse();
                             // Set value
-                            mp_result = i->eval();  m_eval = true;
+                            mp_result = i->eval(); m_eval = true;
                             // Save cache
                             m_cache = i->getCache();
+                            // Set rows and cols
                             m_rows = i->getNumRows();
                             m_cols = i->getNumColumns();
                         }
@@ -135,7 +136,7 @@ void Matrix<T>::reset() {
 
         // For each element
         std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(), 
-                    [](auto* item) {
+                    [](auto*& item) {
                         if (nullptr != item) {
                             item->reset();
                         }
@@ -156,7 +157,7 @@ void Matrix<T>::reset() {
 
     // Free all matrices from cache
     for(auto& [k,v] : m_cache) {
-      v->m_free = true;
+      v->free();
     }
 
     // Empty matrix cache

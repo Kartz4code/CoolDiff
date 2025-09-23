@@ -56,19 +56,8 @@ private:
   }
 
   // All matrices
-  inline static constexpr const size_t m_size{4};
+  inline static constexpr const size_t m_size{6};
   Matrix<Type>* mp_arr[m_size]{};
-
-
-  Vector<Matrix<Type>*> m_cloned{nullptr};
-  size_t m_counter{};
-
-  inline const size_t incFunc(const size_t scale = 2) {
-    if(const auto size = m_cloned.size(); m_counter >= (size-1)) {
-        m_cloned.resize(scale*size);
-    }
-    return m_counter++;
-  }
 
 public:
   // Block index
@@ -77,13 +66,11 @@ public:
   OMMatPair m_cache{};
 
   // Constructor
-  constexpr GenericMatSum(T1* u, T2* v, Callables&&... call) : mp_left{u}, 
-                                                               mp_right{v}, 
-                                                               m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                               m_nidx{this->m_idx_count++} {
+  constexpr GenericMatSum(T1* u, T2* v, Callables&&... call) :  mp_left{u}, 
+                                                                mp_right{v}, 
+                                                                m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                                m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
-    m_cloned.resize(32); 
-    std::fill_n(EXECUTION_PAR m_cloned.begin(), 32, nullptr);
   }
 
   // Get number of rows
@@ -175,23 +162,26 @@ public:
       
       /* IMPORTANT: The derivative is computed here */
       const size_t n = mp_left->getNumRows();
-      const auto eye_n = const_cast<MatType*>(Eye(n)->clone(m_cloned[incFunc()]));
+      const auto eye_n = const_cast<MatType*>(Eye(n));
+
+      MATRIX_SCALAR_MUL(1, eye_n, mp_arr[2]); 
+      MATRIX_SCALAR_MUL(1, eye_n, mp_arr[3]); 
 
       if(auto it2 = cache->find(mp_left->m_nidx); it2 != cache->end()) {
-        MATRIX_ADD((*cache)[mp_left->m_nidx], eye_n, (*cache)[mp_left->m_nidx]); 
+        MATRIX_ADD((*cache)[mp_left->m_nidx], mp_arr[2], (*cache)[mp_left->m_nidx]); 
       } else {
-        (*cache)[mp_left->m_nidx] = eye_n;
+        (*cache)[mp_left->m_nidx] = mp_arr[2];
       }
 
       if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
-        MATRIX_ADD((*cache)[mp_right->m_nidx], eye_n, (*cache)[mp_right->m_nidx]); 
+        MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[3], (*cache)[mp_right->m_nidx]); 
       } else {
-        (*cache)[mp_right->m_nidx] = eye_n;
+        (*cache)[mp_right->m_nidx] = mp_arr[3];
       }
 
       // Clone the cache
       for(const auto& [k,v] : (*cache)) {
-        (*cache)[k] = v->clone(m_cloned[incFunc()]);
+        (*cache)[k] = v->clone(this->m_cloned[this->incFunc()]);
       }
 
       // Modify cache for left node
@@ -219,8 +209,7 @@ public:
     } else {      
       // Cached value
       if(auto it = cache->find(m_nidx); it != cache->end()) {    
-        const auto cCache = it->second->clone(m_cloned[incFunc()]);
-        const auto cCache_val = (*cCache)(0,0);
+        const auto cCache = it->second;
         
         // Traverse left node
         if (false == mp_left->m_visited) {
@@ -231,29 +220,35 @@ public:
         if (false == mp_right->m_visited) {
           mp_right->traverse(cache);         
         }
+        
+        MATRIX_SCALAR_MUL(1, cCache, mp_arr[4]); 
+        MATRIX_SCALAR_MUL(1, cCache, mp_arr[5]); 
+
+        const auto mp_arr4_val = (*mp_arr[4])(0,0);
+        const auto mp_arr5_val = (*mp_arr[5])(0,0);
 
         if(auto it2 = cache->find(mp_left->m_nidx); it2 != cache->end()) {
-          MATRIX_ADD((*cache)[mp_left->m_nidx], cCache, (*cache)[mp_left->m_nidx]); 
+          MATRIX_ADD((*cache)[mp_left->m_nidx], mp_arr[4], (*cache)[mp_left->m_nidx]); 
         } else {
-          (*cache)[mp_left->m_nidx] = cCache;
+          (*cache)[mp_left->m_nidx] = mp_arr[4];
         }
 
         if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
-          MATRIX_ADD((*cache)[mp_right->m_nidx], cCache, (*cache)[mp_right->m_nidx]); 
+          MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[5], (*cache)[mp_right->m_nidx]); 
         } else {
-          (*cache)[mp_right->m_nidx] = cCache;
+          (*cache)[mp_right->m_nidx] = mp_arr[5];
         }
 
         // Clone the cache
         for(const auto& [k,v] : (*cache)) {
-          (*cache)[k] = v->clone(m_cloned[incFunc()]);
+          (*cache)[k] = v->clone(this->m_cloned[this->incFunc()]);
         }
 
         // Modify cache for left node
         std::for_each(EXECUTION_PAR mp_left->m_cache.begin(), mp_left->m_cache.end(), 
                       [&](const auto& item) {
                       const auto idx = item.first; const auto val = item.second;
-                      MATRIX_SCALAR_MUL(cCache_val, val, mp_arr[2]);
+                      MATRIX_SCALAR_MUL(mp_arr4_val, val, mp_arr[2]);
                       if(auto it2 = cache->find(idx); it2 != cache->end()) {
                         MATRIX_ADD((*cache)[idx], mp_arr[2], (*cache)[idx]);
                       } else {
@@ -265,7 +260,7 @@ public:
         std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(), 
                       [&](const auto &item) {
                       const auto idx = item.first; const auto val = item.second;
-                      MATRIX_SCALAR_MUL(cCache_val, val, mp_arr[3]);
+                      MATRIX_SCALAR_MUL(mp_arr5_val, val, mp_arr[3]);
                       if(auto it2 = cache->find(idx); it2 != cache->end()) {
                         MATRIX_ADD((*cache)[idx], mp_arr[3], (*cache)[idx]);
                       } else {
@@ -289,12 +284,6 @@ public:
 
   // Reset visit run-time
   V_OVERRIDE(void reset()) {
-    for(size_t i{}; i < m_counter; ++i) {
-      if(nullptr != m_cloned[i]) {
-        m_cloned[i]->free();
-      }
-    }
-    m_counter = 0;
     BINARY_MAT_RESET(); 
   }
 

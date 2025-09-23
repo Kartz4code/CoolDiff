@@ -30,3 +30,14 @@ void ResetZero(Matrix<Type>* ptr) {
     std::fill(EXECUTION_PAR mptr, mptr + size, (Type)(0));
   }
 }
+
+const size_t MetaMatrix::incFunc(const size_t scale) {
+  if(const auto size = m_cloned.size(); m_clone_counter >= (size-1)) {
+      m_cloned.resize(scale*size);
+  }
+  return m_clone_counter++;
+}
+
+void MetaMatrix::clearClone() {
+  m_clone_counter = 0;
+}

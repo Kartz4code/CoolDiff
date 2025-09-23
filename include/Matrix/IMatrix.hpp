@@ -28,12 +28,14 @@
 template <typename T> class IMatrix : public MetaMatrix {
 private:
   // CRTP const
-  inline constexpr const T &derived() const {
-    return static_cast<const T &>(*this);
+  inline constexpr const T& derived() const {
+    return static_cast<const T&>(*this);
   }
 
   // CRTP mutable
-  inline constexpr T &derived() { return static_cast<T &>(*this); }
+  inline constexpr T& derived() { 
+    return static_cast<T&>(*this); 
+  }
 
 protected:
   // Protected constructor
@@ -41,7 +43,9 @@ protected:
 
 public:
   // Find me
-  bool findMe(void* v) const { return derived().findMe(v); }
+  bool findMe(void* v) const {  
+    return derived().findMe(v); 
+  }
 
   // Protected destructor
   V_DTR(~IMatrix()) = default;
@@ -50,31 +54,21 @@ public:
 // Binary matrix reset
 #define BINARY_MAT_RESET()                                                     \
   this->m_visited = false;                                                     \
-  for(auto& [k,v] : m_cache) { v->m_free = true; }                             \
+  this->clearClone();                                                          \
   if (false == m_cache.empty()) { m_cache.clear(); }                           \
   mp_left->reset();                                                            \
   mp_right->reset();                                                           \
-  std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type>*& m) {  \
-    if (nullptr != m) {                                                        \
-      m->free();                                                               \
-    }                                                                          \
-  });
 
 #define BINARY_MAT_RIGHT_RESET()                                               \
   this->m_visited = false;                                                     \
-  for(auto& [k,v] : m_cache) { v->m_free = true; }                             \
+  this->clearClone();                                                          \
   if (false == m_cache.empty()) { m_cache.clear(); }                           \
   mp_right->reset();                                                           \
-  std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type>*& m) {  \
-    if (nullptr != m) {                                                        \
-      m->free();                                                               \
-    }                                                                          \
-  });
 
 template <typename T>
 using ExpType = std::enable_if_t<true == std::is_base_of_v<MetaVariable, T> &&
-                                 false == std::is_arithmetic_v<T> &&
-                                 false == std::is_same_v<Type, T>>;
+                                false == std::is_arithmetic_v<T> &&
+                                false == std::is_same_v<Type, T>>;
 
 // Axis based operations
 enum class Axis {
@@ -84,30 +78,19 @@ enum class Axis {
 // Special matrices
 enum MatrixSpl : size_t {
   ZEROS = 1 << 1,
-  EYE = 1 << 2,
-  ONES = 1 << 3,
-  DIAG = 1 << 4,
-  SYMM = 1 << 5,
-  NONE = 1 << 30
+  EYE   = 1 << 2,
+  ONES  = 1 << 3,
+  DIAG  = 1 << 4,
+  SYMM  = 1 << 5,
+  NONE  = 1 << 30
 };
 
 // Operations enum [Order matters!]
 enum OpMat : size_t {
-  ADD_MAT = 0,
-  MUL_MAT,
-  KRON_MAT,
-  SUB_MAT,
-  HADAMARD_MAT,
-  ADD_SCALAR_MAT,
-  MUL_SCALAR_MAT,
-  TRANSPOSE_MAT,
-  TRANSPOSE_DERV_MAT,
-  CONV_MAT,
-  CONV_DERV_MAT,
-  UNARY_OP_MAT,
-  INV_MAT,
-  DET_MAT,
-  COUNT_MAT
+  ADD_MAT = 0, MUL_MAT, KRON_MAT, SUB_MAT,
+  HADAMARD_MAT, ADD_SCALAR_MAT, MUL_SCALAR_MAT, TRANSPOSE_MAT,
+  TRANSPOSE_DERV_MAT, CONV_MAT, CONV_DERV_MAT, UNARY_OP_MAT,
+  INV_MAT, DET_MAT, COUNT_MAT
 };
 
 // Matrix operations Macros
@@ -131,33 +114,26 @@ enum OpMat : size_t {
                                            X10, X11)
 
 #define UNARY_OP_MAT(X, Y, Z) std::get<OpMat::UNARY_OP_MAT>(m_caller)(X, Y, Z)
-#define MATRIX_INVERSE(X, Y) std::get<OpMat::INV_MAT>(m_caller)(X, Y)
-#define MATRIX_DET(X, Y) std::get<OpMat::DET_MAT>(m_caller)(X, Y)
+#define MATRIX_INVERSE(X, Y)  std::get<OpMat::INV_MAT>(m_caller)(X, Y)
+#define MATRIX_DET(X, Y)      std::get<OpMat::DET_MAT>(m_caller)(X, Y)
 
 // Operation type [Order matters!]
-#define OpMatType                                                              \
-  void (*)(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&),       \
-      void (*)(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&),   \
-      void (*)(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&),   \
-      void (*)(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&),   \
-      void (*)(const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&),   \
-      void (*)(Type, const Matrix<Type> *, Matrix<Type> *&),                   \
-      void (*)(Type, const Matrix<Type> *, Matrix<Type> *&),                   \
-      void (*)(const Matrix<Type> *, Matrix<Type> *&),                         \
-      void (*)(const size_t, const size_t, const size_t, const size_t,         \
-               const Matrix<Type> *, Matrix<Type> *&),                         \
-      void (*)(const size_t, const size_t, const size_t, const size_t,         \
-               const Matrix<Type> *, const Matrix<Type> *, Matrix<Type> *&),   \
-      void (*)(const size_t, const size_t, const size_t, const size_t,         \
-               const size_t, const size_t, const Matrix<Type> *,               \
-               const Matrix<Type> *, const Matrix<Type> *,                     \
-               const Matrix<Type> *, Matrix<Type> *&),                         \
-      void (*)(const Matrix<Type> *, const FunctionType1 &, Matrix<Type> *&),  \
-      void (*)(const Matrix<Type> *, Matrix<Type> *&),                         \
-      void (*)(const Matrix<Type> *, Matrix<Type> *&)
+#define OpMatType void (*)(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&),             \
+                  void (*)(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&),             \
+                  void (*)(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&),             \
+                  void (*)(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&),             \
+                  void (*)(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&),             \
+                  void (*)(Type, const Matrix<Type>*, Matrix<Type>*&),                            \
+                  void (*)(Type, const Matrix<Type>*, Matrix<Type>*&),                            \
+                  void (*)(const Matrix<Type>*, Matrix<Type>*&),                                  \
+                  void (*)(const size_t, const size_t, const size_t, const size_t, const Matrix<Type>*, Matrix<Type>*&), \
+                  void (*)(const size_t, const size_t, const size_t, const size_t, const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&), \
+                  void (*)(const size_t, const size_t, const size_t, const size_t, const size_t, const size_t, const Matrix<Type>*, const Matrix<Type>*, const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&), \
+                  void (*)(const Matrix<Type>*, const FunctionType1&, Matrix<Type>*&),            \
+                  void (*)(const Matrix<Type>*, Matrix<Type>*&),                                  \
+                  void (*)(const Matrix<Type>*, Matrix<Type>*&)
 
 // Operation objects [Order matters!]
-#define OpMatObj                                                               \
-  MatrixAdd, MatrixMul, MatrixKron, MatrixSub, MatrixHadamard,                 \
-      MatrixScalarAdd, MatrixScalarMul, MatrixTranspose, MatrixDervTranspose,  \
-      MatrixConv, MatrixDervConv, MatrixUnary, MatrixInverse, MatrixDet
+#define OpMatObj  MatrixAdd, MatrixMul, MatrixKron, MatrixSub, MatrixHadamard,             \
+                  MatrixScalarAdd, MatrixScalarMul, MatrixTranspose, MatrixDervTranspose,  \
+                  MatrixConv, MatrixDervConv, MatrixUnary, MatrixInverse, MatrixDet

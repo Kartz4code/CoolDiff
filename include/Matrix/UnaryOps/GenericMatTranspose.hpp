@@ -38,7 +38,7 @@ private:
   DISABLE_MOVE(GenericMatTranspose)
 
   // All matrices
-  inline static constexpr const size_t m_size{2};
+  inline static constexpr const size_t m_size{7};
   Matrix<Type>* mp_arr[m_size]{};
 
 public:
@@ -74,7 +74,9 @@ public:
     // Get raw pointers to result and right matrices
     const Matrix<Type>* right_mat = mp_right->eval();
 
-    std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
+    const size_t start = 0;
+    const size_t end = 1;
+    std::for_each(EXECUTION_PAR mp_arr + start, mp_arr + end, [&](Matrix<Type>*& m) {
       if (nullptr != m) {                                                        
         m = ((right_mat == m) ? nullptr : m);                                                               
       }                                                                          
@@ -92,7 +94,9 @@ public:
     // Right matrix derivative
     const Matrix<Type>* dright_mat = mp_right->devalF(X);
 
-    std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
+    const size_t start = 1;
+    const size_t end = 2;
+    std::for_each(EXECUTION_PAR mp_arr + start, mp_arr + end, [&](Matrix<Type>*& m) {
       if (nullptr != m) {                                                        
         m = ((dright_mat == m) ? nullptr : m);                                                               
       }                                                                          
@@ -108,6 +112,105 @@ public:
 
     // Return result pointer
     return mp_arr[1];
+  }
+
+  V_OVERRIDE(void traverse(OMMatPair* cache = nullptr)) {
+    // If cache is nullptr, i.e. for the first step
+    if (cache == nullptr) {
+      // cache is m_cache
+      cache = &m_cache;
+      cache->reserve(g_map_reserve);
+      // Clear cache in the first entry
+      if (false == (*cache).empty()) {
+        (*cache).clear();
+      }
+
+      // Traverse right node
+      if (false == mp_right->m_visited) {
+        mp_right->traverse(cache);
+      }
+
+      // Get raw pointers to right matrix
+      const Matrix<Type>* right_mat = mp_right->eval();
+      
+      /* IMPORTANT: The derivative is computed here */
+      // Matrix transpose
+      MATRIX_TRANSPOSE(right_mat, mp_arr[2]);
+
+      const auto mp_arr2_val = (*mp_arr[2])(0,0);
+
+      if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
+        MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[2], (*cache)[mp_right->m_nidx]); 
+      } else {
+        (*cache)[mp_right->m_nidx] = mp_arr[2];
+      }
+
+      for(const auto& [k,v] : (*cache)) {                                                       
+        (*cache)[k] = v->clone(this->m_cloned[this->incFunc()]);                                
+      }
+      
+      std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(),
+              [&](const auto& item) {                                                     
+                const auto idx = item.first; const auto val = item.second;                
+                MATRIX_SCALAR_MUL(mp_arr2_val, val, mp_arr[3]);                           
+                if(auto it2 = cache->find(idx); it2 != cache->end()) {                    
+                  MATRIX_ADD((*cache)[idx], mp_arr[3], (*cache)[idx]);                    
+                } else {                                                                  
+                  (*cache)[idx] = mp_arr[3];                                              
+              }});                                                                        
+    } else {
+      // Cached value
+      if(auto it = cache->find(m_nidx); it != cache->end()) {
+        // Cache
+        const auto cCache = it->second;
+        
+        // Traverse right node
+        if (false == mp_right->m_visited) {
+          mp_right->traverse(cache);
+        }
+
+        // Get raw pointers to right matrix
+        const Matrix<Type>* right_mat = mp_right->eval();
+
+        /* IMPORTANT: The derivative is computed here */
+        // Matrix transpose
+        MATRIX_TRANSPOSE(right_mat, mp_arr[4]);
+        // Cache multiplication
+        MATRIX_HADAMARD(cCache, mp_arr[4], mp_arr[5]);
+
+        const auto mp_arr5_val = (*mp_arr[5])(0,0);
+
+        if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
+          MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[5], (*cache)[mp_right->m_nidx]); 
+        } else {
+          (*cache)[mp_right->m_nidx] = mp_arr[5];
+        }
+
+        for(const auto& [k,v] : (*cache)) {                                                     
+          (*cache)[k] = v->clone(this->m_cloned[this->incFunc()]);                              
+        }  
+
+        std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(),         
+                      [&](const auto &item) {                                                   
+                        const auto idx = item.first; const auto val = item.second;              
+                        MATRIX_SCALAR_MUL(mp_arr5_val, val, mp_arr[6]);                         
+                        if(auto it2 = cache->find(idx); it2 != cache->end()) {                  
+                          MATRIX_ADD((*cache)[idx], mp_arr[6], (*cache)[idx]);                  
+                        } else {                                                                
+                          (*cache)[idx] = mp_arr[6];                                            
+                        }                                                                       
+        });
+      }
+    }
+
+    // Traverse right node
+    if (false == mp_right->m_visited) {
+      mp_right->traverse(cache);
+    }
+  }
+
+  V_OVERRIDE(OMMatPair& getCache()) {
+    return m_cache;
   }
 
   // Reset visit run-time
