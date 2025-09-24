@@ -137,6 +137,7 @@ public:
     return mp_arr[1];
   }
 
+  // Traverse
   V_OVERRIDE(void traverse(OMMatPair* cache = nullptr)) {
     // If cache is nullptr, i.e. for the first step
     if (cache == nullptr) {
@@ -181,7 +182,7 @@ public:
         (*cache)[k] = v->clone(this->m_cloned[this->incFunc()]);
       }
 
-            // Modify cache for left node
+      // Modify cache for left node
       std::for_each(EXECUTION_PAR mp_left->m_cache.begin(), mp_left->m_cache.end(), 
                       [&](const auto& item) {
                       const auto idx = item.first; const auto val = item.second;
@@ -202,7 +203,6 @@ public:
                         (*cache)[idx] = val;
                       }
       });
-      
     } else {      
       // Cached value
       if(auto it = cache->find(m_nidx); it != cache->end()) {    
@@ -245,11 +245,12 @@ public:
         std::for_each(EXECUTION_PAR mp_left->m_cache.begin(), mp_left->m_cache.end(), 
                       [&](const auto& item) {
                       const auto idx = item.first; const auto val = item.second;
-                      MATRIX_SCALAR_MUL(mp_arr4_val, val, mp_arr[2]);
+                      MatType*& ptr = this->m_cloned[this->incFunc()];
+                      MATRIX_SCALAR_MUL(mp_arr4_val, val, ptr);
                       if(auto it2 = cache->find(idx); it2 != cache->end()) {
-                        MATRIX_ADD((*cache)[idx], mp_arr[2], (*cache)[idx]);
+                        MATRIX_ADD((*cache)[idx], ptr, (*cache)[idx]);
                       } else {
-                        (*cache)[idx] = mp_arr[2];
+                        (*cache)[idx] = ptr;
                       }
         });
 
@@ -257,11 +258,12 @@ public:
         std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(), 
                       [&](const auto &item) {
                       const auto idx = item.first; const auto val = item.second;
-                      MATRIX_SCALAR_MUL(mp_arr5_val, val, mp_arr[3]);
+                      MatType*& ptr = this->m_cloned[this->incFunc()];
+                      MATRIX_SCALAR_MUL(mp_arr5_val, val, ptr);
                       if(auto it2 = cache->find(idx); it2 != cache->end()) {
-                        MATRIX_ADD((*cache)[idx], mp_arr[3], (*cache)[idx]);
+                        MATRIX_ADD((*cache)[idx], ptr, (*cache)[idx]);
                       } else {
-                        (*cache)[idx] = mp_arr[3];
+                        (*cache)[idx] = ptr;
                       }
         });
       }
@@ -275,6 +277,7 @@ public:
     } 
   }
 
+  // Get cache
   V_OVERRIDE(OMMatPair& getCache()) {
     return m_cache;
   }

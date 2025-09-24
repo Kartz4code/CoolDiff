@@ -30,7 +30,6 @@ void Matrix<T>::swap(Matrix& other) noexcept {
   std::swap(m_type, other.m_type);
   std::swap(mp_mat, other.mp_mat);
   std::swap(m_gh_vec, other.m_gh_vec);
-  std::swap(m_free, other.m_free);
   std::swap(m_eval, other.m_eval);
   std::swap(m_devalf, other.m_devalf);
   std::swap(m_dest, other.m_dest);

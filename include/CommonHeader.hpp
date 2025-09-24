@@ -83,16 +83,16 @@
 
 // Enable/disable copy/move operators
 #ifndef ENABLE_COPY_MOVE
-#define DISABLE_COPY(X)                                                        \
-  X(const X &) = delete;                                                       \
-  X &operator=(const X &) = delete;
+  #define DISABLE_COPY(X)                                                        \
+    X(const X &) = delete;                                                       \
+    X &operator=(const X &) = delete;
 
-#define DISABLE_MOVE(X)                                                        \
-  X(X &&) noexcept = delete;                                                   \
-  X &operator=(X &&) noexcept = delete;
+  #define DISABLE_MOVE(X)                                                        \
+    X(X &&) noexcept = delete;                                                   \
+    X &operator=(X &&) noexcept = delete;
 #else
-#define DISABLE_COPY(X)
-#define DISABLE_MOVE(X)
+  #define DISABLE_COPY(X)
+  #define DISABLE_MOVE(X)
 #endif
 
 // Eval/Deval left operator
@@ -211,40 +211,45 @@ template <typename T, typename U> using Pair = std::pair<T, U>;
 
 // Ordered map between size_t and Type
 #if defined(USE_ROBIN_HOOD_MAP)
-#include <robin_hood.h>
-using OMPair = robin_hood::unordered_flat_map<size_t, Type>;
-using OMMatPair = robin_hood::unordered_flat_map<size_t, Matrix<Type>*>;
-// A generic unorderedmap
-template <typename T, typename U>
-using UnOrderedMap = robin_hood::unordered_flat_map<T, U>;
+  #include <robin_hood.h>
+  using OMPair = robin_hood::unordered_flat_map<size_t, Type>;
+  using OMMatPair = robin_hood::unordered_flat_map<size_t, Matrix<Type>*>;
+  // A generic unorderedmap
+  template <typename T, typename U>
+  using UnOrderedMap = robin_hood::unordered_flat_map<T, U>;
 #else
-#include <unordered_map>
-using OMPair = std::unordered_map<size_t, Type>;
-using OMMatPair = std::unordered_map<size_t, Matrix<Type> *>;
-// A generic unorderedmap
-template <typename T, typename U> using UnOrderedMap = std::unordered_map<T, U>;
+  #include <unordered_map>
+  using OMPair = std::unordered_map<size_t, Type>;
+  using OMMatPair = std::unordered_map<size_t, Matrix<Type> *>;
+  // A generic unorderedmap
+  template <typename T, typename U> 
+  using UnOrderedMap = std::unordered_map<T, U>;
 #endif
 
 // A generic vector type
-template <typename T> using Vector = std::vector<T>;
+template <typename T> 
+using Vector = std::vector<T>;
 
 // A generic variadic tuple type
-template <typename... Args> using Tuples = std::tuple<Args...>;
+template <typename... Args> 
+using Tuples = std::tuple<Args...>;
 
 // A generic shared pointer
-template <typename T> using SharedPtr = std::shared_ptr<T>;
+template <typename T> 
+using SharedPtr = std::shared_ptr<T>;
 
 // Function type
 using FunctionType1 = std::function<Type(Type)>;
 
 // A generic future
-template <typename T> using Future = std::future<T>;
+template <typename T> 
+using Future = std::future<T>;
 
 #if defined(USE_VIRTUAL_FUNCTIONS)
-#define V_OVERRIDE(X) X override
-#define V_UNPURE(X) virtual X
-#define V_DTR(X) virtual X
-#define V_PURE(X) virtual X = 0
+  #define V_OVERRIDE(X) X override
+  #define V_UNPURE(X) virtual X
+  #define V_DTR(X) virtual X
+  #define V_PURE(X) virtual X = 0
 #endif
 
 // Enum classes - Automatic differentiation modes

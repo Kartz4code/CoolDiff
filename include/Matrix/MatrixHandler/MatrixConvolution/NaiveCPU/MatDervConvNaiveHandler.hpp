@@ -115,12 +115,5 @@ class MatDervConvNaiveHandler : public T {
                               mp_arr[12]);
         }
       }
-
-      // Free resources
-      std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type>* m) {
-        if (nullptr != m) {
-          m->free();
-        }
-      });
     }
 };

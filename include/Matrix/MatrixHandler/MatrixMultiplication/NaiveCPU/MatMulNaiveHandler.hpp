@@ -70,12 +70,5 @@ class MatMulNaiveHandler : public T {
                     // Store result
                     (*result)(i, j) = std::exchange(tmp, (Type)(0));
                 });
-
-            #if defined(MATRIX_TRANSPOSED_MUL)
-                // Free rhs transpose matrix to the pool
-                if (nullptr != mp_rhs_transpose) {
-                    mp_rhs_transpose->free();
-                }
-            #endif
         }
 };
