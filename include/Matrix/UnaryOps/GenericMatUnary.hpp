@@ -91,11 +91,12 @@ class GenericMat##OPS : public IMatrix<GenericMat##OPS<T, Callables...>> {      
           std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(),           \
                         [&](const auto& item) {                                                     \
                           const auto idx = item.first; const auto val = item.second;                \
-                          MATRIX_SCALAR_MUL(mp_arr4_val, val, mp_arr[7]);                           \
+                          MatType*& ptr = this->m_cloned[this->incFunc()];                          \
+                          MATRIX_SCALAR_MUL(mp_arr4_val, val, ptr);                                 \
                           if(auto it2 = cache->find(idx); it2 != cache->end()) {                    \
-                            MATRIX_ADD((*cache)[idx], mp_arr[7], (*cache)[idx]);                    \
+                            MATRIX_ADD((*cache)[idx], ptr, (*cache)[idx]);                          \
                           } else {                                                                  \
-                            (*cache)[idx] = mp_arr[7];                                              \
+                            (*cache)[idx] = ptr;                                                    \
                         }});                                                                        \
         }                                                                                           \
         else {                                                                                      \
@@ -119,11 +120,12 @@ class GenericMat##OPS : public IMatrix<GenericMat##OPS<T, Callables...>> {      
             std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(),         \
                           [&](const auto &item) {                                                   \
                             const auto idx = item.first; const auto val = item.second;              \
-                            MATRIX_SCALAR_MUL(mp_arr6_val, val, mp_arr[8]);                         \
+                            MatType*& ptr = this->m_cloned[this->incFunc()];                        \
+                            MATRIX_SCALAR_MUL(mp_arr6_val, val, ptr);                               \
                             if(auto it2 = cache->find(idx); it2 != cache->end()) {                  \
-                              MATRIX_ADD((*cache)[idx], mp_arr[8], (*cache)[idx]);                  \
+                              MATRIX_ADD((*cache)[idx], ptr, (*cache)[idx]);                        \
                             } else {                                                                \
-                              (*cache)[idx] = mp_arr[8];                                            \
+                              (*cache)[idx] = ptr;                                                  \
                             }                                                                       \
             });                                                                                     \
           }                                                                                         \

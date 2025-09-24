@@ -84,7 +84,7 @@ if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
 endif()
 
 add_definitions(-DUSE_COMPLEX_MATH)
-#add_definitions(-DUSE_ROBIN_HOOD_MAP)
+add_definitions(-DUSE_ROBIN_HOOD_MAP)
 add_definitions(-DUSE_VIRTUAL_FUNCTIONS)
 #add_definitions(-DUSE_CXX_PARALLEL_POLICY)
 #add_definitions(-DUSE_EXECUTION_PAR)

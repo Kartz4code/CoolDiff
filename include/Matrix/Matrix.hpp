@@ -77,10 +77,6 @@ private:
   // Collection of meta variable expressions
   Vector<MetaMatrix*> m_gh_vec{};
 
-public:
-  // Free matrix resource
-  bool m_free{false};
-
 private:
   // Boolean to verify evaluation/forward derivative values
   bool m_eval{false};
@@ -306,8 +302,6 @@ public:
   // Get type of matrix
   MatrixSpl getMatType() const;
 
-  // Free resources
-  void free();
   // Find me
   bool findMe(void*) const;
   // Reset impl
@@ -323,13 +317,12 @@ public:
   // Derivative matrix
   V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable>&));
 
-  virtual void traverse(OMMatPair* cache = nullptr) override;
+  // Traverse
+  V_OVERRIDE(void traverse(OMMatPair* cache = nullptr));
 
-  virtual OMMatPair& getCache() override {
-    return m_cache;
-  }
-
-
+  // Get cache
+  V_OVERRIDE(OMMatPair& getCache());
+  
   // Reset all visited flags
   V_OVERRIDE(void reset());
 

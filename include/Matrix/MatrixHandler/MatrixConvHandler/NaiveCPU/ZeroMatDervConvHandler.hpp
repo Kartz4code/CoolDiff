@@ -98,13 +98,6 @@
             result->setBlockMat({(i * nrows_x), (i + 1) * nrows_x - 1}, {(j * ncols_x), (j + 1) * ncols_x - 1}, mp_arr[7]);
           }
         }
-
-        // Free resources
-        std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type> *m) {
-          if (nullptr != m) {
-            m->free();
-          }
-        });
       }
 
       void handleRHS(const size_t nrows_x, const size_t ncols_x, const size_t stride_x,
@@ -171,13 +164,6 @@
                                 {(j * ncols_x), (j + 1) * ncols_x - 1}, mp_arr[7]);
           }
         }
-
-        // Free resources
-        std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type> *m) {
-          if (nullptr != m) {
-            m->free();
-          }
-        });
       }
 
      public:

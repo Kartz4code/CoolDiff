@@ -96,104 +96,18 @@ Pair<Matrix<Type> *, Matrix<Type> *> LoadData() {
   return {X, Y};
 }
 
-/*
-void func() {
-  
-  Matrix<Type> X(4,1);
-  X(0,0) = 1; 
-  X(1,0) = 2; 
-  X(2,0) = 3; 
-  X(3,0) = 4;
-
-  Matrix<Variable> W1(4,4);
-  Matrix<Variable> W2(4,4);
-  Matrix<Variable> W3(4,4);
-  Matrix<Variable> W4(1,4);
-
-  Matrix<Variable> B1(4,1);
-
-  // Set W1
-  for(int i{}; i < 4; i++) {
-    for(int j{}; j < 4; j++) {
-      W1(i,j) = i+j+1;
-    }
-  }
-  // Set W2
-  for(int i{}; i < 4; i++) {
-    for(int j{}; j < 4; j++) {
-      W2(i,j) = i+2*j+2;
-    }
-  }
-  // Set W3
-   for(int i{}; i < 4; i++) {
-    for(int j{}; j < 4; j++) {
-      W3(i,j) = 1+j+i*2;
-    }
-  }
-  // Set W4
-   for(int i{}; i < 1; i++) {
-    for(int j{}; j < 4; j++) {
-      W4(i,j) = 1;
-    }
-  }
-
-   // Set B1
-   for(int i{}; i < 4; i++) {
-    for(int j{}; j < 1; j++) {
-      B1(i,j) = 2;
-    }
-  }
-
-  auto Layer1 = SinM(W1*X);
-  auto Layer2 = CosM(W2*Layer1 + B1);
-  auto Layer3 = SinM(W3*Layer2);
-  auto Layer4 = CosM(W4*Layer3);
-
-  Matrix<Expression> res = Layer4;
-  
-  res.resetImpl();
-  res.traverse();
-
-  auto it1 = res.getCache()[W1.m_nidx];
-  auto it2 = res.getCache()[W2.m_nidx];
-  auto it3 = res.getCache()[W3.m_nidx];
-  auto it4 = res.getCache()[W4.m_nidx];
-  auto it5 = res.getCache()[B1.m_nidx];
-  
-  std::cout << Eval(*it1) << "\n";
-  std::cout << Eval(*it2) << "\n";
-  std::cout << Eval(*it3) << "\n";
-  std::cout << Eval(*it4) << "\n";
-  std::cout << Eval(*it5) << "\n";
-}
-*/
-
-// 2D data matching
-void GNMatrix() {
-  // Load data
-  auto data = LoadData();
-
-  // Matrix variables
-  Matrix<Variable> V(1, 3);
-  V[0] = 0.5142;
-  V[1] = 20;
-  V[2] = -20;
-
-  // Rotation matrix
-  Matrix<Expression> R(2, 2);
-  R(0, 0) = cos(V[0]); R(0, 1) = sin(V[0]);
-  R(1, 0) = -sin(V[0]); R(1, 1) = cos(V[0]);
+void RModeDerv() {
 
   Matrix<Type> X(2,2);
   X(0,0) = 4;  X(0,1) = 3; 
   X(1,0) = 2;  X(1,1) = 1;
 
-  Matrix<Variable> W1(1,2);
+  Matrix<Variable> W1(2,1);
   Matrix<Variable> W2(2,1);
 
   // Set W1
-  for(int i{}; i < 1; i++) {
-    for(int j{}; j < 2; j++) {
+  for(int i{}; i < 2; i++) {
+    for(int j{}; j < 1; j++) {
       W1(i,j) = i+j+1;
     }
   }
@@ -204,13 +118,13 @@ void GNMatrix() {
     }
   }
 
-  auto l1 = W1*SinM((X^X));
+  auto l1 = transpose(W1)*SinM((transpose(X)^X) + 6.2);
   auto l2 = l1*X;
   auto l3 = l2*W2;
   
-  Matrix<Expression> res = CosM(l3);
-  res = res*CosM(res*res) + res + trace(X)*det(X);
-  res = res + det(X) + SinM(res - res*res);
+  Matrix<Expression> res = -1.25*CosM(l3);
+  res = 10 + res*CosM(res*res) + 2.24*res + trace(X)*det(X);
+  res = res + det(X) + trace(X) + SinM(res - res*res);
   res = res + res;
   
   res.resetImpl();
@@ -237,9 +151,27 @@ void GNMatrix() {
   std::cout << Eval(*it1) << "\n";
   std::cout << Eval(*it2) << "\n";
   std::cout << Eval(*it3) << "\n";
+}
+
+// 2D data matching
+void GNMatrix() {
+  // Load data
+  auto data = LoadData();
+
+  // Matrix variables
+  Matrix<Variable> V(1, 3);
+  V[0] = 0.5142;
+  V[1] = 20;
+  V[2] = -20;
 
   // Translation matrices
   Matrix<Variable> t(2,1,V.getMatrixPtr()+1);
+  
+  // Rotation matrix
+  Matrix<Expression> R(2, 2);
+  R(0, 0) = cos(V[0]); R(0, 1) = sin(V[0]);
+  R(1, 0) = -sin(V[0]); R(1, 1) = cos(V[0]);
+
 
   // Parameter for input/output data
   Matrix<Parameter> PX(2, 1), PY(2, 1);
@@ -298,7 +230,9 @@ void ScalarSolve() {
 }
 
 int main(int argc, char **argv) { 
-  NonLinearSolve();
   GNMatrix();
+  NonLinearSolve();
+  RModeDerv();
+  //RModeDerv();
   return 0;
 }

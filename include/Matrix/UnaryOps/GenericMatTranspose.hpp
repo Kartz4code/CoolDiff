@@ -34,11 +34,13 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericMatTranspose)
-  DISABLE_MOVE(GenericMatTranspose)
+  #if 0
+    DISABLE_COPY(GenericMatTranspose)
+    DISABLE_MOVE(GenericMatTranspose)
+  #endif
 
   // All matrices
-  inline static constexpr const size_t m_size{7};
+  inline static constexpr const size_t m_size{6};
   Matrix<Type>* mp_arr[m_size]{};
 
 public:
@@ -114,6 +116,7 @@ public:
     return mp_arr[1];
   }
 
+  // Traverse
   V_OVERRIDE(void traverse(OMMatPair* cache = nullptr)) {
     // If cache is nullptr, i.e. for the first step
     if (cache == nullptr) {
@@ -131,13 +134,12 @@ public:
       }
 
       // Get raw pointers to right matrix
-      const Matrix<Type>* right_mat = mp_right->eval();
-      
+      const size_t n = mp_right->getNumRows();
+      const auto eye_n = const_cast<MatType*>(Eye(n));
+
       /* IMPORTANT: The derivative is computed here */
       // Matrix transpose
-      MATRIX_TRANSPOSE(right_mat, mp_arr[2]);
-
-      const auto mp_arr2_val = (*mp_arr[2])(0,0);
+      MATRIX_TRANSPOSE(eye_n, mp_arr[2]);
 
       if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
         MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[2], (*cache)[mp_right->m_nidx]); 
@@ -151,12 +153,13 @@ public:
       
       std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(),
               [&](const auto& item) {                                                     
-                const auto idx = item.first; const auto val = item.second;                
-                MATRIX_SCALAR_MUL(mp_arr2_val, val, mp_arr[3]);                           
+                const auto idx = item.first; const auto val = item.second;   
+                MatType*& ptr = this->m_cloned[this->incFunc()];             
+                MATRIX_SCALAR_MUL(1, val, ptr);                           
                 if(auto it2 = cache->find(idx); it2 != cache->end()) {                    
-                  MATRIX_ADD((*cache)[idx], mp_arr[3], (*cache)[idx]);                    
+                  MATRIX_ADD((*cache)[idx], ptr, (*cache)[idx]);                    
                 } else {                                                                  
-                  (*cache)[idx] = mp_arr[3];                                              
+                  (*cache)[idx] = ptr;                                              
               }});                                                                        
     } else {
       // Cached value
@@ -169,21 +172,16 @@ public:
           mp_right->traverse(cache);
         }
 
-        // Get raw pointers to right matrix
-        const Matrix<Type>* right_mat = mp_right->eval();
-
         /* IMPORTANT: The derivative is computed here */
         // Matrix transpose
-        MATRIX_TRANSPOSE(right_mat, mp_arr[4]);
-        // Cache multiplication
-        MATRIX_HADAMARD(cCache, mp_arr[4], mp_arr[5]);
+        MATRIX_TRANSPOSE(cCache, mp_arr[4]);
 
-        const auto mp_arr5_val = (*mp_arr[5])(0,0);
+        const auto mp_arr4_val = (*mp_arr[4])(0,0);
 
         if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
-          MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[5], (*cache)[mp_right->m_nidx]); 
+          MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[4], (*cache)[mp_right->m_nidx]); 
         } else {
-          (*cache)[mp_right->m_nidx] = mp_arr[5];
+          (*cache)[mp_right->m_nidx] = mp_arr[4];
         }
 
         for(const auto& [k,v] : (*cache)) {                                                     
@@ -192,12 +190,13 @@ public:
 
         std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(),         
                       [&](const auto &item) {                                                   
-                        const auto idx = item.first; const auto val = item.second;              
-                        MATRIX_SCALAR_MUL(mp_arr5_val, val, mp_arr[6]);                         
+                        const auto idx = item.first; const auto val = item.second;  
+                        MatType*& ptr = this->m_cloned[this->incFunc()];            
+                        MATRIX_SCALAR_MUL(mp_arr4_val, val, ptr);                         
                         if(auto it2 = cache->find(idx); it2 != cache->end()) {                  
-                          MATRIX_ADD((*cache)[idx], mp_arr[6], (*cache)[idx]);                  
+                          MATRIX_ADD((*cache)[idx], ptr, (*cache)[idx]);                  
                         } else {                                                                
-                          (*cache)[idx] = mp_arr[6];                                            
+                          (*cache)[idx] = ptr;                                            
                         }                                                                       
         });
       }
@@ -209,6 +208,7 @@ public:
     }
   }
 
+  // Get cache
   V_OVERRIDE(OMMatPair& getCache()) {
     return m_cache;
   }

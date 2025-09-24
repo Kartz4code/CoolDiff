@@ -93,12 +93,5 @@ class MatConvNaiveHandler : public T {
             result->setBlockMat({i, i}, {j, j}, mp_arr[4]);
           }
         }
-
-        // Free resources
-        std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [](Matrix<Type> *m) {
-          if (nullptr != m) {
-            m->free();
-          }
-        });
       }
 };

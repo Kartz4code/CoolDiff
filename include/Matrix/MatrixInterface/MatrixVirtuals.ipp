@@ -102,7 +102,7 @@ Matrix<Type>* Matrix<T>::devalF(Matrix<Variable>& X) {
     return mp_dresult;
 }
 
-// Traverse tree
+// Traverse
 template<typename T>
 void Matrix<T>::traverse(OMMatPair* cache) {
   if (false == this->m_visited) {
@@ -125,6 +125,12 @@ void Matrix<T>::traverse(OMMatPair* cache) {
   }
 }
 
+// Get cache
+template<typename T>
+OMMatPair& Matrix<T>::getCache() {
+    return m_cache;
+}
+
 // Reset all visited flags
 template<typename T>
 void Matrix<T>::reset() {
@@ -144,21 +150,6 @@ void Matrix<T>::reset() {
     }
     // Reset flag
     this->m_visited = false;
-
-    // Free all results
-    if (mp_result != nullptr) {
-        mp_result->free();
-    }
-
-    // Free all derivative results
-    if (mp_dresult != nullptr) {
-        mp_dresult->free();
-    }
-
-    // Free all matrices from cache
-    for(auto& [k,v] : m_cache) {
-      v->free();
-    }
 
     // Empty matrix cache
     if (false == m_cache.empty()) {

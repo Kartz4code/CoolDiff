@@ -110,12 +110,6 @@ void Matrix<T>::setDevalF(const Matrix<Variable>& X) {
     }
 }
 
-// Free resources
-template<typename T>
-void Matrix<T>::free() { 
-    m_free = true; 
-}
-
 // Find me
 template<typename T>
 bool Matrix<T>::findMe(void* v) const {
@@ -135,21 +129,6 @@ void Matrix<T>::resetImpl() {
     // Reset states
     m_eval = false;
     m_devalf = false;
-
-    // Free all results
-    if (nullptr != mp_result) {
-        mp_result->free();
-    }
-
-    // Free all derivative results
-    if (nullptr != mp_dresult) {
-        mp_dresult->free();
-    }
-
-    // Free all matrices from cache
-    for(auto& [k,v] : m_cache) {
-        v->free();
-    }
 
     // Empty matrix cache
     if (false == m_cache.empty()) {
