@@ -25,10 +25,24 @@
 #include "MetaVariable.hpp"
 
 // IVariable class to enforce expression templates for lazy evaluation
-template <typename T> class IVariable : public MetaVariable {
+template <typename T> 
+class IVariable : public MetaVariable {
+private:
+  // CRTP const
+  inline constexpr const T& derived() const {
+    return static_cast<const T&>(*this);
+  }
+
+  // CRTP mutable
+  inline constexpr T& derived() { 
+    return static_cast<T&>(*this); 
+  }
+
 protected:
   // Protected constructor
   IVariable() = default;
+
+public:
   // Protected destructor
   V_DTR(~IVariable()) = default;
 };
@@ -72,42 +86,28 @@ protected:
     mp_left->reset();                                                          \
   }
 
-// Operations enum [Order matters!]
-enum Op : size_t {
-  ADD = 0,
-  MUL,
-  SUB,
-  DIV,
-  POW,
-  SIN,
-  COS,
-  TAN,
-  SINH,
-  COSH,
-  TANH,
-  ASIN,
-  ACOS,
-  ATAN,
-  ASINH,
-  ACOSH,
-  ATANH,
-  SQRT,
-  EXP,
-  LOG,
-  COUNT
-};
+// Is a valid numeric type (Numeric here indicates both arithmetic and Type)
+namespace CoolDiff {
+  namespace Scalar {
+    namespace Details {  
+      // Policy based design (Scalar doesn't need one, yet!)
+      struct __XOXO__ {};
+      #define OpType CoolDiff::Scalar::Details::__XOXO__
+      #define OpObj OpType()
+      
+      // Operations enum [Order matters!]
+      enum Op : size_t {
+        ADD = 0, MUL, SUB, DIV, POW, SIN, COS, TAN, SINH, COSH, TANH, ASIN, ACOS,
+        ATAN, ASINH, ACOSH, ATANH, SQRT, EXP, LOG, COUNT
+      };
 
-// Policy based design (Scalar doesn't need one, yet!)
-struct __XOXO__ {};
-#define OpType __XOXO__
-#define OpObj OpType()
+      // Is numeric type
+      template <typename T>
+      constexpr inline static const bool is_numeric_v = (true == std::is_arithmetic_v<T> || true == std::is_same_v<T, Type>);
 
-// Numeric here indicates both arithmetic and Type
-template <typename T>
-constexpr inline static const bool is_numeric_v =
-    (true == std::is_arithmetic_v<T> || true == std::is_same_v<T, Type>);
-
-// Is a valid type for operator()
-template <typename T>
-constexpr inline static const bool is_valid_v =
-    (true == std::is_base_of_v<MetaVariable, T> || true == is_numeric_v<T>);
+      // Is a valid scalar type
+      template <typename T>
+      constexpr inline static const bool is_valid_v = (true == std::is_base_of_v<MetaVariable, T> || true == is_numeric_v<T>);
+    }
+  }
+}

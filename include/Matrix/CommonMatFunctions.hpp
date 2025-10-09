@@ -24,7 +24,6 @@
 #include "GenericMatConv.hpp"
 #include "GenericMatHadamard.hpp"
 #include "GenericMatProduct.hpp"
-#include "GenericMatSigma.hpp"
 #include "GenericMatSub.hpp"
 #include "GenericMatSum.hpp"
 #include "GenericMatTrace.hpp"
@@ -38,16 +37,25 @@
 
 // Matrix evaluation
 template <typename T> 
-Matrix<Type> &Eval(Matrix<T> &Mexp) {
+Matrix<Type>& Eval(Matrix<T> &Mexp) {
   // Reset graph/tree
   Mexp.resetImpl();
   // Return evaluation value
   return *(Mexp.eval());
 }
 
+// Matrix evaluation
+template<typename T>
+Matrix<Type>& Eval(IMatrix<T>& Mexp) {
+  // Reset graph/tree
+  Mexp.reset();
+  // Return evaluation value
+  return *(Mexp.eval());
+}
+
 // Matrix-Matrix derivative evaluation
 template <typename T>
-Matrix<Type>& DevalF(Matrix<T> &Mexp, Matrix<Variable> &X) {
+Matrix<Type>& DevalF(Matrix<T>& Mexp, Matrix<Variable>& X) {
   // Reset graph/tree
   Mexp.resetImpl();
   // Return evaluation value
@@ -58,17 +66,16 @@ Matrix<Type>& DevalF(Matrix<T> &Mexp, Matrix<Variable> &X) {
 
 // Forward mode algorithmic differentiation (Matrix)
 template <typename T>
-Matrix<Type> &DevalF(T &exp, const Matrix<Variable> &m, bool serial = true) {
+Matrix<Type>& DevalF(T& exp, const Matrix<Variable>& m, bool serial = true) {
   const size_t n = m.getNumElem();
-  auto &result = Matrix<Type>::MatrixFactory::CreateMatrix(m.getNumRows(),
-                                                           m.getNumColumns());
+  auto& result = Matrix<Type>::MatrixFactory::CreateMatrix(m.getNumRows(),
+                                                          m.getNumColumns());
 
   // If T is an expression
   if constexpr (true == std::is_same_v<T, Expression>) {
     if (true == exp.isRecursive() && true == serial) {
-      std::transform(EXECUTION_SEQ m.getMatrixPtr(), m.getMatrixPtr() + n,
-                     result.getMatrixPtr(),
-                     [&exp](const auto &v) { return DevalF(exp, v); });
+      std::transform(EXECUTION_SEQ m.getMatrixPtr(), m.getMatrixPtr() + n, result.getMatrixPtr(),
+                    [&exp](const auto &v) { return CoolDiff::Scalar::DevalF(exp, v); });
       return result;
     } else {
       // Copy expression and fill it up with exp
@@ -77,18 +84,16 @@ Matrix<Type> &DevalF(T &exp, const Matrix<Variable> &m, bool serial = true) {
       std::fill(EXECUTION_PAR exp_coll.begin(), exp_coll.end(), exp);
 
       // Tranform and get results
-      std::transform(EXECUTION_PAR exp_coll.begin(), exp_coll.end(),
-                     m.getMatrixPtr(), result.getMatrixPtr(),
-                     [](auto &v1, const auto &v2) { return DevalF(v1, v2); });
+      std::transform(EXECUTION_PAR exp_coll.begin(), exp_coll.end(), m.getMatrixPtr(), result.getMatrixPtr(),
+                    [](auto &v1, const auto &v2) { return CoolDiff::Scalar::DevalF(v1, v2); });
       return result;
     }
   }
 
   // If T is not an exprssion
   if (true == serial) {
-    std::transform(EXECUTION_SEQ m.getMatrixPtr(), m.getMatrixPtr() + n,
-                   result.getMatrixPtr(),
-                   [&exp](const auto &v) { return DevalF(exp, v); });
+    std::transform(EXECUTION_SEQ m.getMatrixPtr(), m.getMatrixPtr() + n, result.getMatrixPtr(),
+                  [&exp](const auto &v) { return CoolDiff::Scalar::DevalF(exp, v); });
   } else {
     // Copy expression and fill it up with exp
     Vector<Expression> exp_coll(n);
@@ -97,8 +102,8 @@ Matrix<Type> &DevalF(T &exp, const Matrix<Variable> &m, bool serial = true) {
 
     // Tranform and get results
     std::transform(EXECUTION_PAR exp_coll.begin(), exp_coll.end(),
-                   m.getMatrixPtr(), result.getMatrixPtr(),
-                   [](auto &v1, const auto &v2) { return DevalF(v1, v2); });
+                  m.getMatrixPtr(), result.getMatrixPtr(),
+                  [](auto &v1, const auto &v2) { return CoolDiff::Scalar::DevalF(v1, v2); });
   }
 
   return result;
@@ -106,17 +111,15 @@ Matrix<Type> &DevalF(T &exp, const Matrix<Variable> &m, bool serial = true) {
 
 // Reverse mode algorithmic differentiation (Matrix)
 template <typename T> 
-Matrix<Type> &DevalR(T &exp, const Matrix<Variable> &m) {
+Matrix<Type>& DevalR(T& exp, const Matrix<Variable>& m) {
   const size_t n = m.getNumElem();
-  auto &result = Matrix<Type>::MatrixFactory::CreateMatrix(m.getNumRows(),
-                                                           m.getNumColumns());
+  auto &result = Matrix<Type>::MatrixFactory::CreateMatrix(m.getNumRows(), m.getNumColumns());
 
   // Precompute (By design, the operation is serial)
-  PreComp(exp);
+  CoolDiff::Scalar::PreComp(exp);
 
-  std::transform(EXECUTION_SEQ m.getMatrixPtr(), m.getMatrixPtr() + n,
-                 result.getMatrixPtr(),
-                 [&exp](const auto &v) { return DevalR(exp, v); });
+  std::transform(EXECUTION_SEQ m.getMatrixPtr(), m.getMatrixPtr() + n, result.getMatrixPtr(),
+                [&exp](const auto &v) { return CoolDiff::Scalar::DevalR(exp, v); });
 
   return result;
 }
@@ -152,15 +155,15 @@ Matrix<Type> &HessianR(T &exp, const Vector<Variable> &vec) {
 
   // Exploit Hessian symmetry
   for (size_t i{}; i < dim; ++i) {
-    firstSym[i] = SymDiff(exp, vec[i]);
+    firstSym[i] = CoolDiff::Scalar::SymDiff(exp, vec[i]);
     // Precompute
-    PreComp(firstSym[i]);
+    CoolDiff::Scalar::PreComp(firstSym[i]);
     for (size_t j{}; j <= i; ++j) {
       if (i < j) {
-        result(i, j) = DevalR(firstSym[i], vec[j]);
+        result(i, j) = CoolDiff::Scalar::DevalR(firstSym[i], vec[j]);
         result(j, i) = result(i, j);
       } else if (i == j) {
-        result(i, j) = DevalR(firstSym[i], vec[j]);
+        result(i, j) = CoolDiff::Scalar::DevalR(firstSym[i], vec[j]);
       }
     }
   }
@@ -254,22 +257,36 @@ UNARY_MATRIX_OPERATOR(LogM, [](Type a) { return std::log(a); },
                             [](Type b) { return ((Type)(1)/b); })
 
 // Matrix Sqrt function
-UNARY_MATRIX_OPERATOR(SqrtM, [](Type a) { return std::sqrt(a); },
-                             [](Type b) { return ((Type)(1)/(2*std::sqrt(b))); })
+UNARY_MATRIX_OPERATOR(SqrtM,  [](Type a) { return std::sqrt(a); },
+                              [](Type b) { return ((Type)(1)/(2*std::sqrt(b))); })
 
 // Matrix Sigmoid function
 UNARY_MATRIX_OPERATOR(SigmoidM, [](Type a) { 
-                                   Type res = ((Type)(1)) / (((Type)(1)) + std::exp(-a));
-                                   return res;
+                                  Type res = ((Type)(1)) / (((Type)(1)) + std::exp(-a));
+                                  return res;
                                   },
                                 [](Type b) {
-                                   Type res = ((Type)(1)) / (((Type)(1)) + std::exp(-b));
-                                   return res * (((Type)(1)) - res); });
+                                  Type res = ((Type)(1)) / (((Type)(1)) + std::exp(-b));
+                                  return res * (((Type)(1)) - res); });
 // Matrix ReLU function
 #ifndef USE_COMPLEX_MATH
-  UNARY_MATRIX_OPERATOR(ReLUM, [](Type a) { return ((a >= (Type)(0)) ? a : 0);  },
-                               [](Type b) { return ((b >= (Type)(0)) ? 1 : 0); })
+  UNARY_MATRIX_OPERATOR(ReLUM,  [](Type a) { return ((a >= (Type)(0)) ? a : 0);  },
+                                [](Type b) { return ((b >= (Type)(0)) ? 1 : 0); })
 #endif
+
+// Sigma computation
+template <Axis axis = Axis::ALL, typename T> 
+constexpr const auto& Sigma(const IMatrix<T>& X) {
+  const size_t rows = X.getNumRows();
+  const size_t cols = X.getNumColumns();
+  if constexpr(axis == Axis::ROW) {  
+    return OnesRef(1, rows)*X;
+  } else if constexpr(axis == Axis::COLUMN) {
+    return X*OnesRef(cols, 1);
+  } else {
+    return OnesRef(1, rows)*X*OnesRef(cols, 1);
+  }
+}
 
 // Frobenius norm 
 template <typename T>
@@ -283,11 +300,11 @@ constexpr const auto& SoftMax(const IMatrix<T>& X) {
   const size_t rows = X.getNumRows();
   const size_t cols = X.getNumColumns();
   if constexpr(Axis::ROW == axis) {
-    return ExpM(X - (OnesRef(rows,1))*LogM(sigma<Axis::ROW>(ExpM(X))));
+    return ExpM(X - (OnesRef(rows,1))*LogM(Sigma<Axis::ROW>(ExpM(X))));
   } else if constexpr(Axis::COLUMN == axis) {
-    return ExpM(X - LogM(sigma<Axis::COLUMN>(ExpM(X)))*(OnesRef(1,cols)));
+    return ExpM(X - LogM(Sigma<Axis::COLUMN>(ExpM(X)))*(OnesRef(1,cols)));
   } else {
-    return ExpM(X - (OnesRef(rows,1))*LogM(sigma<Axis::ALL>(ExpM(X)))*(OnesRef(1,cols)));
+    return ExpM(X - (OnesRef(rows,1))*LogM(Sigma<Axis::ALL>(ExpM(X)))*(OnesRef(1,cols)));
   }
 }
 

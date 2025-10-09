@@ -42,21 +42,19 @@
 // Naive implementation of matrix algorithms
 #define NAIVE_IMPL
 //#define NUMERICAL_CHECK
-// Matrix transpose based matrix multiplication (Naive implementation)
-//#define MATRIX_TRANSPOSED_MUL
+
+/* Matrix transpose based matrix multiplication (Naive implementation) [Deprecated]
+  #define MATRIX_TRANSPOSED_MUL
+*/
 
 // Use parallel policy
 #if defined(USE_CXX_PARALLEL_POLICY)
   #include <execution>
-  #define EXECUTION_SEQ std::execution::seq,
-  #if defined(USE_EXECUTION_PAR)
-    #define EXECUTION_PAR std::execution::par,
-  #else
-    #define EXECUTION_PAR 
-  #endif
+  #define EXECUTION_SEQ std::execution::seq, 
+  #define EXECUTION_PAR std::execution::par, 
 #else 
-    #define EXECUTION_SEQ
-    #define EXECUTION_PAR 
+  #define EXECUTION_SEQ
+  #define EXECUTION_PAR 
 #endif
 
 // Eigen library
@@ -267,7 +265,7 @@ template <typename T> std::string ToString(const T &value) {
 }
 
 // Null pointer check
-#if defined(BUILD_TYPE_DEBUG)
+#if defined(USE_DYNAMIC_ASSERTIONS)
   // Check null poineter
   #define NULL_CHECK(PTR, MSG)                                                   \
     {                                                                            \

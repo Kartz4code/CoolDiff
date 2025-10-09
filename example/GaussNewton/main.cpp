@@ -96,9 +96,9 @@ Pair<Matrix<Type> *, Matrix<Type> *> LoadData() {
   return {X, Y};
 }
 
-void RModeDerv() {
 
-  Matrix<Type> X(2,2);
+void RModeDerv() {
+  Matrix<Variable> X(2,2);
   X(0,0) = 4;  X(0,1) = 3; 
   X(1,0) = 2;  X(1,1) = 1;
 
@@ -118,25 +118,35 @@ void RModeDerv() {
     }
   }
 
-  auto l1 = transpose(W1)*SinM((transpose(X)^X) + 6.2);
-  auto l2 = l1*X;
-  auto l3 = l2*W2;
-  
+  auto doubler = X*X;
+  auto smax = SoftMax(doubler);
+  Matrix<Expression> l3 = trace(SinM((transpose(X)^X)*inv(X)*smax + 6.2*X)*X)*2;
+
+
+
   Matrix<Expression> res = -1.25*CosM(l3);
   res = 10 + res*CosM(res*res) + 2.24*res + trace(X)*det(X);
-  res = res + det(X) + trace(X) + SinM(res - res*res);
-  res = res + res;
-  
+  res = res + det(X) + trace(X) + l3*MatrixFrobeniusNorm(doubler*X) + SinM(res - res*res);
+  res = res + res + Sigma(doubler);
+
+  /*  
+  auto X1 = X;
+  auto X2 = X1*X;
+  Matrix<Expression> res = MatrixFrobeniusNorm(X2*X2);
+  res = res + trace(X1*X2) + trace(X1*X2);
+  */
+
   res.resetImpl();
   res.traverse();
 
-  auto it1 = res.getCache()[W1.m_nidx];
-  auto it2 = res.getCache()[W2.m_nidx];
+  //auto it1 = res.getCache()[W1.m_nidx];
+  //auto it2 = res.getCache()[W2.m_nidx];
   auto it3 = res.getCache()[X.m_nidx];
   
-  std::cout << Eval(*it1) << "\n";
-  std::cout << Eval(*it2) << "\n";
+  //std::cout << Eval(*it1) << "\n";
+  //std::cout << Eval(*it2) << "\n";
   std::cout << Eval(*it3) << "\n";
+  std::cout << Eval(doubler) << "\n";
 
   X[0] = 1;  X[1] = 2; 
   X[2] = 3;  X[3] = 4;
@@ -144,14 +154,16 @@ void RModeDerv() {
   res.resetImpl();
   res.traverse();
 
-  it1 = res.getCache()[W1.m_nidx];
-  it2 = res.getCache()[W2.m_nidx];
+  //it1 = res.getCache()[W1.m_nidx];
+  //it2 = res.getCache()[W2.m_nidx];
   it3 = res.getCache()[X.m_nidx];
   
-  std::cout << Eval(*it1) << "\n";
-  std::cout << Eval(*it2) << "\n";
+  //std::cout << Eval(*it1) << "\n";
+  //std::cout << Eval(*it2) << "\n";
   std::cout << Eval(*it3) << "\n";
+  std::cout << Eval(doubler) << "\n";
 }
+
 
 // 2D data matching
 void GNMatrix() {
@@ -209,7 +221,7 @@ void NonLinearSolve() {
   TIME_IT_US(gn.solve());
   TIME_IT_US(gn.solve());
 
-  std::cout << "Computed values (x,y): " << Eval(x) << "," << Eval(y) << "\n";
+  std::cout << "Computed values (x,y): " << CoolDiff::Scalar::Eval(x) << "," << CoolDiff::Scalar::Eval(y) << "\n";
   std::cout << "Actual values (x,y): (-4,-2) or (2,4)\n\n";
 }
 
@@ -226,8 +238,9 @@ void ScalarSolve() {
 
   TIME_IT_US(gn.solve());
 
-  std::cout << "Computed values: " << Eval(x) << "\n";
+  std::cout << "Computed values: " << CoolDiff::Scalar::Eval(x) << "\n";
 }
+
 
 int main(int argc, char **argv) { 
   GNMatrix();

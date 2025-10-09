@@ -22,7 +22,7 @@
 #include "MemoryManager.hpp"
 #include "Matrix.hpp"
 
-size_t MemoryManager::size() { 
+const size_t MemoryManager::size() { 
   return m_del_ptr.size(); 
 }
 
@@ -37,7 +37,7 @@ Matrix<Type>* MemoryManager::MatrixSplPool(const size_t rows, const size_t cols,
   };
 
   // Matrix<Type> database
-  auto &mat_ptr = MemoryManager::m_del_mat_type_ptr;
+  auto& mat_ptr = MemoryManager::m_del_mat_type_ptr;
 
   // Dispatch matrix from pool
   if (auto it = std::find_if(EXECUTION_PAR mat_ptr.begin(), mat_ptr.end(), functor); it != mat_ptr.end()) {
@@ -53,9 +53,7 @@ void MemoryManager::MatrixPool(const size_t rows, const size_t cols, Matrix<Type
     result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(rows, cols, val);
     return;
   } 
-  else if ((rows != result->getNumRows()) || 
-           (cols != result->getNumColumns()) || 
-           (-1 != result->getMatType())) {
+  else if ((rows != result->getNumRows()) || (cols != result->getNumColumns()) || (-1 != result->getMatType())) {
     result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(rows, cols, val);
     return;
   } else {

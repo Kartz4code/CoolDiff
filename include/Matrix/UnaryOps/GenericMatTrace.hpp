@@ -81,6 +81,11 @@ public:
     BINARY_RIGHT_FIND_ME(); 
   }
 
+   // Clone matrix expression
+  constexpr const auto& cloneExp() const {
+    return trace(*mp_right);
+  }
+
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type>* eval()) {
     // Check whether dimensions are correct
@@ -263,7 +268,8 @@ using GenericMatTraceT = GenericMatTrace<T, OpMatType>;
 
 // Function for trace computation
 template <typename T> 
-constexpr const auto &trace(const IMatrix<T>& u) {
-  auto tmp = Allocate<GenericMatTraceT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpMatObj);
+constexpr const auto& trace(const IMatrix<T>& u) {
+  const auto& _u = u.cloneExp();
+  auto tmp = Allocate<GenericMatTraceT<T>>(const_cast<T*>(static_cast<const T*>(&_u)), OpMatObj);
   return *tmp;
 }

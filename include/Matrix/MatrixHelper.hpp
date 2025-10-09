@@ -31,7 +31,7 @@ void DevalR(T &exp, const Matrix<Variable> &X, Matrix<Type> *&result) {
   if (nullptr == result) {
     result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(nrows_x, ncols_x);
   } else if ((nrows_x != result->getNumRows()) ||
-             (ncols_x != result->getNumColumns())) {
+            (ncols_x != result->getNumColumns())) {
     result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(nrows_x, ncols_x);
   }
 
@@ -40,14 +40,14 @@ void DevalR(T &exp, const Matrix<Variable> &X, Matrix<Type> *&result) {
   if constexpr (true == std::is_same_v<Expression, T>) {
     PreComp(exp);
     std::transform(EXECUTION_SEQ X.getMatrixPtr(), X.getMatrixPtr() + n_size,
-                   result->getMatrixPtr(),
-                   [&exp](const auto &v) { return DevalR(exp, v); });
+                  result->getMatrixPtr(),
+                  [&exp](const auto &v) { return CoolDiff::Scalar::DevalR(exp, v); });
   } else {
     // Create a new expression
     Expression exp2{exp};
-    PreComp(exp2);
+    CoolDiff::Scalar::PreComp(exp2);
     std::transform(EXECUTION_SEQ X.getMatrixPtr(), X.getMatrixPtr() + n_size,
-                   result->getMatrixPtr(),
-                   [&exp2](const auto &v) { return DevalR(exp2, v); });
+                  result->getMatrixPtr(),
+                  [&exp2](const auto &v) { return CoolDiff::Scalar::DevalR(exp2, v); });
   }
 }

@@ -34,14 +34,15 @@ class GenericMat##OPS : public IMatrix<GenericMat##OPS<T, Callables...>> {      
   public:                                                                                           \
     const size_t m_nidx{};                                                                          \
     OMMatPair m_cache;                                                                              \
-    constexpr GenericMat##OPS(T* u, Callables&&... call) : mp_right{u},                             \
-                                                           m_caller{std::make_tuple(std::forward<Callables>(call)...)},\
-                                                           m_nidx{this->m_idx_count++}{             \
+    constexpr GenericMat##OPS(T* u, Callables&&... call) :  mp_right{u},                            \
+                                                            m_caller{std::make_tuple(std::forward<Callables>(call)...)},\
+                                                            m_nidx{this->m_idx_count++}{            \
         std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);                                         \
     }                                                                                               \
     V_OVERRIDE(size_t getNumRows() const) { return mp_right->getNumRows(); }                        \
     V_OVERRIDE(size_t getNumColumns() const) { return mp_right->getNumColumns(); }                  \
     bool findMe(void* v) const { BINARY_RIGHT_FIND_ME(); }                                          \
+    constexpr const auto& cloneExp() const { return OPS(*mp_right); }                               \
     V_OVERRIDE(Matrix<Type>* eval()) {                                                              \
       const Matrix<Type>* right_mat = mp_right->eval();                                             \
       const size_t start = 0; const size_t end = 1;                                                 \
@@ -142,7 +143,8 @@ class GenericMat##OPS : public IMatrix<GenericMat##OPS<T, Callables...>> {      
 template <typename T>                                                                               \
 using CONCAT3(GenericMat, OPS, T) = GenericMat##OPS<T, OpMatType>;                                  \
 template <typename T> constexpr const auto& OPS(const IMatrix<T>& u) {                              \
-  auto tmp = Allocate<CONCAT3(GenericMat, OPS, T)<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpMatObj); \
+  const auto& _u = u.cloneExp();                                                                    \
+  auto tmp = Allocate<CONCAT3(GenericMat, OPS, T)<T>>(const_cast<T*>(static_cast<const T*>(&_u)), OpMatObj); \
   return *tmp;                                                                                      \
 }
 

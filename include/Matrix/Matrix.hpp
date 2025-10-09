@@ -123,6 +123,9 @@ public:
   // Matrix clone
   Matrix* clone(Matrix*&) const;
 
+  // Clone matrix expression
+  constexpr const auto& cloneExp() const;
+
   // Matrix expressions constructor
   template <typename Z>
   Matrix(const IMatrix<Z>& expr) : m_rows{expr.getNumRows()}, 

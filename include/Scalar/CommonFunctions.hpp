@@ -52,7 +52,7 @@
 #include "GenericTanh.hpp"
 #include "GenericScalarUnary.hpp"
 
-// Custom functions
+/* Custom functions (Unary operations) */
 // Sin scalar 
 UNARY_SCALAR_OPERATOR(SinS, [](Type a) { return std::sin(a); },
                             [](Type b) { return std::cos(b); })
@@ -60,151 +60,149 @@ UNARY_SCALAR_OPERATOR(SinS, [](Type a) { return std::sin(a); },
 UNARY_SCALAR_OPERATOR(CosS, [](Type a) { return std::cos(a); },
                             [](Type b) { return -std::sin(b); })
 
+/* Custom functions (Binary operations) */
 // Product scalar
 BINARY_SCALAR_OPERATOR(ProductS, [](const Type u, const Type v) { return u * v; },
-                                 [](const Type u, const Type v) { return v; },
-                                 [](const Type u, const Type v) { return u; })
+                                [](const Type u, const Type v) { return v; },
+                                [](const Type u, const Type v) { return u; })
 
-// Namespace details
-namespace details {
-// Main evaluate expression function
-Type EvalExp(Expression &);
+// Namespace CoolDiff
+namespace CoolDiff {
+  // Namespace Scalar
+  namespace Scalar {
+    // Namespace Details
+    namespace Details {
+      // Main evaluate expression function
+      Type EvalExp(Expression&);
 
-// Main forward mode AD computation
-Type DevalFExp(Expression &, const Variable &);
+      // Main forward mode AD computation
+      Type DevalFExp(Expression&, const Variable&);
 
-// Main reverse mode AD computation
-Type DevalRExp(Expression &, const Variable &);
+      // Main reverse mode AD computation
+      Type DevalRExp(Expression&, const Variable&);
 
-// Main precomputation of reverse mode AD computation
-void PreCompExp(Expression &);
+      // Main precomputation of reverse mode AD computation
+      void PreCompExp(Expression&);
 
-// Main reverse mode AD table
-OMPair &PreCompCacheExp(Expression &);
+      // Main reverse mode AD table
+      OMPair& PreCompCacheExp(Expression&);
 
-// Symbolic Expression
-Expression &SymDiffExp(Expression &, const Variable &);
-} // namespace details
+      // Symbolic Expression
+      Expression& SymDiffExp(Expression&, const Variable&);
+    }
 
-template <typename T> inline Type Eval(T &v) {
-  // If T is Expression
-  if constexpr (true == std::is_same_v<Expression, T>) {
-    return details::EvalExp(v);
-  }
-  // If T is Parameter
-  else if constexpr (true == std::is_same_v<T, Parameter>) {
-    return v.eval();
-  }
-  // If T is Variable
-  else if constexpr (true == std::is_same_v<T, Variable>) {
-    return v.getValue();
-  }
-  // If T is an expression template
-  else if constexpr (true == std::is_base_of_v<MetaVariable, T>) {
-    Expression exp{v};
-    return details::EvalExp(exp);
-  }
-  // If T is Numeric type
-  else if constexpr (true == is_numeric_v<T>) {
-    return (Type)(v);
-  }
-  // If unknown type, throw error
-  else {
-    ASSERT(false, "Unknown type");
-    return (Type)(0);
+    template <typename T, typename = std::enable_if_t<CoolDiff::Scalar::Details::is_valid_v<T>>> 
+    inline Type Eval(T& v) {
+      // If T is Expression
+      if constexpr (true == std::is_same_v<Expression, T>) {
+        return Details::EvalExp(v);
+      }
+      // If T is Parameter
+      else if constexpr (true == std::is_same_v<T, Parameter>) {
+        return v.eval();
+      }
+      // If T is Variable
+      else if constexpr (true == std::is_same_v<T, Variable>) {
+        return v.getValue();
+      }
+      // If T is an expression template
+      else if constexpr (true == std::is_base_of_v<MetaVariable, T>) {
+        Expression exp{v};
+        return Details::EvalExp(exp);
+      }
+      // If T is Numeric type
+      else if constexpr (true == CoolDiff::Scalar::Details::is_numeric_v<T>) {
+        return (Type)(v);
+      }
+      // If unknown type, throw error
+      else {
+        ASSERT(false, "Unknown type");
+        return (Type)(0);
+      }
+    }
+
+    template <typename T, typename = std::enable_if_t<CoolDiff::Scalar::Details::is_valid_v<T>>> 
+    inline Type DevalF(T& v, const Variable& var) {
+      // If T is Expression
+      if constexpr (true == std::is_same_v<Expression, T>) {
+        return Details::DevalFExp(v, var);
+      }
+      // If T is Variable
+      else if constexpr (true == std::is_same_v<T, Variable>) {
+        return ((v.m_nidx == var.m_nidx) ? (Type)(1) : (Type)(0));
+      }
+      // If T is Parameter or Numeric type
+      else if constexpr (true == std::is_same_v<T, Parameter> || true == CoolDiff::Scalar::Details::is_numeric_v<T>) {
+        return (Type)(0);
+      }
+      // If T is an expression template
+      else if constexpr (true == std::is_base_of_v<MetaVariable, T>) {
+        Expression exp{v};
+        return Details::DevalFExp(exp, var);
+      }
+      // If unknown type, throw error
+      else {
+        ASSERT(false, "Unknown type");
+      }
+    }
+
+    template <typename T, typename = std::enable_if_t<std::is_same_v<T, Expression>>> 
+    inline void PreComp(T& v) {
+      Details::PreCompExp(v);
+    }
+
+    template <typename T, typename = std::enable_if_t<CoolDiff::Scalar::Details::is_valid_v<T>>> 
+    inline Type DevalR(T& v, const Variable& var) {
+      // If T is Expression
+      if constexpr (true == std::is_same_v<Expression, T>) {
+        return Details::DevalRExp(v, var);
+      }
+      // If T is Variable
+      else if constexpr (true == std::is_same_v<T, Variable>) {
+        return ((v.m_nidx == var.m_nidx) ? (Type)(1) : (Type)(0));
+      }
+      // If T is Parameter or Numeric type
+      else if constexpr (true == std::is_same_v<T, Parameter> || true == CoolDiff::Scalar::Details::is_numeric_v<T>) {
+        return (Type)(0);
+      }
+      // If unknown type, throw error
+      else {
+        ASSERT(false, "Unknown type. Not an expression type");
+      }
+    }
+
+    template <typename T, typename = std::enable_if_t<std::is_same_v<T, Expression>>> 
+    inline OMPair& PreCompCache(T& v) {
+      return Details::PreCompCacheExp(v);
+    }
+
+    template <typename T, typename = std::enable_if_t<CoolDiff::Scalar::Details::is_valid_v<T>>> 
+    inline Expression& SymDiff(T& v, const Variable& var) {
+      // If T is Expression
+      if constexpr (true == std::is_same_v<Expression, T>) {
+        return Details::SymDiffExp(v, var);
+      }
+      // If T is Variable
+      else if constexpr (true == std::is_same_v<T, Variable>) {
+        return ((v.m_nidx == var.m_nidx) ? Expression::t1 : Expression::t0);
+      }
+      // If T is Parameter or Numeric type
+      else if constexpr (true == std::is_same_v<T, Parameter> || true == CoolDiff::Scalar::Details::is_numeric_v<T>) {
+        return Expression::t0;
+      }
+      // If T is an expression template
+      else if constexpr (true == std::is_base_of_v<MetaVariable, T>) {
+        auto exp = Allocate<Expression>(const_cast<std::decay_t<T>&>(v));
+        return Details::SymDiffExp(*exp, var);
+      }
+      // If unknown type, throw error
+      else {
+        ASSERT(false, "Unknown type");
+      }
+    }
   }
 }
 
-template <typename T> inline Type DevalF(T &v, const Variable &var) {
-  // If T is Expression
-  if constexpr (true == std::is_same_v<Expression, T>) {
-    return details::DevalFExp(v, var);
-  }
-  // If T is Variable
-  else if constexpr (true == std::is_same_v<T, Variable>) {
-    return ((v.m_nidx == var.m_nidx) ? (Type)(1) : (Type)(0));
-  }
-  // If T is Parameter or Numeric type
-  else if constexpr (true == std::is_same_v<T, Parameter> ||
-                     true == is_numeric_v<T>) {
-    return (Type)(0);
-  }
-  // If T is an expression template
-  else if constexpr (true == std::is_base_of_v<MetaVariable, T>) {
-    Expression exp{v};
-    return details::DevalFExp(exp, var);
-  }
-  // If unknown type, throw error
-  else {
-    ASSERT(false, "Unknown type");
-  }
-}
-
-template <typename T> inline void PreComp(T &v) {
-  // If T is Expression
-  if constexpr (true == std::is_same_v<T, Expression>) {
-    details::PreCompExp(v);
-  }
-  // If unknown type, throw error
-  else {
-    ASSERT(false, "Unknown type. Not an expression type");
-  }
-}
-
-template <typename T> inline Type DevalR(T &v, const Variable &var) {
-  // If T is Expression
-  if constexpr (true == std::is_same_v<Expression, T>) {
-    return details::DevalRExp(v, var);
-  }
-  // If T is Variable
-  else if constexpr (true == std::is_same_v<T, Variable>) {
-    return ((v.m_nidx == var.m_nidx) ? (Type)(1) : (Type)(0));
-  }
-  // If T is Parameter or Numeric type
-  else if constexpr (true == std::is_same_v<T, Parameter> ||
-                     true == is_numeric_v<T>) {
-    return (Type)(0);
-  }
-  // If unknown type, throw error
-  else {
-    ASSERT(false, "Unknown type. Not an expression type");
-  }
-}
-
-template <typename T> inline OMPair &PreCompCache(T &v) {
-  if constexpr (true == std::is_same_v<Expression, T>) {
-    return details::PreCompCacheExp(v);
-  }
-  // If unknown type, throw error
-  else {
-    ASSERT(false, "Unknown type. Not an expression type");
-  }
-}
-
-template <typename T> inline Expression &SymDiff(T &v, const Variable &var) {
-  // If T is Expression
-  if constexpr (true == std::is_same_v<Expression, T>) {
-    return details::SymDiffExp(v, var);
-  }
-  // If T is Variable
-  else if constexpr (true == std::is_same_v<T, Variable>) {
-    return ((v.m_nidx == var.m_nidx) ? Expression::t1 : Expression::t0);
-  }
-  // If T is Parameter or Numeric type
-  else if constexpr (true == std::is_same_v<T, Parameter> ||
-                     true == is_numeric_v<T>) {
-    return Expression::t0;
-  }
-  // If T is an expression template
-  else if constexpr (true == std::is_base_of_v<MetaVariable, T>) {
-    auto exp = Allocate<Expression>(const_cast<std::decay_t<T> &>(v));
-    return details::SymDiffExp(*exp, var);
-  }
-  // If unknown type, throw error
-  else {
-    ASSERT(false, "Unknown type");
-  }
-}
 
 /*
 

@@ -39,13 +39,14 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericMatConv)
-  DISABLE_MOVE(GenericMatConv)
+  #if 0
+    DISABLE_COPY(GenericMatConv)
+    DISABLE_MOVE(GenericMatConv)
+  #endif
 
   // Verify dimensions of result matrix for convolution operation
   inline constexpr bool verifyDim() const {
-    // Dimension of the result of convolution operator must be strictly
-    // non-negative
+    // Dimension of the result of convolution operator must be strictly non-negative
     return ((int)getNumRows() > 0 || (int)getNumColumns() > 0);
   }
 
@@ -90,6 +91,11 @@ public:
   // Find me
   bool findMe(void* v) const { 
     BINARY_FIND_ME(); 
+  }
+
+  // Clone matrix expression
+  constexpr const auto& cloneExp() const {
+    return conv(*mp_left, *mp_right, m_stride_x, m_stride_y, m_pad_x, m_pad_y);
   }
 
   // Matrix eval computation
@@ -143,7 +149,7 @@ public:
 
     // Matrix convolution derivative
     MATRIX_DERV_CONV(nrows_x, ncols_x, m_stride_x, m_stride_y, m_pad_x, m_pad_y,
-                     left_mat, dleft_mat, right_mat, dright_mat, mp_arr[1]);
+                    left_mat, dleft_mat, right_mat, dright_mat, mp_arr[1]);
 
     return mp_arr[1];
   }
@@ -171,8 +177,10 @@ template <typename T1, typename T2>
 constexpr const auto& conv(const IMatrix<T1>& u, const IMatrix<T2>& v,
                            const size_t stride_x = 1, const size_t stride_y = 1,
                            const size_t pad_x = 0, const size_t pad_y = 0) {
-  auto tmp = Allocate<GenericMatConvT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&u)),
-                                               const_cast<T2*>(static_cast<const T2*>(&v)), 
+  const auto& _u = u.cloneExp();
+  const auto& _v = v.cloneExp();
+  auto tmp = Allocate<GenericMatConvT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&_u)),
+                                               const_cast<T2*>(static_cast<const T2*>(&_v)), 
                                                stride_x, stride_y, pad_x, pad_y, OpMatObj);
   return *tmp;
 }

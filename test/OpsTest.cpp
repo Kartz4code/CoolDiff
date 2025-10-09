@@ -31,7 +31,7 @@ TEST(OpsTest, BasicBinaryOps1) {
 
   Type result{-21420};
 
-  ASSERT_EQ(result, Eval(y));
+  ASSERT_EQ(result, CoolDiff::Scalar::Eval(y));
 }
 
 // Forward AD test
@@ -41,11 +41,11 @@ TEST(OpsTest, BasicBinaryOps2) {
 
   Type results[5] = {-7145, -7137, 9, -891, 216};
 
-  ASSERT_EQ(results[0], DevalF(y, x1));
-  ASSERT_EQ(results[1], DevalF(y, x2));
-  ASSERT_EQ(results[2], DevalF(y, x3));
-  ASSERT_EQ(results[3], DevalF(y, x4));
-  ASSERT_EQ(results[4], DevalF(y, x5));
+  ASSERT_EQ(results[0], CoolDiff::Scalar::DevalF(y, x1));
+  ASSERT_EQ(results[1], CoolDiff::Scalar::DevalF(y, x2));
+  ASSERT_EQ(results[2], CoolDiff::Scalar::DevalF(y, x3));
+  ASSERT_EQ(results[3], CoolDiff::Scalar::DevalF(y, x4));
+  ASSERT_EQ(results[4], CoolDiff::Scalar::DevalF(y, x5));
 }
 
 // Reverse AD test
@@ -55,12 +55,12 @@ TEST(OpsTest, BasicBinaryOps3) {
 
   Type results[5] = {-7145, -7137, 9, -891, 216};
 
-  PreComp(y);
-  ASSERT_EQ(results[0], DevalR(y, x1));
-  ASSERT_EQ(results[1], DevalR(y, x2));
-  ASSERT_EQ(results[2], DevalR(y, x3));
-  ASSERT_EQ(results[3], DevalR(y, x4));
-  ASSERT_EQ(results[4], DevalR(y, x5));
+  CoolDiff::Scalar::PreComp(y);
+  ASSERT_EQ(results[0], CoolDiff::Scalar::DevalR(y, x1));
+  ASSERT_EQ(results[1], CoolDiff::Scalar::DevalR(y, x2));
+  ASSERT_EQ(results[2], CoolDiff::Scalar::DevalR(y, x3));
+  ASSERT_EQ(results[3], CoolDiff::Scalar::DevalR(y, x4));
+  ASSERT_EQ(results[4], CoolDiff::Scalar::DevalR(y, x5));
 }
 
 // Jacobian eval test
@@ -75,8 +75,8 @@ TEST(OpsTest, BasicBinaryOps4) {
 
   // Jacobian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, tmp[i]);
-    ASSERT_EQ(results[i], Eval(DY[i]));
+    DY[i] = CoolDiff::Scalar::SymDiff(y, tmp[i]);
+    ASSERT_EQ(results[i], CoolDiff::Scalar::Eval(DY[i]));
   }
 }
 
@@ -97,8 +97,8 @@ TEST(OpsTest, BasicBinaryOps5) {
   // Hessian computation
   for (int i{}; i < 5; ++i) {
     for (int j{}; j < 5; ++j) {
-      DY[i][j] = SymDiff(SymDiff(y, *tmp[i]), *tmp[j]);
-      ASSERT_EQ(results[i][j], Eval(DY[i][j]));
+      DY[i][j] = CoolDiff::Scalar::SymDiff(CoolDiff::Scalar::SymDiff(y, *tmp[i]), *tmp[j]);
+      ASSERT_EQ(results[i][j], CoolDiff::Scalar::Eval(DY[i][j]));
     }
   }
 }
@@ -119,9 +119,9 @@ TEST(OpsTest, BasicBinaryOps6) {
 
   // Jacobian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, *tmp[i]);
+    DY[i] = CoolDiff::Scalar::SymDiff(y, *tmp[i]);
     for (int j{}; j < 5; ++j) {
-      ASSERT_EQ(results[i][j], DevalF(DY[i], *tmp[j]));
+      ASSERT_EQ(results[i][j], CoolDiff::Scalar::DevalF(DY[i], *tmp[j]));
     }
   }
 }
@@ -142,10 +142,10 @@ TEST(OpsTest, BasicBinaryOps7) {
 
   // Jacobian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, *tmp[i]);
-    PreComp(DY[i]);
+    DY[i] = CoolDiff::Scalar::SymDiff(y, *tmp[i]);
+    CoolDiff::Scalar::PreComp(DY[i]);
     for (int j{}; j < 5; ++j) {
-      ASSERT_EQ(results[i][j], DevalR(DY[i], *tmp[j]));
+      ASSERT_EQ(results[i][j], CoolDiff::Scalar::DevalR(DY[i], *tmp[j]));
     }
   }
 }
@@ -171,8 +171,8 @@ TEST(OpsTest, BasicBinaryOps8) {
   // Hessian computation
   for (int i{}; i < 5; ++i) {
     for (int j{}; j < 5; ++j) {
-      DY[i][j] = SymDiff(SymDiff(y, *tmp[i]), *tmp[j]);
-      ASSERT_EQ(results[i][j], Eval(DY[i][j]));
+      DY[i][j] = CoolDiff::Scalar::SymDiff(CoolDiff::Scalar::SymDiff(y, *tmp[i]), *tmp[j]);
+      ASSERT_EQ(results[i][j], CoolDiff::Scalar::Eval(DY[i][j]));
     }
   }
 }
@@ -193,20 +193,20 @@ TEST(OpsTest, SineCosineOps) {
 
 // Expression evaluation
 #if defined(USE_COMPLEX_MATH)
-  ASSERT_NEAR(value.real(), Eval(y).real(), epi);
-  ASSERT_NEAR(value.imag(), Eval(y).imag(), epi);
+  ASSERT_NEAR(value.real(), CoolDiff::Scalar::Eval(y).real(), epi);
+  ASSERT_NEAR(value.imag(), CoolDiff::Scalar::Eval(y).imag(), epi);
 #else
-  ASSERT_NEAR(value, Eval(y), epi);
+  ASSERT_NEAR(value, CoolDiff::Scalar::Eval(y), epi);
 #endif
 
   // Jacobian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, *tmp[i]);
+    DY[i] = CoolDiff::Scalar::SymDiff(y, *tmp[i]);
 #if defined(USE_COMPLEX_MATH)
-    ASSERT_NEAR(results[i].real(), Eval(DY[i]).real(), epi);
-    ASSERT_NEAR(results[i].imag(), Eval(DY[i]).imag(), epi);
+    ASSERT_NEAR(results[i].real(), CoolDiff::Scalar::Eval(DY[i]).real(), epi);
+    ASSERT_NEAR(results[i].imag(), CoolDiff::Scalar::Eval(DY[i]).imag(), epi);
 #else
-    ASSERT_NEAR(results[i], Eval(DY[i]), epi);
+    ASSERT_NEAR(results[i], CoolDiff::Scalar::Eval(DY[i]), epi);
 #endif
   }
 }
@@ -228,20 +228,20 @@ TEST(OpsTest, TanOps) {
 
 // Expression evaluation
 #if defined(USE_COMPLEX_MATH)
-  ASSERT_NEAR(value.real(), Eval(y).real(), epi);
-  ASSERT_NEAR(value.imag(), Eval(y).imag(), epi);
+  ASSERT_NEAR(value.real(), CoolDiff::Scalar::Eval(y).real(), epi);
+  ASSERT_NEAR(value.imag(), CoolDiff::Scalar::Eval(y).imag(), epi);
 #else
-  ASSERT_NEAR(value, Eval(y), epi);
+  ASSERT_NEAR(value, CoolDiff::Scalar::Eval(y), epi);
 #endif
 
   // Jacobian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, *tmp[i]);
+    DY[i] = CoolDiff::Scalar::SymDiff(y, *tmp[i]);
 #if defined(USE_COMPLEX_MATH)
-    ASSERT_NEAR(results[i].real(), Eval(DY[i]).real(), epi);
-    ASSERT_NEAR(results[i].imag(), Eval(DY[i]).imag(), epi);
+    ASSERT_NEAR(results[i].real(), CoolDiff::Scalar::Eval(DY[i]).real(), epi);
+    ASSERT_NEAR(results[i].imag(), CoolDiff::Scalar::Eval(DY[i]).imag(), epi);
 #else
-    ASSERT_NEAR(results[i], Eval(DY[i]), epi);
+    ASSERT_NEAR(results[i], CoolDiff::Scalar::Eval(DY[i]), epi);
 #endif
   }
 }
@@ -263,20 +263,20 @@ TEST(OpsTest, SqrtOps) {
 
 // Expression evaluation
 #if defined(USE_COMPLEX_MATH)
-  ASSERT_NEAR(value.real(), Eval(y).real(), epi);
-  ASSERT_NEAR(value.imag(), Eval(y).imag(), epi);
+  ASSERT_NEAR(value.real(), CoolDiff::Scalar::Eval(y).real(), epi);
+  ASSERT_NEAR(value.imag(), CoolDiff::Scalar::Eval(y).imag(), epi);
 #else
-  ASSERT_NEAR(value, Eval(y), epi);
+  ASSERT_NEAR(value, CoolDiff::Scalar::Eval(y), epi);
 #endif
 
   // Jacobian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, *tmp[i]);
+    DY[i] = CoolDiff::Scalar::SymDiff(y, *tmp[i]);
 #if defined(USE_COMPLEX_MATH)
-    ASSERT_NEAR(results[i].real(), Eval(DY[i]).real(), epi);
-    ASSERT_NEAR(results[i].imag(), Eval(DY[i]).imag(), epi);
+    ASSERT_NEAR(results[i].real(), CoolDiff::Scalar::Eval(DY[i]).real(), epi);
+    ASSERT_NEAR(results[i].imag(), CoolDiff::Scalar::Eval(DY[i]).imag(), epi);
 #else
-    ASSERT_NEAR(results[i], Eval(DY[i]), epi);
+    ASSERT_NEAR(results[i], CoolDiff::Scalar::Eval(DY[i]), epi);
 #endif
   }
 }
@@ -303,27 +303,27 @@ TEST(OpsTest, SqrtOpsHessian) {
 
 // Expression evaluation
 #if defined(USE_COMPLEX_MATH)
-  ASSERT_NEAR(value.real(), Eval(y).real(), epi);
-  ASSERT_NEAR(value.imag(), Eval(y).imag(), epi);
+  ASSERT_NEAR(value.real(), CoolDiff::Scalar::Eval(y).real(), epi);
+  ASSERT_NEAR(value.imag(), CoolDiff::Scalar::Eval(y).imag(), epi);
 #else
-  ASSERT_NEAR(value, Eval(y), epi);
+  ASSERT_NEAR(value, CoolDiff::Scalar::Eval(y), epi);
 #endif
 
   // Hessian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, *tmp[i]);
-    PreComp(DY[i]);
+    DY[i] = CoolDiff::Scalar::SymDiff(y, *tmp[i]);
+    CoolDiff::Scalar::PreComp(DY[i]);
     for (int j{}; j < 5; ++j) {
 #if defined(USE_COMPLEX_MATH)
       // DevalF
-      ASSERT_NEAR(results[i][j].real(), DevalF(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalF(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).imag(), epi);
       // DevalR
-      ASSERT_NEAR(results[i][j].real(), DevalR(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalR(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).imag(), epi);
 #else
-      ASSERT_NEAR(results[i][j], DevalF(DY[i], *tmp[j]), epi);
-      ASSERT_NEAR(results[i][j], DevalR(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalF(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalR(DY[i], *tmp[j]), epi);
 #endif
     }
   }
@@ -346,20 +346,20 @@ TEST(OpsTest, ExpOps) {
 
 // Expression evaluation
 #if defined(USE_COMPLEX_MATH)
-  ASSERT_NEAR(value.real(), Eval(y).real(), epi);
-  ASSERT_NEAR(value.imag(), Eval(y).imag(), epi);
+  ASSERT_NEAR(value.real(), CoolDiff::Scalar::Eval(y).real(), epi);
+  ASSERT_NEAR(value.imag(), CoolDiff::Scalar::Eval(y).imag(), epi);
 #else
-  ASSERT_NEAR(value, Eval(y), epi);
+  ASSERT_NEAR(value, CoolDiff::Scalar::Eval(y), epi);
 #endif
 
   // Jacobian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, *tmp[i]);
+    DY[i] = CoolDiff::Scalar::SymDiff(y, *tmp[i]);
 #if defined(USE_COMPLEX_MATH)
-    ASSERT_NEAR(results[i].real(), Eval(DY[i]).real(), epi);
-    ASSERT_NEAR(results[i].imag(), Eval(DY[i]).imag(), epi);
+    ASSERT_NEAR(results[i].real(), CoolDiff::Scalar::Eval(DY[i]).real(), epi);
+    ASSERT_NEAR(results[i].imag(), CoolDiff::Scalar::Eval(DY[i]).imag(), epi);
 #else
-    ASSERT_NEAR(results[i], Eval(DY[i]), epi);
+    ASSERT_NEAR(results[i], CoolDiff::Scalar::Eval(DY[i]), epi);
 #endif
   }
 }
@@ -385,27 +385,27 @@ TEST(OpsTest, ExpOpsHessian) {
 
 // Expression evaluation
 #if defined(USE_COMPLEX_MATH)
-  ASSERT_NEAR(value.real(), Eval(y).real(), epi);
-  ASSERT_NEAR(value.imag(), Eval(y).imag(), epi);
+  ASSERT_NEAR(value.real(), CoolDiff::Scalar::Eval(y).real(), epi);
+  ASSERT_NEAR(value.imag(), CoolDiff::Scalar::Eval(y).imag(), epi);
 #else
-  ASSERT_NEAR(value, Eval(y), epi);
+  ASSERT_NEAR(value, CoolDiff::Scalar::Eval(y), epi);
 #endif
 
   // Hessian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, *tmp[i]);
-    PreComp(DY[i]);
+    DY[i] = CoolDiff::Scalar::SymDiff(y, *tmp[i]);
+    CoolDiff::Scalar::PreComp(DY[i]);
     for (int j{}; j < 5; ++j) {
 #if defined(USE_COMPLEX_MATH)
       // DevalF
-      ASSERT_NEAR(results[i][j].real(), DevalF(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalF(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).imag(), epi);
       // DevalR
-      ASSERT_NEAR(results[i][j].real(), DevalR(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalR(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).imag(), epi);
 #else
-      ASSERT_NEAR(results[i][j], DevalF(DY[i], *tmp[j]), epi);
-      ASSERT_NEAR(results[i][j], DevalR(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalF(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalR(DY[i], *tmp[j]), epi);
 #endif
     }
   }
@@ -429,20 +429,20 @@ TEST(OpsTest, LogOps) {
 
 // Expression evaluation
 #if defined(USE_COMPLEX_MATH)
-  ASSERT_NEAR(value.real(), Eval(y).real(), epi);
-  ASSERT_NEAR(value.imag(), Eval(y).imag(), epi);
+  ASSERT_NEAR(value.real(), CoolDiff::Scalar::Eval(y).real(), epi);
+  ASSERT_NEAR(value.imag(), CoolDiff::Scalar::Eval(y).imag(), epi);
 #else
-  ASSERT_NEAR(value, Eval(y), epi);
+  ASSERT_NEAR(value, CoolDiff::Scalar::Eval(y), epi);
 #endif
 
   // Jacobian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, *tmp[i]);
+    DY[i] = CoolDiff::Scalar::SymDiff(y, *tmp[i]);
 #if defined(USE_COMPLEX_MATH)
-    ASSERT_NEAR(results[i].real(), Eval(DY[i]).real(), epi);
-    ASSERT_NEAR(results[i].imag(), Eval(DY[i]).imag(), epi);
+    ASSERT_NEAR(results[i].real(), CoolDiff::Scalar::Eval(DY[i]).real(), epi);
+    ASSERT_NEAR(results[i].imag(), CoolDiff::Scalar::Eval(DY[i]).imag(), epi);
 #else
-    ASSERT_NEAR(results[i], Eval(DY[i]), epi);
+    ASSERT_NEAR(results[i], CoolDiff::Scalar::Eval(DY[i]), epi);
 #endif
   }
 }
@@ -471,27 +471,27 @@ TEST(OpsTest, LogOpsHessian) {
 
 // Expression evaluation
 #if defined(USE_COMPLEX_MATH)
-  ASSERT_NEAR(value.real(), Eval(y).real(), epi);
-  ASSERT_NEAR(value.imag(), Eval(y).imag(), epi);
+  ASSERT_NEAR(value.real(), CoolDiff::Scalar::Eval(y).real(), epi);
+  ASSERT_NEAR(value.imag(), CoolDiff::Scalar::Eval(y).imag(), epi);
 #else
-  ASSERT_NEAR(value, Eval(y), epi);
+  ASSERT_NEAR(value, CoolDiff::Scalar::Eval(y), epi);
 #endif
 
   // Hessian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, *tmp[i]);
-    PreComp(DY[i]);
+    DY[i] = CoolDiff::Scalar::SymDiff(y, *tmp[i]);
+    CoolDiff::Scalar::PreComp(DY[i]);
     for (int j{}; j < 5; ++j) {
 #if defined(USE_COMPLEX_MATH)
       // DevalF
-      ASSERT_NEAR(results[i][j].real(), DevalF(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalF(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).imag(), epi);
       // DevalR
-      ASSERT_NEAR(results[i][j].real(), DevalR(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalR(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).imag(), epi);
 #else
-      ASSERT_NEAR(results[i][j], DevalF(DY[i], *tmp[j]), epi);
-      ASSERT_NEAR(results[i][j], DevalR(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalF(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalR(DY[i], *tmp[j]), epi);
 #endif
     }
   }
@@ -519,20 +519,20 @@ TEST(OpsTest, ASinOps) {
 
 // Expression evaluation
 #if defined(USE_COMPLEX_MATH)
-  ASSERT_NEAR(value.real(), Eval(y).real(), epi);
-  ASSERT_NEAR(value.imag(), Eval(y).imag(), epi);
+  ASSERT_NEAR(value.real(), CoolDiff::Scalar::Eval(y).real(), epi);
+  ASSERT_NEAR(value.imag(), CoolDiff::Scalar::Eval(y).imag(), epi);
 #else
-  ASSERT_NEAR(value, Eval(y), epi);
+  ASSERT_NEAR(value, CoolDiff::Scalar::Eval(y), epi);
 #endif
 
   // Jacobian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, *tmp[i]);
+    DY[i] = CoolDiff::Scalar::SymDiff(y, *tmp[i]);
 #if defined(USE_COMPLEX_MATH)
-    ASSERT_NEAR(results[i].real(), Eval(DY[i]).real(), epi);
-    ASSERT_NEAR(results[i].imag(), Eval(DY[i]).imag(), epi);
+    ASSERT_NEAR(results[i].real(), CoolDiff::Scalar::Eval(DY[i]).real(), epi);
+    ASSERT_NEAR(results[i].imag(), CoolDiff::Scalar::Eval(DY[i]).imag(), epi);
 #else
-    ASSERT_NEAR(results[i], Eval(DY[i]), epi);
+    ASSERT_NEAR(results[i], CoolDiff::Scalar::Eval(DY[i]), epi);
 #endif
   }
 }
@@ -579,27 +579,27 @@ TEST(OpsTest, ASinOpsHessian) {
 
 // Expression evaluation
 #if defined(USE_COMPLEX_MATH)
-  ASSERT_NEAR(value.real(), Eval(y).real(), epi);
-  ASSERT_NEAR(value.imag(), Eval(y).imag(), epi);
+  ASSERT_NEAR(value.real(), CoolDiff::Scalar::Eval(y).real(), epi);
+  ASSERT_NEAR(value.imag(), CoolDiff::Scalar::Eval(y).imag(), epi);
 #else
-  ASSERT_NEAR(value, Eval(y), epi);
+  ASSERT_NEAR(value, CoolDiff::Scalar::Eval(y), epi);
 #endif
 
   // Hessian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, *tmp[i]);
-    PreComp(DY[i]);
+    DY[i] = CoolDiff::Scalar::SymDiff(y, *tmp[i]);
+    CoolDiff::Scalar::PreComp(DY[i]);
     for (int j{}; j < 5; ++j) {
 #if defined(USE_COMPLEX_MATH)
       // DevalF
-      ASSERT_NEAR(results[i][j].real(), DevalF(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalF(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).imag(), epi);
       // DevalR
-      ASSERT_NEAR(results[i][j].real(), DevalR(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalR(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).imag(), epi);
 #else
-      ASSERT_NEAR(results[i][j], DevalF(DY[i], *tmp[j]), epi);
-      ASSERT_NEAR(results[i][j], DevalR(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalF(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalR(DY[i], *tmp[j]), epi);
 #endif
     }
   }
@@ -627,20 +627,20 @@ TEST(OpsTest, TanhOps) {
 
 // Expression evaluation
 #if defined(USE_COMPLEX_MATH)
-  ASSERT_NEAR(value.real(), Eval(y).real(), epi);
-  ASSERT_NEAR(value.imag(), Eval(y).imag(), epi);
+  ASSERT_NEAR(value.real(), CoolDiff::Scalar::Eval(y).real(), epi);
+  ASSERT_NEAR(value.imag(), CoolDiff::Scalar::Eval(y).imag(), epi);
 #else
-  ASSERT_NEAR(value, Eval(y), epi);
+  ASSERT_NEAR(value, CoolDiff::Scalar::Eval(y), epi);
 #endif
 
   // Jacobian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, *tmp[i]);
+    DY[i] = CoolDiff::Scalar::SymDiff(y, *tmp[i]);
 #if defined(USE_COMPLEX_MATH)
-    ASSERT_NEAR(results[i].real(), Eval(DY[i]).real(), epi);
-    ASSERT_NEAR(results[i].imag(), Eval(DY[i]).imag(), epi);
+    ASSERT_NEAR(results[i].real(), CoolDiff::Scalar::Eval(DY[i]).real(), epi);
+    ASSERT_NEAR(results[i].imag(), CoolDiff::Scalar::Eval(DY[i]).imag(), epi);
 #else
-    ASSERT_NEAR(results[i], Eval(DY[i]), epi);
+    ASSERT_NEAR(results[i], CoolDiff::Scalar::Eval(DY[i]), epi);
 #endif
   }
 }
@@ -687,27 +687,27 @@ TEST(OpsTest, TanhOpsHessian) {
 
 // Expression evaluation
 #if defined(USE_COMPLEX_MATH)
-  ASSERT_NEAR(value.real(), Eval(y).real(), epi);
-  ASSERT_NEAR(value.imag(), Eval(y).imag(), epi);
+  ASSERT_NEAR(value.real(), CoolDiff::Scalar::Eval(y).real(), epi);
+  ASSERT_NEAR(value.imag(), CoolDiff::Scalar::Eval(y).imag(), epi);
 #else
-  ASSERT_NEAR(value, Eval(y), epi);
+  ASSERT_NEAR(value, CoolDiff::Scalar::Eval(y), epi);
 #endif
 
   // Hessian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, *tmp[i]);
-    PreComp(DY[i]);
+    DY[i] = CoolDiff::Scalar::SymDiff(y, *tmp[i]);
+    CoolDiff::Scalar::PreComp(DY[i]);
     for (int j{}; j < 5; ++j) {
 #if defined(USE_COMPLEX_MATH)
       // DevalF
-      ASSERT_NEAR(results[i][j].real(), DevalF(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalF(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).imag(), epi);
       // DevalR
-      ASSERT_NEAR(results[i][j].real(), DevalR(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalR(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).imag(), epi);
 #else
-      ASSERT_NEAR(results[i][j], DevalF(DY[i], *tmp[j]), epi);
-      ASSERT_NEAR(results[i][j], DevalR(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalF(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalR(DY[i], *tmp[j]), epi);
 #endif
     }
   }
@@ -755,27 +755,27 @@ TEST(OpsTest, ACosOpsHessian) {
 
 // Expression evaluation
 #if defined(USE_COMPLEX_MATH)
-  ASSERT_NEAR(value.real(), Eval(y).real(), epi);
-  ASSERT_NEAR(value.imag(), Eval(y).imag(), epi);
+  ASSERT_NEAR(value.real(), CoolDiff::Scalar::Eval(y).real(), epi);
+  ASSERT_NEAR(value.imag(), CoolDiff::Scalar::Eval(y).imag(), epi);
 #else
-  ASSERT_NEAR(value, Eval(y), epi);
+  ASSERT_NEAR(value, CoolDiff::Scalar::Eval(y), epi);
 #endif
 
   // Hessian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, *tmp[i]);
-    PreComp(DY[i]);
+    DY[i] = CoolDiff::Scalar::SymDiff(y, *tmp[i]);
+    CoolDiff::Scalar::PreComp(DY[i]);
     for (int j{}; j < 5; ++j) {
 #if defined(USE_COMPLEX_MATH)
       // DevalF
-      ASSERT_NEAR(results[i][j].real(), DevalF(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalF(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).imag(), epi);
       // DevalR
-      ASSERT_NEAR(results[i][j].real(), DevalR(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalR(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).imag(), epi);
 #else
-      ASSERT_NEAR(results[i][j], DevalF(DY[i], *tmp[j]), epi);
-      ASSERT_NEAR(results[i][j], DevalR(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalF(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalR(DY[i], *tmp[j]), epi);
 #endif
     }
   }
@@ -824,27 +824,27 @@ TEST(OpsTest, ATanOpsHessian) {
 
 // Expression evaluation
 #if defined(USE_COMPLEX_MATH)
-  ASSERT_NEAR(value.real(), Eval(y).real(), epi);
-  ASSERT_NEAR(value.imag(), Eval(y).imag(), epi);
+  ASSERT_NEAR(value.real(), CoolDiff::Scalar::Eval(y).real(), epi);
+  ASSERT_NEAR(value.imag(), CoolDiff::Scalar::Eval(y).imag(), epi);
 #else
-  ASSERT_NEAR(value, Eval(y), epi);
+  ASSERT_NEAR(value, CoolDiff::Scalar::Eval(y), epi);
 #endif
 
   // Hessian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, *tmp[i]);
-    PreComp(DY[i]);
+    DY[i] = CoolDiff::Scalar::SymDiff(y, *tmp[i]);
+    CoolDiff::Scalar::PreComp(DY[i]);
     for (int j{}; j < 5; ++j) {
 #if defined(USE_COMPLEX_MATH)
       // DevalF
-      ASSERT_NEAR(results[i][j].real(), DevalF(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalF(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).imag(), epi);
       // DevalR
-      ASSERT_NEAR(results[i][j].real(), DevalR(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalR(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).imag(), epi);
 #else
-      ASSERT_NEAR(results[i][j], DevalF(DY[i], *tmp[j]), epi);
-      ASSERT_NEAR(results[i][j], DevalR(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalF(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalR(DY[i], *tmp[j]), epi);
 #endif
     }
   }
@@ -888,27 +888,27 @@ TEST(OpsTest, PowOpsHessian) {
 
 // Expression evaluation
 #if defined(USE_COMPLEX_MATH)
-  ASSERT_NEAR(value.real(), Eval(y).real(), epi);
-  ASSERT_NEAR(value.imag(), Eval(y).imag(), epi);
+  ASSERT_NEAR(value.real(), CoolDiff::Scalar::Eval(y).real(), epi);
+  ASSERT_NEAR(value.imag(), CoolDiff::Scalar::Eval(y).imag(), epi);
 #else
-  ASSERT_NEAR(value, Eval(y), epi);
+  ASSERT_NEAR(value, CoolDiff::Scalar::Eval(y), epi);
 #endif
 
   // Hessian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, *tmp[i]);
-    PreComp(DY[i]);
+    DY[i] = CoolDiff::Scalar::SymDiff(y, *tmp[i]);
+    CoolDiff::Scalar::PreComp(DY[i]);
     for (int j{}; j < 5; ++j) {
 #if defined(USE_COMPLEX_MATH)
       // DevalF
-      ASSERT_NEAR(results[i][j].real(), DevalF(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalF(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).imag(), epi);
       // DevalR
-      ASSERT_NEAR(results[i][j].real(), DevalR(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalR(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).imag(), epi);
 #else
-      ASSERT_NEAR(results[i][j], DevalF(DY[i], *tmp[j]), epi);
-      ASSERT_NEAR(results[i][j], DevalR(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalF(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalR(DY[i], *tmp[j]), epi);
 #endif
     }
   }
@@ -952,27 +952,27 @@ TEST(OpsTest, SinhOpsHessian) {
 
 // Expression evaluation
 #if defined(USE_COMPLEX_MATH)
-  ASSERT_NEAR(value.real(), Eval(y).real(), epi);
-  ASSERT_NEAR(value.imag(), Eval(y).imag(), epi);
+  ASSERT_NEAR(value.real(), CoolDiff::Scalar::Eval(y).real(), epi);
+  ASSERT_NEAR(value.imag(), CoolDiff::Scalar::Eval(y).imag(), epi);
 #else
-  ASSERT_NEAR(value, Eval(y), epi);
+  ASSERT_NEAR(value, CoolDiff::Scalar::Eval(y), epi);
 #endif
 
   // Hessian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, *tmp[i]);
-    PreComp(DY[i]);
+    DY[i] = CoolDiff::Scalar::SymDiff(y, *tmp[i]);
+    CoolDiff::Scalar::PreComp(DY[i]);
     for (int j{}; j < 5; ++j) {
 #if defined(USE_COMPLEX_MATH)
       // DevalF
-      ASSERT_NEAR(results[i][j].real(), DevalF(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalF(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).imag(), epi);
       // DevalR
-      ASSERT_NEAR(results[i][j].real(), DevalR(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalR(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).imag(), epi);
 #else
-      ASSERT_NEAR(results[i][j], DevalF(DY[i], *tmp[j]), epi);
-      ASSERT_NEAR(results[i][j], DevalR(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalF(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalR(DY[i], *tmp[j]), epi);
 #endif
     }
   }
@@ -1016,27 +1016,27 @@ TEST(OpsTest, CoshOpsHessian) {
 
 // Expression evaluation
 #if defined(USE_COMPLEX_MATH)
-  ASSERT_NEAR(value.real(), Eval(y).real(), epi);
-  ASSERT_NEAR(value.imag(), Eval(y).imag(), epi);
+  ASSERT_NEAR(value.real(), CoolDiff::Scalar::Eval(y).real(), epi);
+  ASSERT_NEAR(value.imag(), CoolDiff::Scalar::Eval(y).imag(), epi);
 #else
-  ASSERT_NEAR(value, Eval(y), epi);
+  ASSERT_NEAR(value, CoolDiff::Scalar::Eval(y), epi);
 #endif
 
   // Hessian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, *tmp[i]);
-    PreComp(DY[i]);
+    DY[i] = CoolDiff::Scalar::SymDiff(y, *tmp[i]);
+    CoolDiff::Scalar::PreComp(DY[i]);
     for (int j{}; j < 5; ++j) {
 #if defined(USE_COMPLEX_MATH)
       // DevalF
-      ASSERT_NEAR(results[i][j].real(), DevalF(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalF(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).imag(), epi);
       // DevalR
-      ASSERT_NEAR(results[i][j].real(), DevalR(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalR(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).imag(), epi);
 #else
-      ASSERT_NEAR(results[i][j], DevalF(DY[i], *tmp[j]), epi);
-      ASSERT_NEAR(results[i][j], DevalR(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalF(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalR(DY[i], *tmp[j]), epi);
 #endif
     }
   }
@@ -1082,27 +1082,27 @@ TEST(OpsTest, ASinhACoshOpsHessian) {
 
 // Expression evaluation
 #if defined(USE_COMPLEX_MATH)
-  ASSERT_NEAR(value.real(), Eval(y).real(), epi);
-  ASSERT_NEAR(value.imag(), Eval(y).imag(), epi);
+  ASSERT_NEAR(value.real(), CoolDiff::Scalar::Eval(y).real(), epi);
+  ASSERT_NEAR(value.imag(), CoolDiff::Scalar::Eval(y).imag(), epi);
 #else
-  ASSERT_NEAR(value, Eval(y), epi);
+  ASSERT_NEAR(value, CoolDiff::Scalar::Eval(y), epi);
 #endif
 
   // Hessian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, *tmp[i]);
-    PreComp(DY[i]);
+    DY[i] = CoolDiff::Scalar::SymDiff(y, *tmp[i]);
+    CoolDiff::Scalar::PreComp(DY[i]);
     for (int j{}; j < 5; ++j) {
 #if defined(USE_COMPLEX_MATH)
       // DevalF
-      ASSERT_NEAR(results[i][j].real(), DevalF(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalF(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).imag(), epi);
       // DevalR
-      ASSERT_NEAR(results[i][j].real(), DevalR(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalR(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).imag(), epi);
 #else
-      ASSERT_NEAR(results[i][j], DevalF(DY[i], *tmp[j]), epi);
-      ASSERT_NEAR(results[i][j], DevalR(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalF(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalR(DY[i], *tmp[j]), epi);
 #endif
     }
   }
@@ -1152,31 +1152,31 @@ TEST(OpsTest, ATanhOpsHessian) {
 
 // Expression evaluation
 #if defined(USE_COMPLEX_MATH)
-  ASSERT_NEAR(value.real(), Eval(y).real(), epi);
-  ASSERT_NEAR(value.imag(), Eval(y).imag(), epi);
+  ASSERT_NEAR(value.real(), CoolDiff::Scalar::Eval(y).real(), epi);
+  ASSERT_NEAR(value.imag(), CoolDiff::Scalar::Eval(y).imag(), epi);
   // std::cout << Eval(y).real() << " " << Eval(y).imag() << "\n";
 #else
-  ASSERT_NEAR(value, Eval(y), epi);
+  ASSERT_NEAR(value, CoolDiff::Scalar::Eval(y), epi);
 #endif
 
   // Hessian evaluation
   for (int i{}; i < 5; ++i) {
-    DY[i] = SymDiff(y, *tmp[i]);
-    PreComp(DY[i]);
+    DY[i] = CoolDiff::Scalar::SymDiff(y, *tmp[i]);
+    CoolDiff::Scalar::PreComp(DY[i]);
     for (int j{}; j < 5; ++j) {
 #if defined(USE_COMPLEX_MATH)
       // DevalF
-      ASSERT_NEAR(results[i][j].real(), DevalF(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalF(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalF(DY[i], *tmp[j]).imag(), epi);
       // std::cout << DevalF(DY[i],*tmp[j]).real() << " " <<
       // DevalF(DY[i],*tmp[j]).imag() << "\n";
 
       // DevalR
-      ASSERT_NEAR(results[i][j].real(), DevalR(DY[i], *tmp[j]).real(), epi);
-      ASSERT_NEAR(results[i][j].imag(), DevalR(DY[i], *tmp[j]).imag(), epi);
+      ASSERT_NEAR(results[i][j].real(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).real(), epi);
+      ASSERT_NEAR(results[i][j].imag(), CoolDiff::Scalar::DevalR(DY[i], *tmp[j]).imag(), epi);
 #else
-      ASSERT_NEAR(results[i][j], DevalF(DY[i], *tmp[j]), epi);
-      ASSERT_NEAR(results[i][j], DevalR(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalF(DY[i], *tmp[j]), epi);
+      ASSERT_NEAR(results[i][j], CoolDiff::Scalar::DevalR(DY[i], *tmp[j]), epi);
 #endif
     }
   }
@@ -1204,17 +1204,17 @@ TEST(OpsTest, UnaryTest) {
 
 // Expression evaluation
 #if defined(USE_COMPLEX_MATH)
-  ASSERT_NEAR(value.real(), Eval(y).real(), epi);
-  ASSERT_NEAR(value.imag(), Eval(y).imag(), epi);
+  ASSERT_NEAR(value.real(), CoolDiff::Scalar::Eval(y).real(), epi);
+  ASSERT_NEAR(value.imag(), CoolDiff::Scalar::Eval(y).imag(), epi);
 #else
-  ASSERT_NEAR(value, Eval(y), epi);
+  ASSERT_NEAR(value, CoolDiff::Scalar::Eval(y), epi);
 #endif
 
   // Jacobian evaluation (Reverse)
-  PreComp(y);
+  CoolDiff::Scalar::PreComp(y);
   for (int i{}; i < 5; ++i) {
     // DevalR evaluation
-    Type dr = DevalR(y, *tmp[i]);
+    Type dr = CoolDiff::Scalar::DevalR(y, *tmp[i]);
     // DevalR assertion
     ASSERT_NEAR(results[i].real(), dr.real(), epi);
     ASSERT_NEAR(results[i].imag(), dr.imag(), epi);
@@ -1223,7 +1223,7 @@ TEST(OpsTest, UnaryTest) {
   // Jacobian evaluation (Forward)
   for (int i{}; i < 5; ++i) {
     // DevalF evaluation
-    Type df = DevalF(y, *tmp[i]);
+    Type df = CoolDiff::Scalar::DevalF(y, *tmp[i]);
     // DevalF assertion
     ASSERT_NEAR(results[i].real(), df.real(), epi);
     ASSERT_NEAR(results[i].imag(), df.imag(), epi);
@@ -1241,19 +1241,19 @@ TEST(OpsTest, BinaryTest) {
   Type results[5] = {-7145, -7137, 9, -891, 216};
 
   // Jacobian reverse
-  PreComp(y);
-  ASSERT_EQ(results[0], DevalR(y, x1));
-  ASSERT_EQ(results[1], DevalR(y, x2));
-  ASSERT_EQ(results[2], DevalR(y, x3));
-  ASSERT_EQ(results[3], DevalR(y, x4));
-  ASSERT_EQ(results[4], DevalR(y, x5));
+  CoolDiff::Scalar::PreComp(y);
+  ASSERT_EQ(results[0], CoolDiff::Scalar::DevalR(y, x1));
+  ASSERT_EQ(results[1], CoolDiff::Scalar::DevalR(y, x2));
+  ASSERT_EQ(results[2], CoolDiff::Scalar::DevalR(y, x3));
+  ASSERT_EQ(results[3], CoolDiff::Scalar::DevalR(y, x4));
+  ASSERT_EQ(results[4], CoolDiff::Scalar::DevalR(y, x5));
 
   // Jacobian forward
-  ASSERT_EQ(results[0], DevalF(y, x1));
-  ASSERT_EQ(results[1], DevalF(y, x2));
-  ASSERT_EQ(results[2], DevalF(y, x3));
-  ASSERT_EQ(results[3], DevalF(y, x4));
-  ASSERT_EQ(results[4], DevalF(y, x5));
+  ASSERT_EQ(results[0], CoolDiff::Scalar::DevalF(y, x1));
+  ASSERT_EQ(results[1], CoolDiff::Scalar::DevalF(y, x2));
+  ASSERT_EQ(results[2], CoolDiff::Scalar::DevalF(y, x3));
+  ASSERT_EQ(results[3], CoolDiff::Scalar::DevalF(y, x4));
+  ASSERT_EQ(results[4], CoolDiff::Scalar::DevalF(y, x5));
 }
 
 // Expression copy constructor and copy assignment
@@ -1271,13 +1271,13 @@ TEST(OpsTest, ExpressionCopy) {
   // Copy assignment
   exp3 = exp2;
 
-  Type expeval = Eval(exp);
-  Type exp2eval = Eval(exp2);
-  Type exp3eval = Eval(exp3);
+  Type expeval = CoolDiff::Scalar::Eval(exp);
+  Type exp2eval = CoolDiff::Scalar::Eval(exp2);
+  Type exp3eval = CoolDiff::Scalar::Eval(exp3);
 
-  PreComp(exp);
-  PreComp(exp2);
-  PreComp(exp3);
+  CoolDiff::Scalar::PreComp(exp);
+  CoolDiff::Scalar::PreComp(exp2);
+  CoolDiff::Scalar::PreComp(exp3);
 
   // Evaluation
   ASSERT_EQ(expeval, exp2eval);
@@ -1285,24 +1285,24 @@ TEST(OpsTest, ExpressionCopy) {
   ASSERT_EQ(exp3eval, expeval);
 
   // Reverse derivatives w.r.t. x1
-  ASSERT_EQ(DevalR(expeval, x1), DevalR(exp2eval, x1));
-  ASSERT_EQ(DevalR(exp2eval, x1), DevalR(exp3eval, x1));
-  ASSERT_EQ(DevalR(exp3eval, x1), DevalR(expeval, x1));
+  ASSERT_EQ(CoolDiff::Scalar::DevalR(expeval, x1), CoolDiff::Scalar::DevalR(exp2eval, x1));
+  ASSERT_EQ(CoolDiff::Scalar::DevalR(exp2eval, x1), CoolDiff::Scalar::DevalR(exp3eval, x1));
+  ASSERT_EQ(CoolDiff::Scalar::DevalR(exp3eval, x1), CoolDiff::Scalar::DevalR(expeval, x1));
 
   // Reverse derivatives w.r.t. x2
-  ASSERT_EQ(DevalR(expeval, x2), DevalR(exp2eval, x2));
-  ASSERT_EQ(DevalR(exp2eval, x2), DevalR(exp3eval, x2));
-  ASSERT_EQ(DevalR(exp3eval, x2), DevalR(expeval, x2));
+  ASSERT_EQ(CoolDiff::Scalar::DevalR(expeval, x2), CoolDiff::Scalar::DevalR(exp2eval, x2));
+  ASSERT_EQ(CoolDiff::Scalar::DevalR(exp2eval, x2), CoolDiff::Scalar::DevalR(exp3eval, x2));
+  ASSERT_EQ(CoolDiff::Scalar::DevalR(exp3eval, x2), CoolDiff::Scalar::DevalR(expeval, x2));
 
   // Forward derivatives w.r.t. x1
-  ASSERT_EQ(DevalF(expeval, x1), DevalF(exp2eval, x1));
-  ASSERT_EQ(DevalF(exp2eval, x1), DevalF(exp3eval, x1));
-  ASSERT_EQ(DevalF(exp3eval, x1), DevalF(expeval, x1));
+  ASSERT_EQ(CoolDiff::Scalar::DevalF(expeval, x1), CoolDiff::Scalar::DevalF(exp2eval, x1));
+  ASSERT_EQ(CoolDiff::Scalar::DevalF(exp2eval, x1), CoolDiff::Scalar::DevalF(exp3eval, x1));
+  ASSERT_EQ(CoolDiff::Scalar::DevalF(exp3eval, x1), CoolDiff::Scalar::DevalF(expeval, x1));
 
   // Forward derivatives w.r.t. x2
-  ASSERT_EQ(DevalF(expeval, x2), DevalF(exp2eval, x2));
-  ASSERT_EQ(DevalF(exp2eval, x2), DevalF(exp3eval, x2));
-  ASSERT_EQ(DevalF(exp3eval, x2), DevalF(expeval, x2));
+  ASSERT_EQ(CoolDiff::Scalar::DevalF(expeval, x2), CoolDiff::Scalar::DevalF(exp2eval, x2));
+  ASSERT_EQ(CoolDiff::Scalar::DevalF(exp2eval, x2), CoolDiff::Scalar::DevalF(exp3eval, x2));
+  ASSERT_EQ(CoolDiff::Scalar::DevalF(exp3eval, x2), CoolDiff::Scalar::DevalF(expeval, x2));
 }
 
 #endif

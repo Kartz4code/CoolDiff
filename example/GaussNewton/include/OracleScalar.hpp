@@ -50,7 +50,7 @@ private:
   // Symbolic Jacobian for Hessian computation
   template <typename T> void symJacob(T &exp) {
     for (size_t i{}; i < m_dim; ++i) {
-      m_jacobian_sym[i] = SymDiff(exp, m_X[i]);
+      m_jacobian_sym[i] = CoolDiff::Scalar::SymDiff(exp, m_X[i]);
     }
   }
 
