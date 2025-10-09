@@ -27,7 +27,8 @@
 template<typename T>
 void Matrix<T>::setEval() {
     if ((nullptr != mp_mat) && (nullptr != mp_result) && (nullptr != mp_result->mp_mat)) {
-        std::transform(EXECUTION_SEQ mp_mat, mp_mat + getNumElem(), mp_result->mp_mat, [this](auto& v) { return Eval(v); });
+        std::transform(EXECUTION_SEQ mp_mat, mp_mat + getNumElem(), mp_result->mp_mat, 
+                        [this](auto& v) { return CoolDiff::Scalar::Eval(v); });
     }
 }
 
@@ -38,7 +39,8 @@ void Matrix<T>::setDevalF(const Matrix<Variable>& X) {
     if constexpr (true == std::is_same_v<T, Expression>) {
         if ((nullptr != mp_mat) && (nullptr != mp_dresult) && (nullptr != mp_dresult->mp_mat)) {
             // Precompute the reverse derivatives
-            std::for_each(EXECUTION_SEQ mp_mat, mp_mat + getNumElem(), [](auto& i) { PreComp(i); });
+            std::for_each(EXECUTION_SEQ mp_mat, mp_mat + getNumElem(), 
+                          [](auto& i) { CoolDiff::Scalar::PreComp(i); });
 
             // Get dimensions of X variable matrix
             const size_t xrows = X.getNumRows();
@@ -58,7 +60,7 @@ void Matrix<T>::setDevalF(const Matrix<Variable>& X) {
                     std::for_each(EXECUTION_PAR inner_idx.begin(), inner_idx.end(), [&](const size_t n) {
                             const size_t j = (n % xcols);
                             const size_t i = ((n - j) / xcols);
-                            (*mp_dresult)((l * xrows) + i, (k * xcols) + j) = DevalR((*this)(l, k), X(i, j));
+                            (*mp_dresult)((l * xrows) + i, (k * xcols) + j) = CoolDiff::Scalar::DevalR((*this)(l, k), X(i, j));
                     });
             });
         }

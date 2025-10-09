@@ -41,14 +41,14 @@ Parameter::Parameter(const Type& value) : m_nidx{this->m_idx_count++} {
 }
 
 // Copy constructor
-Parameter::Parameter(const Parameter& s)
-    : m_nidx{s.m_nidx}, m_cache{s.m_cache} {
+Parameter::Parameter(const Parameter& s) :  m_nidx{s.m_nidx}, 
+                                            m_cache{s.m_cache} {
   this->mp_tmp = s.mp_tmp;
 }
 
 // Move constructor
-Parameter::Parameter(Parameter&& s) noexcept
-    : m_nidx{std::exchange(s.m_nidx, -1)}, m_cache{std::move(s.m_cache)} {
+Parameter::Parameter(Parameter&& s) noexcept :  m_nidx{std::exchange(s.m_nidx, -1)}, 
+                                                m_cache{std::move(s.m_cache)} {
   this->mp_tmp = std::exchange(s.mp_tmp, nullptr);
 }
 
@@ -108,7 +108,7 @@ void Parameter::traverse(OMPair*) {
 }
 
 // Get the map of derivatives
-OMPair &Parameter::getCache() { 
+OMPair& Parameter::getCache() { 
   return m_cache; 
 }
 
@@ -125,7 +125,7 @@ Parameter& Parameter::ParameterFactory::CreateParameter(const Type& val) {
 
 // Find me
 bool Parameter::findMe(void* v) const {
-  if (static_cast<const void *>(this) == v) {
+  if (static_cast<const void*>(this) == v) {
     return true;
   } else {
     return false;

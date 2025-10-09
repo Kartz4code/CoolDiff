@@ -25,7 +25,8 @@
 #include "MemoryManager.hpp"
 
 // IVariable class to enforce expression templates for lazy evaluation
-template <typename T> class IMatrix : public MetaMatrix {
+template <typename T> 
+class IMatrix : public MetaMatrix {
 private:
   // CRTP const
   inline constexpr const T& derived() const {
@@ -45,6 +46,11 @@ public:
   // Find me
   bool findMe(void* v) const {  
     return derived().findMe(v); 
+  }
+
+  // Clone matrix expression
+  constexpr const auto& cloneExp() const {
+    return derived().cloneExp();
   }
 
   // Protected destructor

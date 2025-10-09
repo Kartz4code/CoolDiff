@@ -88,6 +88,11 @@ public:
     BINARY_FIND_ME(); 
   }
 
+  // Clone matrix expression
+  constexpr const auto& cloneExp() const {
+    return (*mp_left) + (*mp_right);
+  }
+
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type>* eval()) {
     // Check whether dimensions are correct
@@ -349,6 +354,11 @@ public:
     BINARY_RIGHT_FIND_ME(); 
   }
 
+   // Clone matrix expression
+  constexpr const auto& cloneExp() const {
+    return m_left + (*mp_right);
+  }
+
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type>* eval()) {
     // Get raw pointers to result and right matrices
@@ -496,8 +506,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericMatScalarSumExp)
-  DISABLE_MOVE(GenericMatScalarSumExp)
+  #if 0
+    DISABLE_COPY(GenericMatScalarSumExp)
+    DISABLE_MOVE(GenericMatScalarSumExp)
+  #endif
 
   // All matrices
   inline static constexpr const size_t m_size{4};
@@ -533,11 +545,16 @@ public:
     BINARY_RIGHT_FIND_ME(); 
   }
 
+   // Clone matrix expression
+  constexpr const auto& cloneExp() const {
+    return (*mp_left) + (*mp_right);
+  }
+
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type>* eval()) {
     // Get raw pointers to result and right matrices
     const Matrix<Type>* right_mat = mp_right->eval();
-    const Type val = Eval((*mp_left));
+    const Type val = CoolDiff::Scalar::Eval((*mp_left));
 
     std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
       if (nullptr != m) {                   
@@ -608,8 +625,10 @@ using GenericMatScalarSumExpT = GenericMatScalarSumExp<T1, T2, OpMatType>;
 // Function for sum computation
 template <typename T1, typename T2>
 constexpr const auto& operator+(const IMatrix<T1>& u, const IMatrix<T2>& v) {
-  auto tmp = Allocate<GenericMatSumT<T1, T2>>(const_cast<T1 *>(static_cast<const T1*>(&u)),
-                                              const_cast<T2 *>(static_cast<const T2*>(&v)), 
+  const auto& _u = u.cloneExp();
+  const auto& _v = v.cloneExp();
+  auto tmp = Allocate<GenericMatSumT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&_u)),
+                                              const_cast<T2*>(static_cast<const T2*>(&_v)), 
                                               OpMatObj);
   return *tmp;
 }
@@ -617,26 +636,30 @@ constexpr const auto& operator+(const IMatrix<T1>& u, const IMatrix<T2>& v) {
 // Function for sum computation
 template <typename T>
 constexpr const auto& operator+(Type u, const IMatrix<T>& v) {
-  auto tmp = Allocate<GenericMatScalarSumT<T>>(u, const_cast<T*>(static_cast<const T*>(&v)), OpMatObj);
+  const auto& _v = v.cloneExp();
+  auto tmp = Allocate<GenericMatScalarSumT<T>>(u, const_cast<T*>(static_cast<const T*>(&_v)), OpMatObj);
   return *tmp;
 }
 
 template <typename T>
 constexpr const auto &operator+(const IMatrix<T>& v, Type u) {
-  return u + v;
+  const auto& _v = v.cloneExp();
+  return u + _v;
 }
 
 // Matrix sum with scalar (LHS) - SFINAE'd
 template <typename T1, typename T2, typename = ExpType<T1>>
 constexpr const auto &operator+(const T1& v, const IMatrix<T2>& u) {
+  const auto& _u = u.cloneExp();
   auto tmp = Allocate<GenericMatScalarSumExpT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&v)),
-                                                       const_cast<T2*>(static_cast<const T2*>(&u)), 
-                                                       OpMatObj);
+                                                      const_cast<T2*>(static_cast<const T2*>(&_u)), 
+                                                      OpMatObj);
   return *tmp;
 }
 
 // Matrix sum with scalar (RHS) - SFINAE'd
 template <typename T1, typename T2, typename = ExpType<T2>>
 constexpr const auto &operator+(const IMatrix<T1>& u, const T2& v) {
-  return v + u;
+  const auto& _u = u.cloneExp();
+  return v + _u;
 }

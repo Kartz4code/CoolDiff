@@ -26,7 +26,7 @@ cmake_minimum_required(VERSION 3.20)
 
 # [Project name and description]
 project(CoolDiff VERSION 1.0.1.0
-                 DESCRIPTION "CoolDiff - Symbolic/Auto differentiation C++ tool"
+                 DESCRIPTION "CoolDiff - A Symbolic/Automatic differentiation C++ tool"
                  LANGUAGES C CXX)
 
 ########################################################################################################################
@@ -51,7 +51,9 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Set CXX flags for maximum performance
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -ffast-math -funroll-loops -funroll-all-loops -ftree-vectorize -finline-functions -floop-block")
+if(${CMAKE_BUILD_TYPE} EQUAL Release)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -ffast-math -funroll-loops -funroll-all-loops -ftree-vectorize -finline-functions -floop-block")
+endif()
 
 # Include CMake scripts
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -65,30 +67,42 @@ include(Tools)
 ########################################################################################################################
 ######################################################################################################################## 
 
-option(BUILD_TEST "Building unit test executables" ON)
-option(BUILD_EXAMPLE "Building example executables" ON)
+option(BUILD_UNITTESTS "Building unit test executables" ON)
+option(BUILD_EXAMPLES "Building example executables" ON)
 option(ENABLE_CLANG_TIDY "Enable clang-tidy static linter" OFF)
 option(ENABLE_CMAKE_FORMAT "Enable cmake formatter" OFF)
 option(ENABLE_CLANG_FORMAT "Enable clang format" OFF)
-
-
-find_package(Threads REQUIRED)
+option(ENABLE_COMPLEX_MATH "Enable complex numbers for numerics" ON)
+option(ENABLE_ROBIN_HOOD_MAP "Enable robin hood hashmaps" ON)
+# TODO - Implementation of manual dynamic dispatch for performance
+option(ENABLE_VIRTUAL_FUNCTIONS "Enable virtual functions" ON)
+option(ENABLE_DYNAMIC_ASSERTIONS "Enable dynamic assertions" ON)
+option(ENABLE_STL_PARALLEL_EXECUTION "Enable STL libraries parallel execution feature" OFF)
 
 
 # [Set compilation flags]
 #add_definitions(-DCOOLDIFF_SCALAR_TYPE=1) # Float
 add_definitions(-DCOOLDIFF_SCALAR_TYPE=2) # Double
 
-if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
-    add_definitions(-DBUILD_TYPE_DEBUG)
+if(${ENABLE_DYNAMIC_ASSERTIONS})
+    add_definitions(-DUSE_DYNAMIC_ASSERTIONS)
 endif()
 
-add_definitions(-DUSE_COMPLEX_MATH)
-add_definitions(-DUSE_ROBIN_HOOD_MAP)
-add_definitions(-DUSE_VIRTUAL_FUNCTIONS)
-#add_definitions(-DUSE_CXX_PARALLEL_POLICY)
-#add_definitions(-DUSE_EXECUTION_PAR)
+if(${ENABLE_COMPLEX_MATH})
+    add_definitions(-DUSE_COMPLEX_MATH)
+endif()
 
+if(${ENABLE_ROBIN_HOOD_MAP})
+    add_definitions(-DUSE_ROBIN_HOOD_MAP)
+endif()
+
+if(${ENABLE_VIRTUAL_FUNCTIONS})
+    add_definitions(-DUSE_VIRTUAL_FUNCTIONS)
+endif()
+
+if(${ENABLE_STL_PARALLEL_EXECUTION})
+    add_definitions(-DUSE_CXX_PARALLEL_POLICY)
+endif()
 
 
 ########################################################################################################################
@@ -101,6 +115,7 @@ add_definitions(-DUSE_VIRTUAL_FUNCTIONS)
 
 include(FetchContent)
 
+# Find and install robin hood hashing package
 FetchContent_Declare(
     robin-hood-hashing
     GIT_REPOSITORY https://github.com/martinus/robin-hood-hashing.git
@@ -115,32 +130,52 @@ if(NOT robin-hood-hashing_POPULATED)
 endif()
 
 # Find and install Eigen package
-FetchContent_Declare(
-  Eigen
-  GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
-  GIT_TAG master
-  GIT_SHALLOW TRUE
-) 
-# Check if the dependency has already been downloaded and built
-FetchContent_GetProperties(Eigen)
-if(NOT Eigen_POPULATED)
-    message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Setting Eigen library")
-    FetchContent_MakeAvailable(Eigen)
+find_package(Eigen3 QUIET)
+if(DEFINED Eigen3_FOUND AND DEFINED Eigen3_VERSION)
+    message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Eigen installed version ${Eigen3_VERSION}")
+endif()
+if(NOT Eigen3_FOUND OR Eigen3_VERSION VERSION_LESS "3.4")
+    FetchContent_Declare(
+    Eigen
+    GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+    GIT_TAG master
+    GIT_SHALLOW TRUE
+    ) 
+    # Check if the dependency has already been downloaded and built
+    FetchContent_GetProperties(Eigen)
+    if(NOT Eigen_POPULATED)
+        message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Setting latest Eigen library")
+        FetchContent_MakeAvailable(Eigen)
+    endif()
+else()
+    message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Eigen library found in system")
 endif()
 
 # Find and install Gtest package for test build
-FetchContent_Declare(
-    googletest
-    GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG v1.15.2
-    GIT_SHALLOW TRUE
-)
-# Check if the dependency has already been downloaded and built
-FetchContent_GetProperties(googletest)
-if(NOT googletest_POPULATED)
-    message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Setting GTest library")
-    FetchContent_MakeAvailable(googletest)
+find_package(GTest QUIET)
+if(DEFINED GTest_FOUND AND DEFINED GTest_VERSION)
+    message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Gtest installed version ${GTest_VERSION}")
 endif()
+if(NOT GTest_FOUND OR GTest_VERSION VERSION_LESS "1.15")
+    FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG v1.15.2
+        GIT_SHALLOW TRUE
+    )
+    # Check if the dependency has already been downloaded and built
+    FetchContent_GetProperties(googletest)
+    if(NOT googletest_POPULATED)
+        message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Setting latest Gtest library")
+        FetchContent_MakeAvailable(googletest)
+    endif()
+else()
+    message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Gtest library found in system")
+endif()
+
+# Enable Threads package
+find_package(Threads REQUIRED)
+
 list(APPEND CMAKE_MODULE_PATH ${gtest_SOURCE_DIR}/cmake)
 
 ########################################################################################################################
@@ -151,13 +186,15 @@ list(APPEND CMAKE_MODULE_PATH ${gtest_SOURCE_DIR}/cmake)
 ########################################################################################################################
 ########################################################################################################################
 
-set(SRC ${CMAKE_SOURCE_DIR}/src/CommonHeader.cpp
+set(SRC # Scalar folder *.cpp files
+        ${CMAKE_SOURCE_DIR}/src/CommonHeader.cpp
         ${CMAKE_SOURCE_DIR}/src/Scalar/VarWrap.cpp
         ${CMAKE_SOURCE_DIR}/src/Scalar/Variable.cpp
         ${CMAKE_SOURCE_DIR}/src/Scalar/Parameter.cpp
         ${CMAKE_SOURCE_DIR}/src/Scalar/MetaVariable.cpp
         ${CMAKE_SOURCE_DIR}/src/Scalar/Expression.cpp
         ${CMAKE_SOURCE_DIR}/src/Scalar/CommonFunctions.cpp
+        # Matrix folder *.cpp files
         ${CMAKE_SOURCE_DIR}/src/Matrix/CommonMatFunctions.cpp
         ${CMAKE_SOURCE_DIR}/src/Matrix/MatOperators.cpp
         ${CMAKE_SOURCE_DIR}/src/Matrix/MetaMatrix.cpp
@@ -286,7 +323,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Threads::Threads Eigen3::Eigen)
 ######################################################################################################################## 
 
 # Build test scripts
-if(${BUILD_TEST})
+if(${BUILD_UNITTESTS})
     include(CTest)
     enable_testing()
     add_subdirectory(${CMAKE_SOURCE_DIR}/test)
@@ -295,7 +332,7 @@ else()
 endif()
 
 # Build examples
-if(${BUILD_EXAMPLE})
+if(${BUILD_EXAMPLES})
     add_subdirectory(${CMAKE_SOURCE_DIR}/example)
 else()
     message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Example build is skipped")

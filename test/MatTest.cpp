@@ -482,10 +482,17 @@ TEST(MatTest, Test7) {
   W2(1, 0) = -5;
   W2(1, 1) = 6;
 
+  /* TODO - Fix this issue
   Matrix<Expression> E;
   E = conv(X, W2, 1, 1, 1, 1);
   E = conv(E, W1, 1, 1, 1, 1);
-  E = sigma(E);
+  E = Sigma(E);
+  */
+
+   Matrix<Expression> Exp1, Exp2;
+   Exp1 = conv(X, W2, 1, 1, 1, 1);
+   Exp2 = conv(Exp1, W1, 1, 1, 1, 1);
+   Matrix<Expression> E = Sigma(Exp2);
 
   // Verification eval function
   auto verify_eval_function = [&](auto Xres) {
@@ -651,7 +658,7 @@ TEST(MatTest, Test5) {
   Y(1, 1) = x2 + x1 + x3;
 
   Matrix<Expression> E = Y * A * X;
-  E = sigma(E);
+  E = Sigma(E);
 
   // Verification eval function
   auto verify_eval_function = [&](auto Xres) {

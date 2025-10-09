@@ -28,22 +28,22 @@
 template <typename T, typename... Callables>                                   \
 class Generic##OPS : public IVariable<Generic##OPS<T, Callables...>> {         \
   private:                                                                     \
-    T *mp_left{nullptr};                                                       \
+    T* mp_left{nullptr};                                                       \
     Tuples<Callables...> m_caller;                                             \
     DISABLE_COPY(Generic##OPS)                                                 \
     DISABLE_MOVE(Generic##OPS)                                                 \
   public:                                                                      \
     const size_t m_nidx{};                                                     \
     OMPair m_cache;                                                            \
-    constexpr Generic##OPS(T *u, Callables &&...call)                          \
+    constexpr Generic##OPS(T* u, Callables&&... call)                          \
         : mp_left{u}, m_caller{std::make_tuple(                                \
                           std::forward<Callables>(call)...)},                  \
           m_nidx{this->m_idx_count++} {}                                       \
-    V_OVERRIDE(Variable *symEval()) {                                          \
+    V_OVERRIDE(Variable* symEval()) {                                          \
       ASSERT(false, "Invalid symbolic evaluation operation");                  \
       return &Variable::t0;                                                    \
     }                                                                          \
-    V_OVERRIDE(Variable *symDeval(const Variable &)) {                         \
+    V_OVERRIDE(Variable* symDeval(const Variable &)) {                         \
       ASSERT(false, "Invalid symbolic derivative operation");                  \
       return &Variable::t0;                                                    \
     }                                                                          \
@@ -51,12 +51,12 @@ class Generic##OPS : public IVariable<Generic##OPS<T, Callables...>> {         \
       const Type u = mp_left->eval();                                          \
       return (FUNC1(u));                                                       \
     }                                                                          \
-    V_OVERRIDE(Type devalF(const Variable &var)) {                             \
+    V_OVERRIDE(Type devalF(const Variable& var)) {                             \
       const Type du = mp_left->devalF(var);                                    \
       const Type u = mp_left->eval();                                          \
       return (FUNC2(u) * du);                                                  \
     }                                                                          \
-    V_OVERRIDE(void traverse(OMPair *cache = nullptr)) {                       \
+    V_OVERRIDE(void traverse(OMPair* cache = nullptr)) {                       \
     if (cache == nullptr) {                                                    \
         cache = &m_cache;                                                      \
         cache->reserve(g_map_reserve);                                         \
@@ -98,17 +98,17 @@ class Generic##OPS : public IVariable<Generic##OPS<T, Callables...>> {         \
         mp_left->traverse(cache);                                              \
       }                                                                        \
     }                                                                          \
-    V_OVERRIDE(OMPair &getCache()) { return m_cache; }                         \
+    V_OVERRIDE(OMPair& getCache()) { return m_cache; }                         \
     V_OVERRIDE(void reset()) { UNARY_RESET(); }                                \
     V_OVERRIDE(std::string_view getType() const) {                             \
       return TOSTRING(Generic##OPS);                                           \
     }                                                                          \
-    V_OVERRIDE(bool findMe(void *v) const) { UNARY_FIND_ME(); }                \
+    V_OVERRIDE(bool findMe(void* v) const) { UNARY_FIND_ME(); }                \
     V_DTR(~Generic##OPS()) = default;                                          \
   };                                                                           \
 template <typename T>                                                          \
 using CONCAT3(Generic, OPS, T) = Generic##OPS<T, OpType>;                      \
-template <typename T> constexpr const auto &OPS(const IVariable<T> &u) {       \
+template <typename T> constexpr const auto& OPS(const IVariable<T>& u) {       \
   auto tmp = Allocate < CONCAT3(Generic, OPS, T) < T >>                        \
                (const_cast<T *>(static_cast<const T *>(&u)), OpObj);           \
   return *tmp;                                                                 \

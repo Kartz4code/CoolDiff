@@ -37,13 +37,13 @@ private:
 
   // Vector of deleted or to be deleted MetaMatrix resources
   inline static Vector<SharedPtr<MetaMatrix>> m_del_mat_ptr;
-  // A special vector for Matrix<Type> which is used dynamically throughout the
-  // process
+  
+  // A special vector for Matrix<Type> which is used dynamically throughout the process
   inline static Vector<SharedPtr<Matrix<Type>>> m_del_mat_type_ptr;
 
 public:
   // Get size of memory allocated
-  static size_t size();
+  static const size_t size();
 
   // Special matrix pool allocation
   static Matrix<Type>* MatrixSplPool(const size_t, const size_t, const MatrixSpl&);

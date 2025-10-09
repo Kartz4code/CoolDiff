@@ -28,36 +28,20 @@
 
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class EyeMatAddHandler : public T {
-  public:
-    void handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
-        // Dimensions of LHS and RHS matrices
-        const size_t nrows{lhs->getNumRows()};
-        const size_t ncols{rhs->getNumColumns()};
-        const size_t lcols{lhs->getNumColumns()};
-        const size_t rrows{rhs->getNumRows()};
+    public:
+        void handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
+            // Dimensions of LHS and RHS matrices
+            const size_t nrows{lhs->getNumRows()};
+            const size_t ncols{rhs->getNumColumns()};
+            const size_t lcols{lhs->getNumColumns()};
+            const size_t rrows{rhs->getNumRows()};
 
-        // Assert dimensions
-        ASSERT((nrows == rrows) && (ncols == lcols), "Matrix addition dimensions mismatch");
+            // Assert dimensions
+            ASSERT((nrows == rrows) && (ncols == lcols), "Matrix addition dimensions mismatch");
 
-        #if defined(NAIVE_IMPL)
-            /* Eye matrix special check */
-            if (auto *it = EyeMatAdd(lhs, rhs); nullptr != it) {
-                if (it == lhs || it == rhs) {
-                    if (-1 == it->getMatType()) {
-                        BaselineCPU::AddEye(it, result);
-                    } else {
-                        T::handle(lhs, rhs, result);
-                    }
-                } 
-                else {
-                    BaselineCPU::Add2Eye(it, result);
-                }
-                return;
-            }
-
-            /* Eye matrix numerical check */
-            #if defined(NUMERICAL_CHECK)
-                else if (auto *it = EyeMatAddNum(lhs, rhs); nullptr != it) {
+            #if defined(NAIVE_IMPL)
+                /* Eye matrix special check */
+                if (auto *it = EyeMatAdd(lhs, rhs); nullptr != it) {
                     if (it == lhs || it == rhs) {
                         if (-1 == it->getMatType()) {
                             BaselineCPU::AddEye(it, result);
@@ -70,8 +54,24 @@ class EyeMatAddHandler : public T {
                     }
                     return;
                 }
+
+                /* Eye matrix numerical check */
+                #if defined(NUMERICAL_CHECK)
+                    else if (auto *it = EyeMatAddNum(lhs, rhs); nullptr != it) {
+                        if (it == lhs || it == rhs) {
+                            if (-1 == it->getMatType()) {
+                                BaselineCPU::AddEye(it, result);
+                            } else {
+                                T::handle(lhs, rhs, result);
+                            }
+                        } 
+                        else {
+                            BaselineCPU::Add2Eye(it, result);
+                        }
+                        return;
+                    }
+                #endif
             #endif
-        #endif
 
             // Chain of responsibility
             T::handle(lhs, rhs, result);

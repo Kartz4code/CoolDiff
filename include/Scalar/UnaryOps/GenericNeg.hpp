@@ -25,6 +25,7 @@
 #include "Variable.hpp"
 
 // Function for neg computation
-template <typename T> constexpr const auto &operator-(const IVariable<T> &u) {
+template <typename T> 
+constexpr const auto& operator-(const IVariable<T>& u) {
   return ((Type)(-1) * u);
 }

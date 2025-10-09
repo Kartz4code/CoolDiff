@@ -86,13 +86,13 @@ Variable::Variable(Variable&& exp) noexcept : m_nidx{std::exchange(exp.m_nidx, -
 }
 
 // Copy assignment from one variable to another
-Variable &Variable::operator=(const Variable& exp) {
+Variable& Variable::operator=(const Variable& exp) {
   // Copy-swap idiom
   Variable{exp}.swap(*this);
   return *this;
 }
 
-Variable &Variable::operator=(Variable&& exp) noexcept {
+Variable& Variable::operator=(Variable&& exp) noexcept {
   // Copy-swap idiom
   Variable{std::move(exp)}.swap(*this);
   return *this;
@@ -117,7 +117,7 @@ Type Variable::getdValue() const {
 void Variable::resetImpl() {
   this->m_visited = true;
   // Reset states
-  std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(), [](auto *item) {
+  std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(), [](auto* item) {
     if (nullptr != item) {
       item->reset();
     }

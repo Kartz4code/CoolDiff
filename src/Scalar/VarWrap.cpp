@@ -27,12 +27,12 @@ void VarWrap::swap(VarWrap& vw) noexcept {
   std::swap(m_dvalue, vw.m_dvalue);
 }
 
-VarWrap::VarWrap(Type val) : m_value{val}, 
-                             m_dvalue{(Type)(0)} 
+VarWrap::VarWrap(Type val) :  m_value{val}, 
+                              m_dvalue{(Type)(0)} 
 {}
 
-VarWrap::VarWrap() : m_value{(Type)(0)}, 
-                     m_dvalue{(Type)(0)} 
+VarWrap::VarWrap() :  m_value{(Type)(0)}, 
+                      m_dvalue{(Type)(0)} 
 {}
 
 // Copy constructor

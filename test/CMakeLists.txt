@@ -26,7 +26,7 @@ include(GoogleTest)
 set(TEST_EXECUTABLE OpsTest)
 set(TEST_EXECUTABLE2 MatTest)
 
-if(${BUILD_TEST})
+if(${BUILD_UNITTESTS})
 ##################################################################################################################################
     
 # Add executable (target testing)

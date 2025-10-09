@@ -87,6 +87,11 @@ public:
     BINARY_FIND_ME(); 
   }
 
+   // Clone matrix expression
+  constexpr const auto& cloneExp() const {
+    return (*mp_left) - (*mp_right);
+  }
+
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type>* eval()) {
     // Check whether dimensions are correct
@@ -303,8 +308,10 @@ using GenericMatSubT = GenericMatSub<T1, T2, OpMatType>;
 // Function for sub computation
 template <typename T1, typename T2>
 constexpr const auto& operator-(const IMatrix<T1>& u, const IMatrix<T2>& v) {
-  auto tmp = Allocate<GenericMatSubT<T1, T2>>(const_cast<T1 *>(static_cast<const T1*>(&u)),
-                                              const_cast<T2 *>(static_cast<const T2*>(&v)), 
+  const auto& _u = u.cloneExp();
+  const auto& _v = v.cloneExp();
+  auto tmp = Allocate<GenericMatSubT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&_u)),
+                                              const_cast<T2*>(static_cast<const T2*>(&_v)), 
                                               OpMatObj);
   return *tmp;
 }
@@ -312,23 +319,27 @@ constexpr const auto& operator-(const IMatrix<T1>& u, const IMatrix<T2>& v) {
 // Matrix sub with Type (LHS)
 template <typename T>
 constexpr const auto& operator-(const Type& v, const IMatrix<T>& u) {
-  return (v + ((Type)(-1) * u));
+  const auto& _u = u.cloneExp();
+  return (v + ((Type)(-1) * _u));
 }
 
 // Matrix sub with Type (RHS)
 template <typename T>
 constexpr const auto& operator-(const IMatrix<T>& u, const Type& v) {
-  return (u + ((Type)(-1) * v));
+  const auto& _u = u.cloneExp();
+  return (_u + ((Type)(-1) * v));
 }
 
 // Matrix sub with scalar (LHS) - SFINAE'd
 template <typename T1, typename T2, typename = ExpType<T1>>
 constexpr const auto& operator-(const T1& v, const IMatrix<T2>& u) {
-  return (v + ((Type)(-1) * u));
+  const auto& _u = u.cloneExp();
+  return (v + ((Type)(-1) * _u));
 }
 
 // Matrix sub with scalar (RHS) - SFINAE'd
 template <typename T1, typename T2, typename = ExpType<T2>>
 constexpr const auto& operator-(const IMatrix<T1>& u, const T2& v) {
-  return (u + ((Type)(-1) * v));
+  const auto& _u = u.cloneExp();
+  return (_u + ((Type)(-1) * v));
 }

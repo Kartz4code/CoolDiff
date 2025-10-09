@@ -34,8 +34,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericMatInv)
-  DISABLE_MOVE(GenericMatInv)
+  #if 0
+    DISABLE_COPY(GenericMatInv)
+    DISABLE_MOVE(GenericMatInv)
+  #endif
 
   // Verify dimensions of result matrix for trace operation
   inline constexpr bool verifyDim() const {
@@ -48,7 +50,7 @@ private:
   }
 
   // All matrices
-  inline static constexpr const size_t m_size{7};
+  inline static constexpr const size_t m_size{16};
   Matrix<Type>* mp_arr[m_size]{};
 
 public:
@@ -77,6 +79,11 @@ public:
   // Find me
   bool findMe(void* v) const { 
     BINARY_RIGHT_FIND_ME(); 
+  }
+
+   // Clone matrix expression
+  constexpr const auto& cloneExp() const {
+    return inv(*mp_right);
   }
 
   // Matrix eval computation
@@ -135,6 +142,114 @@ public:
     return mp_arr[6];
   }
 
+  // Get cache
+  V_OVERRIDE(OMMatPair& getCache()) {
+    return m_cache;
+  }
+
+  // Traverse
+  V_OVERRIDE(void traverse(OMMatPair* cache = nullptr)) {
+    // If cache is nullptr, i.e. for the first step
+    if (cache == nullptr) {
+      // cache is m_cache
+      cache = &m_cache;
+      cache->reserve(g_map_reserve);
+      // Clear cache in the first entry
+      if (false == (*cache).empty()) {
+        (*cache).clear();
+      }
+
+      // Traverse right node
+      if (false == mp_right->m_visited) {
+        mp_right->traverse(cache);
+      }
+
+      // Get raw pointers to right matrix
+      const Matrix<Type>* right_mat = mp_right->eval();
+
+      /* IMPORTANT: The derivative is computed here */
+      // Matrix transpose-inverse
+      MATRIX_TRANSPOSE(right_mat, mp_arr[7]);
+      MATRIX_INVERSE(mp_arr[7], mp_arr[8]);
+      MATRIX_MUL(mp_arr[8], mp_arr[8], mp_arr[9]);
+      MATRIX_SCALAR_MUL(-1,  mp_arr[9],  mp_arr[10]);
+
+      const auto mp_arr10_val = (*mp_arr[10])(0,0);
+
+      if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
+        MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[10], (*cache)[mp_right->m_nidx]); 
+      } else {
+        (*cache)[mp_right->m_nidx] = mp_arr[10];
+      }
+
+      for(const auto& [k,v] : (*cache)) {                                                       
+        (*cache)[k] = v->clone(this->m_cloned[this->incFunc()]);                                
+      }
+      
+      std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(),
+              [&](const auto& item) {                                                     
+                const auto idx = item.first; const auto val = item.second;   
+                MatType*& ptr = this->m_cloned[this->incFunc()];             
+                MATRIX_SCALAR_MUL(mp_arr10_val, val, ptr);                           
+                if(auto it2 = cache->find(idx); it2 != cache->end()) {                    
+                  MATRIX_ADD((*cache)[idx], ptr, (*cache)[idx]);                    
+                } else {                                                                  
+                  (*cache)[idx] = ptr;                                              
+              }});                                                                        
+    } else {
+      // Cached value
+      if(auto it = cache->find(m_nidx); it != cache->end()) {
+        // Cache
+        const auto cCache = it->second;
+        
+        // Traverse right node
+        if (false == mp_right->m_visited) {
+          mp_right->traverse(cache);
+        }
+
+        // Get raw pointers to right matrix
+        const Matrix<Type>* right_mat = mp_right->eval(); 
+
+        /* IMPORTANT: The derivative is computed here */
+        // Matrix transpose-inverse
+        MATRIX_TRANSPOSE(right_mat, mp_arr[11]);
+        MATRIX_INVERSE(mp_arr[11], mp_arr[12]);
+        MATRIX_MUL(mp_arr[12], cCache, mp_arr[13]);
+        MATRIX_MUL(mp_arr[13], mp_arr[12], mp_arr[14]);
+        MATRIX_SCALAR_MUL(-1,  mp_arr[14],  mp_arr[15]);
+      
+        const auto mp_arr15_val = (*mp_arr[15])(0,0);
+
+        if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
+          MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[15], (*cache)[mp_right->m_nidx]); 
+        } else {
+          (*cache)[mp_right->m_nidx] = mp_arr[15];
+        }
+
+        for(const auto& [k,v] : (*cache)) {                                                     
+          (*cache)[k] = v->clone(this->m_cloned[this->incFunc()]);                              
+        }  
+
+        std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(),         
+                      [&](const auto &item) {                                                   
+                        const auto idx = item.first; const auto val = item.second;  
+                        MatType*& ptr = this->m_cloned[this->incFunc()];            
+                        MATRIX_SCALAR_MUL(mp_arr15_val, val, ptr);                         
+                        if(auto it2 = cache->find(idx); it2 != cache->end()) {                  
+                          MATRIX_ADD((*cache)[idx], ptr, (*cache)[idx]);                  
+                        } else {                                                                
+                          (*cache)[idx] = ptr;                                            
+                        }                                                                       
+        });
+      }
+    }
+
+    // Traverse right node
+    if (false == mp_right->m_visited) {
+      mp_right->traverse(cache);
+    }
+  }
+
   // Reset visit run-time
   V_OVERRIDE(void reset()) { 
     BINARY_MAT_RIGHT_RESET(); 
@@ -156,6 +271,7 @@ using GenericMatInvT = GenericMatInv<T, OpMatType>;
 // Function for inverse computation
 template <typename T> 
 constexpr const auto& inv(const IMatrix<T>& u) {
-  auto tmp = Allocate<GenericMatInvT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpMatObj);
+  const auto& _u = u.cloneExp();
+  auto tmp = Allocate<GenericMatInvT<T>>(const_cast<T*>(static_cast<const T*>(&_u)), OpMatObj);
   return *tmp;
 }

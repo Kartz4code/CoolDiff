@@ -32,7 +32,7 @@ private:
 
   // Friend function
   template <typename T>
-  friend inline Expression &SymDiff(T &, const Variable &);
+  friend inline Expression& SymDiff(T&, const Variable&);
 
 public:
   static Expression t0;
@@ -41,43 +41,47 @@ public:
   // Default constructor
   Expression();
 
-  template <typename T> Expression(const IVariable<T> &expr) {
+  template <typename T> 
+  Expression(const IVariable<T>& expr) {
     Variable::m_nidx = this->m_idx_count++;
     // Reserve a buffer of expressions
     Variable::m_gh_vec.reserve(g_vec_init);
     // Emplace the expression in a generic holder
-    Variable::m_gh_vec.push_back((Expression *)(&(expr * (Type)(1))));
+    Variable::m_gh_vec.push_back((Expression*)(&(expr*(Type)(1))));
   }
 
-  Expression(const Expression &);
+  // Expression copy constructor 
+  Expression(const Expression&);
 
   // Copy assignment for expression evaluation - e.g.Variable x = x1 + x2 + x3;
-  template <typename T> Expression &operator=(const IVariable<T> &expr) {
-    if (auto rec = static_cast<const T &>(expr).findMe(this); rec == false) {
+  template <typename T> 
+  Expression& operator=(const IVariable<T>& expr) {
+    if (auto rec = static_cast<const T&>(expr).findMe(this); rec == false) {
       m_gh_vec.clear();
     } else {
       m_recursive_exp = rec;
     }
 
     // Emplace the expression in a generic holder
-    Variable::m_gh_vec.push_back((Expression *)(&(expr * (Type)(1))));
+    Variable::m_gh_vec.push_back((Expression*)(&(expr*(Type)(1))));
     return *this;
   }
 
-  Expression &operator=(const Expression &);
+  // Expression copy assigment operator
+  Expression& operator=(const Expression&);
 
   // Is recursive expression
   bool isRecursive() const;
 
   // Symbolic differentiation of expression
-  Expression &SymDiff(const Variable &);
+  Expression& SymDiff(const Variable&);
 
   // Expression factory
   class ExpressionFactory {
   public:
-    template <typename T, typename = std::enable_if_t<is_valid_v<T>>>
-    inline static Expression &CreateExpression(const T &exp) {
-      if constexpr (true == is_numeric_v<T>) {
+    template <typename T, typename = std::enable_if_t<CoolDiff::Scalar::Details::is_valid_v<T>>>
+    inline static Expression& CreateExpression(const T& exp) {
+      if constexpr (true == CoolDiff::Scalar::Details::is_numeric_v<T>) {
         auto tmp = Allocate<Expression>(*Allocate<Parameter>(exp)).get();
         return *tmp;
       } else {

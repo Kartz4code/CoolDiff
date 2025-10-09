@@ -40,8 +40,8 @@ Expression::Expression(const Expression& expr) {
   Variable::m_gh_vec.push_back((Expression*)(&expr));
 }
 
-Expression &Expression::operator=(const Expression& expr) {
-  if (auto rec = static_cast<const Expression&>(expr).findMe(this); rec == false) {
+Expression& Expression::operator=(const Expression& expr) {
+  if(auto rec = static_cast<const Expression&>(expr).findMe(this); rec == false) {
     m_gh_vec.clear();
   } else {
     m_recursive_exp = rec;

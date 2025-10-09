@@ -107,10 +107,16 @@ Matrix<T>* Matrix<T>::clone(Matrix<T>*& mat) const {
   return mat;
 } 
 
+ // Clone matrix expression
+template<typename T>
+constexpr const auto& Matrix<T>::cloneExp() const {
+  return *this;
+}
+
 // Constructor with rows and columns with initial values
 template<typename T>
 Matrix<T>::Matrix(const size_t rows, const size_t cols, const T& val) : Matrix(rows, cols) {
-  static_assert(is_numeric_v<T> == true, "Type of matrix is not numeric");
+  static_assert(CoolDiff::Scalar::Details::is_numeric_v<T> == true, "Type of matrix is not numeric");
   std::fill(EXECUTION_PAR mp_mat, mp_mat + getNumElem(), val);
 }
 

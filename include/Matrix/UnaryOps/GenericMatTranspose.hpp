@@ -71,6 +71,11 @@ public:
     BINARY_RIGHT_FIND_ME(); 
   }
 
+   // Clone matrix expression
+  constexpr const auto& cloneExp() const {
+    return transpose(*mp_right);
+  }
+
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type>* eval()) {
     // Get raw pointers to result and right matrices
@@ -234,6 +239,7 @@ using GenericMatTransposeT = GenericMatTranspose<T, OpMatType>;
 // Function for transpose computation
 template <typename T> 
 constexpr const auto& transpose(const IMatrix<T>& u) {
-  auto tmp = Allocate<GenericMatTransposeT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpMatObj);
+  const auto& _u = u.cloneExp();
+  auto tmp = Allocate<GenericMatTransposeT<T>>(const_cast<T*>(static_cast<const T*>(&_u)), OpMatObj);
   return *tmp;
 }

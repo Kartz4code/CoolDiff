@@ -86,6 +86,11 @@ public:
     BINARY_FIND_ME(); 
   }
 
+   // Clone matrix expression
+  constexpr const auto& cloneExp() const {
+    return (*mp_left)*(*mp_right);
+  }
+
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type>* eval()) {
     // Check whether dimensions are correct
@@ -342,8 +347,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericMatScalarProduct)
-  DISABLE_MOVE(GenericMatScalarProduct)
+  #if 0
+    DISABLE_COPY(GenericMatScalarProduct)
+    DISABLE_MOVE(GenericMatScalarProduct)
+  #endif
 
   // All matrices
   inline static constexpr const size_t m_size{5};
@@ -376,6 +383,11 @@ public:
   // Find me
   bool findMe(void* v) const { 
     BINARY_RIGHT_FIND_ME(); 
+  }
+
+   // Clone matrix expression
+  constexpr const auto& cloneExp() const {
+    return m_left*(*mp_right);
   }
 
   // Matrix eval computation
@@ -533,8 +545,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericMatScalarProductExp)
-  DISABLE_MOVE(GenericMatScalarProductExp)
+  #if 0
+    DISABLE_COPY(GenericMatScalarProductExp)
+    DISABLE_MOVE(GenericMatScalarProductExp)
+  #endif
 
   // All matrices
   inline static constexpr const size_t m_size{7};
@@ -569,6 +583,11 @@ public:
     BINARY_RIGHT_FIND_ME(); 
   }
 
+   // Clone matrix expression
+  constexpr const auto& cloneExp() const {
+    return (*mp_left)*(*mp_right);
+  }
+
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type>* eval()) {
     // Get raw pointers to result and right matrices
@@ -580,7 +599,7 @@ public:
       }                                                                          
     });
 
-    const Type val = Eval((*mp_left));
+    const Type val = CoolDiff::Scalar::Eval((*mp_left));
 
     // Matrix-Scalar addition computation (Policy design)
     MATRIX_SCALAR_MUL(val, right_mat, mp_arr[0]);
@@ -606,7 +625,7 @@ public:
     DevalR((*mp_left), X, mp_arr[2]);
 
     // Evaluate left expression
-    const Type val = Eval((*mp_left));
+    const Type val = CoolDiff::Scalar::Eval((*mp_left));
 
     const size_t nrows_x = X.getNumRows();
     const size_t ncols_x = X.getNumColumns();
@@ -657,8 +676,10 @@ using GenericMatScalarProductExpT = GenericMatScalarProductExp<T1, T2, OpMatType
 // Function for product computation
 template <typename T1, typename T2>
 constexpr const auto& operator*(const IMatrix<T1>& u, const IMatrix<T2>& v) {
-  auto tmp = Allocate<GenericMatProductT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&u)),
-                                                  const_cast<T2*>(static_cast<const T2*>(&v)), 
+  const auto& _u = u.cloneExp();
+  const auto& _v = v.cloneExp();
+  auto tmp = Allocate<GenericMatProductT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&_u)),
+                                                  const_cast<T2*>(static_cast<const T2*>(&_v)), 
                                                   OpMatObj);
   return *tmp;
 }
@@ -666,41 +687,49 @@ constexpr const auto& operator*(const IMatrix<T1>& u, const IMatrix<T2>& v) {
 // Function for product computation
 template <typename T>
 constexpr const auto& operator*(Type u, const IMatrix<T>& v) {
-  auto tmp = Allocate<GenericMatScalarProductT<T>>(u, const_cast<T *>(static_cast<const T*>(&v)), OpMatObj);
+  const auto& _v = v.cloneExp();
+  auto tmp = Allocate<GenericMatScalarProductT<T>>(u, const_cast<T *>(static_cast<const T*>(&_v)), OpMatObj);
   return *tmp;
 }
 
 template <typename T>
 constexpr const auto& operator*(const IMatrix<T>& v, Type u) {
-  return (u * v);
+  const auto& _v = v.cloneExp();
+  return (u * _v);
 }
 
 template <typename T>
 constexpr const auto& operator/(const IMatrix<T>& v, Type u) {
-  return (((Type)(1)/u) * v);
+  const auto& _v = v.cloneExp();
+  return (((Type)(1)/u) * _v);
 }
 
 template <typename T1, typename T2>
 constexpr const auto& operator/(const IMatrix<T1>& u, const IMatrix<T2>& v) {
-  return (u*inv(v));
+  const auto& _u = u.cloneExp();
+  const auto& _v = v.cloneExp();
+  return (_u*inv(_v));
 }
 
 // Matrix multiplication with scalar (LHS) - SFINAE'd
 template <typename T1, typename T2, typename = ExpType<T1>>
 constexpr const auto& operator*(const T1& v, const IMatrix<T2>& u) {
+  const auto& _u = u.cloneExp();
   auto tmp = Allocate<GenericMatScalarProductExpT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&v)),
-                                                           const_cast<T2*>(static_cast<const T2*>(&u)), 
+                                                           const_cast<T2*>(static_cast<const T2*>(&_u)), 
                                                            OpMatObj);
   return *tmp;
 }
 
 template <typename T1, typename T2, typename = ExpType<T1>>
 constexpr const auto& operator/(const IMatrix<T2>& u, const T1& v) {
-  return (u * (1/v));
+  const auto& _u = u.cloneExp();
+  return (_u * (1/v));
 }
 
 // Matrix sum with scalar (RHS) - SFINAE'd
 template <typename T1, typename T2, typename = ExpType<T2>>
 constexpr const auto& operator*(const IMatrix<T1>& u, const T2& v) {
-  return (v * u);
+  const auto& _u = u.cloneExp();
+  return (v * _u);
 }

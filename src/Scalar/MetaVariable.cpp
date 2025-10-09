@@ -22,12 +22,14 @@
 #include "MetaVariable.hpp"
 #include "Variable.hpp"
 
-// Reset temporaries
+// Reset value and derivative temporaries
 void MetaVariable::resetTemp() {
+  // Reset value temporaries
   if (nullptr != this->mp_tmp) {
     this->mp_tmp->reset();
   }
 
+  // Reset derivative temporaries
   std::for_each(EXECUTION_SEQ this->mp_dtmp.begin(), this->mp_dtmp.end(),
                 [](auto& item) {
                   if (auto* v = item.second; nullptr != v) {

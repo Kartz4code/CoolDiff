@@ -119,7 +119,7 @@ void GaussNewton::updateScalar(const size_t var_size) {
   const auto idx = Range<size_t>(0, var_size);
   std::for_each(
       EXECUTION_PAR idx.begin(), idx.end(),
-      [this, &X](const size_t i) { X[i] = Eval(X[i]) - (*m_delX)[i]; });
+      [this, &X](const size_t i) { X[i] = CoolDiff::Scalar::Eval(X[i]) - (*m_delX)[i]; });
 }
 
 // Update values for matrix solve
@@ -129,7 +129,7 @@ void GaussNewton::updateMatrix(const size_t var_size) {
   // Update all variable values
   const auto idx = Range<size_t>(0, var_size);
   std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
-                [this, &X](const size_t i) { X[i] = Eval(X[i]) - (*m_delX)[i]; });
+                [this, &X](const size_t i) { X[i] = CoolDiff::Scalar::Eval(X[i]) - (*m_delX)[i]; });
 }
 
 // Update
