@@ -131,7 +131,7 @@ class Generic##OPS : public IVariable<Generic##OPS<T1, T2, Callables...>> {     
     V_OVERRIDE(OMPair &getCache()) { return m_cache; }                                                \
     V_OVERRIDE(void reset()) { BINARY_RESET(); }                                                      \
     V_OVERRIDE(std::string_view getType() const) { return TOSTRING(Generic##OPS); }                   \
-    V_OVERRIDE(bool findMe(void *v) const) { BINARY_FIND_ME(); }                                      \
+    bool findMe(void* v) const { BINARY_FIND_ME(); }                                                  \
     V_DTR(~Generic##OPS()) = default;                                                                 \
   };                                                                                                  \
 template <typename T1, typename T2>                                                                   \
@@ -219,7 +219,7 @@ class Generic##OPS<Type, T, Callables...> : public IVariable<Generic##OPS<Type, 
     V_OVERRIDE(OMPair& getCache()) { return m_cache; }                                               \
     V_OVERRIDE(void reset()) { BINARY_RIGHT_RESET(); }                                               \
     V_OVERRIDE(std::string_view getType() const) { return TOSTRING(Generic##OPS); }                  \
-    V_OVERRIDE(bool findMe(void* v) const) { BINARY_RIGHT_FIND_ME(); }                               \
+    bool findMe(void* v) const { BINARY_RIGHT_FIND_ME(); }                                           \
     V_DTR(~Generic##OPS()) = default;                                                                \
 };                                                                                                   \
 template <typename T>                                                                                \
@@ -305,7 +305,7 @@ public:                                                                         
     V_OVERRIDE(OMPair& getCache()) { return m_cache; }                                               \
     V_OVERRIDE(void reset()) { BINARY_LEFT_RESET(); }                                                \
     V_OVERRIDE(std::string_view getType() const) { return TOSTRING(Generic##OPS); }                  \
-    V_OVERRIDE(bool findMe(void* v) const) { BINARY_LEFT_FIND_ME(); }                                \
+    bool findMe(void* v) const { BINARY_LEFT_FIND_ME(); }                                            \
     V_DTR(~Generic##OPS()) = default;                                                                \
 };                                                                                                   \
 template <typename T>                                                                                \

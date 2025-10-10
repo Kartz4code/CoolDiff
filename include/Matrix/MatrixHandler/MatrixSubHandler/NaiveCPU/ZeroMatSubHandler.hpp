@@ -39,7 +39,7 @@ class ZeroMatSubHandler : public T {
             // Assert dimensions
             ASSERT((nrows == rrows) && (ncols == lcols), "Matrix subtraction dimensions mismatch");
 
-            #if defined(NAIVE_IMPL)
+            #if defined(USE_SYMBOLIC_CHECK)
                 /* Zero matrix special check */
                 if (auto *it = ZeroMatSub(lhs, rhs); nullptr != it) {
                     if (it == lhs) {
@@ -58,7 +58,7 @@ class ZeroMatSubHandler : public T {
                     return;
                 }
                 /* Zero matrix numerical check */
-                #if defined(NUMERICAL_CHECK)
+                #if defined(USE_NUMERICAL_CHECK)
                     else if (auto *it = ZeroMatSubNum(lhs, rhs); nullptr != it) {
                         if (it == lhs) {
                             result = const_cast<Matrix<Type> *>(lhs);

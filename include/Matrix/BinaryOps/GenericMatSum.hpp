@@ -554,7 +554,7 @@ public:
   V_OVERRIDE(Matrix<Type>* eval()) {
     // Get raw pointers to result and right matrices
     const Matrix<Type>* right_mat = mp_right->eval();
-    const Type val = CoolDiff::Scalar::Eval((*mp_left));
+    const Type val = CoolDiff::TensorR1::Eval((*mp_left));
 
     std::for_each(EXECUTION_PAR mp_arr, mp_arr + m_size, [&](Matrix<Type>*& m) {
       if (nullptr != m) {                   
@@ -648,7 +648,7 @@ constexpr const auto &operator+(const IMatrix<T>& v, Type u) {
 }
 
 // Matrix sum with scalar (LHS) - SFINAE'd
-template <typename T1, typename T2, typename = ExpType<T1>>
+template <typename T1, typename T2, typename = CoolDiff::TensorR1::Details::is_pure_metavariable_v<T1>>
 constexpr const auto &operator+(const T1& v, const IMatrix<T2>& u) {
   const auto& _u = u.cloneExp();
   auto tmp = Allocate<GenericMatScalarSumExpT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&v)),
@@ -658,7 +658,7 @@ constexpr const auto &operator+(const T1& v, const IMatrix<T2>& u) {
 }
 
 // Matrix sum with scalar (RHS) - SFINAE'd
-template <typename T1, typename T2, typename = ExpType<T2>>
+template <typename T1, typename T2, typename = CoolDiff::TensorR1::Details::is_pure_metavariable_v<T2>>
 constexpr const auto &operator+(const IMatrix<T1>& u, const T2& v) {
   const auto& _u = u.cloneExp();
   return v + _u;

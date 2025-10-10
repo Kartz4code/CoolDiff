@@ -29,7 +29,7 @@ template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticH
 class ZeroMatTransposeHandler : public T {
     public:
       void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
-        #if defined(NAIVE_IMPL)
+        #if defined(USE_SYMBOLIC_CHECK)
           /* Zero matrix special check */
           if (true == IsZeroMatrix(mat)) {
             // Rows and columns of result matrix

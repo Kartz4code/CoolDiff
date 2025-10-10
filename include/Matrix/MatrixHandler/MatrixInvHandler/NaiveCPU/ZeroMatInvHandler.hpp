@@ -34,7 +34,7 @@
       // Assert squareness
       ASSERT((nrows == ncols), "Matrix is not square for inverse computation");
 
-      #if defined(NAIVE_IMPL)
+      #if defined(USE_SYMBOLIC_CHECK)
         /* Zero matrix special check */
         if (true == IsZeroMatrix(mat)) {
           ASSERT(false, "Inverse of a zero matrix");

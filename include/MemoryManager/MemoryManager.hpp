@@ -52,7 +52,8 @@ public:
 };
 
 // Delete resource
-template <typename T> void DelPtr(T* ptr) {
+template <typename T> 
+void DelPtr(T* ptr) {
   if (nullptr != ptr) {
     delete ptr;
     ptr = nullptr;

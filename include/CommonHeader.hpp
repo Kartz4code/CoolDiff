@@ -39,11 +39,8 @@
 #include <type_traits>
 #include <vector>
 
-// Naive implementation of matrix algorithms
-#define NAIVE_IMPL
-//#define NUMERICAL_CHECK
-
-/* Matrix transpose based matrix multiplication (Naive implementation) [Deprecated]
+/* [Deprecated]
+  Matrix transpose based matrix multiplication (Naive implementation) 
   #define MATRIX_TRANSPOSED_MUL
 */
 

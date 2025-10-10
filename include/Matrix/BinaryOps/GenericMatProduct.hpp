@@ -599,7 +599,7 @@ public:
       }                                                                          
     });
 
-    const Type val = CoolDiff::Scalar::Eval((*mp_left));
+    const Type val = CoolDiff::TensorR1::Eval((*mp_left));
 
     // Matrix-Scalar addition computation (Policy design)
     MATRIX_SCALAR_MUL(val, right_mat, mp_arr[0]);
@@ -625,7 +625,7 @@ public:
     DevalR((*mp_left), X, mp_arr[2]);
 
     // Evaluate left expression
-    const Type val = CoolDiff::Scalar::Eval((*mp_left));
+    const Type val = CoolDiff::TensorR1::Eval((*mp_left));
 
     const size_t nrows_x = X.getNumRows();
     const size_t ncols_x = X.getNumColumns();
@@ -712,7 +712,7 @@ constexpr const auto& operator/(const IMatrix<T1>& u, const IMatrix<T2>& v) {
 }
 
 // Matrix multiplication with scalar (LHS) - SFINAE'd
-template <typename T1, typename T2, typename = ExpType<T1>>
+template <typename T1, typename T2, typename = CoolDiff::TensorR1::Details::is_pure_metavariable_v<T1>>
 constexpr const auto& operator*(const T1& v, const IMatrix<T2>& u) {
   const auto& _u = u.cloneExp();
   auto tmp = Allocate<GenericMatScalarProductExpT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&v)),
@@ -721,14 +721,14 @@ constexpr const auto& operator*(const T1& v, const IMatrix<T2>& u) {
   return *tmp;
 }
 
-template <typename T1, typename T2, typename = ExpType<T1>>
+template <typename T1, typename T2, typename = CoolDiff::TensorR1::Details::is_pure_metavariable_v<T1>>
 constexpr const auto& operator/(const IMatrix<T2>& u, const T1& v) {
   const auto& _u = u.cloneExp();
   return (_u * (1/v));
 }
 
 // Matrix sum with scalar (RHS) - SFINAE'd
-template <typename T1, typename T2, typename = ExpType<T2>>
+template <typename T1, typename T2, typename = CoolDiff::TensorR1::Details::is_pure_metavariable_v<T2>>
 constexpr const auto& operator*(const IMatrix<T1>& u, const T2& v) {
   const auto& _u = u.cloneExp();
   return (v * _u);

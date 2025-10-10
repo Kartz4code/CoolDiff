@@ -62,9 +62,6 @@ public:
   // Reset all visited flags
   V_PURE(void reset());
 
-  // Find me (TODO - Move to IVariable class)
-  V_PURE(bool findMe(void*) const);
-
   // Get type
   V_PURE(std::string_view getType() const);
 

@@ -62,14 +62,14 @@ UNARY_SCALAR_OPERATOR(CosS, [](Type a) { return std::cos(a); },
 
 /* Custom functions (Binary operations) */
 // Product scalar
-BINARY_SCALAR_OPERATOR(ProductS, [](const Type u, const Type v) { return u * v; },
-                                [](const Type u, const Type v) { return v; },
-                                [](const Type u, const Type v) { return u; })
+BINARY_SCALAR_OPERATOR(ProductS,  [](const Type u, const Type v) { return u * v; },
+                                  [](const Type u, const Type v) { return v; },
+                                  [](const Type u, const Type v) { return u; })
 
 // Namespace CoolDiff
 namespace CoolDiff {
   // Namespace Scalar
-  namespace Scalar {
+  namespace TensorR1 {
     // Namespace Details
     namespace Details {
       // Main evaluate expression function
@@ -91,11 +91,11 @@ namespace CoolDiff {
       Expression& SymDiffExp(Expression&, const Variable&);
     }
 
-    template <typename T, typename = std::enable_if_t<CoolDiff::Scalar::Details::is_valid_v<T>>> 
+    template <typename T, typename = std::enable_if_t<CoolDiff::TensorR1::Details::is_valid_scalar_v<T>>> 
     inline Type Eval(T& v) {
       // If T is Expression
       if constexpr (true == std::is_same_v<Expression, T>) {
-        return Details::EvalExp(v);
+        return CoolDiff::TensorR1::Details::EvalExp(v);
       }
       // If T is Parameter
       else if constexpr (true == std::is_same_v<T, Parameter>) {
@@ -108,10 +108,10 @@ namespace CoolDiff {
       // If T is an expression template
       else if constexpr (true == std::is_base_of_v<MetaVariable, T>) {
         Expression exp{v};
-        return Details::EvalExp(exp);
+        return CoolDiff::TensorR1::Details::EvalExp(exp);
       }
       // If T is Numeric type
-      else if constexpr (true == CoolDiff::Scalar::Details::is_numeric_v<T>) {
+      else if constexpr (true == CoolDiff::TensorR1::Details::is_numeric_v<T>) {
         return (Type)(v);
       }
       // If unknown type, throw error
@@ -121,24 +121,24 @@ namespace CoolDiff {
       }
     }
 
-    template <typename T, typename = std::enable_if_t<CoolDiff::Scalar::Details::is_valid_v<T>>> 
+    template <typename T, typename = std::enable_if_t<CoolDiff::TensorR1::Details::is_valid_scalar_v<T>>> 
     inline Type DevalF(T& v, const Variable& var) {
       // If T is Expression
       if constexpr (true == std::is_same_v<Expression, T>) {
-        return Details::DevalFExp(v, var);
+        return CoolDiff::TensorR1::Details::DevalFExp(v, var);
       }
       // If T is Variable
       else if constexpr (true == std::is_same_v<T, Variable>) {
         return ((v.m_nidx == var.m_nidx) ? (Type)(1) : (Type)(0));
       }
       // If T is Parameter or Numeric type
-      else if constexpr (true == std::is_same_v<T, Parameter> || true == CoolDiff::Scalar::Details::is_numeric_v<T>) {
+      else if constexpr (true == std::is_same_v<T, Parameter> || true == CoolDiff::TensorR1::Details::is_numeric_v<T>) {
         return (Type)(0);
       }
       // If T is an expression template
       else if constexpr (true == std::is_base_of_v<MetaVariable, T>) {
         Expression exp{v};
-        return Details::DevalFExp(exp, var);
+        return CoolDiff::TensorR1::Details::DevalFExp(exp, var);
       }
       // If unknown type, throw error
       else {
@@ -148,21 +148,21 @@ namespace CoolDiff {
 
     template <typename T, typename = std::enable_if_t<std::is_same_v<T, Expression>>> 
     inline void PreComp(T& v) {
-      Details::PreCompExp(v);
+      CoolDiff::TensorR1::Details::PreCompExp(v);
     }
 
-    template <typename T, typename = std::enable_if_t<CoolDiff::Scalar::Details::is_valid_v<T>>> 
+    template <typename T, typename = std::enable_if_t<CoolDiff::TensorR1::Details::is_valid_scalar_v<T>>> 
     inline Type DevalR(T& v, const Variable& var) {
       // If T is Expression
       if constexpr (true == std::is_same_v<Expression, T>) {
-        return Details::DevalRExp(v, var);
+        return CoolDiff::TensorR1::Details::DevalRExp(v, var);
       }
       // If T is Variable
       else if constexpr (true == std::is_same_v<T, Variable>) {
         return ((v.m_nidx == var.m_nidx) ? (Type)(1) : (Type)(0));
       }
       // If T is Parameter or Numeric type
-      else if constexpr (true == std::is_same_v<T, Parameter> || true == CoolDiff::Scalar::Details::is_numeric_v<T>) {
+      else if constexpr (true == std::is_same_v<T, Parameter> || true == CoolDiff::TensorR1::Details::is_numeric_v<T>) {
         return (Type)(0);
       }
       // If unknown type, throw error
@@ -173,27 +173,27 @@ namespace CoolDiff {
 
     template <typename T, typename = std::enable_if_t<std::is_same_v<T, Expression>>> 
     inline OMPair& PreCompCache(T& v) {
-      return Details::PreCompCacheExp(v);
+      return CoolDiff::TensorR1::Details::PreCompCacheExp(v);
     }
 
-    template <typename T, typename = std::enable_if_t<CoolDiff::Scalar::Details::is_valid_v<T>>> 
+    template <typename T, typename = std::enable_if_t<CoolDiff::TensorR1::Details::is_valid_scalar_v<T>>> 
     inline Expression& SymDiff(T& v, const Variable& var) {
       // If T is Expression
       if constexpr (true == std::is_same_v<Expression, T>) {
-        return Details::SymDiffExp(v, var);
+        return CoolDiff::TensorR1::Details::SymDiffExp(v, var);
       }
       // If T is Variable
       else if constexpr (true == std::is_same_v<T, Variable>) {
         return ((v.m_nidx == var.m_nidx) ? Expression::t1 : Expression::t0);
       }
       // If T is Parameter or Numeric type
-      else if constexpr (true == std::is_same_v<T, Parameter> || true == CoolDiff::Scalar::Details::is_numeric_v<T>) {
+      else if constexpr (true == std::is_same_v<T, Parameter> || true == CoolDiff::TensorR1::Details::is_numeric_v<T>) {
         return Expression::t0;
       }
       // If T is an expression template
       else if constexpr (true == std::is_base_of_v<MetaVariable, T>) {
         auto exp = Allocate<Expression>(const_cast<std::decay_t<T>&>(v));
-        return Details::SymDiffExp(*exp, var);
+        return CoolDiff::TensorR1::Details::SymDiffExp(*exp, var);
       }
       // If unknown type, throw error
       else {

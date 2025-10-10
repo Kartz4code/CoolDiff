@@ -119,7 +119,7 @@ void GaussNewton::updateScalar(const size_t var_size) {
   const auto idx = Range<size_t>(0, var_size);
   std::for_each(
       EXECUTION_PAR idx.begin(), idx.end(),
-      [this, &X](const size_t i) { X[i] = CoolDiff::Scalar::Eval(X[i]) - (*m_delX)[i]; });
+      [this, &X](const size_t i) { X[i] = CoolDiff::TensorR1::Eval(X[i]) - (*m_delX)[i]; });
 }
 
 // Update values for matrix solve
@@ -129,7 +129,7 @@ void GaussNewton::updateMatrix(const size_t var_size) {
   // Update all variable values
   const auto idx = Range<size_t>(0, var_size);
   std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
-                [this, &X](const size_t i) { X[i] = CoolDiff::Scalar::Eval(X[i]) - (*m_delX)[i]; });
+                [this, &X](const size_t i) { X[i] = CoolDiff::TensorR1::Eval(X[i]) - (*m_delX)[i]; });
 }
 
 // Update
@@ -147,7 +147,7 @@ void GaussNewton::update(const size_t var_size) {
 }
 
 // Set data (X,Y,size)
-GaussNewton& GaussNewton::setData(Matrix<Type> *X, Matrix<Type> *Y) {
+GaussNewton& GaussNewton::setData(Matrix<Type>* X, Matrix<Type>* Y) {
   ASSERT((X->getNumRows() == Y->getNumRows()), "Number of input/output rows are not equal");
   ASSERT((X->getNumColumns() == Y->getNumColumns()), "Number of input/output rows are not equal");
   m_size = X->getNumRows(); m_X = X; m_Y = Y;
@@ -155,13 +155,13 @@ GaussNewton& GaussNewton::setData(Matrix<Type> *X, Matrix<Type> *Y) {
 }
 
 // Set data parameters
-GaussNewton& GaussNewton::setDataParameters(Matrix<Parameter> *PX, Matrix<Parameter> *PY) {
+GaussNewton& GaussNewton::setDataParameters(Matrix<Parameter>* PX, Matrix<Parameter>* PY) {
   m_DX = PX; m_DY = PY;
   return *this;
 }
 
 // Set oracle
-GaussNewton& GaussNewton::setOracle(Oracle *oracle) {
+GaussNewton& GaussNewton::setOracle(Oracle* oracle) {
   m_oracle = oracle;
   m_oracle_type = oracle->getOracleType();
   return *this;

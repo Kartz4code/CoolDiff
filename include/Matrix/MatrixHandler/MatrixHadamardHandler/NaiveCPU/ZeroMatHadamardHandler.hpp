@@ -39,7 +39,7 @@ class ZeroMatHadamardHandler : public T {
           // Assert dimensions
           ASSERT((nrows == rrows) && (ncols == lcols), "Matrix Hadamard product dimensions mismatch");
 
-          #if defined(NAIVE_IMPL)
+          #if defined(USE_SYMBOLIC_CHECK)
             /* Zero matrix special check */
             if (auto *it = ZeroMatHadamard(lhs, rhs); nullptr != it) {
               result = const_cast<Matrix<Type> *>(it);
@@ -47,7 +47,7 @@ class ZeroMatHadamardHandler : public T {
             }
 
             /* Zero matrix numerical check */
-            #if defined(NUMERICAL_CHECK)
+            #if defined(USE_NUMERICAL_CHECK)
               else if (auto *it = ZeroMatHadamardNum(lhs, rhs); nullptr != it) {
                 result = const_cast<Matrix<Type> *>(it);
                 return;

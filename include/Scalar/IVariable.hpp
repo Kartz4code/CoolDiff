@@ -43,6 +43,11 @@ protected:
   IVariable() = default;
 
 public:
+  // Find me
+  bool findMe(void* v) const {  
+    return derived().findMe(v); 
+  }
+
   // Protected destructor
   V_DTR(~IVariable()) = default;
 };
@@ -88,11 +93,11 @@ public:
 
 // Is a valid numeric type (Numeric here indicates both arithmetic and Type)
 namespace CoolDiff {
-  namespace Scalar {
+  namespace TensorR1 {
     namespace Details {  
       // Policy based design (Scalar doesn't need one, yet!)
       struct __XOXO__ {};
-      #define OpType CoolDiff::Scalar::Details::__XOXO__
+      #define OpType CoolDiff::TensorR1::Details::__XOXO__
       #define OpObj OpType()
       
       // Operations enum [Order matters!]
@@ -107,7 +112,13 @@ namespace CoolDiff {
 
       // Is a valid scalar type
       template <typename T>
-      constexpr inline static const bool is_valid_v = (true == std::is_base_of_v<MetaVariable, T> || true == is_numeric_v<T>);
+      constexpr inline static const bool is_valid_scalar_v = (true == std::is_base_of_v<MetaVariable, T> || true == is_numeric_v<T>);
+
+      // Is pure metavariable type
+      template <typename T>
+      using is_pure_metavariable_v = std::enable_if_t<true == std::is_base_of_v<MetaVariable, T> &&
+                                                      false == std::is_arithmetic_v<T> &&
+                                                      false == std::is_same_v<Type, T>>;
     }
   }
 }

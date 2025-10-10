@@ -331,14 +331,14 @@ constexpr const auto& operator-(const IMatrix<T>& u, const Type& v) {
 }
 
 // Matrix sub with scalar (LHS) - SFINAE'd
-template <typename T1, typename T2, typename = ExpType<T1>>
+template <typename T1, typename T2, typename = CoolDiff::TensorR1::Details::is_pure_metavariable_v<T1>>
 constexpr const auto& operator-(const T1& v, const IMatrix<T2>& u) {
   const auto& _u = u.cloneExp();
   return (v + ((Type)(-1) * _u));
 }
 
 // Matrix sub with scalar (RHS) - SFINAE'd
-template <typename T1, typename T2, typename = ExpType<T2>>
+template <typename T1, typename T2, typename = CoolDiff::TensorR1::Details::is_pure_metavariable_v<T2>>
 constexpr const auto& operator-(const IMatrix<T1>& u, const T2& v) {
   const auto& _u = u.cloneExp();
   return (_u + ((Type)(-1) * v));

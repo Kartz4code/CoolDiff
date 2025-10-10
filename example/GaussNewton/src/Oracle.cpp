@@ -22,15 +22,13 @@
 #include "OracleMatrix.hpp"
 #include "OracleScalar.hpp"
 
-Oracle *Oracle::OracleFactory::CreateOracle(Expression &exp,
-                                            Matrix<Variable> &X) {
+Oracle* Oracle::OracleFactory::CreateOracle(Expression& exp, Matrix<Variable>& X) {
   auto it = SharedPtr<Oracle>(new OracleScalar(exp, X));
   m_oracle_factory.push_back(it);
   return it.get();
 }
 
-Oracle *Oracle::OracleFactory::CreateOracle(Matrix<Expression> &exp,
-                                            Matrix<Variable> &X) {
+Oracle* Oracle::OracleFactory::CreateOracle(Matrix<Expression>& exp, Matrix<Variable>& X) {
   auto it = SharedPtr<Oracle>(new OracleMatrix(exp, X));
   m_oracle_factory.push_back(it);
   return it.get();

@@ -29,36 +29,45 @@ set(TEST_EXECUTABLE2 MatTest)
 if(${BUILD_UNITTESTS})
 ##################################################################################################################################
     
-# Add executable (target testing)
+    # [Add executable (target testing)]
     add_executable(${TEST_EXECUTABLE} ${CMAKE_SOURCE_DIR}/test/OpsTest.cpp)
-    # Set target include directories
-    target_include_directories(${TEST_EXECUTABLE} PUBLIC ${INCLUDES})
-    # Set compile options
-    target_compile_options(${TEST_EXECUTABLE} PRIVATE -fpermissive)
-    
-    target_link_libraries(${TEST_EXECUTABLE} PRIVATE gtest_main CoolDiff)
-    
-    if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
-        target_compile_options(${TEST_EXECUTABLE} PRIVATE -fno-omit-frame-pointer -fsanitize=address)
-        target_link_options(${TEST_EXECUTABLE} PRIVATE -fno-omit-frame-pointer -fsanitize=address)
-    endif()
 
+    # [Set target include directories]
+    target_include_directories(${TEST_EXECUTABLE} PUBLIC ${INCLUDES})
+
+    # [Link target libraries]
+    target_link_libraries(${TEST_EXECUTABLE} PRIVATE gtest_main CoolDiff)
+
+    # [Set compile options]
+    if(${ENABLE_COMPILER_WARNINGS})
+        target_compile_options(${TEST_EXECUTABLE} PRIVATE ${WARNING_FLAGS})
+    endif()
+    target_compile_options(${TEST_EXECUTABLE} PRIVATE ${PERMISSION_FLAGS})
+    target_compile_options(${TEST_EXECUTABLE} PRIVATE ${ATTACH_ADDRESS_SANITIZER})
+
+    # [Set link options]
+    target_link_options(${TEST_EXECUTABLE} PRIVATE ${ATTACH_ADDRESS_SANITIZER})
+    
 ##################################################################################################################################
 
-    # Add executable (target testing)
+    # [Add executable (target testing)]
     add_executable(${TEST_EXECUTABLE2} ${CMAKE_SOURCE_DIR}/test/MatTest.cpp)
-    # Set target include directories
+    
+    # [Set target include directories]
     target_include_directories(${TEST_EXECUTABLE2} PUBLIC ${INCLUDES})
-    # Set compile options
-    target_compile_options(${TEST_EXECUTABLE2} PRIVATE -fpermissive)
     
+    # [Link target libraries]
     target_link_libraries(${TEST_EXECUTABLE2} PRIVATE gtest_main CoolDiff)
-    
-    if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
-        target_compile_options(${TEST_EXECUTABLE2} PRIVATE -fno-omit-frame-pointer -fsanitize=address)
-        target_link_options(${TEST_EXECUTABLE2} PRIVATE -fno-omit-frame-pointer -fsanitize=address)
-    endif()
 
+    # [Set compile options]
+    if(${ENABLE_COMPILER_WARNINGS})
+        target_compile_options(${TEST_EXECUTABLE2} PRIVATE ${WARNING_FLAGS})
+    endif()
+    target_compile_options(${TEST_EXECUTABLE2} PRIVATE ${PERMISSION_FLAGS})
+    target_compile_options(${TEST_EXECUTABLE2} PRIVATE ${ATTACH_ADDRESS_SANITIZER})
+
+    # [Set link options]
+    target_link_options(${TEST_EXECUTABLE2} PRIVATE ${ATTACH_ADDRESS_SANITIZER})
 endif()
 
 gtest_discover_tests(${TEST_EXECUTABLE})
