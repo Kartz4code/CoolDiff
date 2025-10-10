@@ -31,7 +31,7 @@ class ZeroMatDervTransposeHandler : public T {
     void handle(const size_t nrows_f, const size_t ncols_f, 
                 const size_t nrows_x, const size_t ncols_x, 
                 const Matrix<Type>* mat, Matrix<Type>*& result) {
-        #if defined(NAIVE_IMPL)
+        #if defined(USE_SYMBOLIC_CHECK)
           /* Zero matrix special check */
           if (true == IsZeroMatrix(mat)) {
             // Result matrix dimensions

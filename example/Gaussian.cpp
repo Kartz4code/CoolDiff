@@ -36,25 +36,25 @@ int main(int argc, char** argv) {
   Expression gauss = Gaussian(x, 1, 0.9);
 
   // Evaluate Gaussian function
-  std::cout << "Evaluation: " << CoolDiff::Scalar::Eval(gauss) << "\n";
+  std::cout << "Evaluation: " << CoolDiff::TensorR1::Eval(gauss) << "\n";
   // Forward derivative
-  std::cout << "Forward derivative: " << CoolDiff::Scalar::DevalF(gauss, x) << "\n";
+  std::cout << "Forward derivative: " << CoolDiff::TensorR1::DevalF(gauss, x) << "\n";
   // Precompute the adjoints
-  CoolDiff::Scalar::PreComp(gauss);
+  CoolDiff::TensorR1::PreComp(gauss);
   // Reverse derivative
-  std::cout << "Reverse derivative: " << CoolDiff::Scalar::DevalR(gauss, x) << "\n\n";
+  std::cout << "Reverse derivative: " << CoolDiff::TensorR1::DevalR(gauss, x) << "\n\n";
 
   // Symbolic differentiation
-  auto& gauss_derv = CoolDiff::Scalar::SymDiff(gauss, x);
+  auto& gauss_derv = CoolDiff::TensorR1::SymDiff(gauss, x);
 
   // Evaluate Gaussian function on symbolic derivative
-  std::cout << "Evaluation(Sym): " << CoolDiff::Scalar::Eval(gauss_derv) << "\n";
+  std::cout << "Evaluation(Sym): " << CoolDiff::TensorR1::Eval(gauss_derv) << "\n";
   // Forward derivative
-  std::cout << "Forward derivative(Sym): " << CoolDiff::Scalar::DevalF(gauss_derv, x) << "\n";
+  std::cout << "Forward derivative(Sym): " << CoolDiff::TensorR1::DevalF(gauss_derv, x) << "\n";
   // Precompute the adjoints
-  CoolDiff::Scalar::PreComp(gauss_derv);
+  CoolDiff::TensorR1::PreComp(gauss_derv);
   // Reverse derivative
-  std::cout << "Reverse derivative(Sym): " << CoolDiff::Scalar::DevalR(gauss_derv, x) << "\n";
+  std::cout << "Reverse derivative(Sym): " << CoolDiff::TensorR1::DevalR(gauss_derv, x) << "\n";
 
   return 0;
 }

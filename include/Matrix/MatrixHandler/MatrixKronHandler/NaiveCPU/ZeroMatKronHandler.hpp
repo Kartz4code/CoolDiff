@@ -31,7 +31,7 @@ template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticH
 class ZeroMatKronHandler : public T {
   public:
     void handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
-      #if defined(NAIVE_IMPL)
+      #if defined(USE_SYMBOLIC_CHECK)
         /* Zero matrix special check */
         if (auto *it = ZeroMatKron(lhs, rhs); nullptr != it) {
           result = const_cast<Matrix<Type> *>(it);
@@ -39,7 +39,7 @@ class ZeroMatKronHandler : public T {
         }
 
         /* Zero matrix numerical check */
-        #if defined(NUMERICAL_CHECK)
+        #if defined(USE_NUMERICAL_CHECK)
           else if (auto *it = ZeroMatKronNum(lhs, rhs); nullptr != it) {
             result = const_cast<Matrix<Type> *>(it);
             return;

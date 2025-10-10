@@ -111,8 +111,6 @@ public:
 
   // Default constructor - Zero arguments
   Matrix();
-  // Default constructor - For cloning 
-  Matrix(void*);
   // Constructor with rows and columns
   Matrix(const size_t, const size_t);
   // Constructor with rows and columns with initial values
@@ -120,7 +118,7 @@ public:
   // Constructor with pointer stealer
   Matrix(const size_t, const size_t, T*);
 
-  // Matrix clone
+  // Matrix clone (TODO - Free clone)
   Matrix* clone(Matrix*&) const;
 
   // Clone matrix expression
@@ -128,16 +126,16 @@ public:
 
   // Matrix expressions constructor
   template <typename Z>
-  Matrix(const IMatrix<Z>& expr) : m_rows{expr.getNumRows()}, 
-                                   m_cols{expr.getNumColumns()},
-                                   m_type{(size_t)(-1)}, 
-                                   mp_mat{nullptr}, 
-                                   mp_result{nullptr},
-                                   mp_dresult{nullptr}, 
-                                   m_eval{false}, 
-                                   m_devalf{false},
-                                   m_dest{true},
-                                   m_nidx{this->m_idx_count++} {
+  Matrix(const IMatrix<Z>& expr) :  m_rows{expr.getNumRows()}, 
+                                    m_cols{expr.getNumColumns()},
+                                    m_type{(size_t)(-1)}, 
+                                    mp_mat{nullptr}, 
+                                    mp_result{nullptr},
+                                    mp_dresult{nullptr}, 
+                                    m_eval{false}, 
+                                    m_devalf{false},
+                                    m_dest{true},
+                                    m_nidx{this->m_idx_count++} {
     // Static assert so that type T is an expression
     static_assert(true == std::is_same_v<T, Expression>, "[ERROR] The type T is not an expression");
     // Reserve a buffer of Matrix expressions

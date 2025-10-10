@@ -30,7 +30,7 @@ template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticH
 class EyeMatKronHandler : public T {
   public:
     void handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
-      #if defined(NAIVE_IMPL)
+      #if defined(USE_SYMBOLIC_CHECK)
         /* Eye matrix special check */
         if (auto *it = EyeMatKron(lhs, rhs); nullptr != it) {
           if (it == lhs) {
@@ -52,7 +52,7 @@ class EyeMatKronHandler : public T {
         }
 
         /* Eye matrix numerical check */
-        #if defined(NUMERICAL_CHECK)
+        #if defined(USE_NUMERICAL_CHECK)
           else if (auto *it = EyeMatKronNum(lhs, rhs); nullptr != it) {
             if (it == lhs) {
               if (-1 == lhs->getMatType()) {

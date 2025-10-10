@@ -114,7 +114,7 @@ public:
   V_OVERRIDE(std::string_view getType() const);
 
   // Find me
-  V_OVERRIDE(bool findMe(void*) const);
+  bool findMe(void*) const;
 
   // Variable factory
   class VariableFactory {

@@ -162,7 +162,7 @@ public:
   }
 
   // Find me
-  V_OVERRIDE(bool findMe(void* v) const) { 
+  bool findMe(void* v) const { 
     UNARY_FIND_ME(); 
   }
 

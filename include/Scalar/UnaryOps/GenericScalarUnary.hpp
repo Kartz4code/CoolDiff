@@ -103,7 +103,7 @@ class Generic##OPS : public IVariable<Generic##OPS<T, Callables...>> {         \
     V_OVERRIDE(std::string_view getType() const) {                             \
       return TOSTRING(Generic##OPS);                                           \
     }                                                                          \
-    V_OVERRIDE(bool findMe(void* v) const) { UNARY_FIND_ME(); }                \
+    bool findMe(void* v) const { UNARY_FIND_ME(); }                            \
     V_DTR(~Generic##OPS()) = default;                                          \
   };                                                                           \
 template <typename T>                                                          \

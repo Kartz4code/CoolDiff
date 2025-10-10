@@ -22,7 +22,7 @@
 ]]
 
 # [CMake version]
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.22)
 
 # [Project name and description]
 project(CoolDiff VERSION 1.0.1.0
@@ -72,13 +72,16 @@ option(BUILD_EXAMPLES "Building example executables" ON)
 option(ENABLE_CLANG_TIDY "Enable clang-tidy static linter" OFF)
 option(ENABLE_CMAKE_FORMAT "Enable cmake formatter" OFF)
 option(ENABLE_CLANG_FORMAT "Enable clang format" OFF)
+option(ENABLE_COMPILER_WARNINGS "Enable compiler warnings" OFF)
 option(ENABLE_COMPLEX_MATH "Enable complex numbers for numerics" ON)
 option(ENABLE_ROBIN_HOOD_MAP "Enable robin hood hashmaps" ON)
 # TODO - Implementation of manual dynamic dispatch for performance
 option(ENABLE_VIRTUAL_FUNCTIONS "Enable virtual functions" ON)
 option(ENABLE_DYNAMIC_ASSERTIONS "Enable dynamic assertions" ON)
 option(ENABLE_STL_PARALLEL_EXECUTION "Enable STL libraries parallel execution feature" OFF)
-
+option(ENABLE_SYMBOLIC_CHECK "Enable symbolic checks" ON)
+# TODO - Verification of numerical checks
+option(ENABLE_NUMERICAL_CHECK "Enable numerical checks" OFF)
 
 # [Set compilation flags]
 #add_definitions(-DCOOLDIFF_SCALAR_TYPE=1) # Float
@@ -103,6 +106,14 @@ endif()
 if(${ENABLE_STL_PARALLEL_EXECUTION})
     add_definitions(-DUSE_CXX_PARALLEL_POLICY)
 endif()
+
+if(${ENABLE_SYMBOLIC_CHECK})
+    add_definitions(-DUSE_SYMBOLIC_CHECK)
+endif()
+
+if(${ENABLE_NUMERICAL_CHECK})
+    add_definitions(-DUSE_NUMERICAL_CHECK)
+endif()    
 
 
 ########################################################################################################################
@@ -293,21 +304,30 @@ set(INCLUDES ${CMAKE_SOURCE_DIR}/include
 # [Add executable (target executable)]
 add_library(${PROJECT_NAME} STATIC ${SRC})
 
-# [Attach address sanitizer]
-if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Attaching address sanitizer")
-    target_compile_options(${PROJECT_NAME} PRIVATE -fno-omit-frame-pointer -fsanitize=address)
-    target_link_options(${PROJECT_NAME} PRIVATE -fno-omit-frame-pointer -fsanitize=address)
-else()
-    message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Address sanitizer disabled")
-endif()
-
 # [Set target include directories]
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
 
-# [Set compile options]
-target_compile_options(${PROJECT_NAME} PRIVATE -fpermissive)
+# [Link target libraries]
 target_link_libraries(${PROJECT_NAME} PUBLIC Threads::Threads Eigen3::Eigen)
+
+# Attach address sanitizer
+set(ATTACH_ADDRESS_SANITIZER $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU,Clang>>:-fno-omit-frame-pointer;-fsanitize=address>)
+# Set permission flags
+set(PERMISSION_FLAGS $<$<CXX_COMPILER_ID:GNU,Clang>:-fpermissive> $<$<CXX_COMPILER_ID:MSVC>:/permissive>)
+# Set warning flags
+set(WARNING_FLAGS   $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU,Clang>>:-Wpedantic;-Wall;-Wextra>
+                    $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:MSVC>>:/W4>)   
+
+# [Set compile options]
+if(${ENABLE_COMPILER_WARNINGS})
+    target_compile_options(${PROJECT_NAME} PRIVATE ${WARNING_FLAGS})
+endif()
+target_compile_options(${PROJECT_NAME} PRIVATE ${PERMISSION_FLAGS})
+target_compile_options(${PROJECT_NAME} PRIVATE ${ATTACH_ADDRESS_SANITIZER})
+
+# [Set link options]
+target_link_options(${PROJECT_NAME} PRIVATE ${ATTACH_ADDRESS_SANITIZER})
+
 
 
 ########################################################################################################################

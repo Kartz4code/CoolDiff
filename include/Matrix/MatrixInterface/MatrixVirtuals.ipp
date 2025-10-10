@@ -65,7 +65,7 @@ Matrix<Type>* Matrix<T>::devalF(Matrix<Variable>& X) {
     const size_t xrows = X.getNumRows();
     const size_t xcols = X.getNumColumns();
     if constexpr (true == std::is_same_v<T, Type> || true == std::is_same_v<T, Parameter>) {
-        #if defined(NAIVE_IMPL)
+        #if defined(USE_SYMBOLIC_CHECK)
             mp_dresult = MemoryManager::MatrixSplPool((m_rows * xrows), (m_cols * xcols), MatrixSpl::ZEROS);
         #else
             MemoryManager::MatrixPool((m_rows * xrows), (m_cols * xcols), mp_dresult);
@@ -105,24 +105,24 @@ Matrix<Type>* Matrix<T>::devalF(Matrix<Variable>& X) {
 // Traverse
 template<typename T>
 void Matrix<T>::traverse(OMMatPair* cache) {
-  if (false == this->m_visited) {
-    this->m_visited = true;
-    // Reset states
-    std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(),
-                    [this, &cache](auto* i) {
-                        if (nullptr != i) {
-                            // Traverse the tree
-                            i->traverse();
-                            // Set value
-                            mp_result = i->eval(); m_eval = true;
-                            // Save cache
-                            m_cache = i->getCache();
-                            // Set rows and cols
-                            m_rows = i->getNumRows();
-                            m_cols = i->getNumColumns();
-                        }
-                    });
-  }
+    if (false == this->m_visited) {
+        this->m_visited = true;
+        // Reset states
+        std::for_each(EXECUTION_SEQ m_gh_vec.begin(), m_gh_vec.end(),
+                        [this, &cache](auto* i) {
+                            if (nullptr != i) {
+                                // Traverse the tree
+                                i->traverse();
+                                // Set value
+                                mp_result = i->eval(); m_eval = true;
+                                // Save cache
+                                m_cache = i->getCache();
+                                // Set rows and cols
+                                m_rows = i->getNumRows();
+                                m_cols = i->getNumColumns();
+                            }
+                        });
+    }
 }
 
 // Get cache

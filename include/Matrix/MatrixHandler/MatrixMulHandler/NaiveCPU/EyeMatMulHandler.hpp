@@ -39,7 +39,7 @@ class EyeMatMulHandler : public T {
             // Assert dimensions
             ASSERT(lcols == rrows, "Matrix multiplication dimensions mismatch");
 
-            #if defined(NAIVE_IMPL)
+            #if defined(USE_SYMBOLIC_CHECK)
                 /* Eye matrix special check */
                 if (auto *it = EyeMatMul(lhs, rhs); nullptr != it) {
                     result = const_cast<Matrix<Type> *>(it);
@@ -47,7 +47,7 @@ class EyeMatMulHandler : public T {
                 }
 
                 /* Eye matrix numerical check */
-                #if defined(NUMERICAL_CHECK)
+                #if defined(USE_NUMERICAL_CHECK)
                     else if (auto *it = EyeMatMulNum(lhs, rhs); nullptr != it) {
                         result = const_cast<Matrix<Type> *>(it);
                         return;

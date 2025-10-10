@@ -22,7 +22,7 @@
  */
 
 #include "Matrix.hpp"
- 
+
 template<typename T>
 void Matrix<T>::swap(Matrix& other) noexcept {
   std::swap(m_rows, other.m_rows);
@@ -41,9 +41,9 @@ void Matrix<T>::swap(Matrix& other) noexcept {
 
 // Special matrix constructor (Privatized, only for internal factory view)
 template<typename T>
-Matrix<T>::Matrix(const size_t rows, const size_t cols, const MatrixSpl& type) : m_rows{rows}, 
-                                                                                 m_cols{cols},
-                                                                                 m_type{type} {
+Matrix<T>::Matrix(const size_t rows, const size_t cols, const MatrixSpl& type) :  m_rows{rows}, 
+                                                                                  m_cols{cols},
+                                                                                  m_type{type} {
   // Assert for strictly non-negative values for rows and columns
   ASSERT((rows > 0) && (cols > 0), "Row/Column size is not strictly non-negative");                                                                                  
 }
@@ -61,11 +61,6 @@ Matrix<T>::Matrix() : m_rows{1},
                       m_dest{true},
                       m_nidx{this->m_idx_count++} 
 {}
-
-
-// Default constructor - For cloning 
-template<typename T>
-Matrix<T>::Matrix(void*) {}
 
 // Constructor with rows and columns
 template<typename T>
@@ -102,7 +97,12 @@ Matrix<T>::Matrix(const size_t rows, const size_t cols, T* ptr)  :    m_rows{row
 // Matrix clone
 template<typename T>
 Matrix<T>* Matrix<T>::clone(Matrix<T>*& mat) const {
-  MemoryManager::MatrixPool(m_rows, m_cols, mat);
+  if constexpr(true == std::is_same_v<T, Type>) {
+    MemoryManager::MatrixPool(m_rows, m_cols, mat);
+  } else {
+    // TODO - Add logic for other types
+    ASSERT(false, "Matrix for this type is yet to be implemented");
+  }
   *mat = *this;
   return mat;
 } 
@@ -116,20 +116,20 @@ constexpr const auto& Matrix<T>::cloneExp() const {
 // Constructor with rows and columns with initial values
 template<typename T>
 Matrix<T>::Matrix(const size_t rows, const size_t cols, const T& val) : Matrix(rows, cols) {
-  static_assert(CoolDiff::Scalar::Details::is_numeric_v<T> == true, "Type of matrix is not numeric");
+  static_assert(CoolDiff::TensorR1::Details::is_numeric_v<T> == true, "Type of matrix is not numeric");
   std::fill(EXECUTION_PAR mp_mat, mp_mat + getNumElem(), val);
 }
 
 // Copy constructor
 template<typename T>
-Matrix<T>::Matrix(const Matrix& m) : m_rows{m.m_rows}, 
-                                     m_cols{m.m_cols}, 
-                                     m_type{m.m_type},
-                                     m_eval{m.m_eval}, 
-                                     m_devalf{m.m_devalf},
-                                     m_dest{m.m_dest},
-                                     m_cache{m.m_cache}, 
-                                     m_nidx{m.m_nidx} {
+Matrix<T>::Matrix(const Matrix& m) :  m_rows{m.m_rows}, 
+                                      m_cols{m.m_cols}, 
+                                      m_type{m.m_type},
+                                      m_eval{m.m_eval}, 
+                                      m_devalf{m.m_devalf},
+                                      m_dest{m.m_dest},
+                                      m_cache{m.m_cache}, 
+                                      m_nidx{m.m_nidx} {
   // If T is an Expression type
   if constexpr(false == std::is_same_v<T,Expression>) {
     if(nullptr != m.mp_mat) {
@@ -154,28 +154,28 @@ Matrix<T>& Matrix<T>::operator=(const Matrix& m) {
 
 // Move constructor
 template<typename T>
-Matrix<T>::Matrix(Matrix&& m) noexcept : m_rows{std::exchange(m.m_rows, -1)}, 
-                                         m_cols{std::exchange(m.m_cols,-1)},
-                                         m_type{std::exchange(m.m_type, -1)}, 
-                                         mp_mat{std::exchange(m.mp_mat, nullptr)},
-                                         mp_result{std::exchange(m.mp_result, nullptr)},
-                                         mp_dresult{std::exchange(m.mp_dresult, nullptr)}, 
-                                         m_eval{std::exchange(m.m_eval, false)},
-                                         m_devalf{std::exchange(m.m_devalf, false)}, 
-                                         m_dest{std::exchange(m.m_dest, true)},
-                                         m_cache{std::move(m.m_cache)},
-                                         m_gh_vec{std::exchange(m.m_gh_vec, {})}, 
-                                         m_nidx{std::exchange(m.m_nidx, -1)} 
+Matrix<T>::Matrix(Matrix&& m) noexcept :  m_rows{std::exchange(m.m_rows, -1)}, 
+                                          m_cols{std::exchange(m.m_cols,-1)},
+                                          m_type{std::exchange(m.m_type, -1)}, 
+                                          mp_mat{std::exchange(m.mp_mat, nullptr)},
+                                          mp_result{std::exchange(m.mp_result, nullptr)},
+                                          mp_dresult{std::exchange(m.mp_dresult, nullptr)}, 
+                                          m_eval{std::exchange(m.m_eval, false)},
+                                          m_devalf{std::exchange(m.m_devalf, false)}, 
+                                          m_dest{std::exchange(m.m_dest, true)},
+                                          m_cache{std::move(m.m_cache)},
+                                          m_gh_vec{std::exchange(m.m_gh_vec, {})}, 
+                                          m_nidx{std::exchange(m.m_nidx, -1)} 
 {}
 
 
 // Move assignment operator
 template<typename T>
 Matrix<T>& Matrix<T>::operator=(Matrix&& m) noexcept {
-    // Copy-swap idiom
-    Matrix<T>{std::move(m)}.swap(*this);
-    // Return this reference
-    return *this;
+  // Copy-swap idiom
+  Matrix<T>{std::move(m)}.swap(*this);
+  // Return this reference
+  return *this;
 }
 
 // Destructor

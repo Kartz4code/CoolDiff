@@ -79,9 +79,9 @@ public:
   // Expression factory
   class ExpressionFactory {
   public:
-    template <typename T, typename = std::enable_if_t<CoolDiff::Scalar::Details::is_valid_v<T>>>
+    template <typename T, typename = std::enable_if_t<CoolDiff::TensorR1::Details::is_valid_scalar_v<T>>>
     inline static Expression& CreateExpression(const T& exp) {
-      if constexpr (true == CoolDiff::Scalar::Details::is_numeric_v<T>) {
+      if constexpr (true == CoolDiff::TensorR1::Details::is_numeric_v<T>) {
         auto tmp = Allocate<Expression>(*Allocate<Parameter>(exp)).get();
         return *tmp;
       } else {

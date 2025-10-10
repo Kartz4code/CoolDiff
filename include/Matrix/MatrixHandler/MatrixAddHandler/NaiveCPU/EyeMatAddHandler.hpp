@@ -39,7 +39,7 @@ class EyeMatAddHandler : public T {
             // Assert dimensions
             ASSERT((nrows == rrows) && (ncols == lcols), "Matrix addition dimensions mismatch");
 
-            #if defined(NAIVE_IMPL)
+            #if defined(USE_SYMBOLIC_CHECK)
                 /* Eye matrix special check */
                 if (auto *it = EyeMatAdd(lhs, rhs); nullptr != it) {
                     if (it == lhs || it == rhs) {
@@ -56,7 +56,7 @@ class EyeMatAddHandler : public T {
                 }
 
                 /* Eye matrix numerical check */
-                #if defined(NUMERICAL_CHECK)
+                #if defined(USE_NUMERICAL_CHECK)
                     else if (auto *it = EyeMatAddNum(lhs, rhs); nullptr != it) {
                         if (it == lhs || it == rhs) {
                             if (-1 == it->getMatType()) {

@@ -39,14 +39,14 @@ class ZeroMatMulHandler : public T {
             // Assert dimensions
             ASSERT(lcols == rrows, "Matrix multiplication dimensions mismatch");
 
-            #if defined(NAIVE_IMPL)
+            #if defined(USE_SYMBOLIC_CHECK)
                 /* Zero matrix special check */
                 if (auto *it = ZeroMatMul(lhs, rhs); nullptr != it) {
                     result = const_cast<Matrix<Type> *>(it);
                     return;
                 }
                 /* Zero matrix numerical check */
-                #if defined(NUMERICAL_CHECK)
+                #if defined(USE_NUMERICAL_CHECK)
                     else if (auto *it = ZeroMatMulNum(lhs, rhs); nullptr != it) {
                         result = const_cast<Matrix<Type> *>(it);
                         return;

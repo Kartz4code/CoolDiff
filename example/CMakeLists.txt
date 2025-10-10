@@ -30,19 +30,24 @@ if(${BUILD_EXAMPLES})
     ########################################################################################################################
     ######################################################################################################################## 
 
-    # Add executable (target testing)
+    # [Add executable (target testing)]
     add_executable(Gaussian ${CMAKE_SOURCE_DIR}/example/Gaussian.cpp)
-    # Set target include directories
+
+    # [Set target include directories]
     target_include_directories(Gaussian PUBLIC ${INCLUDES})
 
+    # [Link target libraries]
     target_link_libraries(Gaussian PRIVATE CoolDiff)
 
-    # Set compile options
-    target_compile_options(Gaussian PRIVATE -fpermissive)
-    if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
-        target_compile_options(Gaussian PRIVATE -fno-omit-frame-pointer -fsanitize=address)
-        target_link_options(Gaussian PRIVATE -fno-omit-frame-pointer -fsanitize=address)
+    # [Set compile options]
+    if(${ENABLE_COMPILER_WARNINGS})
+        target_compile_options(Gaussian PRIVATE ${WARNING_FLAGS})
     endif()
+    target_compile_options(Gaussian PRIVATE ${PERMISSION_FLAGS})
+    target_compile_options(Gaussian PRIVATE ${ATTACH_ADDRESS_SANITIZER})
+
+    # [Set link options]
+    target_link_options(Gaussian PRIVATE ${ATTACH_ADDRESS_SANITIZER})
 
     ########################################################################################################################
     ########################################################################################################################
@@ -52,7 +57,7 @@ if(${BUILD_EXAMPLES})
     ########################################################################################################################
     ######################################################################################################################## 
 
-    # Add executable (target testing)
+    # [Add executable (target testing)]
     set(SOURCES ${CMAKE_SOURCE_DIR}/example/GaussNewton/src/OracleMatrix.cpp
                 ${CMAKE_SOURCE_DIR}/example/GaussNewton/src/OracleScalar.cpp
                 ${CMAKE_SOURCE_DIR}/example/GaussNewton/src/GaussNewton.cpp
@@ -64,21 +69,25 @@ if(${BUILD_EXAMPLES})
                     GaussNewtonData.hpp 
                     @ONLY)
 
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/GaussNewton/config/GaussNewtonData.py.in 
-                   ${CMAKE_CURRENT_SOURCE_DIR}/GaussNewton/data/GaussNewtonData.py 
+    configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/GaussNewton/config/GaussNewtonData.py.in 
+                    ${CMAKE_CURRENT_SOURCE_DIR}/GaussNewton/data/GaussNewtonData.py 
                     @ONLY)
 
-    # Set target include directories
-    target_include_directories(GaussNewton PUBLIC ${INCLUDES} 
-                                                  ${CMAKE_SOURCE_DIR}/example/GaussNewton/include
-                                                  ${CMAKE_CURRENT_BINARY_DIR})
+    # [Set target include directories]
+    target_include_directories(GaussNewton PUBLIC   ${INCLUDES} 
+                                                    ${CMAKE_SOURCE_DIR}/example/GaussNewton/include
+                                                    ${CMAKE_CURRENT_BINARY_DIR})
 
+    # [Link target libraries]
     target_link_libraries(GaussNewton PRIVATE CoolDiff)
 
-    # Set compile options
-    target_compile_options(GaussNewton PRIVATE -fpermissive)
-    if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
-        target_compile_options(GaussNewton PRIVATE -fno-omit-frame-pointer -fsanitize=address)
-        target_link_options(GaussNewton PRIVATE -fno-omit-frame-pointer -fsanitize=address)
+    # [Set compile options]
+    if(${ENABLE_COMPILER_WARNINGS})
+        target_compile_options(GaussNewton PRIVATE ${WARNING_FLAGS})
     endif()
+    target_compile_options(GaussNewton PRIVATE ${PERMISSION_FLAGS})
+    target_compile_options(GaussNewton PRIVATE ${ATTACH_ADDRESS_SANITIZER})
+
+    # [Set link options]
+    target_link_options(GaussNewton PRIVATE ${ATTACH_ADDRESS_SANITIZER})
 endif()

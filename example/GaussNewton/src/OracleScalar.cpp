@@ -28,7 +28,7 @@ OracleScalar::OracleScalar(Expression& exp, Matrix<Variable>& X) :  m_dim{X.getN
 {}
 
 Type OracleScalar::eval() { 
-  return CoolDiff::Scalar::Eval(m_exp); 
+  return CoolDiff::TensorR1::Eval(m_exp); 
 }
 
 Matrix<Type>* OracleScalar::evalMat() {
@@ -44,13 +44,13 @@ Matrix<Type>* OracleScalar::hessian() {
   // Exploit Hessian symmetry
   for (size_t i{}; i < m_dim; ++i) {
     // Precompute
-    CoolDiff::Scalar::PreComp(m_jacobian_sym[i]);
+    CoolDiff::TensorR1::PreComp(m_jacobian_sym[i]);
     for (size_t j{}; j <= i; ++j) {
       if (j < i) {
-        (*m_hessian)(i, j) = CoolDiff::Scalar::DevalR(m_jacobian_sym[i], m_X[j]);
+        (*m_hessian)(i, j) = CoolDiff::TensorR1::DevalR(m_jacobian_sym[i], m_X[j]);
         (*m_hessian)(j, i) = (*m_hessian)(i, j);
       } else if (i == j) {
-        (*m_hessian)(i, j) = CoolDiff::Scalar::DevalR(m_jacobian_sym[i], m_X[j]);
+        (*m_hessian)(i, j) = CoolDiff::TensorR1::DevalR(m_jacobian_sym[i], m_X[j]);
       }
     }
   }
@@ -63,10 +63,10 @@ Matrix<Type>* OracleScalar::jacobian() {
   }
 
   // Precompute (By design, the operation is serial)
-  CoolDiff::Scalar::PreComp(m_exp);
+  CoolDiff::TensorR1::PreComp(m_exp);
 
   std::transform(EXECUTION_SEQ m_X.getMatrixPtr(), m_X.getMatrixPtr() + m_X.getNumElem(), m_jacobian->getMatrixPtr(),
-                [this](const auto &v) { return CoolDiff::Scalar::DevalR(m_exp, v); });
+                [this](const auto& v) { return CoolDiff::TensorR1::DevalR(m_exp, v); });
 
   return m_jacobian;
 }

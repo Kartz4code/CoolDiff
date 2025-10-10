@@ -81,7 +81,7 @@ public:
   V_OVERRIDE(std::string_view getType() const);
 
   // Find me
-  V_OVERRIDE(bool findMe(void*) const);
+  bool findMe(void*) const;
 
   // Parameter factory
   class ParameterFactory {

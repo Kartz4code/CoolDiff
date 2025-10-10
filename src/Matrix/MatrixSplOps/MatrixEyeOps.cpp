@@ -391,12 +391,11 @@ namespace BaselineCPU {
 
     // Diagonal indices (Modification)
     const auto diag_idx = Range<size_t>(0, nrows);
-    std::for_each(
-        EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
-        [&](const size_t i) { (*result)(i, i) = (*result)(i, i) + (Type)(1); });
+    std::for_each(EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
+                  [&](const size_t i) { (*result)(i, i) = (*result)(i, i) + (Type)(1); });
   }
 
-  void MulEye(Type val, const Matrix<Type> *it, Matrix<Type> *&result) {
+  void MulEye(Type val, const Matrix<Type>* it, Matrix<Type>*& result) {
     /*
       Rows and columns of result matrix and if result is nullptr or if dimensions
       mismatch, then create a new matrix resource
@@ -413,7 +412,7 @@ namespace BaselineCPU {
                   [&](const size_t i) { (*result)(i, i) = val; });
   }
 
-  void SubEyeRHS(const Matrix<Type> *it, Matrix<Type> *&result) {
+  void SubEyeRHS(const Matrix<Type>* it, Matrix<Type>*& result) {
     /*
       Rows and columns of result matrix and if result is nullptr or if dimensions
       mismatch, then create a new matrix resource
@@ -435,7 +434,7 @@ namespace BaselineCPU {
     });
   }
 
-  void SubEyeLHS(const Matrix<Type> *it, Matrix<Type> *&result) {
+  void SubEyeLHS(const Matrix<Type>* it, Matrix<Type>*& result) {
     /*
       Rows and columns of result matrix and if result is nullptr or if dimensions
       mismatch, then create a new matrix resource
@@ -529,7 +528,7 @@ namespace BaselineCPU {
     });
   }
 
-  void HadamardEye(const Matrix<Type> *it, Matrix<Type> *&result) {
+  void HadamardEye(const Matrix<Type>* it, Matrix<Type>*& result) {
     /*
       Rows and columns of result matrix and if result is nullptr or if dimensions
       mismatch, then create a new matrix resource

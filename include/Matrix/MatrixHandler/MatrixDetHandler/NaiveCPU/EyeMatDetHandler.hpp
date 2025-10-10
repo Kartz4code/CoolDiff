@@ -35,7 +35,7 @@ class EyeMatDetHandler : public T {
       // Assert squareness
       ASSERT((nrows == ncols), "Matrix is not square for determinant computation");
 
-      #if defined(NAIVE_IMPL)
+      #if defined(USE_SYMBOLIC_CHECK)
         /* Zero matrix special check */
         if (true == IsEyeMatrix(mat)) {
           // Result matrix is transposed identity matrix

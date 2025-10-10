@@ -129,6 +129,8 @@ void RModeDerv() {
   res = res + det(X) + trace(X) + l3*MatrixFrobeniusNorm(doubler*X) + SinM(res - res*res);
   res = res + res + Sigma(doubler);
 
+  Matrix<Expression> tester = doubler;
+
   /*  
   auto X1 = X;
   auto X2 = X1*X;
@@ -145,8 +147,8 @@ void RModeDerv() {
   
   //std::cout << Eval(*it1) << "\n";
   //std::cout << Eval(*it2) << "\n";
-  std::cout << Eval(*it3) << "\n";
-  std::cout << Eval(doubler) << "\n";
+  std::cout << CoolDiff::Tensor2R::Eval(*it3) << "\n";
+  std::cout << CoolDiff::Tensor2R::Eval(tester) << "\n";
 
   X[0] = 1;  X[1] = 2; 
   X[2] = 3;  X[3] = 4;
@@ -160,8 +162,8 @@ void RModeDerv() {
   
   //std::cout << Eval(*it1) << "\n";
   //std::cout << Eval(*it2) << "\n";
-  std::cout << Eval(*it3) << "\n";
-  std::cout << Eval(doubler) << "\n";
+  std::cout << CoolDiff::Tensor2R::Eval(*it3) << "\n";
+  std::cout << CoolDiff::Tensor2R::Eval(tester) << "\n";
 }
 
 
@@ -199,7 +201,7 @@ void GNMatrix() {
 
   TIME_IT_MS(gn.solve());
 
-  std::cout << "Computed values: " << Eval(V);
+  std::cout << "Computed values: " << CoolDiff::Tensor2R::Eval(V);
   std::cout << "Actual values: " << (Type)3.14159 / 2 << " " << (Type)5 << " " << (Type)-2 << "\n";
 }
 
@@ -221,7 +223,7 @@ void NonLinearSolve() {
   TIME_IT_US(gn.solve());
   TIME_IT_US(gn.solve());
 
-  std::cout << "Computed values (x,y): " << CoolDiff::Scalar::Eval(x) << "," << CoolDiff::Scalar::Eval(y) << "\n";
+  std::cout << "Computed values (x,y): " << CoolDiff::TensorR1::Eval(x) << "," << CoolDiff::TensorR1::Eval(y) << "\n";
   std::cout << "Actual values (x,y): (-4,-2) or (2,4)\n\n";
 }
 
@@ -238,7 +240,7 @@ void ScalarSolve() {
 
   TIME_IT_US(gn.solve());
 
-  std::cout << "Computed values: " << CoolDiff::Scalar::Eval(x) << "\n";
+  std::cout << "Computed values: " << CoolDiff::TensorR1::Eval(x) << "\n";
 }
 
 

@@ -41,13 +41,13 @@ void DevalR(T &exp, const Matrix<Variable> &X, Matrix<Type> *&result) {
     PreComp(exp);
     std::transform(EXECUTION_SEQ X.getMatrixPtr(), X.getMatrixPtr() + n_size,
                   result->getMatrixPtr(),
-                  [&exp](const auto &v) { return CoolDiff::Scalar::DevalR(exp, v); });
+                  [&exp](const auto &v) { return CoolDiff::TensorR1::DevalR(exp, v); });
   } else {
     // Create a new expression
     Expression exp2{exp};
-    CoolDiff::Scalar::PreComp(exp2);
+    CoolDiff::TensorR1::PreComp(exp2);
     std::transform(EXECUTION_SEQ X.getMatrixPtr(), X.getMatrixPtr() + n_size,
                   result->getMatrixPtr(),
-                  [&exp2](const auto &v) { return CoolDiff::Scalar::DevalR(exp2, v); });
+                  [&exp2](const auto &v) { return CoolDiff::TensorR1::DevalR(exp2, v); });
   }
 }

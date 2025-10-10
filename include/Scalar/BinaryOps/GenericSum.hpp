@@ -191,7 +191,7 @@ public:
   }
 
   // Find me
-  V_OVERRIDE(bool findMe(void* v) const) { 
+  bool findMe(void* v) const { 
     BINARY_FIND_ME(); 
   }
 
@@ -221,10 +221,10 @@ public:
   OMPair m_cache;
 
   // Constructor
-  constexpr GenericSum(const Type& u, T* v, Callables&&... call) : mp_left{u}, 
-                                                                   mp_right{v}, 
-                                                                   m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                                   m_nidx{this->m_idx_count++} 
+  constexpr GenericSum(const Type& u, T* v, Callables&&... call) :  mp_left{u}, 
+                                                                    mp_right{v}, 
+                                                                    m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                                    m_nidx{this->m_idx_count++} 
   {}
 
   // Symbolic evaluation
@@ -337,7 +337,7 @@ public:
   }
 
   // Find me
-  V_OVERRIDE(bool findMe(void* v) const) { 
+  bool findMe(void* v) const { 
     BINARY_RIGHT_FIND_ME(); 
   }
 

@@ -25,7 +25,7 @@
 // Namespace CoolDiff
 namespace CoolDiff {
   // Namespace Scalar
-  namespace Scalar {
+  namespace TensorR1 {
     // namespace Details
     namespace Details {
       // Evaluate function (Scalar)
