@@ -378,7 +378,7 @@ constexpr const auto& operator*(const Type& u, const IVariable<T>& v) {
 // Right side is a number (product)
 template <typename T>
 constexpr const auto& operator*(const IVariable<T>& u, const Type& v) {
-  auto tmp = Allocate<GenericProductT2<T>>(v, const_cast<T *>(static_cast<const T*>(&u)), OpObj);
+  auto tmp = Allocate<GenericProductT2<T>>(v, const_cast<T*>(static_cast<const T*>(&u)), OpObj);
   return *tmp;
 }
 

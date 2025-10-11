@@ -25,9 +25,9 @@
 cmake_minimum_required(VERSION 3.22)
 
 # [Project name and description]
-project(CoolDiff VERSION 1.0.1.0
-                 DESCRIPTION "CoolDiff - A Symbolic/Automatic differentiation C++ tool"
-                 LANGUAGES C CXX)
+project(CoolDiff    VERSION 1.0.1.0
+                    DESCRIPTION "CoolDiff - A Symbolic/Automatic differentiation C++ tool"
+                    LANGUAGES C CXX)
 
 ########################################################################################################################
 ########################################################################################################################
@@ -82,10 +82,15 @@ option(ENABLE_STL_PARALLEL_EXECUTION "Enable STL libraries parallel execution fe
 option(ENABLE_SYMBOLIC_CHECK "Enable symbolic checks" ON)
 # TODO - Verification of numerical checks
 option(ENABLE_NUMERICAL_CHECK "Enable numerical checks" OFF)
+set(DEFAULT_MATH_TYPE 2 CACHE STRING "Value that defined the default math type: Float  - 1, 
+                                                                                Double - 2")
 
 # [Set compilation flags]
-#add_definitions(-DCOOLDIFF_SCALAR_TYPE=1) # Float
-add_definitions(-DCOOLDIFF_SCALAR_TYPE=2) # Double
+if(${DEFAULT_MATH_TYPE} EQUAL 1)
+    add_definitions(-DCOOLDIFF_SCALAR_TYPE=1) # Float
+elseif(${DEFAULT_MATH_TYPE} EQUAL 2)
+    add_definitions(-DCOOLDIFF_SCALAR_TYPE=2) # Double
+endif()
 
 if(${ENABLE_DYNAMIC_ASSERTIONS})
     add_definitions(-DUSE_DYNAMIC_ASSERTIONS)
@@ -224,74 +229,74 @@ set(SRC # Scalar folder *.cpp files
 ########################################################################################################################
 ########################################################################################################################
 
-set(INCLUDES ${CMAKE_SOURCE_DIR}/include
-             ${CMAKE_SOURCE_DIR}/include/Scalar/BinaryOps
-             ${CMAKE_SOURCE_DIR}/include/Scalar/UnaryOps
-             ${CMAKE_SOURCE_DIR}/include/Scalar
-             ${CMAKE_SOURCE_DIR}/include/Matrix
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixInterface
-             ${CMAKE_SOURCE_DIR}/include/Matrix/BinaryOps
-             ${CMAKE_SOURCE_DIR}/include/Matrix/UnaryOps
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler
+set(INCLUDES    ${CMAKE_SOURCE_DIR}/include
+                ${CMAKE_SOURCE_DIR}/include/Scalar/BinaryOps
+                ${CMAKE_SOURCE_DIR}/include/Scalar/UnaryOps
+                ${CMAKE_SOURCE_DIR}/include/Scalar
+                ${CMAKE_SOURCE_DIR}/include/Matrix
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixInterface
+                ${CMAKE_SOURCE_DIR}/include/Matrix/BinaryOps
+                ${CMAKE_SOURCE_DIR}/include/Matrix/UnaryOps
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler
             
-             # Naive CPU addition handlers
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddHandler/NaiveCPU
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/NaiveCPU
-             
-             # Eigen library addition handler
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/Eigen
-            
-             # Naive CPU multiplication handlers
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMulHandler/NaiveCPU
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/NaiveCPU
+                # Naive CPU addition handlers
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddHandler/NaiveCPU
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/NaiveCPU
+                
+                # Eigen library addition handler
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/Eigen
+                
+                # Naive CPU multiplication handlers
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMulHandler/NaiveCPU
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/NaiveCPU
 
-             # Eigen library multiplication handler
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/Eigen
+                # Eigen library multiplication handler
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/Eigen
 
-             # Naive CPU subtraction handlers
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubHandler/NaiveCPU
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/NaiveCPU
+                # Naive CPU subtraction handlers
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubHandler/NaiveCPU
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/NaiveCPU
 
-            # Eigen library subtraction handler
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/Eigen
+                # Eigen library subtraction handler
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/Eigen
 
-             # Naive CPU Hadamard handlers
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamardHandler/NaiveCPU
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/NaiveCPU
+                # Naive CPU Hadamard handlers
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamardHandler/NaiveCPU
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/NaiveCPU
 
-             # Eigen library Hadamard handler
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/Eigen
+                # Eigen library Hadamard handler
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/Eigen
 
-             # Naive CPU Kronecker product handlers
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronHandler/NaiveCPU
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/NaiveCPU
+                # Naive CPU Kronecker product handlers
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronHandler/NaiveCPU
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/NaiveCPU
 
-            # Eigen library Kronecker handler
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/Eigen
+                # Eigen library Kronecker handler
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/Eigen
 
-             # Naive CPU Transpose product handlers
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTransposeHandler/NaiveCPU
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose/NaiveCPU
+                # Naive CPU Transpose product handlers
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTransposeHandler/NaiveCPU
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose/NaiveCPU
 
-             # Determinant handlers
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDet/Eigen
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDetHandler/NaiveCPU
+                # Determinant handlers
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDet/Eigen
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDetHandler/NaiveCPU
 
-             # Unary handlers
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnaryHandler/NaiveCPU
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary/NaiveCPU
+                # Unary handlers
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnaryHandler/NaiveCPU
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary/NaiveCPU
 
-             # Inverse handlers
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInverse/Eigen
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInvHandler/NaiveCPU
+                # Inverse handlers
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInverse/Eigen
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInvHandler/NaiveCPU
 
-             # Convolution handlers            
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvHandler/NaiveCPU
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvolution/NaiveCPU
+                # Convolution handlers            
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvHandler/NaiveCPU
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvolution/NaiveCPU
 
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixSplOps
-             ${CMAKE_SOURCE_DIR}/include/MemoryManager
-             ${CMAKE_BINARY_DIR}/_deps/robin-hood-hashing-src/src/include)
+                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixSplOps
+                ${CMAKE_SOURCE_DIR}/include/MemoryManager
+                ${CMAKE_BINARY_DIR}/_deps/robin-hood-hashing-src/src/include)
 
 ########################################################################################################################
 ########################################################################################################################
@@ -311,12 +316,14 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
 target_link_libraries(${PROJECT_NAME} PUBLIC Threads::Threads Eigen3::Eigen)
 
 # Attach address sanitizer
-set(ATTACH_ADDRESS_SANITIZER $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU,Clang>>:-fno-omit-frame-pointer;-fsanitize=address>)
+set(ATTACH_ADDRESS_SANITIZER $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU,Clang>>:-fno-omit-frame-pointer;-fsanitize=address>
+                            $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:MSVC>>:/INCREMENTAL:NO;/fsanitize=address>)
 # Set permission flags
-set(PERMISSION_FLAGS $<$<CXX_COMPILER_ID:GNU,Clang>:-fpermissive> $<$<CXX_COMPILER_ID:MSVC>:/permissive>)
+set(PERMISSION_FLAGS $<$<CXX_COMPILER_ID:GNU,Clang>:-fpermissive> 
+                    $<$<CXX_COMPILER_ID:MSVC>:/permissive>)
 # Set warning flags
-set(WARNING_FLAGS   $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU,Clang>>:-Wpedantic;-Wall;-Wextra>
-                    $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:MSVC>>:/W4>)   
+set(WARNING_FLAGS $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU,Clang>>:-Wpedantic;-Wall;-Wextra>
+                $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:MSVC>>:/W4>)   
 
 # [Set compile options]
 if(${ENABLE_COMPILER_WARNINGS})
