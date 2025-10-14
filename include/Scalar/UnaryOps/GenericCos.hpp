@@ -34,8 +34,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericCos)
-  DISABLE_MOVE(GenericCos)
+  #if 0
+    DISABLE_COPY(GenericCos)
+    DISABLE_MOVE(GenericCos)
+  #endif
 
 public:
   // Block index
@@ -162,6 +164,11 @@ public:
     UNARY_FIND_ME(); 
   }
 
+  // Clone scalar expression
+  constexpr const auto& cloneExp() const {
+    return cos(*mp_left);
+  }
+
   // Destructor
   V_DTR(~GenericCos()) = default;
 };
@@ -173,6 +180,7 @@ using GenericCosT = GenericCos<T, OpType>;
 // Function for cos computation
 template <typename T> 
 constexpr const auto& cos(const IVariable<T>& u) {
-  auto tmp = Allocate<GenericCosT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpObj);
+  const auto& _u = u.cloneExp();
+  auto tmp = Allocate<GenericCosT<T>>(const_cast<T*>(static_cast<const T*>(&_u)), OpObj);
   return *tmp;
 }

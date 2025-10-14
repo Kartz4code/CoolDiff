@@ -66,10 +66,10 @@ TEST(MatTest, Test15) {
   res = res*R3;
 
   // Evaluated at different locations
-  const auto& d1 = CoolDiff::Tensor2R::DevalF(res, R1);
-  const auto& d4 = CoolDiff::Tensor2R::DevalF(res, R4);
-  const auto& d2 = CoolDiff::Tensor2R::DevalF(res, R2);
-  const auto& d3 = CoolDiff::Tensor2R::DevalF(res, R3);
+  const auto& d1 = CoolDiff::TensorR2::DevalF(res, R1);
+  const auto& d4 = CoolDiff::TensorR2::DevalF(res, R4);
+  const auto& d2 = CoolDiff::TensorR2::DevalF(res, R2);
+  const auto& d3 = CoolDiff::TensorR2::DevalF(res, R3);
 
   // Verification deval function
   auto verify_deval_function = [&](auto DXres) {
@@ -127,10 +127,10 @@ TEST(MatTest, Test14) {
   res = res*R3;
 
   // Evaluated at different locations
-  const auto& d1 = CoolDiff::Tensor2R::DevalF(res, R1);
-  const auto& d2 = CoolDiff::Tensor2R::DevalF(res, R2);
-  const auto& d4 = CoolDiff::Tensor2R::DevalF(res, R4);
-  const auto& d3 = CoolDiff::Tensor2R::DevalF(res, R3);
+  const auto& d1 = CoolDiff::TensorR2::DevalF(res, R1);
+  const auto& d2 = CoolDiff::TensorR2::DevalF(res, R2);
+  const auto& d4 = CoolDiff::TensorR2::DevalF(res, R4);
+  const auto& d3 = CoolDiff::TensorR2::DevalF(res, R3);
 
   // Verification deval function
   auto verify_deval_function = [&](auto DXres) {
@@ -188,10 +188,10 @@ TEST(MatTest, Test13) {
   res = res*R3;
 
   // Evaluated at different locations
-  const auto& d1 = CoolDiff::Tensor2R::DevalF(res, R1);
-  const auto& d2 = CoolDiff::Tensor2R::DevalF(res, R2);
-  const auto& d3 = CoolDiff::Tensor2R::DevalF(res, R3);
-  const auto& d4 = CoolDiff::Tensor2R::DevalF(res, R4);
+  const auto& d1 = CoolDiff::TensorR2::DevalF(res, R1);
+  const auto& d2 = CoolDiff::TensorR2::DevalF(res, R2);
+  const auto& d3 = CoolDiff::TensorR2::DevalF(res, R3);
+  const auto& d4 = CoolDiff::TensorR2::DevalF(res, R4);
 
   // Verification deval function
   auto verify_deval_function = [&](auto DXres) {
@@ -249,10 +249,10 @@ TEST(MatTest, Test12) {
   res = res*R3;
 
   // Evaluated at different locations
-  const auto& d4 = CoolDiff::Tensor2R::DevalF(res, R4);
-  const auto& d1 = CoolDiff::Tensor2R::DevalF(res, R1);
-  const auto& d2 = CoolDiff::Tensor2R::DevalF(res, R2);
-  const auto& d3 = CoolDiff::Tensor2R::DevalF(res, R3);
+  const auto& d4 = CoolDiff::TensorR2::DevalF(res, R4);
+  const auto& d1 = CoolDiff::TensorR2::DevalF(res, R1);
+  const auto& d2 = CoolDiff::TensorR2::DevalF(res, R2);
+  const auto& d3 = CoolDiff::TensorR2::DevalF(res, R3);
 
   // Verification deval function
   auto verify_deval_function = [&](auto DXres) {
@@ -300,7 +300,7 @@ TEST(MatTest, Test11) {
 
   // Verification eval function
   auto verify_eval_function = [&](auto Xres) {
-    const auto& R = CoolDiff::Tensor2R::Eval(E);
+    const auto& R = CoolDiff::TensorR2::Eval(E);
     for (size_t i{}; i < R.getNumRows(); ++i) {
       for (size_t j{}; j < R.getNumColumns(); ++j) {
         ASSERT_NEAR(std::abs(R(i, j)), std::abs(Xres[i][j]), epi);
@@ -310,7 +310,7 @@ TEST(MatTest, Test11) {
   
   // Verification deval function
   auto verify_deval_function = [&](auto DXres) {
-    const auto& DR = CoolDiff::Tensor2R::DevalF(E, X);
+    const auto& DR = CoolDiff::TensorR2::DevalF(E, X);
     for (size_t i{}; i < DR.getNumRows(); ++i) {
       for (size_t j{}; j < DR.getNumColumns(); ++j) {
         ASSERT_NEAR(std::abs(DR(i, j)), std::abs(DXres[i][j]), epi);
@@ -344,8 +344,8 @@ TEST(MatTest, Test10) {
   Matrix<Expression> E = det(A*S);
   E = LogM(E);
 
-  CoolDiff::Tensor2R::Eval(E);
-  CoolDiff::Tensor2R::DevalF(E,X); 
+  CoolDiff::TensorR2::Eval(E);
+  CoolDiff::TensorR2::DevalF(E,X); 
 }
 
 // Matrix inverse and exponential operation (TODO)
@@ -365,8 +365,8 @@ TEST(MatTest, Test9) {
   E = (A*inv(MatrixExponential(S))*inv(A));
   E = inv(E)/(S(0,0)*S(1,0));
 
-  CoolDiff::Tensor2R::Eval(E);
-  CoolDiff::Tensor2R::DevalF(E,X);
+  CoolDiff::TensorR2::Eval(E);
+  CoolDiff::TensorR2::DevalF(E,X);
 }
 
 // Matrix sin/cos operation
@@ -417,7 +417,7 @@ TEST(MatTest, Test8) {
 
   // Verification eval function
   auto verify_eval_function = [&](auto Xres) {
-    const auto& R = CoolDiff::Tensor2R::Eval(E);
+    const auto& R = CoolDiff::TensorR2::Eval(E);
     for (size_t i{}; i < R.getNumRows(); ++i) {
       for (size_t j{}; j < R.getNumColumns(); ++j) {
         ASSERT_NEAR(std::abs(R(i, j)), std::abs(Xres[i][j]), epi);
@@ -427,7 +427,7 @@ TEST(MatTest, Test8) {
 
   // Verification deval function
   auto verify_deval_function = [&](auto DXres) {
-    const auto& DR = CoolDiff::Tensor2R::DevalF(E, X);
+    const auto& DR = CoolDiff::TensorR2::DevalF(E, X);
     for (size_t i{}; i < DR.getNumRows(); ++i) {
       for (size_t j{}; j < DR.getNumColumns(); ++j) {
         ASSERT_NEAR(std::abs(DR(i, j)), std::abs(DXres[i][j]), epi);
@@ -496,7 +496,7 @@ TEST(MatTest, Test7) {
 
   // Verification eval function
   auto verify_eval_function = [&](auto Xres) {
-    const auto& R = CoolDiff::Tensor2R::Eval(E);
+    const auto& R = CoolDiff::TensorR2::Eval(E);
     for (size_t i{}; i < R.getNumRows(); ++i) {
       for (size_t j{}; j < R.getNumColumns(); ++j) {
         if (R(i, j) != Xres[i][j]) {
@@ -509,7 +509,7 @@ TEST(MatTest, Test7) {
 
   // Verification deval function
   auto verify_deval_function = [&](auto DXres, auto &X) {
-    const auto& DR = CoolDiff::Tensor2R::DevalF(E, X);
+    const auto& DR = CoolDiff::TensorR2::DevalF(E, X);
     for (size_t i{}; i < DR.getNumRows(); ++i) {
       for (size_t j{}; j < DR.getNumColumns(); ++j) {
         if (DR(i, j) != DXres[i][j]) {
@@ -585,7 +585,7 @@ TEST(MatTest, Test6) {
 
   // Verification eval function
   auto verify_eval_function = [&](auto Xres) {
-    const auto& R = CoolDiff::Tensor2R::Eval(E);
+    const auto& R = CoolDiff::TensorR2::Eval(E);
     for (size_t i{}; i < R.getNumRows(); ++i) {
       for (size_t j{}; j < R.getNumColumns(); ++j) {
         if (R(i, j) != Xres[i][j]) {
@@ -598,7 +598,7 @@ TEST(MatTest, Test6) {
 
   // Verification deval function
   auto verify_deval_function = [&](auto DXres) {
-    const auto& DR = CoolDiff::Tensor2R::DevalF(E, X);
+    const auto& DR = CoolDiff::TensorR2::DevalF(E, X);
     for (size_t i{}; i < DR.getNumRows(); ++i) {
       for (size_t j{}; j < DR.getNumColumns(); ++j) {
         if (DR(i, j) != DXres[i][j]) {
@@ -662,7 +662,7 @@ TEST(MatTest, Test5) {
 
   // Verification eval function
   auto verify_eval_function = [&](auto Xres) {
-    const auto& R = CoolDiff::Tensor2R::Eval(E);
+    const auto& R = CoolDiff::TensorR2::Eval(E);
     for (size_t i{}; i < R.getNumRows(); ++i) {
       for (size_t j{}; j < R.getNumColumns(); ++j) {
         if (R(i, j) != Xres[i][j]) {
@@ -675,7 +675,7 @@ TEST(MatTest, Test5) {
 
   // Verification deval function
   auto verify_deval_function = [&](auto DXres) {
-    const auto& DR = CoolDiff::Tensor2R::DevalF(E, X);
+    const auto& DR = CoolDiff::TensorR2::DevalF(E, X);
     for (size_t i{}; i < DR.getNumRows(); ++i) {
       for (size_t j{}; j < DR.getNumColumns(); ++j) {
         if (DR(i, j) != DXres[i][j]) {
@@ -751,7 +751,7 @@ TEST(MatTest, Test4) {
 
   // Verification eval function
   auto verify_eval_function = [&](auto Xres) {
-    const auto& R = CoolDiff::Tensor2R::Eval(E);
+    const auto& R = CoolDiff::TensorR2::Eval(E);
     for (size_t i{}; i < R.getNumRows(); ++i) {
       for (size_t j{}; j < R.getNumColumns(); ++j) {
         if (R(i, j) != Xres[i][j]) {
@@ -764,7 +764,7 @@ TEST(MatTest, Test4) {
 
   // Verification deval function
   auto verify_deval_function = [&](auto DXres) {
-    const auto& DR = CoolDiff::Tensor2R::DevalF(E, X);
+    const auto& DR = CoolDiff::TensorR2::DevalF(E, X);
     for (size_t i{}; i < DR.getNumRows(); ++i) {
       for (size_t j{}; j < DR.getNumColumns(); ++j) {
         if (DR(i, j) != DXres[i][j]) {
@@ -835,7 +835,7 @@ TEST(MatTest, Test3) {
 
   // Verification eval function
   auto verify_eval_function = [&](auto Xres) {
-    const auto& R = CoolDiff::Tensor2R::Eval(E);
+    const auto& R = CoolDiff::TensorR2::Eval(E);
     for (size_t i{}; i < R.getNumRows(); ++i) {
       for (size_t j{}; j < R.getNumColumns(); ++j) {
         if (R(i, j) != Xres[i][j]) {
@@ -848,7 +848,7 @@ TEST(MatTest, Test3) {
 
   // Verification deval function
   auto verify_deval_function = [&](auto DXres) {
-    const auto& DR = CoolDiff::Tensor2R::DevalF(E, X);
+    const auto& DR = CoolDiff::TensorR2::DevalF(E, X);
     for (size_t i{}; i < DR.getNumRows(); ++i) {
       for (size_t j{}; j < DR.getNumColumns(); ++j) {
         if (DR(i, j) != DXres[i][j]) {
@@ -923,7 +923,7 @@ TEST(MatTest, Test2) {
 
   // Verification eval function
   auto verify_eval_function = [&](auto Xres) {
-    const auto& R = CoolDiff::Tensor2R::Eval(E);
+    const auto& R = CoolDiff::TensorR2::Eval(E);
     for (size_t i{}; i < R.getNumRows(); ++i) {
       for (size_t j{}; j < R.getNumColumns(); ++j) {
         if (R(i, j) != Xres[i][j]) {
@@ -936,7 +936,7 @@ TEST(MatTest, Test2) {
 
   // Verification deval function
   auto verify_deval_function = [&](auto DXres) {
-    const auto& DR = CoolDiff::Tensor2R::DevalF(E, X);
+    const auto& DR = CoolDiff::TensorR2::DevalF(E, X);
     for (size_t i{}; i < DR.getNumRows(); ++i) {
       for (size_t j{}; j < DR.getNumColumns(); ++j) {
         if (DR(i, j) != DXres[i][j]) {
@@ -999,7 +999,7 @@ TEST(MatTest, Test1) {
 
   // Verification eval function
   auto verify_eval_function = [&](auto Xres) {
-    const auto& R = CoolDiff::Tensor2R::Eval(E);
+    const auto& R = CoolDiff::TensorR2::Eval(E);
     for (size_t i{}; i < R.getNumRows(); ++i) {
       for (size_t j{}; j < R.getNumColumns(); ++j) {
         if (R(i, j) != Xres[i][j]) {
@@ -1012,7 +1012,7 @@ TEST(MatTest, Test1) {
 
   // Verification deval function
   auto verify_deval_function = [&](auto DXres) {
-    const auto& DR = CoolDiff::Tensor2R::DevalF(E, X);
+    const auto& DR = CoolDiff::TensorR2::DevalF(E, X);
     for (size_t i{}; i < DR.getNumRows(); ++i) {
       for (size_t j{}; j < DR.getNumColumns(); ++j) {
         if (DR(i, j) != DXres[i][j]) {

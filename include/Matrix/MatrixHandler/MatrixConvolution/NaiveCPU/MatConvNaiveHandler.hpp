@@ -78,16 +78,16 @@ class MatConvNaiveHandler : public T {
             }
 
             // Get block matrix
-            mp_arr[0]->getBlockMat({(i * stride_x), (i * stride_x) + crows - 1},
-                                   {(j * stride_y), (j * stride_y) + ccols - 1},
-                                   mp_arr[1]);
+            mp_arr[0]->getBlockMat( {(i * stride_x), (i * stride_x) + crows - 1},
+                                    {(j * stride_y), (j * stride_y) + ccols - 1},
+                                    mp_arr[1] );
 
             // Hadamard product
-            MatrixHadamard(mp_arr[1], rhs, mp_arr[2]);
+            CoolDiff::TensorR2::MatOperators::MatrixHadamard(mp_arr[1], rhs, mp_arr[2]);
 
             // Sigma function
-            MatrixMul(Ones(1, crows), mp_arr[2], mp_arr[3]);
-            MatrixMul(mp_arr[3], Ones(ccols, 1), mp_arr[4]);
+            CoolDiff::TensorR2::MatOperators::MatrixMul(CoolDiff::TensorR2::MatrixBasics::Ones(1, crows), mp_arr[2], mp_arr[3]);
+            CoolDiff::TensorR2::MatOperators::MatrixMul(mp_arr[3], CoolDiff::TensorR2::MatrixBasics::Ones(ccols, 1), mp_arr[4]);
 
             // Set block matrix
             result->setBlockMat({i, i}, {j, j}, mp_arr[4]);

@@ -140,7 +140,7 @@ public:
 
       // Get raw pointers to right matrix
       const size_t n = mp_right->getNumRows();
-      const auto eye_n = const_cast<MatType*>(Eye(n));
+      const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(n));
 
       /* IMPORTANT: The derivative is computed here */
       // Matrix transpose
@@ -157,7 +157,11 @@ public:
       }
       
       std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(),
-              [&](const auto& item) {                                                     
+              [&](const auto& item) {
+                const size_t rows = mp_arr[2]->getNumRows();
+                const size_t cols = mp_arr[2]->getNumColumns(); 
+                ASSERT((rows == 1) && (cols == 1), "Matrix expression not scalar for reverse mode derivative");   
+                
                 const auto idx = item.first; const auto val = item.second;   
                 MatType*& ptr = this->m_cloned[this->incFunc()];             
                 MATRIX_SCALAR_MUL(1, val, ptr);                           
@@ -194,7 +198,11 @@ public:
         }  
 
         std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(),         
-                      [&](const auto &item) {                                                   
+                      [&](const auto &item) {      
+                        const size_t rows = mp_arr[4]->getNumRows();
+                        const size_t cols = mp_arr[4]->getNumColumns(); 
+                        ASSERT((rows == 1) && (cols == 1), "Matrix expression not scalar for reverse mode derivative"); 
+
                         const auto idx = item.first; const auto val = item.second;  
                         MatType*& ptr = this->m_cloned[this->incFunc()];            
                         MATRIX_SCALAR_MUL(mp_arr4_val, val, ptr);                         

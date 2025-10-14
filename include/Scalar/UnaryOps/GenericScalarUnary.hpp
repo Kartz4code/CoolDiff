@@ -30,8 +30,6 @@ class Generic##OPS : public IVariable<Generic##OPS<T, Callables...>> {         \
   private:                                                                     \
     T* mp_left{nullptr};                                                       \
     Tuples<Callables...> m_caller;                                             \
-    DISABLE_COPY(Generic##OPS)                                                 \
-    DISABLE_MOVE(Generic##OPS)                                                 \
   public:                                                                      \
     const size_t m_nidx{};                                                     \
     OMPair m_cache;                                                            \
@@ -104,13 +102,15 @@ class Generic##OPS : public IVariable<Generic##OPS<T, Callables...>> {         \
       return TOSTRING(Generic##OPS);                                           \
     }                                                                          \
     bool findMe(void* v) const { UNARY_FIND_ME(); }                            \
+    constexpr const auto& cloneExp() const { return OPS(*mp_left); }           \
     V_DTR(~Generic##OPS()) = default;                                          \
   };                                                                           \
 template <typename T>                                                          \
 using CONCAT3(Generic, OPS, T) = Generic##OPS<T, OpType>;                      \
 template <typename T> constexpr const auto& OPS(const IVariable<T>& u) {       \
+  const auto& _u = u.cloneExp();                                               \
   auto tmp = Allocate < CONCAT3(Generic, OPS, T) < T >>                        \
-               (const_cast<T *>(static_cast<const T *>(&u)), OpObj);           \
+               (const_cast<T *>(static_cast<const T *>(&_u)), OpObj);          \
   return *tmp;                                                                 \
 }
 

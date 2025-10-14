@@ -34,8 +34,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericATanh)
-  DISABLE_MOVE(GenericATanh)
+  #if 0
+    DISABLE_COPY(GenericATanh)
+    DISABLE_MOVE(GenericATanh)
+  #endif
 
 public:
   // Block index
@@ -165,6 +167,11 @@ public:
     UNARY_FIND_ME(); 
   }
 
+  // Clone scalar expression
+  constexpr const auto& cloneExp() const {
+    return atanh(*mp_left);
+  }
+
   // Destructor
   V_DTR(~GenericATanh()) = default;
 };
@@ -176,6 +183,7 @@ using GenericATanhT = GenericATanh<T, OpType>;
 // Function for atanh computation
 template <typename T> 
 constexpr const auto& atanh(const IVariable<T>& u) {
-  auto tmp = Allocate<GenericATanhT<T>>(const_cast<T *>(static_cast<const T *>(&u)), OpObj);
+  const auto& _u = u.cloneExp();
+  auto tmp = Allocate<GenericATanhT<T>>(const_cast<T*>(static_cast<const T*>(&_u)), OpObj);
   return *tmp;
 }

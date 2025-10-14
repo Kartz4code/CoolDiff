@@ -92,22 +92,28 @@ class MatDervConvNaiveHandler : public T {
                                  mp_arr[3]);
 
           // L (X) I - Left matrix and identity Kronocker product (Policy design)
-          MatrixKron(mp_arr[2], Ones(nrows_x, ncols_x), mp_arr[4]);
+          CoolDiff::TensorR2::MatOperators::MatrixKron(mp_arr[2], CoolDiff::TensorR2::MatrixBasics::Ones(nrows_x, ncols_x), mp_arr[4]);
           // R (X) I - Right matrix and identity Kronocker product (Policy design)
-          MatrixKron(rhs, Ones(nrows_x, ncols_x), mp_arr[5]);
+          CoolDiff::TensorR2::MatOperators::MatrixKron(rhs, CoolDiff::TensorR2::MatrixBasics::Ones(nrows_x, ncols_x), mp_arr[5]);
 
           // Hadamard product with left and right derivatives (Policy design)
-          MatrixHadamard(mp_arr[4], drhs, mp_arr[6]);
-          MatrixHadamard(mp_arr[3], mp_arr[5], mp_arr[7]);
+          CoolDiff::TensorR2::MatOperators::MatrixHadamard(mp_arr[4], drhs, mp_arr[6]);
+          CoolDiff::TensorR2::MatOperators::MatrixHadamard(mp_arr[3], mp_arr[5], mp_arr[7]);
 
           // Addition between left and right derivatives (Policy design)
-          MatrixAdd(mp_arr[6], mp_arr[7], mp_arr[8]);
+          CoolDiff::TensorR2::MatOperators::MatrixAdd(mp_arr[6], mp_arr[7], mp_arr[8]);
 
           // Sigma funcion derivative
-          MatrixKron(Ones(1, crows), Eye(nrows_x), mp_arr[9]);
-          MatrixKron(Ones(ccols, 1), Eye(ncols_x), mp_arr[10]);
-          MatrixMul(mp_arr[9], mp_arr[8], mp_arr[11]);
-          MatrixMul(mp_arr[11], mp_arr[10], mp_arr[12]);
+          CoolDiff::TensorR2::MatOperators::MatrixKron( CoolDiff::TensorR2::MatrixBasics::Ones(1, crows), 
+                                                        CoolDiff::TensorR2::MatrixBasics::Eye(nrows_x), 
+                                                        mp_arr[9] );
+
+          CoolDiff::TensorR2::MatOperators::MatrixKron( CoolDiff::TensorR2::MatrixBasics::Ones(ccols, 1), 
+                                                        CoolDiff::TensorR2::MatrixBasics::Eye(ncols_x), 
+                                                        mp_arr[10]  );
+
+          CoolDiff::TensorR2::MatOperators::MatrixMul(mp_arr[9], mp_arr[8], mp_arr[11]);
+          CoolDiff::TensorR2::MatOperators::MatrixMul(mp_arr[11], mp_arr[10], mp_arr[12]);
 
           // Set block matrix
           result->setBlockMat({(i * nrows_x), (i + 1) * nrows_x - 1},

@@ -105,18 +105,18 @@ public:
     const size_t n_size = mp_right->getNumRows();
 
     // Hadamard product with identity matrix
-    MATRIX_HADAMARD(right_mat, Eye(n_size), mp_arr[0]);
+    MATRIX_HADAMARD(right_mat, CoolDiff::TensorR2::MatrixBasics::Eye(n_size), mp_arr[0]);
 
     // Sum of diagonal elements
-    MATRIX_MUL(Ones(1, n_size), mp_arr[0], mp_arr[1]);
-    MATRIX_MUL(mp_arr[1], Ones(n_size, 1), mp_arr[2]);
+    MATRIX_MUL(CoolDiff::TensorR2::MatrixBasics::Ones(1, n_size), mp_arr[0], mp_arr[1]);
+    MATRIX_MUL(mp_arr[1], CoolDiff::TensorR2::MatrixBasics::Ones(n_size, 1), mp_arr[2]);
 
     // Return result pointer
     return mp_arr[2];
   }
 
   // Matrix devalF computation
-  V_OVERRIDE(Matrix<Type> *devalF(Matrix<Variable> &X)) {
+  V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable> &X)) {
     // Check whether dimensions are correct
     ASSERT(verifyDim(), "Matrix is not a square matrix to compute trace");
 
@@ -136,13 +136,21 @@ public:
     const size_t ncols_x = X.getNumColumns();
 
     // L (X) I - Left matrix and identity Kronocker product (Policy design)
-    MATRIX_KRON(Eye(n_size), Ones(nrows_x, ncols_x), mp_arr[3]);
+    MATRIX_KRON(CoolDiff::TensorR2::MatrixBasics::Eye(n_size), 
+                CoolDiff::TensorR2::MatrixBasics::Ones(nrows_x, ncols_x), 
+                mp_arr[3]);
 
     // Hadamard product with left and right derivatives (Policy design)
     MATRIX_HADAMARD(mp_arr[3], dright_mat, mp_arr[4]);
 
-    MATRIX_KRON(Ones(1, n_size), Eye(nrows_x), mp_arr[5]);
-    MATRIX_KRON(Ones(n_size, 1), Eye(ncols_x), mp_arr[6]);
+    MATRIX_KRON(  CoolDiff::TensorR2::MatrixBasics::Ones(1, n_size), 
+                  CoolDiff::TensorR2::MatrixBasics::Eye(nrows_x), 
+                  mp_arr[5] );
+
+    MATRIX_KRON(  CoolDiff::TensorR2::MatrixBasics::Ones(n_size, 1), 
+                  CoolDiff::TensorR2::MatrixBasics::Eye(ncols_x), 
+                  mp_arr[6] );
+                  
     MATRIX_MUL(mp_arr[5], mp_arr[4], mp_arr[7]);
     MATRIX_MUL(mp_arr[7], mp_arr[6], mp_arr[8]);
 
@@ -169,7 +177,7 @@ public:
 
       /* IMPORTANT: The derivative is computed here */
       const size_t n = mp_right->getNumRows();
-      const auto eye_n = const_cast<MatType*>(Eye(n));
+      const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(n));
       MATRIX_SCALAR_MUL(1, eye_n, mp_arr[9]);
 
       if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
@@ -183,7 +191,11 @@ public:
       }
       
       std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(),
-              [&](const auto& item) {                                                     
+              [&](const auto& item) {   
+                const size_t rows = mp_arr[9]->getNumRows();
+                const size_t cols = mp_arr[9]->getNumColumns(); 
+                ASSERT((rows == 1) && (cols == 1), "Matrix expression not scalar for reverse mode derivative"); 
+
                 const auto idx = item.first; const auto val = item.second;    
                 MatType*& ptr = this->m_cloned[this->incFunc()];            
                 MATRIX_SCALAR_MUL(1, val, ptr);                           
@@ -206,7 +218,7 @@ public:
 
         /* IMPORTANT: The derivative is computed here */
         const size_t n = mp_right->getNumRows();
-        const auto eye_n = const_cast<MatType*>(Eye(n));
+        const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(n));
 
         // Cache multiplication
         MATRIX_SCALAR_MUL(cCache_val, eye_n, mp_arr[11]);
@@ -224,7 +236,11 @@ public:
         }  
 
         std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(),         
-                      [&](const auto &item) {                                                   
+                      [&](const auto &item) {    
+                      const size_t rows = mp_arr[11]->getNumRows();
+                      const size_t cols = mp_arr[11]->getNumColumns(); 
+                      ASSERT((rows == 1) && (cols == 1), "Matrix expression not scalar for reverse mode derivative"); 
+
                         const auto idx = item.first; const auto val = item.second;   
                         MatType*& ptr = this->m_cloned[this->incFunc()];           
                         MATRIX_SCALAR_MUL(mp_arr11_val, val, ptr);                         

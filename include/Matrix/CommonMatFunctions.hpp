@@ -36,10 +36,10 @@
 #include "MatrixBasics.hpp"
 
 namespace CoolDiff {
-  namespace Tensor2R {
+  namespace TensorR2 {
     // Matrix evaluation for valid MetaVariable type
     template <typename T> 
-    Matrix<Type>& Eval(Matrix<T>& Mexp) {
+    inline Matrix<Type>& Eval(Matrix<T>& Mexp) {
       // Reset graph/tree
       Mexp.resetImpl();
       // Return evaluation value
@@ -48,7 +48,7 @@ namespace CoolDiff {
 
     // Matrix evaluation for IMatrix expressions
     template<typename T>
-    Matrix<Type>& Eval(IMatrix<T>& Mexp) {
+    inline Matrix<Type>& Eval(IMatrix<T>& Mexp) {
       // Reset graph/tree
       Mexp.reset();
       // Return evaluation value
@@ -57,7 +57,7 @@ namespace CoolDiff {
 
     // Matrix-Matrix derivative evaluation for valid MetaVariable type
     template <typename T>
-    Matrix<Type>& DevalF(Matrix<T>& Mexp, Matrix<Variable>& X) {
+    inline Matrix<Type>& DevalF(Matrix<T>& Mexp, Matrix<Variable>& X) {
       // Reset graph/tree
       Mexp.resetImpl();
       // Return evaluation value
@@ -66,13 +66,43 @@ namespace CoolDiff {
 
     // Matrix evaluation for IMatrix expressions
     template<typename T>
-    Matrix<Type>& DevalF(IMatrix<T>& Mexp, Matrix<Variable>& X) {
+    inline Matrix<Type>& DevalF(IMatrix<T>& Mexp, Matrix<Variable>& X) {
       // Reset graph/tree
       Mexp.reset();
       // Return evaluation value
       return *(Mexp.devalF(X));
     }
 
+    // Precomputation of matrix expression
+    template<typename T> 
+    inline void PreComp(Matrix<T>& Mexp) {
+      // Reset graph/tree
+      Mexp.resetImpl();
+      // Return evaluation value
+      Mexp.traverse();
+    }
+
+    // Precomputation of matrix expression
+    template<typename T>
+    inline void PreComp(IMatrix<T>& Mexp) {
+      // Reset graph/tree
+      Mexp.reset();
+      // Return evaluation value
+      Mexp.traverse();
+    }
+
+    // Reverse derivative of matrix expression
+    template<typename T>
+    inline Matrix<Type>& DevalR(Matrix<T>& Mexp, const Matrix<Variable>& X) {
+      return (*Mexp.getCache()[X.m_nidx]);
+    }
+
+    // Reverse derivative of matrix expression
+    template<typename T>
+    inline Matrix<Type>& DevalR(IMatrix<T>& Mexp, const Matrix<Variable>& X) {
+      return (*Mexp.getCache()[X.m_nidx]);
+    }
+    
     // Forward mode algorithmic differentiation (Matrix)
     template <typename T>
     Matrix<Type>& DevalF(T& exp, const Matrix<Variable>& m, bool serial = true) {
@@ -289,11 +319,11 @@ constexpr const auto& Sigma(const IMatrix<T>& X) {
   const size_t rows = X.getNumRows();
   const size_t cols = X.getNumColumns();
   if constexpr(axis == Axis::ROW) {  
-    return OnesRef(1, rows)*X;
+    return CoolDiff::TensorR2::MatrixBasics::OnesRef(1, rows)*X;
   } else if constexpr(axis == Axis::COLUMN) {
-    return X*OnesRef(cols, 1);
+    return X*CoolDiff::TensorR2::MatrixBasics::OnesRef(cols, 1);
   } else {
-    return OnesRef(1, rows)*X*OnesRef(cols, 1);
+    return CoolDiff::TensorR2::MatrixBasics::OnesRef(1, rows)*X*CoolDiff::TensorR2::MatrixBasics::OnesRef(cols, 1);
   }
 }
 
@@ -309,11 +339,11 @@ constexpr const auto& SoftMax(const IMatrix<T>& X) {
   const size_t rows = X.getNumRows();
   const size_t cols = X.getNumColumns();
   if constexpr(Axis::ROW == axis) {
-    return ExpM(X - (OnesRef(rows,1))*LogM(Sigma<Axis::ROW>(ExpM(X))));
+    return ExpM(X - (CoolDiff::TensorR2::MatrixBasics::OnesRef(rows,1))*LogM(Sigma<Axis::ROW>(ExpM(X))));
   } else if constexpr(Axis::COLUMN == axis) {
-    return ExpM(X - LogM(Sigma<Axis::COLUMN>(ExpM(X)))*(OnesRef(1,cols)));
+    return ExpM(X - LogM(Sigma<Axis::COLUMN>(ExpM(X)))*(CoolDiff::TensorR2::MatrixBasics::OnesRef(1,cols)));
   } else {
-    return ExpM(X - (OnesRef(rows,1))*LogM(Sigma<Axis::ALL>(ExpM(X)))*(OnesRef(1,cols)));
+    return ExpM(X - (CoolDiff::TensorR2::MatrixBasics::OnesRef(rows,1))*LogM(Sigma<Axis::ALL>(ExpM(X)))*(CoolDiff::TensorR2::MatrixBasics::OnesRef(1,cols)));
   }
 }
 
@@ -334,7 +364,7 @@ Matrix<Expression>& pow(const IMatrix<T>& X, const size_t n) {
   }
 
   // Run loop till truncation
-  (*tmp[0]) = EyeRef(rows);
+  (*tmp[0]) = CoolDiff::TensorR2::MatrixBasics::EyeRef(rows);
   for(size_t i{1}; i <= n; ++i) {
       (*tmp[i]) = (*tmp[i-1])*(X);
   }
@@ -363,7 +393,7 @@ Matrix<Expression>& MatrixExponential(const IMatrix<T>& X) {
   }
 
   // Run loop till truncation
-  (*tmp[0]) = EyeRef(rows);
+  (*tmp[0]) = CoolDiff::TensorR2::MatrixBasics::EyeRef(rows);
   result = (*tmp[0]);
   for(size_t i{1}; i <= N; ++i) {
       (*tmp[i]) = (*tmp[i-1])*X;
@@ -394,10 +424,10 @@ Matrix<Expression>& MatrixLog(const IMatrix<T>& X) {
   }
 
   // Run loop till truncation
-  (*tmp[0]) = EyeRef(rows);
-  result = ZerosRef(rows, cols);
+  (*tmp[0]) = CoolDiff::TensorR2::MatrixBasics::EyeRef(rows);
+  result = CoolDiff::TensorR2::MatrixBasics::ZerosRef(rows, cols);
   for(size_t i{1}; i <= N; ++i) {
-      (*tmp[i]) = (*tmp[i-1])*(X - EyeRef(rows));
+      (*tmp[i]) = (*tmp[i-1])*(X - CoolDiff::TensorR2::MatrixBasics::EyeRef(rows));
       result = result + (std::pow(((Type)(-1)), i+1)/i)*((*tmp[i]));
   }
 

@@ -35,11 +35,11 @@ Type OracleMatrix::eval() {
 }
 
 Matrix<Type>* OracleMatrix::evalMat() { 
-  return &CoolDiff::Tensor2R::Eval(m_exp); 
+  return &CoolDiff::TensorR2::Eval(m_exp); 
 }
 
 Matrix<Type>* OracleMatrix::jacobian() { 
-  return &CoolDiff::Tensor2R::DevalF(m_exp, m_X); 
+  return &CoolDiff::TensorR2::DevalF(m_exp, m_X); 
 }
 
 std::string_view OracleMatrix::getOracleType() const { 

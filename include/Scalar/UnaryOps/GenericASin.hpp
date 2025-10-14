@@ -34,8 +34,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericASin)
-  DISABLE_MOVE(GenericASin)
+  #if 0
+    DISABLE_COPY(GenericASin)
+    DISABLE_MOVE(GenericASin)
+  #endif
 
 public:
   // Block index
@@ -166,6 +168,11 @@ public:
     UNARY_FIND_ME(); 
   }
 
+  // Clone scalar expression
+  constexpr const auto& cloneExp() const {
+    return asin(*mp_left);
+  }
+
   // Destructor
   V_DTR(~GenericASin()) = default;
 };
@@ -177,6 +184,7 @@ using GenericASinT = GenericASin<T, OpType>;
 // Function for asin computation
 template <typename T> 
 constexpr const auto& asin(const IVariable<T>& u) {
-  auto tmp = Allocate<GenericASinT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpObj);
+  const auto& _u = u.cloneExp();
+  auto tmp = Allocate<GenericASinT<T>>(const_cast<T*>(static_cast<const T*>(&_u)), OpObj);
   return *tmp;
 }

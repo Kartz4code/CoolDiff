@@ -51,7 +51,7 @@ int CountCols(std::string_view file) {
 }
 
 // Get an input/output paired dataset
-Pair<Matrix<Type> *, Matrix<Type> *> LoadData() {
+Pair<Matrix<Type>*, Matrix<Type>*> LoadData() {
   std::string_view in_file = GaussNewtonData::g_input_data;
   std::string_view out_file = GaussNewtonData::g_output_data;
   std::string str{};
@@ -96,7 +96,6 @@ Pair<Matrix<Type> *, Matrix<Type> *> LoadData() {
   return {X, Y};
 }
 
-
 void RModeDerv() {
   Matrix<Variable> X(2,2);
   X(0,0) = 4;  X(0,1) = 3; 
@@ -122,50 +121,29 @@ void RModeDerv() {
   auto smax = SoftMax(doubler);
   Matrix<Expression> l3 = trace(SinM((transpose(X)^X)*inv(X)*smax + 6.2*X)*X)*2;
 
-
-
   Matrix<Expression> res = -1.25*CosM(l3);
   res = 10 + res*CosM(res*res) + 2.24*res + trace(X)*det(X);
   res = res + det(X) + trace(X) + l3*MatrixFrobeniusNorm(doubler*X) + SinM(res - res*res);
   res = res + res + Sigma(doubler);
 
-  Matrix<Expression> tester = doubler;
+  // Testing function
+  auto tester = res*trace(doubler)*res;
 
-  /*  
-  auto X1 = X;
-  auto X2 = X1*X;
-  Matrix<Expression> res = MatrixFrobeniusNorm(X2*X2);
-  res = res + trace(X1*X2) + trace(X1*X2);
-  */
-
-  res.resetImpl();
-  res.traverse();
-
-  //auto it1 = res.getCache()[W1.m_nidx];
-  //auto it2 = res.getCache()[W2.m_nidx];
-  auto it3 = res.getCache()[X.m_nidx];
+  CoolDiff::TensorR2::PreComp(res); 
+  auto& DX1 = CoolDiff::TensorR2::DevalR(res, X);
   
-  //std::cout << Eval(*it1) << "\n";
-  //std::cout << Eval(*it2) << "\n";
-  std::cout << CoolDiff::Tensor2R::Eval(*it3) << "\n";
-  std::cout << CoolDiff::Tensor2R::Eval(tester) << "\n";
+  std::cout << CoolDiff::TensorR2::Eval(DX1) << "\n";
+  std::cout << CoolDiff::TensorR2::Eval(tester) << "\n";
 
   X[0] = 1;  X[1] = 2; 
-  X[2] = 3;  X[3] = 4;
+  X[2] = 3;  X[3] = 5;
 
-  res.resetImpl();
-  res.traverse();
+  CoolDiff::TensorR2::PreComp(res); 
+  auto& DX2 = CoolDiff::TensorR2::DevalR(res, X);
 
-  //it1 = res.getCache()[W1.m_nidx];
-  //it2 = res.getCache()[W2.m_nidx];
-  it3 = res.getCache()[X.m_nidx];
-  
-  //std::cout << Eval(*it1) << "\n";
-  //std::cout << Eval(*it2) << "\n";
-  std::cout << CoolDiff::Tensor2R::Eval(*it3) << "\n";
-  std::cout << CoolDiff::Tensor2R::Eval(tester) << "\n";
+  std::cout << CoolDiff::TensorR2::Eval(DX2) << "\n";
+  std::cout << CoolDiff::TensorR2::Eval(tester) << "\n";
 }
-
 
 // 2D data matching
 void GNMatrix() {
@@ -201,7 +179,7 @@ void GNMatrix() {
 
   TIME_IT_MS(gn.solve());
 
-  std::cout << "Computed values: " << CoolDiff::Tensor2R::Eval(V);
+  std::cout << "Computed values: " << CoolDiff::TensorR2::Eval(V);
   std::cout << "Actual values: " << (Type)3.14159 / 2 << " " << (Type)5 << " " << (Type)-2 << "\n";
 }
 
@@ -242,7 +220,6 @@ void ScalarSolve() {
 
   std::cout << "Computed values: " << CoolDiff::TensorR1::Eval(x) << "\n";
 }
-
 
 int main(int argc, char **argv) { 
   GNMatrix();

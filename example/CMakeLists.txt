@@ -34,20 +34,20 @@ if(${BUILD_EXAMPLES})
     add_executable(Gaussian ${CMAKE_SOURCE_DIR}/example/Gaussian.cpp)
 
     # [Set target include directories]
-    target_include_directories(Gaussian PUBLIC ${INCLUDES})
+    target_include_directories(Gaussian PUBLIC ${PUBLIC_INCLUDES})
 
     # [Link target libraries]
     target_link_libraries(Gaussian PRIVATE CoolDiff)
 
     # [Set compile options]
     if(${ENABLE_COMPILER_WARNINGS})
-        target_compile_options(Gaussian PRIVATE ${WARNING_FLAGS})
+        target_compile_options(Gaussian PRIVATE ${COMPILE_WARNING_FLAGS})
     endif()
-    target_compile_options(Gaussian PRIVATE ${PERMISSION_FLAGS})
-    target_compile_options(Gaussian PRIVATE ${ATTACH_ADDRESS_SANITIZER})
+    target_compile_options(Gaussian PRIVATE ${COMPILE_PERMISSION_FLAGS})
+    target_compile_options(Gaussian PRIVATE ${HOOK_ADDRESS_SANITIZER})
 
     # [Set link options]
-    target_link_options(Gaussian PRIVATE ${ATTACH_ADDRESS_SANITIZER})
+    target_link_options(Gaussian PRIVATE ${HOOK_ADDRESS_SANITIZER})
 
     ########################################################################################################################
     ########################################################################################################################
@@ -74,7 +74,7 @@ if(${BUILD_EXAMPLES})
                     @ONLY)
 
     # [Set target include directories]
-    target_include_directories(GaussNewton PUBLIC   ${INCLUDES} 
+    target_include_directories(GaussNewton PUBLIC   ${PUBLIC_INCLUDES} 
                                                     ${CMAKE_SOURCE_DIR}/example/GaussNewton/include
                                                     ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -83,11 +83,11 @@ if(${BUILD_EXAMPLES})
 
     # [Set compile options]
     if(${ENABLE_COMPILER_WARNINGS})
-        target_compile_options(GaussNewton PRIVATE ${WARNING_FLAGS})
+        target_compile_options(GaussNewton PRIVATE ${COMPILE_WARNING_FLAGS})
     endif()
-    target_compile_options(GaussNewton PRIVATE ${PERMISSION_FLAGS})
-    target_compile_options(GaussNewton PRIVATE ${ATTACH_ADDRESS_SANITIZER})
+    target_compile_options(GaussNewton PRIVATE ${COMPILE_PERMISSION_FLAGS})
+    target_compile_options(GaussNewton PRIVATE ${HOOK_ADDRESS_SANITIZER})
 
     # [Set link options]
-    target_link_options(GaussNewton PRIVATE ${ATTACH_ADDRESS_SANITIZER})
+    target_link_options(GaussNewton PRIVATE ${HOOK_ADDRESS_SANITIZER})
 endif()

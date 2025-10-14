@@ -34,8 +34,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericACos)
-  DISABLE_MOVE(GenericACos)
+  #if 0
+    DISABLE_COPY(GenericACos)
+    DISABLE_MOVE(GenericACos)
+  #endif
 
 public:
   // Block index
@@ -166,6 +168,11 @@ public:
     UNARY_FIND_ME(); 
   }
 
+  // Clone scalar expression
+  constexpr const auto& cloneExp() const {
+    return acos(*mp_left);
+  }
+
   // Destructor
   V_DTR(~GenericACos()) = default;
 };
@@ -177,6 +184,7 @@ using GenericACosT = GenericACos<T, OpType>;
 // Function for acos computation
 template <typename T> 
 constexpr const auto& acos(const IVariable<T>& u) {
-  auto tmp = Allocate<GenericACosT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpObj);
+  const auto& _u = u.cloneExp();
+  auto tmp = Allocate<GenericACosT<T>>(const_cast<T*>(static_cast<const T*>(&_u)), OpObj);
   return *tmp;
 }

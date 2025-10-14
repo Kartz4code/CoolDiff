@@ -22,8 +22,8 @@
 #include "Matrix.hpp"
 #include "MemoryManager.hpp"
 
-Matrix<Type>* DervMatrix(const size_t frows, const size_t fcols,
-                         const size_t xrows, const size_t xcols) {
+Matrix<Type>* DervMatrix( const size_t frows, const size_t fcols,
+                          const size_t xrows, const size_t xcols  ) {
   const size_t drows = frows * xrows;
   const size_t dcols = fcols * xcols;
   Matrix<Type> *dresult = Matrix<Type>::MatrixFactory::CreateMatrixPtr(drows, dcols);

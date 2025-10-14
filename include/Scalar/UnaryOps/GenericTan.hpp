@@ -34,8 +34,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericTan)
-  DISABLE_MOVE(GenericTan)
+  #if 0
+    DISABLE_COPY(GenericTan)
+    DISABLE_MOVE(GenericTan)
+  #endif
 
 public:
   // Block index
@@ -165,6 +167,11 @@ public:
     UNARY_FIND_ME(); 
   }
 
+  // Clone scalar expression
+  constexpr const auto& cloneExp() const {
+    return tan(*mp_left);
+  }
+
   // Destructor
   V_DTR(~GenericTan()) = default;
 };
@@ -176,6 +183,7 @@ using GenericTanT = GenericTan<T, OpType>;
 // Function for tan computation
 template <typename T> 
 constexpr const auto& tan(const IVariable<T>& u) {
-  auto tmp = Allocate<GenericTanT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpObj);
+  const auto& _u = u.cloneExp();
+  auto tmp = Allocate<GenericTanT<T>>(const_cast<T*>(static_cast<const T*>(&_u)), OpObj);
   return *tmp;
 }

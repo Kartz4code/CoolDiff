@@ -53,13 +53,13 @@ void GaussNewton::computeABScalar(const size_t var_size) {
     const Matrix<Type>* jacobian = static_cast<OracleScalar*>(m_oracle)->jacobian();
 
     // Compute A matrix
-    MatrixTranspose(jacobian, m_tempA1);
-    MatrixMul(m_tempA1, jacobian, m_tempA2);
-    MatrixAdd(m_A, m_tempA2, m_A);
+    CoolDiff::TensorR2::MatOperators::MatrixTranspose(jacobian, m_tempA1);
+    CoolDiff::TensorR2::MatOperators::MatrixMul(m_tempA1, jacobian, m_tempA2);
+    CoolDiff::TensorR2::MatOperators::MatrixAdd(m_A, m_tempA2, m_A);
 
     // Compute B matrix
-    MatrixScalarMul(eval, m_tempA1, m_tempB);
-    MatrixAdd(m_B, m_tempB, m_B);
+    CoolDiff::TensorR2::MatOperators::MatrixScalarMul(eval, m_tempA1, m_tempB);
+    CoolDiff::TensorR2::MatOperators::MatrixAdd(m_B, m_tempB, m_B);
   }
 }
 
@@ -78,13 +78,13 @@ void GaussNewton::computeABMatrix(const size_t var_size) {
     const Matrix<Type>* jacobian = static_cast<OracleMatrix*>(m_oracle)->jacobian();
 
     // Compute A matrix
-    MatrixTranspose(jacobian, m_tempA1);
-    MatrixMul(m_tempA1, jacobian, m_tempA2);
-    MatrixAdd(m_A, m_tempA2, m_A);
+    CoolDiff::TensorR2::MatOperators::MatrixTranspose(jacobian, m_tempA1);
+    CoolDiff::TensorR2::MatOperators::MatrixMul(m_tempA1, jacobian, m_tempA2);
+    CoolDiff::TensorR2::MatOperators::MatrixAdd(m_A, m_tempA2, m_A);
 
     // Compute B matrix
-    MatrixMul(m_tempA1, eval, m_tempB);
-    MatrixAdd(m_B, m_tempB, m_B);
+    CoolDiff::TensorR2::MatOperators::MatrixMul(m_tempA1, eval, m_tempB);
+    CoolDiff::TensorR2::MatOperators::MatrixAdd(m_B, m_tempB, m_B);
   }
 }
 

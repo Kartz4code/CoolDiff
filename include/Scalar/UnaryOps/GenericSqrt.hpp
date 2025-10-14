@@ -34,8 +34,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericSqrt)
-  DISABLE_MOVE(GenericSqrt)
+  #if 0
+    DISABLE_COPY(GenericSqrt)
+    DISABLE_MOVE(GenericSqrt)
+  #endif
 
 public:
   // Block index
@@ -164,6 +166,11 @@ public:
     UNARY_FIND_ME(); 
   }
 
+  // Clone scalar expression
+  constexpr const auto& cloneExp() const {
+    return sqrt(*mp_left);
+  }
+
   // Destructor
   V_DTR(~GenericSqrt() = default);
 };
@@ -175,6 +182,7 @@ using GenericSqrtT = GenericSqrt<T, OpType>;
 // Function for sqrt computation
 template <typename T> 
 constexpr const auto& sqrt(const IVariable<T>& u) {
-  auto tmp = Allocate<GenericSqrtT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpObj);
+  const auto& _u = u.cloneExp();
+  auto tmp = Allocate<GenericSqrtT<T>>(const_cast<T*>(static_cast<const T*>(&_u)), OpObj);
   return *tmp;
 }

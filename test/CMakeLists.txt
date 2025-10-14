@@ -33,20 +33,20 @@ if(${BUILD_UNITTESTS})
     add_executable(${TEST_EXECUTABLE} ${CMAKE_SOURCE_DIR}/test/OpsTest.cpp)
 
     # [Set target include directories]
-    target_include_directories(${TEST_EXECUTABLE} PUBLIC ${INCLUDES})
+    target_include_directories(${TEST_EXECUTABLE} PUBLIC ${PUBLIC_INCLUDES})
 
     # [Link target libraries]
-    target_link_libraries(${TEST_EXECUTABLE} PRIVATE gtest_main CoolDiff)
+    target_link_libraries(${TEST_EXECUTABLE} PRIVATE GTest::gtest GTest::gtest_main CoolDiff)
 
     # [Set compile options]
     if(${ENABLE_COMPILER_WARNINGS})
-        target_compile_options(${TEST_EXECUTABLE} PRIVATE ${WARNING_FLAGS})
+        target_compile_options(${TEST_EXECUTABLE} PRIVATE ${COMPILE_WARNING_FLAGS})
     endif()
-    target_compile_options(${TEST_EXECUTABLE} PRIVATE ${PERMISSION_FLAGS})
-    target_compile_options(${TEST_EXECUTABLE} PRIVATE ${ATTACH_ADDRESS_SANITIZER})
+    target_compile_options(${TEST_EXECUTABLE} PRIVATE ${COMPILE_PERMISSION_FLAGS})
+    target_compile_options(${TEST_EXECUTABLE} PRIVATE ${HOOK_ADDRESS_SANITIZER})
 
     # [Set link options]
-    target_link_options(${TEST_EXECUTABLE} PRIVATE ${ATTACH_ADDRESS_SANITIZER})
+    target_link_options(${TEST_EXECUTABLE} PRIVATE ${HOOK_ADDRESS_SANITIZER})
     
 ##################################################################################################################################
 
@@ -54,20 +54,20 @@ if(${BUILD_UNITTESTS})
     add_executable(${TEST_EXECUTABLE2} ${CMAKE_SOURCE_DIR}/test/MatTest.cpp)
     
     # [Set target include directories]
-    target_include_directories(${TEST_EXECUTABLE2} PUBLIC ${INCLUDES})
+    target_include_directories(${TEST_EXECUTABLE2} PUBLIC ${PUBLIC_INCLUDES})
     
     # [Link target libraries]
-    target_link_libraries(${TEST_EXECUTABLE2} PRIVATE gtest_main CoolDiff)
+    target_link_libraries(${TEST_EXECUTABLE2} PRIVATE GTest::gtest GTest::gtest_main CoolDiff)
 
     # [Set compile options]
     if(${ENABLE_COMPILER_WARNINGS})
-        target_compile_options(${TEST_EXECUTABLE2} PRIVATE ${WARNING_FLAGS})
+        target_compile_options(${TEST_EXECUTABLE2} PRIVATE ${COMPILE_WARNING_FLAGS})
     endif()
-    target_compile_options(${TEST_EXECUTABLE2} PRIVATE ${PERMISSION_FLAGS})
-    target_compile_options(${TEST_EXECUTABLE2} PRIVATE ${ATTACH_ADDRESS_SANITIZER})
+    target_compile_options(${TEST_EXECUTABLE2} PRIVATE ${COMPILE_PERMISSION_FLAGS})
+    target_compile_options(${TEST_EXECUTABLE2} PRIVATE ${HOOK_ADDRESS_SANITIZER})
 
     # [Set link options]
-    target_link_options(${TEST_EXECUTABLE2} PRIVATE ${ATTACH_ADDRESS_SANITIZER})
+    target_link_options(${TEST_EXECUTABLE2} PRIVATE ${HOOK_ADDRESS_SANITIZER})
 endif()
 
 gtest_discover_tests(${TEST_EXECUTABLE})

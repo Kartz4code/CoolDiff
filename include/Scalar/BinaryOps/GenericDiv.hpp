@@ -35,8 +35,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericDiv)
-  DISABLE_MOVE(GenericDiv)
+  #if 0
+    DISABLE_COPY(GenericDiv)
+    DISABLE_MOVE(GenericDiv)
+  #endif
 
 public:
   // Block index
@@ -212,6 +214,11 @@ public:
     BINARY_FIND_ME(); 
   }
 
+  // Clone scalar expression
+  constexpr const auto& cloneExp() const {
+    return ((*mp_left)/(*mp_right));
+  }
+
   // Destructor
   V_DTR(~GenericDiv()) = default;
 };
@@ -228,8 +235,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericDiv)
-  DISABLE_MOVE(GenericDiv)
+  #if 0
+    DISABLE_COPY(GenericDiv)
+    DISABLE_MOVE(GenericDiv)
+  #endif
 
 public:
   // Block index
@@ -365,6 +374,11 @@ public:
     BINARY_RIGHT_FIND_ME(); 
   }
 
+  // Clone scalar expression
+  constexpr const auto& cloneExp() const {
+    return ((mp_left)/(*mp_right));
+  }
+
   // Destructor
   V_DTR(~GenericDiv()) = default;
 };
@@ -380,8 +394,10 @@ using GenericDivT2 = GenericDiv<Type, T, OpType>;
 // Function for division computation
 template <typename T1, typename T2>
 constexpr const auto& operator/(const IVariable<T1>& u, const IVariable<T2>& v) {
-  auto tmp = Allocate<GenericDivT1<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&u)),
-                                            const_cast<T2*>(static_cast<const T2*>(&v)), 
+  const auto& _u = u.cloneExp();
+  const auto& _v = v.cloneExp();
+  auto tmp = Allocate<GenericDivT1<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&_u)),
+                                            const_cast<T2*>(static_cast<const T2*>(&_v)), 
                                             OpObj);
   return *tmp;
 }
@@ -389,6 +405,7 @@ constexpr const auto& operator/(const IVariable<T1>& u, const IVariable<T2>& v) 
 // Left side is a number (division)
 template <typename T>
 constexpr const auto& operator/(const Type& u, const IVariable<T>& v) {
-  auto tmp = Allocate<GenericDivT2<T>>(u, const_cast<T*>(static_cast<const T*>(&v)), OpObj);
+  const auto& _v = v.cloneExp();
+  auto tmp = Allocate<GenericDivT2<T>>(u, const_cast<T*>(static_cast<const T*>(&_v)), OpObj);
   return *tmp;
 }

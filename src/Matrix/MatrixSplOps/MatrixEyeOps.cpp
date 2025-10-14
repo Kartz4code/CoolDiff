@@ -59,14 +59,12 @@ bool IsEyeMatrix(const Matrix<Type>* m) {
 
   // Non-diagonal elements check (0's)
   const auto non_diag_idx = Range<size_t>(0, rows * cols);
-  if (auto it =
-          std::find_if(EXECUTION_PAR non_diag_idx.begin(), non_diag_idx.end(),
-                       [&m, rows, cols](const size_t n) {
-                         const size_t j = n % cols;
-                         const size_t i = (n - j) / cols;
-                         return ((i != j) && ((*m)(i, j) != (Type)(0)));
-                       });
-      it != non_diag_idx.end()) {
+  if (auto it = std::find_if(EXECUTION_PAR non_diag_idx.begin(), non_diag_idx.end(),
+                [&m, rows, cols](const size_t n) {
+                  const size_t j = n % cols;
+                  const size_t i = (n - j) / cols;
+                  return ((i != j) && ((*m)(i, j) != (Type)(0)));
+                }); it != non_diag_idx.end()) {
     return false;
   }
 

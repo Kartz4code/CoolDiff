@@ -22,7 +22,6 @@
 #pragma once
 
 #include "Matrix.hpp"
-#include "MatrixHelper.hpp"
 
 // Left/right side is a Matrix
 template <typename T1, typename T2, typename... Callables>
@@ -168,7 +167,7 @@ public:
       
       /* IMPORTANT: The derivative is computed here */
       const size_t n = mp_left->getNumRows();
-      const auto eye_n = const_cast<MatType*>(Eye(n));
+      const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(n));
 
       MATRIX_SCALAR_MUL(1, eye_n, mp_arr[2]); 
       MATRIX_SCALAR_MUL(1, eye_n, mp_arr[3]); 
@@ -193,6 +192,10 @@ public:
       // Modify cache for left node
       std::for_each(EXECUTION_PAR mp_left->m_cache.begin(), mp_left->m_cache.end(), 
                       [&](const auto& item) {
+                      const size_t rows = mp_arr[2]->getNumRows();
+                      const size_t cols = mp_arr[2]->getNumColumns(); 
+                      ASSERT((rows == 1) && (cols == 1), "Matrix expression not scalar for reverse mode derivative"); 
+
                       const auto idx = item.first; const auto val = item.second;
                       if(auto it2 = cache->find(idx); it2 != cache->end()) {
                         MATRIX_ADD((*cache)[idx], val, (*cache)[idx]);
@@ -204,6 +207,10 @@ public:
       // Modify cache for right node
       std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(), 
                     [&](const auto& item) {
+                      const size_t rows = mp_arr[3]->getNumRows();
+                      const size_t cols = mp_arr[3]->getNumColumns(); 
+                      ASSERT((rows == 1) && (cols == 1), "Matrix expression not scalar for reverse mode derivative"); 
+
                       const auto idx = item.first; const auto val = item.second;
                       if(auto it2 = cache->find(idx); it2 != cache->end()) {
                         MATRIX_ADD((*cache)[idx], val, (*cache)[idx]);
@@ -252,6 +259,10 @@ public:
         // Modify cache for left node
         std::for_each(EXECUTION_PAR mp_left->m_cache.begin(), mp_left->m_cache.end(), 
                       [&](const auto& item) {
+                      const size_t rows = mp_arr[4]->getNumRows();
+                      const size_t cols = mp_arr[4]->getNumColumns(); 
+                      ASSERT((rows == 1) && (cols == 1), "Matrix expression not scalar for reverse mode derivative"); 
+
                       const auto idx = item.first; const auto val = item.second;
                       MatType*& ptr = this->m_cloned[this->incFunc()];
                       MATRIX_SCALAR_MUL(mp_arr4_val, val, ptr);
@@ -265,6 +276,10 @@ public:
         // Modify cache for right node
         std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(), 
                       [&](const auto &item) {
+                      const size_t rows = mp_arr[5]->getNumRows();
+                      const size_t cols = mp_arr[5]->getNumColumns(); 
+                      ASSERT((rows == 1) && (cols == 1), "Matrix expression not scalar for reverse mode derivative"); 
+
                       const auto idx = item.first; const auto val = item.second;
                       MatType*& ptr = this->m_cloned[this->incFunc()];
                       MATRIX_SCALAR_MUL(mp_arr5_val, val, ptr);
@@ -406,7 +421,7 @@ public:
       
       /* IMPORTANT: The derivative is computed here */
       const size_t n = mp_right->getNumRows();
-      const auto eye_n = const_cast<MatType*>(Eye(n));
+      const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(n));
 
       MATRIX_SCALAR_MUL(1, eye_n, mp_arr[2]);
 
@@ -424,6 +439,10 @@ public:
       // Modify cache for right node
       std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(), 
                     [&](const auto& item) {
+                      const size_t rows = mp_arr[2]->getNumRows();
+                      const size_t cols = mp_arr[2]->getNumColumns(); 
+                      ASSERT((rows == 1) && (cols == 1), "Matrix expression not scalar for reverse mode derivative"); 
+
                       const auto idx = item.first; const auto val = item.second;
                       if(auto it2 = cache->find(idx); it2 != cache->end()) {
                         MATRIX_ADD((*cache)[idx], val, (*cache)[idx]);
@@ -458,6 +477,10 @@ public:
         // Modify cache for right node
         std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(), 
                       [&](const auto &item) {
+                      const size_t rows = mp_arr[3]->getNumRows();
+                      const size_t cols = mp_arr[3]->getNumColumns(); 
+                      ASSERT((rows == 1) && (cols == 1), "Matrix expression not scalar for reverse mode derivative"); 
+
                       const auto idx = item.first; const auto val = item.second;
                       MatType*& ptr = this->m_cloned[this->incFunc()];
                       MATRIX_SCALAR_MUL(mp_arr3_val, val, ptr);
@@ -586,10 +609,10 @@ public:
     const size_t ncols_f = getNumColumns();
 
     // Derivative of expression w.r.t to variable matrix (Reverse mode)
-    DevalR((*mp_left), X, mp_arr[2]);
+    CoolDiff::TensorR2::Details::DevalR((*mp_left), X, mp_arr[2]);
 
     // Kronecker product with ones and add with right derivatives
-    MATRIX_KRON(Ones(nrows_f, ncols_f), mp_arr[2], mp_arr[3]);
+    MATRIX_KRON(CoolDiff::TensorR2::MatrixBasics::Ones(nrows_f, ncols_f), mp_arr[2], mp_arr[3]);
     MATRIX_ADD(mp_arr[3], dright_mat, mp_arr[1]);
 
     // Return result pointer

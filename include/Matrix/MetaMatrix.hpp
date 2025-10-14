@@ -55,9 +55,11 @@ public:
   // Forward derivative
   V_PURE(Matrix<Type>* devalF(Matrix<Variable>&));
 
-  virtual void traverse(OMMatPair* = nullptr) {}
+  V_UNPURE(void traverse(OMMatPair* = nullptr)) {
+    ASSERT(false, "An operation involved in the matrix expression is not yet implemented");
+  }
 
-  virtual OMMatPair& getCache() {
+  V_UNPURE(OMMatPair& getCache()) {
     return m_cache;
   }
 

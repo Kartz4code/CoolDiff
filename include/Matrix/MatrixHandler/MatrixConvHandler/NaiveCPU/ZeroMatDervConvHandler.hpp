@@ -20,15 +20,15 @@
  * associated repository.
  */
 
- #pragma once
+#pragma once
 
- #include "MatrixStaticHandler.hpp"
- #include "Matrix.hpp"
- #include "MatrixZeroOps.hpp"
- #include "MatrixBasics.hpp"
+#include "MatrixStaticHandler.hpp"
+#include "Matrix.hpp"
+#include "MatrixZeroOps.hpp"
+#include "MatrixBasics.hpp"
 
- template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
- class ZeroMatDervConvHandler : public T {
+template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
+class ZeroMatDervConvHandler : public T {
     private:
       // All matrices
       inline static constexpr const size_t m_size{8};
@@ -83,16 +83,21 @@
                                   mp_arr[1]);
 
             // L (X) I - Left matrix and identity Kronocker product (Policy design)
-            MatrixKron(mp_arr[1], Ones(nrows_x, ncols_x), mp_arr[2]);
+            CoolDiff::TensorR2::MatOperators::MatrixKron(mp_arr[1], CoolDiff::TensorR2::MatrixBasics::Ones(nrows_x, ncols_x), mp_arr[2]);
 
             // Hadamard product with left and right derivatives (Policy design)
-            MatrixHadamard(mp_arr[2], drhs, mp_arr[3]);
+            CoolDiff::TensorR2::MatOperators::MatrixHadamard(mp_arr[2], drhs, mp_arr[3]);
 
             // Sigma funcion derivative
-            MatrixKron(Ones(1, crows), Eye(nrows_x), mp_arr[4]);
-            MatrixKron(Ones(ccols, 1), Eye(ncols_x), mp_arr[5]);
-            MatrixMul(mp_arr[4], mp_arr[3], mp_arr[6]);
-            MatrixMul(mp_arr[6], mp_arr[5], mp_arr[7]);
+            CoolDiff::TensorR2::MatOperators::MatrixKron( CoolDiff::TensorR2::MatrixBasics::Ones(1, crows), 
+                                                          CoolDiff::TensorR2::MatrixBasics::Eye(nrows_x), 
+                                                          mp_arr[4] );
+
+            CoolDiff::TensorR2::MatOperators::MatrixKron( CoolDiff::TensorR2::MatrixBasics::Ones(ccols, 1), 
+                                                          CoolDiff::TensorR2::MatrixBasics::Eye(ncols_x), 
+                                                          mp_arr[5]);
+            CoolDiff::TensorR2::MatOperators::MatrixMul(mp_arr[4], mp_arr[3], mp_arr[6]);
+            CoolDiff::TensorR2::MatOperators::MatrixMul(mp_arr[6], mp_arr[5], mp_arr[7]);
 
             // Set block matrix
             result->setBlockMat({(i * nrows_x), (i + 1) * nrows_x - 1}, {(j * ncols_x), (j + 1) * ncols_x - 1}, mp_arr[7]);
@@ -100,10 +105,10 @@
         }
       }
 
-      void handleRHS(const size_t nrows_x, const size_t ncols_x, const size_t stride_x,
-                    const size_t stride_y, const size_t pad_x, const size_t pad_y,
-                    const size_t lhs_rows, const size_t lhs_cols, const Matrix<Type>* rhs,
-                    const Matrix<Type>* dlhs, Matrix<Type>*& result) {
+      void handleRHS( const size_t nrows_x, const size_t ncols_x, const size_t stride_x,
+                      const size_t stride_y, const size_t pad_x, const size_t pad_y,
+                      const size_t lhs_rows, const size_t lhs_cols, const Matrix<Type>* rhs,
+                      const Matrix<Type>* dlhs, Matrix<Type>*& result ) {
         // Stride must be strictly non-negative
         ASSERT(((int)stride_x > 0) && ((int)stride_y > 0), "Stride is not strictly non-negative");
         // Padding must be positive
@@ -148,16 +153,22 @@
                                   mp_arr[1]);
 
             // R (X) I - Right matrix and identity Kronocker product (Policy design)
-            MatrixKron(rhs, Ones(nrows_x, ncols_x), mp_arr[2]);
+            CoolDiff::TensorR2::MatOperators::MatrixKron(rhs, CoolDiff::TensorR2::MatrixBasics::Ones(nrows_x, ncols_x), mp_arr[2]);
 
             // Hadamard product with left and right derivatives (Policy design)
-            MatrixHadamard(mp_arr[1], mp_arr[2], mp_arr[3]);
+            CoolDiff::TensorR2::MatOperators::MatrixHadamard(mp_arr[1], mp_arr[2], mp_arr[3]);
 
             // Sigma funcion derivative
-            MatrixKron(Ones(1, crows), Eye(nrows_x), mp_arr[4]);
-            MatrixKron(Ones(ccols, 1), Eye(ncols_x), mp_arr[5]);
-            MatrixMul(mp_arr[4], mp_arr[3], mp_arr[6]);
-            MatrixMul(mp_arr[6], mp_arr[5], mp_arr[7]);
+            CoolDiff::TensorR2::MatOperators::MatrixKron( CoolDiff::TensorR2::MatrixBasics::Ones(1, crows), 
+                                                          CoolDiff::TensorR2::MatrixBasics::Eye(nrows_x), 
+                                                          mp_arr[4] );
+
+            CoolDiff::TensorR2::MatOperators::MatrixKron( CoolDiff::TensorR2::MatrixBasics::Ones(ccols, 1), 
+                                                          CoolDiff::TensorR2::MatrixBasics::Eye(ncols_x), 
+                                                          mp_arr[5] );
+                        
+            CoolDiff::TensorR2::MatOperators::MatrixMul(mp_arr[4], mp_arr[3], mp_arr[6]);
+            CoolDiff::TensorR2::MatOperators::MatrixMul(mp_arr[6], mp_arr[5], mp_arr[7]);
 
             // Set block matrix
             result->setBlockMat({(i * nrows_x), (i + 1) * nrows_x - 1},
@@ -166,7 +177,7 @@
         }
       }
 
-     public:
+    public:
         void handle(const size_t nrows_x, const size_t ncols_x, const size_t stride_x,
                     const size_t stride_y, const size_t pad_x, const size_t pad_y,
                     const Matrix<Type>* lhs, const Matrix<Type>* dlhs, const Matrix<Type>* rhs,
@@ -227,4 +238,4 @@
           // Chain of responsibility
           T::handle(nrows_x, ncols_x, stride_x, stride_y, pad_x, pad_y, lhs, dlhs, rhs, drhs, result);
       }
- };
+};
