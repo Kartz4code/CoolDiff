@@ -83,6 +83,11 @@ public:
   // Find me
   bool findMe(void*) const;
 
+  // Clone scalar expression
+  constexpr const auto& cloneExp() const {
+    return *this;
+  }
+
   // Parameter factory
   class ParameterFactory {
   public:

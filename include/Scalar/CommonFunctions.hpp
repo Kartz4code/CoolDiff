@@ -91,6 +91,7 @@ namespace CoolDiff {
       Expression& SymDiffExp(Expression&, const Variable&);
     }
 
+    // TODO - Modify code to accomodate changes made to the clone function
     template <typename T, typename = std::enable_if_t<CoolDiff::TensorR1::Details::is_valid_scalar_v<T>>> 
     inline Type Eval(T& v) {
       // If T is Expression

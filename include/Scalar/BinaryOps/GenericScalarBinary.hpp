@@ -31,8 +31,6 @@ class Generic##OPS : public IVariable<Generic##OPS<T1, T2, Callables...>> {     
     T1* mp_left{nullptr};                                                                             \
     T2* mp_right{nullptr};                                                                            \
     Tuples<Callables...> m_caller;                                                                    \
-    DISABLE_COPY(Generic##OPS)                                                                        \
-    DISABLE_MOVE(Generic##OPS)                                                                        \
   public:                                                                                             \
     const size_t m_nidx{};                                                                            \
     OMPair m_cache{};                                                                                 \
@@ -132,14 +130,17 @@ class Generic##OPS : public IVariable<Generic##OPS<T1, T2, Callables...>> {     
     V_OVERRIDE(void reset()) { BINARY_RESET(); }                                                      \
     V_OVERRIDE(std::string_view getType() const) { return TOSTRING(Generic##OPS); }                   \
     bool findMe(void* v) const { BINARY_FIND_ME(); }                                                  \
+    constexpr const auto& cloneExp() const { return OPS((*mp_left), (*mp_right)); }                   \
     V_DTR(~Generic##OPS()) = default;                                                                 \
   };                                                                                                  \
 template <typename T1, typename T2>                                                                   \
 using CONCAT3(Generic, OPS, T1) = Generic##OPS<T1, T2, OpType>;                                       \
 template <typename T1, typename T2>                                                                   \
 constexpr const auto &OPS(const IVariable<T1> &u, const IVariable<T2> &v) {                           \
-  auto tmp = Allocate <CONCAT3(Generic, OPS, T1)<T1,T2>>(const_cast<T1*>(static_cast<const T1*>(&u)), \
-                                                         const_cast<T2*>(static_cast<const T2*>(&v)), \
+  const auto& _u = u.cloneExp();                                                                      \
+  const auto& _v = v.cloneExp();                                                                      \
+  auto tmp = Allocate <CONCAT3(Generic, OPS, T1)<T1,T2>>(const_cast<T1*>(static_cast<const T1*>(&_u)),\
+                                                         const_cast<T2*>(static_cast<const T2*>(&_v)),\
                                                          OpObj);                                      \
   return *tmp;                                                                                        \
 }                                                                                                     \
@@ -149,8 +150,6 @@ class Generic##OPS<Type, T, Callables...> : public IVariable<Generic##OPS<Type, 
     Type mp_left{0};                                                                                  \
     T* mp_right{nullptr};                                                                             \
     Tuples<Callables...> m_caller;                                                                    \
-    DISABLE_COPY(Generic##OPS)                                                                        \
-    DISABLE_MOVE(Generic##OPS)                                                                        \
   public:                                                                                             \
     const size_t m_nidx{};                                                                            \
     OMPair m_cache;                                                                                   \
@@ -220,13 +219,15 @@ class Generic##OPS<Type, T, Callables...> : public IVariable<Generic##OPS<Type, 
     V_OVERRIDE(void reset()) { BINARY_RIGHT_RESET(); }                                               \
     V_OVERRIDE(std::string_view getType() const) { return TOSTRING(Generic##OPS); }                  \
     bool findMe(void* v) const { BINARY_RIGHT_FIND_ME(); }                                           \
+    constexpr const auto& cloneExp() const { return OPS((mp_left), (*mp_right)); }                   \
     V_DTR(~Generic##OPS()) = default;                                                                \
 };                                                                                                   \
 template <typename T>                                                                                \
 using CONCAT3(Generic, OPS, T2) = Generic##OPS<Type, T, OpType>;                                     \
 template <typename T>                                                                                \
 constexpr const auto& OPS(const Type& u, const IVariable<T>& v) {                                    \
-  auto tmp = Allocate<CONCAT3(Generic, OPS, T2)<T>>(u, const_cast<T*>(static_cast<const T*>(&v)), OpObj);\
+  const auto& _v = v.cloneExp();                                                                     \
+  auto tmp = Allocate<CONCAT3(Generic, OPS, T2)<T>>(u, const_cast<T*>(static_cast<const T*>(&_v)), OpObj);\
   return *tmp;                                                                                       \
 }                                                                                                    \
 template <typename T, typename... Callables>                                                         \
@@ -306,13 +307,15 @@ public:                                                                         
     V_OVERRIDE(void reset()) { BINARY_LEFT_RESET(); }                                                \
     V_OVERRIDE(std::string_view getType() const) { return TOSTRING(Generic##OPS); }                  \
     bool findMe(void* v) const { BINARY_LEFT_FIND_ME(); }                                            \
+    constexpr const auto& cloneExp() const { return OPS((*mp_left), (mp_right)); }                   \
     V_DTR(~Generic##OPS()) = default;                                                                \
 };                                                                                                   \
 template <typename T>                                                                                \
 using CONCAT3(Generic, OPS, T3) = Generic##OPS<T, Type, OpType>;                                     \
 template <typename T>                                                                                \
 constexpr const auto& OPS(const IVariable<T>& v, const Type& u) {                                    \
-  auto tmp = Allocate<CONCAT3(Generic, OPS, T3)<T>>(const_cast<T*>(static_cast<const T*>(&v)), u, OpObj);\
+  const auto& _v = v.cloneExp();                                                                     \
+  auto tmp = Allocate<CONCAT3(Generic, OPS, T3)<T>>(const_cast<T*>(static_cast<const T*>(&_v)), u, OpObj);\
   return *tmp;                                                                                       \
 }
 

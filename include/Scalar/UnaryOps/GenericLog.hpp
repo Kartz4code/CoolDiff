@@ -34,8 +34,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericLog)
-  DISABLE_MOVE(GenericLog)
+  #if 0
+    DISABLE_COPY(GenericLog)
+    DISABLE_MOVE(GenericLog)
+  #endif
 
 public:
   // Block index
@@ -161,6 +163,11 @@ public:
     UNARY_FIND_ME(); 
   }
 
+  // Clone scalar expression
+  constexpr const auto& cloneExp() const {
+    return log(*mp_left);
+  }
+
   // Destructor
   V_DTR(~GenericLog()) = default;
 };
@@ -172,6 +179,7 @@ using GenericLogT = GenericLog<T, OpType>;
 // Function for log computation
 template <typename T> 
 constexpr const auto& log(const IVariable<T>& u) {
-  auto tmp = Allocate<GenericLogT<T>>(const_cast<T *>(static_cast<const T *>(&u)), OpObj);
+  const auto& _u = u.cloneExp();
+  auto tmp = Allocate<GenericLogT<T>>(const_cast<T*>(static_cast<const T*>(&_u)), OpObj);
   return *tmp;
 }

@@ -36,8 +36,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericSub)
-  DISABLE_MOVE(GenericSub)
+  #if 0
+    DISABLE_COPY(GenericSub)
+    DISABLE_MOVE(GenericSub)
+  #endif
 
 public:
   // Block index
@@ -193,6 +195,11 @@ public:
     BINARY_FIND_ME(); 
   }
 
+  // Clone scalar expression
+  constexpr const auto& cloneExp() const {
+    return ((*mp_left) - (*mp_right));
+  }  
+
   // Destructor
   V_DTR(~GenericSub()) = default;
 };
@@ -204,8 +211,10 @@ using GenericSubT1 = GenericSub<T1, T2, OpType>;
 // Function for subtraction computation
 template <typename T1, typename T2>
 constexpr const auto& operator-(const IVariable<T1>& u, const IVariable<T2>& v) {
-  auto tmp = Allocate<GenericSubT1<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&u)),
-                                            const_cast<T2 *>(static_cast<const T2*>(&v)), 
+  const auto& _u = u.cloneExp();
+  const auto& _v = v.cloneExp();
+  auto tmp = Allocate<GenericSubT1<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&_u)),
+                                            const_cast<T2 *>(static_cast<const T2*>(&_v)), 
                                             OpObj);
   return *tmp;
 }
@@ -213,11 +222,13 @@ constexpr const auto& operator-(const IVariable<T1>& u, const IVariable<T2>& v) 
 // Left side is a number (subtraction)
 template <typename T>
 constexpr const auto& operator-(const Type& u, const IVariable<T>& v) {
-  return (u + (Type)(-1) * (v));
+  const auto& _v = v.cloneExp();
+  return (u + (Type)(-1) * (_v));
 }
 
 // Right side is a number (subtraction)
 template <typename T>
 constexpr const auto& operator-(const IVariable<T>& v, const Type& u) {
-  return (v + (Type)(-1) * (u));
+  const auto& _v = v.cloneExp();
+  return (_v + (Type)(-1) * (u));
 }

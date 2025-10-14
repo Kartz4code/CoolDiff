@@ -19,13 +19,13 @@
  * associated repository.
  */
 
- #pragma once
+#pragma once
 
- #include "MatrixStaticHandler.hpp"
- #include "Matrix.hpp"
- 
- template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
- class MatDervTransposeNaiveHandler : public T {
+#include "MatrixStaticHandler.hpp"
+#include "Matrix.hpp"
+
+template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
+class MatDervTransposeNaiveHandler : public T {
     public:
       void handle(const size_t nrows_f, const size_t ncols_f, 
                   const size_t nrows_x, const size_t ncols_x, 
@@ -60,4 +60,4 @@
               });
         });
       }
- };
+};

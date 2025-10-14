@@ -34,8 +34,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericACosh)
-  DISABLE_MOVE(GenericACosh)
+  #if 0
+    DISABLE_COPY(GenericACosh)
+    DISABLE_MOVE(GenericACosh)
+  #endif
 
 public:
   // Block index
@@ -165,6 +167,11 @@ public:
     UNARY_FIND_ME(); 
   }
 
+  // Clone scalar expression
+  constexpr const auto& cloneExp() const {
+    return acosh(*mp_left);
+  }
+
   // Destructor
   V_DTR(~GenericACosh()) = default;
 };
@@ -176,6 +183,7 @@ using GenericACoshT = GenericACosh<T, OpType>;
 // Function for acosh computation
 template <typename T> 
 constexpr const auto& acosh(const IVariable<T>& u) {
-  auto tmp = Allocate<GenericACoshT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpObj);
+  const auto& _u = u.cloneExp();
+  auto tmp = Allocate<GenericACoshT<T>>(const_cast<T*>(static_cast<const T*>(&_u)), OpObj);
   return *tmp;
 }

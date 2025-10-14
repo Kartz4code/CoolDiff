@@ -48,6 +48,11 @@ public:
     return derived().findMe(v); 
   }
 
+  // Clone scalar expression
+  constexpr const auto& cloneExp() const {
+    return derived().cloneExp();
+  }
+
   // Protected destructor
   V_DTR(~IVariable()) = default;
 };

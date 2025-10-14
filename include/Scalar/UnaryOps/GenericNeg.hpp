@@ -27,5 +27,6 @@
 // Function for neg computation
 template <typename T> 
 constexpr const auto& operator-(const IVariable<T>& u) {
-  return ((Type)(-1) * u);
+  const auto& _u = u.cloneExp();
+  return ((Type)(-1) * _u);
 }

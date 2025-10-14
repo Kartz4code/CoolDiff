@@ -67,6 +67,7 @@ include(Tools)
 ########################################################################################################################
 ######################################################################################################################## 
 
+# TODO - Enable shared library build 
 option(BUILD_UNITTESTS "Building unit test executables" ON)
 option(BUILD_EXAMPLES "Building example executables" ON)
 option(ENABLE_CLANG_TIDY "Enable clang-tidy static linter" OFF)
@@ -85,41 +86,6 @@ option(ENABLE_NUMERICAL_CHECK "Enable numerical checks" OFF)
 set(DEFAULT_MATH_TYPE 2 CACHE STRING "Value that defined the default math type: Float  - 1, 
                                                                                 Double - 2")
 
-# [Set compilation flags]
-if(${DEFAULT_MATH_TYPE} EQUAL 1)
-    add_definitions(-DCOOLDIFF_SCALAR_TYPE=1) # Float
-elseif(${DEFAULT_MATH_TYPE} EQUAL 2)
-    add_definitions(-DCOOLDIFF_SCALAR_TYPE=2) # Double
-endif()
-
-if(${ENABLE_DYNAMIC_ASSERTIONS})
-    add_definitions(-DUSE_DYNAMIC_ASSERTIONS)
-endif()
-
-if(${ENABLE_COMPLEX_MATH})
-    add_definitions(-DUSE_COMPLEX_MATH)
-endif()
-
-if(${ENABLE_ROBIN_HOOD_MAP})
-    add_definitions(-DUSE_ROBIN_HOOD_MAP)
-endif()
-
-if(${ENABLE_VIRTUAL_FUNCTIONS})
-    add_definitions(-DUSE_VIRTUAL_FUNCTIONS)
-endif()
-
-if(${ENABLE_STL_PARALLEL_EXECUTION})
-    add_definitions(-DUSE_CXX_PARALLEL_POLICY)
-endif()
-
-if(${ENABLE_SYMBOLIC_CHECK})
-    add_definitions(-DUSE_SYMBOLIC_CHECK)
-endif()
-
-if(${ENABLE_NUMERICAL_CHECK})
-    add_definitions(-DUSE_NUMERICAL_CHECK)
-endif()    
-
 
 ########################################################################################################################
 ########################################################################################################################
@@ -132,17 +98,28 @@ endif()
 include(FetchContent)
 
 # Find and install robin hood hashing package
-FetchContent_Declare(
-    robin-hood-hashing
-    GIT_REPOSITORY https://github.com/martinus/robin-hood-hashing.git
-    GIT_TAG 3.11.5
-    GIT_SHALLOW TRUE
-) 
-# Check if the dependency has already been downloaded and built
-FetchContent_GetProperties(robin-hood-hashing)
-if(NOT robin-hood-hashing_POPULATED)
-    message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Setting robin-hood library")
-    FetchContent_MakeAvailable(robin-hood-hashing)
+if(${ENABLE_ROBIN_HOOD_MAP})
+    find_package(robin_hood QUIET)
+    if(DEFINED robin_hood_FOUND AND DEFINED robin_hood_VERSION)
+        message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Robin hood installed version ${robin_hood_VERSION}")
+    endif()
+
+    if(NOT robin_hood_FOUND)
+        FetchContent_Declare(
+            robin-hood-hashing
+            GIT_REPOSITORY https://github.com/martinus/robin-hood-hashing.git
+            GIT_TAG 3.11.5
+            GIT_SHALLOW TRUE
+        ) 
+        # Check if the dependency has already been downloaded and built
+        FetchContent_GetProperties(robin-hood-hashing)
+        if(NOT robin-hood-hashing_POPULATED)
+            message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Setting robin-hood library")
+            FetchContent_MakeAvailable(robin-hood-hashing)
+        endif()
+    else()
+        message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Robin hood library found in system")
+    endif()
 endif()
 
 # Find and install Eigen package
@@ -229,74 +206,88 @@ set(SRC # Scalar folder *.cpp files
 ########################################################################################################################
 ########################################################################################################################
 
-set(INCLUDES    ${CMAKE_SOURCE_DIR}/include
-                ${CMAKE_SOURCE_DIR}/include/Scalar/BinaryOps
-                ${CMAKE_SOURCE_DIR}/include/Scalar/UnaryOps
-                ${CMAKE_SOURCE_DIR}/include/Scalar
-                ${CMAKE_SOURCE_DIR}/include/Matrix
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixInterface
-                ${CMAKE_SOURCE_DIR}/include/Matrix/BinaryOps
-                ${CMAKE_SOURCE_DIR}/include/Matrix/UnaryOps
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler
-            
-                # Naive CPU addition handlers
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddHandler/NaiveCPU
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/NaiveCPU
-                
-                # Eigen library addition handler
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/Eigen
-                
-                # Naive CPU multiplication handlers
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMulHandler/NaiveCPU
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/NaiveCPU
+set(PRIVATE_INCLUDES    # Matrix handler include directory
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler
 
-                # Eigen library multiplication handler
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/Eigen
+                        # Naive CPU addition handlers
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddHandler/NaiveCPU
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/NaiveCPU
 
-                # Naive CPU subtraction handlers
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubHandler/NaiveCPU
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/NaiveCPU
+                        # Eigen library addition handler
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/Eigen
 
-                # Eigen library subtraction handler
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/Eigen
+                        # Naive CPU multiplication handlers
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMulHandler/NaiveCPU
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/NaiveCPU
 
-                # Naive CPU Hadamard handlers
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamardHandler/NaiveCPU
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/NaiveCPU
+                        # Eigen library multiplication handler
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/Eigen
 
-                # Eigen library Hadamard handler
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/Eigen
+                        # Naive CPU subtraction handlers
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubHandler/NaiveCPU
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/NaiveCPU
 
-                # Naive CPU Kronecker product handlers
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronHandler/NaiveCPU
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/NaiveCPU
+                        # Eigen library subtraction handler
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/Eigen
 
-                # Eigen library Kronecker handler
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/Eigen
+                        # Naive CPU Hadamard handlers
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamardHandler/NaiveCPU
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/NaiveCPU
 
-                # Naive CPU Transpose product handlers
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTransposeHandler/NaiveCPU
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose/NaiveCPU
+                        # Eigen library Hadamard handler
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/Eigen
 
-                # Determinant handlers
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDet/Eigen
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDetHandler/NaiveCPU
+                        # Naive CPU Kronecker product handlers
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronHandler/NaiveCPU
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/NaiveCPU
 
-                # Unary handlers
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnaryHandler/NaiveCPU
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary/NaiveCPU
+                        # Eigen library Kronecker handler
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/Eigen
 
-                # Inverse handlers
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInverse/Eigen
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInvHandler/NaiveCPU
+                        # Naive CPU Transpose handlers
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTransposeHandler/NaiveCPU
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose/NaiveCPU
 
-                # Convolution handlers            
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvHandler/NaiveCPU
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvolution/NaiveCPU
+                        # Eigen Transpose handlers
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose/Eigen
 
-                ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixSplOps
-                ${CMAKE_SOURCE_DIR}/include/MemoryManager
-                ${CMAKE_BINARY_DIR}/_deps/robin-hood-hashing-src/src/include)
+                        # Determinant handlers
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDet/Eigen
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDetHandler/NaiveCPU
+
+                        # Unary handlers
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnaryHandler/NaiveCPU
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary/NaiveCPU
+
+                        # Inverse handlers
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInverse/Eigen
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInvHandler/NaiveCPU
+
+                        # Convolution handlers            
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvHandler/NaiveCPU
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvolution/NaiveCPU)
+
+set(PUBLIC_INCLUDES     #General include (CommonHeader.hpp, CoolDiff.hpp)
+                        ${CMAKE_SOURCE_DIR}/include
+
+                        # Scalar classes (Variable, Parameter, Expression), unary and binary ops
+                        ${CMAKE_SOURCE_DIR}/include/Scalar
+                        ${CMAKE_SOURCE_DIR}/include/Scalar/BinaryOps
+                        ${CMAKE_SOURCE_DIR}/include/Scalar/UnaryOps
+                        
+                        # Matrix class 
+                        ${CMAKE_SOURCE_DIR}/include/Matrix
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixInterface
+
+                        # Matrix unary and binary ops
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/BinaryOps
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/UnaryOps
+
+                        # Matrix special ops
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixSplOps
+                        
+                        # Memory manager
+                        ${CMAKE_SOURCE_DIR}/include/MemoryManager)
 
 ########################################################################################################################
 ########################################################################################################################
@@ -307,34 +298,121 @@ set(INCLUDES    ${CMAKE_SOURCE_DIR}/include
 ########################################################################################################################
 
 # [Add executable (target executable)]
-add_library(${PROJECT_NAME} STATIC ${SRC})
+add_library(${PROJECT_NAME})
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
+set(LIBRARY_LIST Threads::Threads Eigen3::Eigen)
+if(${ENABLE_ROBIN_HOOD_MAP})
+    list(APPEND LIBRARY_LIST robin_hood::robin_hood)
+endif()
+
+# [Set target sources]
+target_sources(${PROJECT_NAME} PRIVATE ${SRC})
 
 # [Set target include directories]
-target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
+target_include_directories(${PROJECT_NAME}  PRIVATE ${PRIVATE_INCLUDES}
+                                            PUBLIC  $<BUILD_INTERFACE:;${PUBLIC_INCLUDES}> 
+                                                    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>)
+
+# [Set target properties]
+set_target_properties(${PROJECT_NAME}   PROPERTIES  VERSION ${PROJECT_VERSION}
+                                                    SOVERSION ${PROJECT_VERSION_MAJOR})
 
 # [Link target libraries]
-target_link_libraries(${PROJECT_NAME} PUBLIC Threads::Threads Eigen3::Eigen)
+target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBRARY_LIST})
 
 # Attach address sanitizer
-set(ATTACH_ADDRESS_SANITIZER $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU,Clang>>:-fno-omit-frame-pointer;-fsanitize=address>
+set(HOOK_ADDRESS_SANITIZER  $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU,Clang>>:-fno-omit-frame-pointer;-fsanitize=address>
                             $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:MSVC>>:/INCREMENTAL:NO;/fsanitize=address>)
 # Set permission flags
-set(PERMISSION_FLAGS $<$<CXX_COMPILER_ID:GNU,Clang>:-fpermissive> 
+set(COMPILE_PERMISSION_FLAGS $<$<CXX_COMPILER_ID:GNU,Clang>:-fpermissive> 
                     $<$<CXX_COMPILER_ID:MSVC>:/permissive>)
 # Set warning flags
-set(WARNING_FLAGS $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU,Clang>>:-Wpedantic;-Wall;-Wextra>
+set(COMPILE_WARNING_FLAGS $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU,Clang>>:-Wpedantic;-Wall;-Wextra>
                 $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:MSVC>>:/W4>)   
 
 # [Set compile options]
 if(${ENABLE_COMPILER_WARNINGS})
-    target_compile_options(${PROJECT_NAME} PRIVATE ${WARNING_FLAGS})
+    target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_WARNING_FLAGS})
 endif()
-target_compile_options(${PROJECT_NAME} PRIVATE ${PERMISSION_FLAGS})
-target_compile_options(${PROJECT_NAME} PRIVATE ${ATTACH_ADDRESS_SANITIZER})
+target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_PERMISSION_FLAGS})
+target_compile_options(${PROJECT_NAME} PRIVATE ${HOOK_ADDRESS_SANITIZER})
 
 # [Set link options]
-target_link_options(${PROJECT_NAME} PRIVATE ${ATTACH_ADDRESS_SANITIZER})
+target_link_options(${PROJECT_NAME} PRIVATE ${HOOK_ADDRESS_SANITIZER})
 
+# [Set compilation flags]
+if(${DEFAULT_MATH_TYPE} EQUAL 1)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC COOLDIFF_SCALAR_TYPE=1) # Float
+elseif(${DEFAULT_MATH_TYPE} EQUAL 2)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC COOLDIFF_SCALAR_TYPE=2) # Double
+endif()
+
+if(${ENABLE_DYNAMIC_ASSERTIONS})
+    target_compile_definitions(${PROJECT_NAME} PUBLIC USE_DYNAMIC_ASSERTIONS)
+endif()
+
+if(${ENABLE_COMPLEX_MATH})
+    target_compile_definitions(${PROJECT_NAME} PUBLIC USE_COMPLEX_MATH)
+endif()
+
+if(${ENABLE_ROBIN_HOOD_MAP})
+    target_compile_definitions(${PROJECT_NAME} PUBLIC USE_ROBIN_HOOD_MAP)
+endif()
+
+if(${ENABLE_VIRTUAL_FUNCTIONS})
+    target_compile_definitions(${PROJECT_NAME} PUBLIC USE_VIRTUAL_FUNCTIONS)
+endif()
+
+if(${ENABLE_STL_PARALLEL_EXECUTION})
+    target_compile_definitions(${PROJECT_NAME} PUBLIC USE_CXX_PARALLEL_POLICY)
+endif()
+
+if(${ENABLE_SYMBOLIC_CHECK})
+    target_compile_definitions(${PROJECT_NAME} PUBLIC USE_SYMBOLIC_CHECK)
+endif()
+
+if(${ENABLE_NUMERICAL_CHECK})
+    target_compile_definitions(${PROJECT_NAME} PUBLIC USE_NUMERICAL_CHECK)
+endif()    
+
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
+                                # [Install section]
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
+
+include(GNUInstallDirs)
+
+install(TARGETS ${PROJECT_NAME}
+        EXPORT "${PROJECT_NAME}Targets"
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include 
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
+
+include(CMakePackageConfigHelpers)
+configure_package_config_file(  "${CMAKE_SOURCE_DIR}/config/${PROJECT_NAME}Config.cmake.in" 
+                                "${CMAKE_BINARY_DIR}/${PROJECT_NAME}Config.cmake"    
+                                INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}" )
+
+write_basic_package_version_file(   "${PROJECT_NAME}ConfigVersion.cmake"
+                                    VERSION ${PROJECT_VERSION}
+                                    COMPATIBILITY SameMajorVersion  )
+
+install(FILES   "${CMAKE_BINARY_DIR}/${PROJECT_NAME}Config.cmake" 
+                "${CMAKE_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}" )
+
+install(    EXPORT "${PROJECT_NAME}Targets"
+            FILE "${PROJECT_NAME}Targets.cmake"
+            NAMESPACE "${PROJECT_NAME}::"
+            DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}" )
 
 
 ########################################################################################################################

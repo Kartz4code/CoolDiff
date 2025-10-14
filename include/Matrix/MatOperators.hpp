@@ -23,49 +23,56 @@
 
 #include "CommonHeader.hpp"
 
-// Matrix-Matrix addition - Left, Right, Result matrix pointer
-void MatrixAdd(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&);
+namespace CoolDiff {
+    namespace TensorR2 {
+        namespace MatOperators {
+            // Matrix-Matrix addition - Left, Right, Result matrix pointer
+            void MatrixAdd(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&);
 
-// Matrix-Matrix subtraction - Left, Right, Result matrix pointer
-void MatrixSub(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&);
+            // Matrix-Matrix subtraction - Left, Right, Result matrix pointer
+            void MatrixSub(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&);
 
-// Matrix-Matrix multiplication - Left, Right, Result matrix pointer
-void MatrixMul(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&);
+            // Matrix-Matrix multiplication - Left, Right, Result matrix pointer
+            void MatrixMul(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&);
 
-// Matrix-Matrix Kronocker product - Left, Right, Result matrix pointer
-void MatrixKron(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&);
+            // Matrix-Matrix Kronocker product - Left, Right, Result matrix pointer
+            void MatrixKron(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&);
 
-// Matrix-Matrix Hadamard product - Left, Right, Result matrix pointer
-void MatrixHadamard(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&);
+            // Matrix-Matrix Hadamard product - Left, Right, Result matrix pointer
+            void MatrixHadamard(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&);
 
-// Matrix-Scalar addition
-void MatrixScalarAdd(Type, const Matrix<Type>*, Matrix<Type>*&);
+            // Matrix-Scalar addition
+            void MatrixScalarAdd(Type, const Matrix<Type>*, Matrix<Type>*&);
 
-// Matrix-Scalar multiplication
-void MatrixScalarMul(Type, const Matrix<Type>*, Matrix<Type>*&);
+            // Matrix-Scalar multiplication
+            void MatrixScalarMul(Type, const Matrix<Type>*, Matrix<Type>*&);
 
-// Matrix transpose
-void MatrixTranspose(const Matrix<Type>*, Matrix<Type>*&);
+            // Matrix transpose
+            void MatrixTranspose(const Matrix<Type>*, Matrix<Type>*&);
 
-// Matrix derivative transpose
-void MatrixDervTranspose(const size_t, const size_t, const size_t, const size_t,
-                         const Matrix<Type>*, Matrix<Type>*&);
+            // Matrix derivative transpose
+            void MatrixDervTranspose(   const size_t, const size_t, const size_t, const size_t,
+                                        const Matrix<Type>*, Matrix<Type>*& );
 
-// Matrix convolution
-void MatrixConv(const size_t, const size_t, const size_t, const size_t,
-                const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&);
+            // Matrix convolution
+            void MatrixConv(const size_t, const size_t, const size_t, const size_t,
+                            const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&);
 
-// Matrix derivative convolution
-void MatrixDervConv(const size_t, const size_t, const size_t, const size_t,
-                    const size_t, const size_t, const Matrix<Type>*,
-                    const Matrix<Type>*, const Matrix<Type>*,
-                    const Matrix<Type>*, Matrix<Type>*&);
+            // Matrix derivative convolution
+            void MatrixDervConv(const size_t, const size_t, const size_t, const size_t,
+                                const size_t, const size_t, const Matrix<Type>*,
+                                const Matrix<Type>*, const Matrix<Type>*,
+                                const Matrix<Type>*, Matrix<Type>*&);
 
-// Matrix unary
-void MatrixUnary(const Matrix<Type>*, const FunctionType1&, Matrix<Type>*&);
+            // Matrix unary
+            void MatrixUnary(const Matrix<Type>*, const FunctionType1&, Matrix<Type>*&);
 
-// MatrixInverse
-void MatrixInverse(const Matrix<Type>*, Matrix<Type>*&);
+            // MatrixInverse
+            void MatrixInverse(const Matrix<Type>*, Matrix<Type>*&);
 
-// Matrix Determinant
-void MatrixDet(const Matrix<Type>*, Matrix<Type>*&);
+            // Matrix Determinant
+            void MatrixDet(const Matrix<Type>*, Matrix<Type>*&);
+        }
+    }
+}
+

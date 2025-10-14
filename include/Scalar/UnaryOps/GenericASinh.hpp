@@ -33,8 +33,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericASinh)
-  DISABLE_MOVE(GenericASinh)
+  #if 0
+    DISABLE_COPY(GenericASinh)
+    DISABLE_MOVE(GenericASinh)
+  #endif
 
 public:
   // Block index
@@ -164,6 +166,11 @@ public:
     UNARY_FIND_ME(); 
   }
 
+  // Clone scalar expression
+  constexpr const auto& cloneExp() const {
+    return asinh(*mp_left);
+  }
+
   // Destructor
   V_DTR(~GenericASinh()) = default;
 };
@@ -175,6 +182,7 @@ using GenericASinhT = GenericASinh<T, OpType>;
 // Function for asinh computation
 template <typename T> 
 constexpr const auto& asinh(const IVariable<T>& u) {
-  auto tmp = Allocate<GenericASinhT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpObj);
+  const auto& _u = u.cloneExp();
+  auto tmp = Allocate<GenericASinhT<T>>(const_cast<T*>(static_cast<const T*>(&_u)), OpObj);
   return *tmp;
 }

@@ -135,6 +135,17 @@ enum OpMat : size_t {
                   void (*)(const Matrix<Type>*, Matrix<Type>*&)
 
 // Operation objects [Order matters!]
-#define OpMatObj  MatrixAdd, MatrixMul, MatrixKron, MatrixSub, MatrixHadamard,             \
-                  MatrixScalarAdd, MatrixScalarMul, MatrixTranspose, MatrixDervTranspose,  \
-                  MatrixConv, MatrixDervConv, MatrixUnary, MatrixInverse, MatrixDet
+#define OpMatObj  CoolDiff::TensorR2::MatOperators::MatrixAdd,            \
+                  CoolDiff::TensorR2::MatOperators::MatrixMul,            \
+                  CoolDiff::TensorR2::MatOperators::MatrixKron,           \
+                  CoolDiff::TensorR2::MatOperators::MatrixSub,            \
+                  CoolDiff::TensorR2::MatOperators::MatrixHadamard,       \
+                  CoolDiff::TensorR2::MatOperators::MatrixScalarAdd,      \
+                  CoolDiff::TensorR2::MatOperators::MatrixScalarMul,      \
+                  CoolDiff::TensorR2::MatOperators::MatrixTranspose,      \
+                  CoolDiff::TensorR2::MatOperators::MatrixDervTranspose,  \
+                  CoolDiff::TensorR2::MatOperators::MatrixConv,           \
+                  CoolDiff::TensorR2::MatOperators::MatrixDervConv,       \
+                  CoolDiff::TensorR2::MatOperators::MatrixUnary,          \
+                  CoolDiff::TensorR2::MatOperators::MatrixInverse,        \
+                  CoolDiff::TensorR2::MatOperators::MatrixDet

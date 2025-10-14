@@ -131,8 +131,8 @@ public:
     MATRIX_INVERSE(right_mat, mp_arr[1]);
 
     // R (X) I - Right matrix and identity Kronocke product (Policy design)
-    MATRIX_KRON(mp_arr[1], Eye(nrows_x), mp_arr[2]);
-    MATRIX_KRON(mp_arr[1], Eye(ncols_x), mp_arr[3]);
+    MATRIX_KRON(mp_arr[1], CoolDiff::TensorR2::MatrixBasics::Eye(nrows_x), mp_arr[2]);
+    MATRIX_KRON(mp_arr[1], CoolDiff::TensorR2::MatrixBasics::Eye(ncols_x), mp_arr[3]);
 
     MATRIX_MUL(mp_arr[2], dright_mat, mp_arr[4]);
     MATRIX_MUL(mp_arr[4], mp_arr[3], mp_arr[5]);
@@ -187,7 +187,11 @@ public:
       }
       
       std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(),
-              [&](const auto& item) {                                                     
+              [&](const auto& item) {
+                const size_t rows = mp_arr[10]->getNumRows();
+                const size_t cols = mp_arr[10]->getNumColumns(); 
+                ASSERT((rows == 1) && (cols == 1), "Matrix expression not scalar for reverse mode derivative");
+
                 const auto idx = item.first; const auto val = item.second;   
                 MatType*& ptr = this->m_cloned[this->incFunc()];             
                 MATRIX_SCALAR_MUL(mp_arr10_val, val, ptr);                           
@@ -231,7 +235,11 @@ public:
         }  
 
         std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(),         
-                      [&](const auto &item) {                                                   
+                      [&](const auto &item) {         
+                        const size_t rows = mp_arr[15]->getNumRows();
+                        const size_t cols = mp_arr[15]->getNumColumns(); 
+                        ASSERT((rows == 1) && (cols == 1), "Matrix expression not scalar for reverse mode derivative"); 
+                                                                
                         const auto idx = item.first; const auto val = item.second;  
                         MatType*& ptr = this->m_cloned[this->incFunc()];            
                         MATRIX_SCALAR_MUL(mp_arr15_val, val, ptr);                         

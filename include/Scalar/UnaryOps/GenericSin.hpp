@@ -34,8 +34,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericSin)
-  DISABLE_MOVE(GenericSin)
+  #if 0
+    DISABLE_COPY(GenericSin)
+    DISABLE_MOVE(GenericSin)
+  #endif
 
 public:
   // Block index
@@ -162,6 +164,11 @@ public:
     UNARY_FIND_ME(); 
   }
 
+  // Clone scalar expression
+  constexpr const auto& cloneExp() const {
+    return sin(*mp_left);
+  }
+
   // Destructor
   V_DTR(~GenericSin()) = default;
 };
@@ -173,6 +180,7 @@ using GenericSinT = GenericSin<T, OpType>;
 // Function for sin computation
 template <typename T> 
 constexpr const auto& sin(const IVariable<T>& u) {
-  auto tmp = Allocate<GenericSinT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpObj);
+  const auto& _u = u.cloneExp();
+  auto tmp = Allocate<GenericSinT<T>>(const_cast<T*>(static_cast<const T*>(&_u)), OpObj);
   return *tmp;
 }

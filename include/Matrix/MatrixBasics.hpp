@@ -23,28 +23,34 @@
 
 #include "CommonHeader.hpp"
 
-/* Pointer semantics */
-// Numerical Eye matrix
-const Matrix<Type> *Eye(const size_t);
+namespace CoolDiff {
+    namespace TensorR2 {
+        namespace MatrixBasics {
+            /* Pointer semantics */
+            // Numerical Eye matrix
+            const Matrix<Type>* Eye(const size_t);
 
-// Numerical Zeros matrix
-const Matrix<Type> *Zeros(const size_t, const size_t);
+            // Numerical Zeros matrix
+            const Matrix<Type>* Zeros(const size_t, const size_t);
 
-// Numerical Zeros square matrix
-const Matrix<Type> *Zeros(const size_t);
+            // Numerical Zeros square matrix
+            const Matrix<Type>* Zeros(const size_t);
 
-// Numerical Ones matrix
-const Matrix<Type> *Ones(const size_t, const size_t);
+            // Numerical Ones matrix
+            const Matrix<Type>* Ones(const size_t, const size_t);
 
-// Numerical Ones square matrix
-const Matrix<Type> *Ones(const size_t);
+            // Numerical Ones square matrix
+            const Matrix<Type>* Ones(const size_t);
 
-// References
-// Numerical Eye matrix
-const Matrix<Type>& EyeRef(const size_t);
+            // References
+            // Numerical Eye matrix
+            const Matrix<Type>& EyeRef(const size_t);
 
-// Numerical Ones matrix
-const Matrix<Type>& OnesRef(const size_t, const size_t);
+            // Numerical Ones matrix
+            const Matrix<Type>& OnesRef(const size_t, const size_t);
 
-// Numerical Zero matrix
-const Matrix<Type>& ZerosRef(const size_t, const size_t);
+            // Numerical Zero matrix
+            const Matrix<Type>& ZerosRef(const size_t, const size_t);
+        }
+    }
+}

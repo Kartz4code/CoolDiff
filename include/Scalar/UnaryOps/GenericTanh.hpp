@@ -34,8 +34,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericTanh)
-  DISABLE_MOVE(GenericTanh)
+  #if 0
+    DISABLE_COPY(GenericTanh)
+    DISABLE_MOVE(GenericTanh)
+  #endif
 
 public:
   // Block index
@@ -165,6 +167,11 @@ public:
     UNARY_FIND_ME(); 
   }
 
+  // Clone scalar expression
+  constexpr const auto& cloneExp() const {
+    return tanh(*mp_left);
+  }
+
   // Destructor
   V_DTR(~GenericTanh()) = default;
 };
@@ -176,6 +183,7 @@ using GenericTanhT = GenericTanh<T, OpType>;
 // Function for tanh computation
 template <typename T> 
 constexpr const auto& tanh(const IVariable<T>& u) {
-  auto tmp = Allocate<GenericTanhT<T>>(const_cast<T*>(static_cast<const T*>(&u)), OpObj);
+  const auto& _u = u.cloneExp();
+  auto tmp = Allocate<GenericTanhT<T>>(const_cast<T*>(static_cast<const T*>(&_u)), OpObj);
   return *tmp;
 }
