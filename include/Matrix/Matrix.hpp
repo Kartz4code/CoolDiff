@@ -185,7 +185,7 @@ public:
   // Copy constructor
   Matrix(const Matrix&);
   // Copy assignment operator
-  Matrix &operator=(const Matrix&);
+  Matrix& operator=(const Matrix&);
 
   // Get matrix pointer immutable
   const T* getMatrixPtr() const;

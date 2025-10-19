@@ -78,7 +78,7 @@ class MatDervConvNaiveHandler : public T {
 
           // Reset to zero for the recurring matrices (#8 - #18)
           for (size_t k{2}; k <= 12; ++k) {
-            ResetZero(mp_arr[k]);
+            CoolDiff::TensorR2::Details::ResetZero(mp_arr[k]);
           }
 
           // Left block matrix

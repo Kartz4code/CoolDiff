@@ -76,9 +76,12 @@
 #include "ZeroMatDetHandler.hpp"
 
 // Matrix trace
-#include "MatTraceEigenHandler.hpp"
+#include "MatTraceNaiveHandler.hpp"
 #include "EyeMatTraceHandler.hpp"
 #include "ZeroMatTraceHandler.hpp"
+
+// Eigen trace
+#include "MatTraceEigenHandler.hpp" 
 
 // Matrix Hadamard product
 #include "MatHadamardNaiveHandler.hpp"
@@ -394,6 +397,13 @@ namespace CoolDiff {
               2) Zero matrix check
               3) Matrix convolution derivative
             */
+
+            
+            #if NAIVE_HANDLER
+              static HANDLER3(EyeMatTraceHandler, 
+                              ZeroMatTraceHandler,
+                              MatTraceNaiveHandler) handler;
+            #endif  
             static HANDLER3(EyeMatTraceHandler, 
                             ZeroMatTraceHandler,
                             MatTraceEigenHandler) handler;

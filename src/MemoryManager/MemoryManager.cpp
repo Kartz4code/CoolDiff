@@ -57,6 +57,8 @@ void MemoryManager::MatrixPool(const size_t rows, const size_t cols, Matrix<Type
     result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(rows, cols, val);
     return;
   } else {
+    // Never reset result to zero. Some operations may take the same input and output
+    // e.g. MatrixAdd(result, A, result)
     return;
   }
 }

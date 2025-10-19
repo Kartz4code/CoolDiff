@@ -326,7 +326,9 @@ void NN() {
 
 
 int main(int argc, char **argv) { 
-  NN();
+  #ifndef USE_COMPLEX_MATH
+    NN();
+  #endif
   GNMatrix();
   NonLinearSolve();
   RModeDerv();

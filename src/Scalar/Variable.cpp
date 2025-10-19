@@ -288,6 +288,7 @@ bool Variable::findMe(void* v) const {
   }
 }
 
+// Variable factory
 Variable& Variable::VariableFactory::CreateVariable(const Type& val) {
   auto tmp = Allocate<Variable>(val);
   return *tmp;

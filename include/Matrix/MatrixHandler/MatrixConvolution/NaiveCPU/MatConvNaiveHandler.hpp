@@ -74,7 +74,7 @@ class MatConvNaiveHandler : public T {
 
             // Reset to zero for the recurring matrices (#1 - #4)
             for (size_t k{1}; k <= 4; ++k) {
-              ResetZero(mp_arr[k]);
+              CoolDiff::TensorR2::Details::ResetZero(mp_arr[k]);
             }
 
             // Get block matrix
