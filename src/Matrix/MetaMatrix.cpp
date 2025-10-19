@@ -23,11 +23,17 @@
 #include "Matrix.hpp"
 
 // Reset type matrix (Set the values of MatType to zero)
-void ResetZero(Matrix<Type>* ptr) {
-  if ((nullptr != ptr) && (-1 == ptr->getMatType())) {
-    const size_t size = ptr->getNumElem();
-    auto* mptr = ptr->getMatrixPtr();
-    std::fill(EXECUTION_PAR mptr, mptr + size, (Type)(0));
+namespace CoolDiff {
+  namespace TensorR2 {
+    namespace Details {
+      void ResetZero(Matrix<Type>* ptr) {
+        if ((nullptr != ptr) && (-1 == ptr->getMatType())) {
+          const size_t size = ptr->getNumElem();
+          auto* mptr = ptr->getMatrixPtr();
+          std::fill(EXECUTION_PAR mptr, mptr + size, (Type)(0));
+        }
+      }
+    }
   }
 }
 

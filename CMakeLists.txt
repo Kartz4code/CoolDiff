@@ -74,7 +74,7 @@ option(ENABLE_CLANG_TIDY "Enable clang-tidy static linter" OFF) # Default - OFF
 option(ENABLE_CMAKE_FORMAT "Enable cmake formatter" OFF) # Default - OFF
 option(ENABLE_CLANG_FORMAT "Enable clang format" OFF) # Default - OFF
 option(ENABLE_COMPILER_WARNINGS "Enable compiler warnings" OFF) # Default - OFF
-option(ENABLE_COMPLEX_MATH "Enable complex numbers for numerics" OFF) # Default - ON
+option(ENABLE_COMPLEX_MATH "Enable complex numbers for numerics" ON) # Default - ON
 option(ENABLE_ROBIN_HOOD_MAP "Enable robin hood hashmaps" OFF) # Default - ON
 # TODO - Implementation of manual dynamic dispatch for performance
 option(ENABLE_VIRTUAL_FUNCTIONS "Enable virtual functions" ON) # Default - ON
@@ -255,8 +255,12 @@ set(PRIVATE_INCLUDES    # Matrix handler include directory
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDetHandler/NaiveCPU
 
                         # Trace handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTrace/Eigen
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTraceHandler/NaiveCPU
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTrace/NaiveCPU
+
+                        # Eigen trace handlers
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTrace/Eigen
+                        
 
                         # Unary handlers
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnaryHandler/NaiveCPU

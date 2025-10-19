@@ -77,4 +77,10 @@ public:
 };
 
 // Reset type matrix (Set the values of MatType to zero)
-void ResetZero(Matrix<Type>*);
+namespace CoolDiff {
+  namespace TensorR2 {
+    namespace Details {
+      void ResetZero(Matrix<Type>*);
+    }
+  }
+}

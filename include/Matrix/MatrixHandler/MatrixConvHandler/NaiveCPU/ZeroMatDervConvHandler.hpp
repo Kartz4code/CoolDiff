@@ -74,7 +74,7 @@ class ZeroMatDervConvHandler : public T {
 
             // Reset to zero for the recurring matrices (#8 - #18)
             for (size_t k{1}; k <= 7; ++k) {
-              ResetZero(mp_arr[k]);
+              CoolDiff::TensorR2::Details::ResetZero(mp_arr[k]);
             }
 
             // Left block matrix
@@ -142,7 +142,7 @@ class ZeroMatDervConvHandler : public T {
 
             // Reset to zero for the recurring matrices (#8 - #18)
             for (size_t k{1}; k <= 7; ++k) {
-              ResetZero(mp_arr[k]);
+              CoolDiff::TensorR2::Details::ResetZero(mp_arr[k]);
             }
 
             // Left derivative block matrix

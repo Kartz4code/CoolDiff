@@ -23,9 +23,10 @@
 
 #include "CommonHeader.hpp"
 
+// VarWrap class to store variable values
 class VarWrap {
 private:
-  // Swap 
+  // Copy-swap idiom 
   void swap(VarWrap&) noexcept; 
 
   // Resources

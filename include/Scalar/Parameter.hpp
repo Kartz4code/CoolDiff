@@ -26,6 +26,7 @@
 // Parameter class for l-value data variables
 class Parameter : public IVariable<Parameter> {
 private:
+  // Copy-swap idiom
   void swap(Parameter&) noexcept;
 
 public:

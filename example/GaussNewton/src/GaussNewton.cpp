@@ -41,8 +41,8 @@ void GaussNewton::setDataUnit(const size_t i) {
 // Get A,B for matrix solve
 void GaussNewton::computeABScalar(const size_t var_size) {
   // Reset m_A and m_B
-  ResetZero(m_A);
-  ResetZero(m_B);
+  CoolDiff::TensorR2::Details::ResetZero(m_A);
+  CoolDiff::TensorR2::Details::ResetZero(m_B);
 
   for (size_t i{}; i < m_size; ++i) {
     // Set data unit
@@ -66,8 +66,8 @@ void GaussNewton::computeABScalar(const size_t var_size) {
 // Get A,B for matrix solve
 void GaussNewton::computeABMatrix(const size_t var_size) {
   // Reset m_A and m_B
-  ResetZero(m_A);
-  ResetZero(m_B);
+  CoolDiff::TensorR2::Details::ResetZero(m_A);
+  CoolDiff::TensorR2::Details::ResetZero(m_B);
 
   for (size_t i{}; i < m_size; ++i) {
     // Set data unit
