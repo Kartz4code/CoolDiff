@@ -226,8 +226,10 @@ private:
   Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
-  DISABLE_COPY(GenericProduct)
-  DISABLE_MOVE(GenericProduct)
+  #if 0
+    DISABLE_COPY(GenericProduct)
+    DISABLE_MOVE(GenericProduct)
+  #endif
 
 public:
   // Block index

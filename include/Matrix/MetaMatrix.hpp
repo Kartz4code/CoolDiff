@@ -22,19 +22,17 @@
 #pragma once
 #include "CommonHeader.hpp"
 
-class MetaMatrix {
+class MetaMatrix : protected CommonHeader {
 protected:
-  // Index counter (A counter to count the number of matrix operations)
-  inline static size_t m_idx_count{0};
   // Vector of clones
   Vector<Matrix<Type>*> m_cloned{nullptr};
   // Counter values
-  size_t m_clone_counter{};
+  long long int m_clone_counter{};
   
   // Clear clone
   void clearClone();
   // Counter increment function   
-  const size_t incFunc(const size_t = 2);
+  long long int incFunc(const size_t = 2);
 
 public:
   // Visited flag

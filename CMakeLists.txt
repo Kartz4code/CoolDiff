@@ -68,23 +68,22 @@ include(Tools)
 ######################################################################################################################## 
 
 # TODO - Enable shared library build 
-option(BUILD_UNITTESTS "Building unit test executables" ON)
-option(BUILD_EXAMPLES "Building example executables" ON)
-option(ENABLE_CLANG_TIDY "Enable clang-tidy static linter" OFF)
-option(ENABLE_CMAKE_FORMAT "Enable cmake formatter" OFF)
-option(ENABLE_CLANG_FORMAT "Enable clang format" OFF)
-option(ENABLE_COMPILER_WARNINGS "Enable compiler warnings" OFF)
-option(ENABLE_COMPLEX_MATH "Enable complex numbers for numerics" ON)
-option(ENABLE_ROBIN_HOOD_MAP "Enable robin hood hashmaps" ON)
+option(BUILD_UNITTESTS "Building unit test executables" ON) # Default - ON
+option(BUILD_EXAMPLES "Building example executables" ON) # Default - ON
+option(ENABLE_CLANG_TIDY "Enable clang-tidy static linter" OFF) # Default - OFF
+option(ENABLE_CMAKE_FORMAT "Enable cmake formatter" OFF) # Default - OFF
+option(ENABLE_CLANG_FORMAT "Enable clang format" OFF) # Default - OFF
+option(ENABLE_COMPILER_WARNINGS "Enable compiler warnings" OFF) # Default - OFF
+option(ENABLE_COMPLEX_MATH "Enable complex numbers for numerics" OFF) # Default - ON
+option(ENABLE_ROBIN_HOOD_MAP "Enable robin hood hashmaps" OFF) # Default - ON
 # TODO - Implementation of manual dynamic dispatch for performance
-option(ENABLE_VIRTUAL_FUNCTIONS "Enable virtual functions" ON)
-option(ENABLE_DYNAMIC_ASSERTIONS "Enable dynamic assertions" ON)
-option(ENABLE_STL_PARALLEL_EXECUTION "Enable STL libraries parallel execution feature" OFF)
-option(ENABLE_SYMBOLIC_CHECK "Enable symbolic checks" ON)
+option(ENABLE_VIRTUAL_FUNCTIONS "Enable virtual functions" ON) # Default - ON
+option(ENABLE_DYNAMIC_ASSERTIONS "Enable dynamic assertions" ON) # Default - OFF
+option(ENABLE_STL_PARALLEL_EXECUTION "Enable STL libraries parallel execution feature" OFF) # Default - OFF
+option(ENABLE_SYMBOLIC_CHECK "Enable symbolic checks" ON) # Default - ON
 # TODO - Verification of numerical checks
-option(ENABLE_NUMERICAL_CHECK "Enable numerical checks" OFF)
-set(DEFAULT_MATH_TYPE 2 CACHE STRING "Value that defined the default math type: Float  - 1, 
-                                                                                Double - 2")
+option(ENABLE_NUMERICAL_CHECK "Enable numerical checks" OFF) # Default - OFF
+set(DEFAULT_MATH_TYPE 2 CACHE STRING "Value that defined the default math type: Float  - 1, Double - 2") # Default - 2
 
 
 ########################################################################################################################
@@ -254,6 +253,10 @@ set(PRIVATE_INCLUDES    # Matrix handler include directory
                         # Determinant handlers
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDet/Eigen
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDetHandler/NaiveCPU
+
+                        # Trace handlers
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTrace/Eigen
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTraceHandler/NaiveCPU
 
                         # Unary handlers
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnaryHandler/NaiveCPU

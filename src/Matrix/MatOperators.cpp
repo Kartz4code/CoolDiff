@@ -70,10 +70,15 @@
 // Eigen implementation
 #include "MatKronEigenHandler.hpp"
 
-// Matrix determinant product
+// Matrix determinant
 #include "MatDetEigenHandler.hpp"
 #include "EyeMatDetHandler.hpp"
 #include "ZeroMatDetHandler.hpp"
+
+// Matrix trace
+#include "MatTraceEigenHandler.hpp"
+#include "EyeMatTraceHandler.hpp"
+#include "ZeroMatTraceHandler.hpp"
 
 // Matrix Hadamard product
 #include "MatHadamardNaiveHandler.hpp"
@@ -361,7 +366,7 @@ namespace CoolDiff {
             handler.handle(mat, result);
           }
 
-          // MatrixDeterminant
+          // Matrix determinant
           void MatrixDet(const Matrix<Type>* mat, Matrix<Type>*& result) {
             // Null pointer check
             NULL_CHECK(mat, "Matrix mat is a nullptr");
@@ -374,6 +379,24 @@ namespace CoolDiff {
             static HANDLER3(EyeMatDetHandler, 
                             ZeroMatDetHandler,
                             MatDetEigenHandler) handler;
+
+            // Handle matrix determinant
+            handler.handle(mat, result);
+          }
+
+          // Matrix trace
+          void MatrixTrace(const Matrix<Type>* mat, Matrix<Type>*& result) {
+            // Null pointer check
+            NULL_CHECK(mat, "Matrix mat is a nullptr");
+
+            /* Chain of responsibility (Order matters)
+              1) Eye matrix check
+              2) Zero matrix check
+              3) Matrix convolution derivative
+            */
+            static HANDLER3(EyeMatTraceHandler, 
+                            ZeroMatTraceHandler,
+                            MatTraceEigenHandler) handler;
 
             // Handle matrix determinant
             handler.handle(mat, result);

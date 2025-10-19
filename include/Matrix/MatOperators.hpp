@@ -67,11 +67,14 @@ namespace CoolDiff {
             // Matrix unary
             void MatrixUnary(const Matrix<Type>*, const FunctionType1&, Matrix<Type>*&);
 
-            // MatrixInverse
+            // Matrix inverse
             void MatrixInverse(const Matrix<Type>*, Matrix<Type>*&);
 
             // Matrix Determinant
             void MatrixDet(const Matrix<Type>*, Matrix<Type>*&);
+
+            // Matrix trace
+            void MatrixTrace(const Matrix<Type>*, Matrix<Type>*&);
         }
     }
 }
