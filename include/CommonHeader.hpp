@@ -352,6 +352,13 @@ template <> struct std::hash<Pair<size_t, size_t>> {
   }
 };
 
+// Common header that bears common attributes accross all classes
+class CommonHeader {
+  protected:
+    // Index counter (A counter to count the number of matrix/scalar operations)
+    inline static size_t m_idx_count{0};
+};
+
 // Useful macros for Generic unary/binary operators
 #define STRINGIFY(X) #X
 #define TOSTRING(X) STRINGIFY(X)

@@ -23,6 +23,7 @@
 
 #include "CommonFunctions.hpp"
 #include "IMatrix.hpp"
+#include "MatrixBasics.hpp"
 
 // Derivative of matrices (Reverse AD)
 Matrix<Type>* DervMatrix(const size_t, const size_t, const size_t, const size_t);
@@ -140,8 +141,9 @@ public:
     static_assert(true == std::is_same_v<T, Expression>, "[ERROR] The type T is not an expression");
     // Reserve a buffer of Matrix expressions
     m_gh_vec.reserve(g_vec_init);
+    
     // Emplace the expression in a generic holder
-    m_gh_vec.push_back((Matrix<Expression> *)&expr);
+    m_gh_vec.push_back((Matrix<Expression>*)&(expr*(*(CoolDiff::TensorR2::MatrixBasics::Eye(expr.getNumColumns())))));
   }
 
   /* Copy assignment for expression evaluation */
@@ -174,8 +176,9 @@ public:
       m_devalf = false;
       m_dest = true;
     }
+
     // Emplace the expression in a generic holder
-    m_gh_vec.push_back((Matrix<Expression>*)&expr);
+    m_gh_vec.push_back((Matrix<Expression>*)&(expr*(*(CoolDiff::TensorR2::MatrixBasics::Eye(expr.getNumColumns())))));
     return *this;
   }
 
@@ -362,7 +365,7 @@ namespace CoolDiff {
         const size_t n_size = X.getNumElem();
         // Precompute (By design, the operation is serial)
         if constexpr (true == std::is_same_v<Expression, T>) {
-          PreComp(exp);
+          CoolDiff::TensorR1::PreComp(exp);
           std::transform(EXECUTION_SEQ X.getMatrixPtr(), X.getMatrixPtr() + n_size,
                         result->getMatrixPtr(),
                         [&exp](const auto &v) { return CoolDiff::TensorR1::DevalR(exp, v); });

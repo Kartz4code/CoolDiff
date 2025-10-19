@@ -76,10 +76,15 @@ public:
   // Symbolic differentiation of expression
   Expression& SymDiff(const Variable&);
 
+  // Clone scalar expression
+  constexpr const auto& cloneExp() const {
+    return *this;
+  }
+
   // Expression factory
   class ExpressionFactory {
   public:
-    template <typename T, typename = std::enable_if_t<CoolDiff::TensorR1::Details::is_valid_scalar_v<T>>>
+    template <typename T, typename = CoolDiff::TensorR1::Details::IsValidScalarType<T>>
     inline static Expression& CreateExpression(const T& exp) {
       if constexpr (true == CoolDiff::TensorR1::Details::is_numeric_v<T>) {
         auto tmp = Allocate<Expression>(*Allocate<Parameter>(exp)).get();

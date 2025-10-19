@@ -37,74 +37,78 @@
 
 namespace CoolDiff {
   namespace TensorR2 {
-    // Matrix evaluation for valid MetaVariable type
+    // Matrix evaluation
     template <typename T> 
-    inline Matrix<Type>& Eval(Matrix<T>& Mexp) {
-      // Reset graph/tree
-      Mexp.resetImpl();
-      // Return evaluation value
-      return *(Mexp.eval());
-    }
-
-    // Matrix evaluation for IMatrix expressions
-    template<typename T>
     inline Matrix<Type>& Eval(IMatrix<T>& Mexp) {
-      // Reset graph/tree
-      Mexp.reset();
-      // Return evaluation value
-      return *(Mexp.eval());
+      if constexpr(true == std::is_same_v<T, Expression>) {
+        // Reset graph/tree
+        Mexp.resetImpl();
+        // Return evaluation value
+        return *(Mexp.eval());
+      } else {
+        // Reset graph/tree
+        Mexp.reset();
+        // Return evaluation value
+        return *(Mexp.eval());
+      }
     }
 
-    // Matrix-Matrix derivative evaluation for valid MetaVariable type
+    // Matrix-Matrix forward derivative
     template <typename T>
-    inline Matrix<Type>& DevalF(Matrix<T>& Mexp, Matrix<Variable>& X) {
-      // Reset graph/tree
-      Mexp.resetImpl();
-      // Return evaluation value
-      return *(Mexp.devalF(X));
-    }
-
-    // Matrix evaluation for IMatrix expressions
-    template<typename T>
     inline Matrix<Type>& DevalF(IMatrix<T>& Mexp, Matrix<Variable>& X) {
-      // Reset graph/tree
-      Mexp.reset();
-      // Return evaluation value
-      return *(Mexp.devalF(X));
+      if constexpr(true == std::is_same_v<T, Expression>) {
+        // Reset graph/tree
+        Mexp.resetImpl();
+        // Return evaluation value
+        return *(Mexp.devalF(X));
+      } else {
+        // Reset graph/tree
+        Mexp.reset();
+        // Return evaluation value
+        return *(Mexp.devalF(X));
+      }
     }
 
     // Precomputation of matrix expression
     template<typename T> 
     inline void PreComp(Matrix<T>& Mexp) {
-      // Reset graph/tree
-      Mexp.resetImpl();
-      // Return evaluation value
-      Mexp.traverse();
-    }
-
-    // Precomputation of matrix expression
-    template<typename T>
-    inline void PreComp(IMatrix<T>& Mexp) {
-      // Reset graph/tree
-      Mexp.reset();
-      // Return evaluation value
-      Mexp.traverse();
-    }
-
-    // Reverse derivative of matrix expression
-    template<typename T>
-    inline Matrix<Type>& DevalR(Matrix<T>& Mexp, const Matrix<Variable>& X) {
-      return (*Mexp.getCache()[X.m_nidx]);
+      if constexpr(true == std::is_same_v<T, Expression>) {
+        // Reset graph/tree
+        Mexp.resetImpl();
+        // Return evaluation value
+        Mexp.traverse();
+      } else {
+        // Reset graph/tree
+        Mexp.reset();
+        // Return evaluation value
+        Mexp.traverse();
+      }
     }
 
     // Reverse derivative of matrix expression
-    template<typename T>
-    inline Matrix<Type>& DevalR(IMatrix<T>& Mexp, const Matrix<Variable>& X) {
-      return (*Mexp.getCache()[X.m_nidx]);
+    template<typename T, typename U, typename = std::enable_if_t< std::is_base_of_v<MetaMatrix, U>    || 
+                                                                  std::is_base_of_v<MetaVariable, U>  ||
+                                                                  std::is_base_of_v<MetaMatrix, T>>>
+    inline Matrix<Type>& DevalR(T& Mexp, const U& X) {
+      if constexpr(true == std::is_base_of_v<U, MetaMatrix>) {
+        if(auto it = Mexp.getCache().find(X.m_nidx); it != Mexp.getCache().end()) {
+          return (*Mexp.getCache()[X.m_nidx]);
+        } else {
+          const size_t nrows = X.getNumRows();
+          const size_t ncols = X.getNumColumns();
+          return *const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Zeros(nrows, ncols));
+        }
+      } else {
+        if(auto it = Mexp.getCache().find(X.m_nidx); it != Mexp.getCache().end()) {
+          return (*Mexp.getCache()[X.m_nidx]);
+        } else {
+          return *const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Zeros(1));
+        }
+      }
     }
-    
+
     // Forward mode algorithmic differentiation (Matrix)
-    template <typename T>
+    template <typename T, typename = CoolDiff::TensorR1::Details::IsPureMetaVariableType<T>>
     Matrix<Type>& DevalF(T& exp, const Matrix<Variable>& m, bool serial = true) {
       const size_t n = m.getNumElem();
       auto& result = Matrix<Type>::MatrixFactory::CreateMatrix(m.getNumRows(), m.getNumColumns());
@@ -148,7 +152,7 @@ namespace CoolDiff {
     }
 
     // Reverse mode algorithmic differentiation (Matrix)
-    template <typename T> 
+    template <typename T, typename = std::enable_if_t<std::is_same_v<T, Expression>>> 
     Matrix<Type>& DevalR(T& exp, const Matrix<Variable>& m) {
       const size_t n = m.getNumElem();
       auto& result = Matrix<Type>::MatrixFactory::CreateMatrix(m.getNumRows(), m.getNumColumns());
@@ -163,7 +167,7 @@ namespace CoolDiff {
     }
 
     // Jacobian reverse mode (Scalar - Vector)
-    template <typename T>
+    template <typename T, typename = std::enable_if_t<std::is_same_v<T, Expression>>>
     Matrix<Type>& JacobianR(T& exp, const Vector<Variable>& vec) {
       const size_t rows = vec.size();
       auto& result = Matrix<Type>::MatrixFactory::CreateMatrix(rows, 1);
@@ -178,14 +182,14 @@ namespace CoolDiff {
     }
 
     // Jacobian reverse mode (Scalar - Matrix)
-    template <typename T>
+    template <typename T, typename = std::enable_if_t<std::is_same_v<T, Expression>>>
     Matrix<Type>& JacobianR(T& exp, const Matrix<Variable>& X) {
       Vector<Variable> vec(X.getMatrixPtr(), X.getMatrixPtr() + X.getNumElem());
       return JacobianR(exp, vec);
     }
 
     // Hessian reverse mode (Scalar - Vector)
-    template <typename T>
+    template <typename T, typename = std::enable_if_t<std::is_same_v<T, Expression>>>
     Matrix<Type>& HessianR(T& exp, const Vector<Variable>& vec) {
       const size_t dim = vec.size();
       auto& result = Matrix<Type>::MatrixFactory::CreateMatrix(dim, dim);
@@ -210,15 +214,15 @@ namespace CoolDiff {
     }
 
     // Hessian reverse mode (Scalar - Matrix)
-    template <typename T>
+    template <typename T, typename = std::enable_if_t<std::is_same_v<T, Expression>>>
     Matrix<Type>& HessianR(T& exp, const Matrix<Variable>& X) {
       Vector<Variable> vec(X.getMatrixPtr(), X.getMatrixPtr() + X.getNumElem());
       return HessianR(exp, vec);
     }
 
     // Symbolic Jacobian of expression (Scalar - Vector)
-    template <typename T>
-    Matrix<Expression>& SymJacobian(T& exp, const Vector<Variable>& vec) {
+    template <typename T, typename = std::enable_if_t<std::is_same_v<T, Expression>>>
+    Matrix<Expression>& SymGradient(T& exp, const Vector<Variable>& vec) {
       const size_t rows = vec.size();
       auto& result = Matrix<Expression>::MatrixFactory::CreateMatrix(rows, 1);
       for (size_t i{}; i < rows; ++i) {
@@ -228,14 +232,14 @@ namespace CoolDiff {
     }
 
     // Symbolic Jacobian of expression (Scalar - Matrix)
-    template <typename T>
-    Matrix<Expression>& SymJacobian(T& exp, const Matrix<Variable>& X) {
+    template <typename T, typename = std::enable_if_t<std::is_same_v<T, Expression>>>
+    Matrix<Expression>& SymGradient(T& exp, const Matrix<Variable>& X) {
       Vector<Variable> vec(X.getMatrixPtr(), X.getMatrixPtr() + X.getNumElem());
-      return SymJacobian(exp, vec);
+      return SymGradient(exp, vec);
     }
 
     // Symbolic Hessian of expression (Scalar - Vector)
-    template <typename T>
+    template <typename T, typename = std::enable_if_t<std::is_same_v<T, Expression>>>
     Matrix<Expression>& SymHessian(T& exp, const Vector<Variable>& vec) {
       const size_t dim = vec.size();
       auto &result = Matrix<Expression>::MatrixFactory::CreateMatrix(dim, dim);
@@ -256,14 +260,14 @@ namespace CoolDiff {
     }
 
     // Symbolic Hessian of expression (Scalar - Matrix)
-    template <typename T>
+    template <typename T, typename = std::enable_if_t<std::is_same_v<T, Expression>>>
     Matrix<Expression>& SymHessian(T& exp, const Matrix<Variable>& X) {
       Vector<Variable> vec(X.getMatrixPtr(), X.getMatrixPtr() + X.getNumElem());
       return SymHessian(exp, vec);
     }
 
     // Symbolic Expression (Scalar - Matrix)
-    template <typename T>
+    template <typename T, typename = std::enable_if_t<std::is_same_v<T, Expression>>>
     Matrix<Expression>& SymMatDiff(T& exp, const Matrix<Variable>& m) {
       const size_t n = m.getNumElem();
       auto& result = Matrix<Expression>::MatrixFactory::CreateMatrix(m.getNumRows(), m.getNumColumns());
@@ -311,6 +315,9 @@ UNARY_MATRIX_OPERATOR(SigmoidM, [](Type a) {
 #ifndef USE_COMPLEX_MATH
   UNARY_MATRIX_OPERATOR(ReLUM,  [](Type a) { return ((a >= (Type)(0)) ? a : 0);  },
                                 [](Type b) { return ((b >= (Type)(0)) ? 1 : 0); })
+
+  UNARY_MATRIX_OPERATOR(LeakyReLUM,   [](Type a) { return ((a >= (Type)(0)) ? a : 0.1*a);  },
+                                      [](Type b) { return ((b >= (Type)(0)) ? 1 : 0.1); })
 #endif
 
 // Sigma computation

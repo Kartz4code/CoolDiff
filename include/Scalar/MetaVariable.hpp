@@ -23,7 +23,7 @@
 
 #include "CommonHeader.hpp"
 
-class MetaVariable {
+class MetaVariable : protected CommonHeader {
 protected:
   // Value and derivative temporaries for symbolic differentiation
   Variable* mp_tmp{nullptr};
@@ -31,9 +31,6 @@ protected:
 
   // Reset temporaries
   void resetTemp();
-
-  // Index counter (A counter to count the number of operations)
-  inline static size_t m_idx_count{0};
 
 public:
   // Visited flag

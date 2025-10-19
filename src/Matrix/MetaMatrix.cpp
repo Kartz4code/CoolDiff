@@ -31,8 +31,8 @@ void ResetZero(Matrix<Type>* ptr) {
   }
 }
 
-const size_t MetaMatrix::incFunc(const size_t scale) {
-  if(const auto size = m_cloned.size(); m_clone_counter >= (size-1)) {
+long long int MetaMatrix::incFunc(const size_t scale) {
+  if(const auto size = (long long)m_cloned.size(); (long long)m_clone_counter >= (size-1)) {
       m_cloned.resize(scale*size);
   }
   m_clone_counter += 1;

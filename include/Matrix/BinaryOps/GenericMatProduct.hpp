@@ -576,7 +576,7 @@ private:
   #endif
 
   // All matrices
-  inline static constexpr const size_t m_size{7};
+  inline static constexpr const size_t m_size{13};
   Matrix<Type>* mp_arr[m_size]{};
 
 public:
@@ -584,6 +584,7 @@ public:
   const size_t m_nidx{};
   // Cache for reverse AD 1st
   OMMatPair m_cache;
+  OMPair m_cache_v; 
 
   // Constructor
   constexpr GenericMatScalarProductExp(T1* u, T2* v, Callables&&... call) : mp_left{u}, 
@@ -672,9 +673,166 @@ public:
     return mp_arr[1];
   }
 
+  // Traverse
+  V_OVERRIDE(void traverse(OMMatPair* cache = nullptr)) {
+    // If cache is nullptr, i.e. for the first step
+    if (cache == nullptr) {
+      // cache is m_cache
+      cache = &m_cache;
+      cache->reserve(g_map_reserve);
+      // Clear cache in the first entry
+      if (false == (*cache).empty()) {
+        (*cache).clear();
+      }
+    
+      // Traverse right node
+      if (false == mp_right->m_visited) {
+        mp_right->traverse(cache);
+      }
+      
+      const size_t n = mp_right->getNumRows();
+      const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(n));
+      const Type left = CoolDiff::TensorR1::Eval((*mp_left));
+      const Matrix<Type>* right_mat = mp_right->eval();
+
+      /* IMPORTANT: The derivative is computed here */
+      MATRIX_TRACE(right_mat, mp_arr[7]);
+      MATRIX_SCALAR_MUL(left, eye_n, mp_arr[8]);
+      
+      const auto mp_arr7_val = (*mp_arr[7])(0,0);
+      const auto mp_arr8_val = (*mp_arr[8])(0,0);
+      
+      if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
+        MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[8], (*cache)[mp_right->m_nidx]); 
+      } else {
+        (*cache)[mp_right->m_nidx] = mp_arr[8];
+      }
+
+      // Clone the cache
+      for(const auto& [k,v] : (*cache)) {
+        (*cache)[k] = v->clone(this->m_cloned[this->incFunc()]);
+      }
+
+      // Modify cache for left node
+      std::for_each(EXECUTION_PAR m_cache_v.begin(), m_cache_v.end(), 
+                      [&](const auto& item) {
+                      const size_t rows = mp_arr[7]->getNumRows();
+                      const size_t cols = mp_arr[7]->getNumColumns(); 
+                      ASSERT((rows == 1) && (cols == 1), "Matrix expression not scalar for reverse mode derivative"); 
+
+                      const auto idx = item.first; const auto val = item.second;
+                      MatType*& ptr = this->m_cloned[this->incFunc()];
+                      MATRIX_SCALAR_MUL(mp_arr7_val*val, CoolDiff::TensorR2::MatrixBasics::Eye(1), ptr);
+                      if(auto it2 = cache->find(idx); it2 != cache->end()) {
+                        MATRIX_ADD((*cache)[idx], ptr, (*cache)[idx]);
+                      } else {
+                        (*cache)[idx] = ptr;
+                      }
+      });
+  
+      // Modify cache for right node
+      std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                    [&](const auto& item) {
+                      const size_t rows = mp_arr[8]->getNumRows();
+                      const size_t cols = mp_arr[8]->getNumColumns(); 
+                      ASSERT((rows == 1) && (cols == 1), "Matrix expression not scalar for reverse mode derivative"); 
+
+                      const auto idx = item.first; const auto val = item.second;
+                      MatType*& ptr = this->m_cloned[this->incFunc()];
+                      MATRIX_SCALAR_MUL(mp_arr8_val, val, ptr);
+                      if(auto it2 = cache->find(idx); it2 != cache->end()) {
+                        MATRIX_ADD((*cache)[idx], ptr, (*cache)[idx]);
+                      } else {
+                        (*cache)[idx] = ptr;
+                      }
+      });    
+    } else {
+      // Cached value
+      if(auto it = cache->find(m_nidx); it != cache->end()) {
+        const auto cCache = it->second;
+
+        // Traverse right node
+        if (false == mp_right->m_visited) {
+          mp_right->traverse(cache);
+        }
+
+        const Type left = CoolDiff::TensorR1::Eval((*mp_left));
+        const Matrix<Type>* right_mat = mp_right->eval();
+
+        /* IMPORTANT: The derivative is computed here */
+        MATRIX_TRANSPOSE(cCache, mp_arr[9]);
+        MATRIX_MUL(mp_arr[9], right_mat, mp_arr[10]);
+        MATRIX_TRACE(mp_arr[10], mp_arr[11]);
+
+        MATRIX_SCALAR_MUL(left, cCache, mp_arr[12]);
+
+        const auto mp_arr11_val = (*mp_arr[11])(0,0);
+        const auto mp_arr12_val = (*mp_arr[12])(0,0);
+
+        if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
+          MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[12], (*cache)[mp_right->m_nidx]); 
+        } else {
+          (*cache)[mp_right->m_nidx] = mp_arr[12];
+        }
+
+        // Clone the cache
+        for(const auto& [k,v] : (*cache)) {
+          (*cache)[k] = v->clone(this->m_cloned[this->incFunc()]);
+        }
+
+        // Modify cache for left node
+        std::for_each(EXECUTION_PAR m_cache_v.begin(), m_cache_v.end(), 
+                      [&](const auto& item) {
+                        const size_t rows = mp_arr[11]->getNumRows();
+                        const size_t cols = mp_arr[11]->getNumColumns(); 
+                        ASSERT((rows == 1) && (cols == 1), "Matrix expression not scalar for reverse mode derivative"); 
+
+                        const auto idx = item.first; const auto val = item.second;
+                        MatType*& ptr = this->m_cloned[this->incFunc()];
+                        MATRIX_SCALAR_MUL(mp_arr11_val*val, CoolDiff::TensorR2::MatrixBasics::Eye(1), ptr);
+                        if(auto it2 = cache->find(idx); it2 != cache->end()) {
+                          MATRIX_ADD((*cache)[idx], ptr, (*cache)[idx]);
+                        } else {
+                          (*cache)[idx] = ptr;
+                        }
+        });
+      
+        // Modify cache for right node
+        std::for_each(EXECUTION_PAR mp_right->m_cache.begin(),
+                      mp_right->m_cache.end(), [&](const auto &item) {
+                      const size_t rows = mp_arr[12]->getNumRows();
+                      const size_t cols = mp_arr[12]->getNumColumns(); 
+                      ASSERT((rows == 1) && (cols == 1), "Matrix expression not scalar for reverse mode derivative"); 
+
+                      const auto idx = item.first; const auto val = item.second;
+                      MatType*& ptr = this->m_cloned[this->incFunc()];
+                      MATRIX_SCALAR_MUL(mp_arr12_val, val, ptr);
+                      if(auto it2 = cache->find(idx); it2 != cache->end()) {
+                        MATRIX_ADD((*cache)[idx], ptr, (*cache)[idx]);
+                      } else {
+                        (*cache)[idx] = ptr;
+                      }
+        });
+      }
+    }
+
+    // If scalar reverse derivative cache is empty, run it once
+    if(true == m_cache_v.empty()) {
+      Expression exp{*mp_left};
+      CoolDiff::TensorR1::PreComp(exp);
+      m_cache_v = exp.m_cache;
+    }
+
+    // Traverse right node
+    if (false == mp_right->m_visited) {
+      mp_right->traverse(cache);
+    }
+  }
+
   // Reset visit run-time
-  V_OVERRIDE(void reset()) { 
-    BINARY_MAT_RIGHT_RESET(); 
+  V_OVERRIDE(void reset()) {
+    m_cache_v.clear(); 
+    BINARY_MAT_RESET(); 
   }
 
   // Get type
@@ -737,24 +895,28 @@ constexpr const auto& operator/(const IMatrix<T1>& u, const IMatrix<T2>& v) {
 }
 
 // Matrix multiplication with scalar (LHS) - SFINAE'd
-template <typename T1, typename T2, typename = CoolDiff::TensorR1::Details::is_pure_metavariable_v<T1>>
+template <typename T1, typename T2, typename = CoolDiff::TensorR1::Details::IsPureMetaVariableType<T1>>
 constexpr const auto& operator*(const T1& v, const IMatrix<T2>& u) {
   const auto& _u = u.cloneExp();
-  auto tmp = Allocate<GenericMatScalarProductExpT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&v)),
-                                                           const_cast<T2*>(static_cast<const T2*>(&_u)), 
-                                                           OpMatObj);
+  const auto& _v = v.cloneExp();
+
+  auto tmp = Allocate<GenericMatScalarProductExpT<T1, T2>>( const_cast<T1*>(static_cast<const T1*>(&_v)),
+                                                            const_cast<T2*>(static_cast<const T2*>(&_u)), 
+                                                            OpMatObj  );
   return *tmp;
 }
 
-template <typename T1, typename T2, typename = CoolDiff::TensorR1::Details::is_pure_metavariable_v<T1>>
+template <typename T1, typename T2, typename = CoolDiff::TensorR1::Details::IsPureMetaVariableType<T1>>
 constexpr const auto& operator/(const IMatrix<T2>& u, const T1& v) {
   const auto& _u = u.cloneExp();
-  return (_u * (1/v));
+  const auto& _v = v.cloneExp();
+  return (_u * (1/_v));
 }
 
 // Matrix sum with scalar (RHS) - SFINAE'd
-template <typename T1, typename T2, typename = CoolDiff::TensorR1::Details::is_pure_metavariable_v<T2>>
+template <typename T1, typename T2, typename = CoolDiff::TensorR1::Details::IsPureMetaVariableType<T2>>
 constexpr const auto& operator*(const IMatrix<T1>& u, const T2& v) {
   const auto& _u = u.cloneExp();
-  return (v * _u);
+  const auto& _v = v.cloneExp();
+  return (_v * _u);
 }

@@ -91,8 +91,8 @@ namespace CoolDiff {
       Expression& SymDiffExp(Expression&, const Variable&);
     }
 
-    // TODO - Modify code to accomodate changes made to the clone function
-    template <typename T, typename = std::enable_if_t<CoolDiff::TensorR1::Details::is_valid_scalar_v<T>>> 
+    // TODO - Modify code to accomodate changes made to the clone function 
+    template <typename T, typename = CoolDiff::TensorR1::Details::IsValidScalarType<T>> 
     inline Type Eval(T& v) {
       // If T is Expression
       if constexpr (true == std::is_same_v<Expression, T>) {
@@ -122,7 +122,7 @@ namespace CoolDiff {
       }
     }
 
-    template <typename T, typename = std::enable_if_t<CoolDiff::TensorR1::Details::is_valid_scalar_v<T>>> 
+    template <typename T, typename = CoolDiff::TensorR1::Details::IsValidScalarType<T>> 
     inline Type DevalF(T& v, const Variable& var) {
       // If T is Expression
       if constexpr (true == std::is_same_v<Expression, T>) {
@@ -152,7 +152,7 @@ namespace CoolDiff {
       CoolDiff::TensorR1::Details::PreCompExp(v);
     }
 
-    template <typename T, typename = std::enable_if_t<CoolDiff::TensorR1::Details::is_valid_scalar_v<T>>> 
+    template <typename T, typename = CoolDiff::TensorR1::Details::IsValidScalarType<T>> 
     inline Type DevalR(T& v, const Variable& var) {
       // If T is Expression
       if constexpr (true == std::is_same_v<Expression, T>) {
@@ -177,7 +177,7 @@ namespace CoolDiff {
       return CoolDiff::TensorR1::Details::PreCompCacheExp(v);
     }
 
-    template <typename T, typename = std::enable_if_t<CoolDiff::TensorR1::Details::is_valid_scalar_v<T>>> 
+    template <typename T, typename = CoolDiff::TensorR1::Details::IsValidScalarType<T>> 
     inline Expression& SymDiff(T& v, const Variable& var) {
       // If T is Expression
       if constexpr (true == std::is_same_v<Expression, T>) {

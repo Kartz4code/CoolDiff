@@ -91,7 +91,7 @@ enum OpMat : size_t {
   ADD_MAT = 0, MUL_MAT, KRON_MAT, SUB_MAT,
   HADAMARD_MAT, ADD_SCALAR_MAT, MUL_SCALAR_MAT, TRANSPOSE_MAT,
   TRANSPOSE_DERV_MAT, CONV_MAT, CONV_DERV_MAT, UNARY_OP_MAT,
-  INV_MAT, DET_MAT, COUNT_MAT
+  INV_MAT, DET_MAT, TRACE_MAT, COUNT_MAT
 };
 
 // Matrix operations Macros
@@ -99,24 +99,18 @@ enum OpMat : size_t {
 #define MATRIX_MUL(X, Y, Z) std::get<OpMat::MUL_MAT>(m_caller)(X, Y, Z)
 #define MATRIX_KRON(X, Y, Z) std::get<OpMat::KRON_MAT>(m_caller)(X, Y, Z)
 #define MATRIX_SUB(X, Y, Z) std::get<OpMat::SUB_MAT>(m_caller)(X, Y, Z)
-#define MATRIX_HADAMARD(X, Y, Z)                                               \
-  std::get<OpMat::HADAMARD_MAT>(m_caller)(X, Y, Z)
-#define MATRIX_SCALAR_ADD(X, Y, Z)                                             \
-  std::get<OpMat::ADD_SCALAR_MAT>(m_caller)(X, Y, Z)
-#define MATRIX_SCALAR_MUL(X, Y, Z)                                             \
-  std::get<OpMat::MUL_SCALAR_MAT>(m_caller)(X, Y, Z)
+#define MATRIX_HADAMARD(X, Y, Z) std::get<OpMat::HADAMARD_MAT>(m_caller)(X, Y, Z)
+#define MATRIX_SCALAR_ADD(X, Y, Z) std::get<OpMat::ADD_SCALAR_MAT>(m_caller)(X, Y, Z)
+#define MATRIX_SCALAR_MUL(X, Y, Z) std::get<OpMat::MUL_SCALAR_MAT>(m_caller)(X, Y, Z)
 #define MATRIX_TRANSPOSE(X, Y) std::get<OpMat::TRANSPOSE_MAT>(m_caller)(X, Y)
-#define MATRIX_DERV_TRANSPOSE(X1, X2, X3, X4, X5, X6)                          \
-  std::get<OpMat::TRANSPOSE_DERV_MAT>(m_caller)(X1, X2, X3, X4, X5, X6)
-#define MATRIX_CONV(X1, X2, X3, X4, X5, X6, X7)                                \
-  std::get<OpMat::CONV_MAT>(m_caller)(X1, X2, X3, X4, X5, X6, X7)
-#define MATRIX_DERV_CONV(X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11)         \
-  std::get<OpMat::CONV_DERV_MAT>(m_caller)(X1, X2, X3, X4, X5, X6, X7, X8, X9, \
-                                           X10, X11)
+#define MATRIX_DERV_TRANSPOSE(X1, X2, X3, X4, X5, X6) std::get<OpMat::TRANSPOSE_DERV_MAT>(m_caller)(X1, X2, X3, X4, X5, X6)
+#define MATRIX_CONV(X1, X2, X3, X4, X5, X6, X7) std::get<OpMat::CONV_MAT>(m_caller)(X1, X2, X3, X4, X5, X6, X7)
+#define MATRIX_DERV_CONV(X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11) std::get<OpMat::CONV_DERV_MAT>(m_caller)(X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11)
 
 #define UNARY_OP_MAT(X, Y, Z) std::get<OpMat::UNARY_OP_MAT>(m_caller)(X, Y, Z)
 #define MATRIX_INVERSE(X, Y)  std::get<OpMat::INV_MAT>(m_caller)(X, Y)
 #define MATRIX_DET(X, Y)      std::get<OpMat::DET_MAT>(m_caller)(X, Y)
+#define MATRIX_TRACE(X, Y)    std::get<OpMat::TRACE_MAT>(m_caller)(X, Y)
 
 // Operation type [Order matters!]
 #define OpMatType void (*)(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&),             \
@@ -131,6 +125,7 @@ enum OpMat : size_t {
                   void (*)(const size_t, const size_t, const size_t, const size_t, const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&), \
                   void (*)(const size_t, const size_t, const size_t, const size_t, const size_t, const size_t, const Matrix<Type>*, const Matrix<Type>*, const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&), \
                   void (*)(const Matrix<Type>*, const FunctionType1&, Matrix<Type>*&),            \
+                  void (*)(const Matrix<Type>*, Matrix<Type>*&),                                  \
                   void (*)(const Matrix<Type>*, Matrix<Type>*&),                                  \
                   void (*)(const Matrix<Type>*, Matrix<Type>*&)
 
@@ -148,4 +143,5 @@ enum OpMat : size_t {
                   CoolDiff::TensorR2::MatOperators::MatrixDervConv,       \
                   CoolDiff::TensorR2::MatOperators::MatrixUnary,          \
                   CoolDiff::TensorR2::MatOperators::MatrixInverse,        \
-                  CoolDiff::TensorR2::MatOperators::MatrixDet
+                  CoolDiff::TensorR2::MatOperators::MatrixDet,            \
+                  CoolDiff::TensorR2::MatOperators::MatrixTrace

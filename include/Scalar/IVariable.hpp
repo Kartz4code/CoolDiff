@@ -111,19 +111,30 @@ namespace CoolDiff {
         ATAN, ASINH, ACOSH, ATANH, SQRT, EXP, LOG, COUNT
       };
 
-      // Is numeric type
+      // Is numeric variable
       template <typename T>
-      constexpr inline static const bool is_numeric_v = (true == std::is_arithmetic_v<T> || true == std::is_same_v<T, Type>);
+      constexpr inline static const bool is_numeric_v = (true == std::is_arithmetic_v<T> || 
+                                                        true == std::is_same_v<T, Type>);
+
+      // Is a valid scalar variable
+      template <typename T>
+      constexpr inline static const bool is_valid_scalar_v = (true == std::is_base_of_v<MetaVariable, T> || 
+                                                              true == is_numeric_v<T>);
+
+      // Is a pure metavariable
+      template <typename T>
+      constexpr inline static const bool is_pure_metavariable_v = (true == std::is_base_of_v<MetaVariable, T>) &&
+                                                                  (false == std::is_arithmetic_v<T>) &&
+                                                                  (false == std::is_same_v<Type, T>);
+
 
       // Is a valid scalar type
       template <typename T>
-      constexpr inline static const bool is_valid_scalar_v = (true == std::is_base_of_v<MetaVariable, T> || true == is_numeric_v<T>);
+      using IsValidScalarType = std::enable_if_t<is_valid_scalar_v<T>>;
 
       // Is pure metavariable type
       template <typename T>
-      using is_pure_metavariable_v = std::enable_if_t<true == std::is_base_of_v<MetaVariable, T> &&
-                                                      false == std::is_arithmetic_v<T> &&
-                                                      false == std::is_same_v<Type, T>>;
+      using IsPureMetaVariableType = std::enable_if_t<is_pure_metavariable_v<T>>;
     }
   }
 }

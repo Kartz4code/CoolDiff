@@ -22,6 +22,8 @@
 #include "CoolDiff.hpp"
 #include <gtest/gtest.h>
 
+#if defined(USE_COMPLEX_MATH)
+
 // Matrix derivative order test #4
 TEST(MatTest, Test15) {
   double epi = 0.001;
@@ -1029,6 +1031,8 @@ TEST(MatTest, Test1) {
   ASSERT_TRUE(verify_deval_function(DXres));
   ASSERT_TRUE(verify_eval_function(Xres));
 }
+
+#endif
 
 int main(int argc, char **argv) {
 #if defined(USE_COMPLEX_MATH)
