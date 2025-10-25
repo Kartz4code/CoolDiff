@@ -29,12 +29,13 @@ template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticH
 class ZeroMatInvHandler : public T {
   public:
   void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
-    const size_t nrows{mat->getNumRows()};
-    const size_t ncols{mat->getNumColumns()};
-    // Assert squareness
-    ASSERT((nrows == ncols), "Matrix is not square for inverse computation");
-
     #if defined(USE_SYMBOLIC_CHECK)
+      // Dimensions of mat matrix
+      const size_t nrows{mat->getNumRows()};
+      const size_t ncols{mat->getNumColumns()};
+      // Assert squareness
+      ASSERT((nrows == ncols), "Matrix is not square for inverse computation");
+
       /* Zero matrix special check */
       if (true == IsZeroMatrix(mat)) {
         ASSERT(false, "Inverse of a zero matrix");

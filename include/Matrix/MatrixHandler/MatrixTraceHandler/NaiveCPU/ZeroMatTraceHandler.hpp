@@ -30,12 +30,13 @@
  class ZeroMatTraceHandler : public T {
    public:
     void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
-      const size_t nrows{mat->getNumRows()};
-      const size_t ncols{mat->getNumColumns()};
-      // Assert squareness
+      #if defined(USE_SYMBOLIC_CHECK)
+        // Dimensions of mat matrix
+        const size_t nrows{mat->getNumRows()};
+        const size_t ncols{mat->getNumColumns()};
+        // Assert squareness
         ASSERT((nrows == ncols), "Matrix is not square for trace computation");
 
-      #if defined(USE_SYMBOLIC_CHECK)
         /* Zero matrix special check */
         if (true == IsZeroMatrix(mat)) {
           // Result matrix is transposed identity matrix

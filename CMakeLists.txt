@@ -74,7 +74,7 @@ option(ENABLE_CLANG_TIDY "Enable clang-tidy static linter" OFF) # Default - OFF
 option(ENABLE_CMAKE_FORMAT "Enable cmake formatter" OFF) # Default - OFF
 option(ENABLE_CLANG_FORMAT "Enable clang format" OFF) # Default - OFF
 option(ENABLE_COMPILER_WARNINGS "Enable compiler warnings" OFF) # Default - OFF
-option(ENABLE_COMPLEX_MATH "Enable complex numbers for numerics" ON) # Default - ON
+option(ENABLE_COMPLEX_MATH "Enable complex numbers for numerics" OFF) # Default - ON
 option(ENABLE_ROBIN_HOOD_MAP "Enable robin hood hashmaps" ON) # Default - ON
 # TODO - Implementation of manual dynamic dispatch for performance
 option(ENABLE_VIRTUAL_FUNCTIONS "Enable virtual functions" ON) # Default - ON
@@ -84,7 +84,7 @@ option(ENABLE_STL_PARALLEL_EXECUTION "Enable STL libraries parallel execution fe
 option(ENABLE_SYMBOLIC_CHECK "Enable symbolic checks" OFF) # Default - ON
 # TODO - Verification of numerical checks
 option(ENABLE_NUMERICAL_CHECK "Enable numerical checks" OFF) # Default - OFF
-set(DEFAULT_MATH_TYPE 2 CACHE STRING "Value that defined the default math type: Float  - 1, Double - 2") # Default - 2
+set(DEFAULT_MATH_TYPE 1 CACHE STRING "Value that defined the default math type: Float  - 1, Double - 2") # Default - 2
 
 
 ########################################################################################################################

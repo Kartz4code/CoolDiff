@@ -33,14 +33,14 @@ public:
   void handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
     #if defined(USE_SYMBOLIC_CHECK)
       /* Zero matrix special check */
-      if (auto *it = ZeroMatKron(lhs, rhs); nullptr != it) {
+      if (auto* it = ZeroMatKron(lhs, rhs); nullptr != it) {
         result = const_cast<Matrix<Type> *>(it);
         return;
       }
 
       /* Zero matrix numerical check */
       #if defined(USE_NUMERICAL_CHECK)
-        else if (auto *it = ZeroMatKronNum(lhs, rhs); nullptr != it) {
+        else if (auto* it = ZeroMatKronNum(lhs, rhs); nullptr != it) {
           result = const_cast<Matrix<Type> *>(it);
           return;
         }
