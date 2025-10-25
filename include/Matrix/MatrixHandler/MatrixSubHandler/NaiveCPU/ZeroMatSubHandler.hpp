@@ -30,16 +30,16 @@ template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticH
 class ZeroMatSubHandler : public T {
     public:
         void handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
-            // Dimensions of LHS and RHS matrices
-            const size_t nrows{lhs->getNumRows()};
-            const size_t ncols{rhs->getNumColumns()};
-            const size_t lcols{lhs->getNumColumns()};
-            const size_t rrows{rhs->getNumRows()};
-
-            // Assert dimensions
-            ASSERT((nrows == rrows) && (ncols == lcols), "Matrix subtraction dimensions mismatch");
-
             #if defined(USE_SYMBOLIC_CHECK)
+                // Dimensions of LHS and RHS matrices
+                const size_t nrows{lhs->getNumRows()};
+                const size_t ncols{rhs->getNumColumns()};
+                const size_t lcols{lhs->getNumColumns()};
+                const size_t rrows{rhs->getNumRows()};
+
+                // Assert dimensions
+                ASSERT((nrows == rrows) && (ncols == lcols), "Matrix subtraction dimensions mismatch");
+
                 /* Zero matrix special check */
                 if (auto *it = ZeroMatSub(lhs, rhs); nullptr != it) {
                     if (it == lhs) {

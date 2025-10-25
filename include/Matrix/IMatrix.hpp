@@ -76,6 +76,11 @@ enum class Axis {
   ROW, COLUMN, ALL
 };
 
+// Matrix concatenation direction 
+enum class ConcatAxis {
+  HORIZONTAL, VERTICAL
+};
+
 // Special matrices
 enum MatrixSpl : size_t {
   ZEROS = 1 << 1,

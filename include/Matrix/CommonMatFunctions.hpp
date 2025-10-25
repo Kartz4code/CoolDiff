@@ -95,19 +95,19 @@ namespace CoolDiff {
                                                                   std::is_base_of_v<MetaVariable, U>  ||
                                                                   std::is_base_of_v<MetaMatrix, T>>>
     inline Matrix<Type>& DevalR(T& Mexp, const U& X) {
+      const size_t nrows = X.getNumRows();
+      const size_t ncols = X.getNumColumns();
       if constexpr(true == std::is_base_of_v<U, MetaMatrix>) {
         if(auto it = Mexp.getCache().find(X.m_nidx); it != Mexp.getCache().end()) {
           return (*Mexp.getCache()[X.m_nidx]);
         } else {
-          const size_t nrows = X.getNumRows();
-          const size_t ncols = X.getNumColumns();
           return *const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Zeros(nrows, ncols));
         }
       } else {
         if(auto it = Mexp.getCache().find(X.m_nidx); it != Mexp.getCache().end()) {
           return (*Mexp.getCache()[X.m_nidx]);
         } else {
-          return *const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Zeros(1));
+          return *const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Zeros(nrows, ncols));
         }
       }
     }
@@ -345,6 +345,37 @@ constexpr const auto& Sigma(const IMatrix<T>& X) {
 template <typename T>
 constexpr const auto& MatrixFrobeniusNorm(const IMatrix<T>& X) {
   return SqrtM(trace(transpose(X)*X));
+}
+
+// Matrix vertical concatenation
+template<ConcatAxis axis, typename T1, typename T2>
+constexpr const auto& concat(const IMatrix<T1>& X, const IMatrix<T2>& Y) {
+  const size_t x_rows = X.getNumRows();
+  const size_t x_cols = X.getNumColumns(); 
+  const size_t y_rows = Y.getNumRows();
+  const size_t y_cols = Y.getNumColumns(); 
+
+  if constexpr(ConcatAxis::VERTICAL == axis) {
+    ASSERT((x_cols == y_cols), "Column dimensions are not the same for concatenation");
+
+    Matrix<Type>& A = Matrix<Type>::MatrixFactory::CreateMatrix((x_rows + y_rows), x_rows);
+    Matrix<Type>& B = Matrix<Type>::MatrixFactory::CreateMatrix((x_rows + y_rows), y_rows);
+
+    A.setBlockMat({0, (x_rows-1)}, {0, (x_rows-1)}, CoolDiff::TensorR2::MatrixBasics::Eye(x_rows));
+    B.setBlockMat({x_rows, (x_rows+y_rows-1)}, {0, (y_rows-1)}, CoolDiff::TensorR2::MatrixBasics::Eye(y_rows));
+    
+    return A*X + B*Y;
+  } else if constexpr(ConcatAxis::HORIZONTAL == axis) {
+    ASSERT((x_rows == y_rows), "Column dimensions are not the same for concatenation");
+
+    Matrix<Type>& A = Matrix<Type>::MatrixFactory::CreateMatrix(x_cols, (x_cols + y_cols));
+    Matrix<Type>& B = Matrix<Type>::MatrixFactory::CreateMatrix(y_cols, (x_cols + y_cols));
+
+    A.setBlockMat({0, (x_cols-1)}, {0, (x_cols-1)}, CoolDiff::TensorR2::MatrixBasics::Eye(x_cols));
+    B.setBlockMat({0, (y_cols-1)}, {x_cols, (x_cols+y_cols-1)}, CoolDiff::TensorR2::MatrixBasics::Eye(y_cols));
+    
+    return X*A + Y*B;
+  }
 }
 
 // Softmax function

@@ -27,8 +27,7 @@
 std::random_device rd;
 std::mt19937 gen(rd()); // Mersenne Twister engine
 // Define the range for your floating point numbers
-std::uniform_real_distribution<> dis(0, +0.088); // Range: [1.0, 10.0)
-
+std::uniform_real_distribution<> dis(-1, +1); // Range: [1.0, 10.0)
 
 // Count number of rows
 int CountRows(std::string_view file) {
@@ -199,11 +198,11 @@ auto NetworkPred( Matrix<Type>& W1, Matrix<Type>& W2, Matrix<Type>& W3, Matrix<T
                   Matrix<Type>& b1, Matrix<Type>& b2, Matrix<Type>& b3, Matrix<Type>& b4,
                   Matrix<Type>& O,  Matrix<Type>& X ) {
 
-  auto Layer1 = TanhM(W1*X + b1);
-  auto Layer2 = TanhM(W2*Layer1 + b2);
-  auto Layer3 = TanhM(W3*Layer2 + b3);
-  auto Layer4 = TanhM(W4*Layer3 + b4);
-  auto Yhat = TanhM(O*Layer4);
+  auto Layer1 = SigmoidM(W1*X + b1);
+  auto Layer2 = SigmoidM(W2*Layer1 + b2);
+  auto Layer3 = SigmoidM(W3*Layer2 + b3);
+  auto Layer4 = SigmoidM(W4*Layer3 + b4);
+  auto Yhat = (O*Layer4);
 
   return Yhat;
 }
@@ -221,7 +220,7 @@ void NN() {
   constexpr const int N = 256;
 
   Matrix<Type> X(N, 1);
-  X(0,0) = 2;
+  FillRandomWeights(X);
 
   Matrix<Type> W1(N, N), W2(2*N, N), W3(N, 2*N), W4(N, N);
   Matrix<Type> b1(N, 1), b2(2*N, 1), b3(N, 1), b4(N, 1);
@@ -234,8 +233,8 @@ void NN() {
 
   Matrix<Expression> Error = NetworkErr(W1, W2, W3, W4, b1, b2, b3, b4, O, X, 10);
 
-  Type alpha = -0.00001;
-  for(int i{}; i < 100; ++i) {
+  Type alpha = -0.0001;
+  for(int i{}; i < 20; ++i) {
     std::cout << "[ERROR]: " << CoolDiff::TensorR2::Eval(Error) << "\n";
     CoolDiff::TensorR2::PreComp(Error);
 
@@ -270,8 +269,7 @@ void NN() {
 }
 #endif
 
-
-int main(int argc, char **argv) { 
+int main(int argc, char **argv) {  
   #ifndef USE_COMPLEX_MATH
     NN();
   #endif
