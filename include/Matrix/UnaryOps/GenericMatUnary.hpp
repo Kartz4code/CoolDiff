@@ -80,7 +80,7 @@ class GenericMat##OPS : public IMatrix<GenericMat##OPS<T, Callables...>> {      
           }                                                                                         \
           const Matrix<Type>* right_mat = mp_right->eval();                                         \
           UNARY_OP_MAT(right_mat, FUNC2, mp_arr[4]);                                                \
-          const auto mp_arr4_val = (*mp_arr[4])(0,0);                                               \
+          const auto mp_arr4_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[4]);               \
           if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {                       \
             MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[4], (*cache)[mp_right->m_nidx]);          \
           } else {                                                                                  \
@@ -112,7 +112,7 @@ class GenericMat##OPS : public IMatrix<GenericMat##OPS<T, Callables...>> {      
             const Matrix<Type>* right_mat = mp_right->eval();                                       \
             UNARY_OP_MAT(right_mat, FUNC2, mp_arr[5]);                                              \
             MATRIX_HADAMARD(mp_arr[5], cCache, mp_arr[6]);                                          \
-            const auto mp_arr6_val = (*mp_arr[6])(0,0);                                             \
+            const auto mp_arr6_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[6]);             \
             if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {                     \
               MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[6], (*cache)[mp_right->m_nidx]);        \
             } else {                                                                                \

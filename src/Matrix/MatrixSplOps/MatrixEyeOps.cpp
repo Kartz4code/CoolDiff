@@ -49,16 +49,15 @@ bool IsEyeMatrix(const Matrix<Type>* m) {
   const size_t cols = m->getNumColumns();
 
   // Diagonal elements check (1's)
-  const auto diag_idx = Range<size_t>(0, rows);
-  if (auto it = std::find_if(
-          EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
+  const auto diag_idx = CoolDiff::Common::Range<size_t>(0, rows);
+  if (auto it = std::find_if(EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
           [&m](const size_t i) { return ((*m)(i, i) != (Type)(1)); });
       it != diag_idx.end()) {
     return false;
   }
 
   // Non-diagonal elements check (0's)
-  const auto non_diag_idx = Range<size_t>(0, rows * cols);
+  const auto non_diag_idx = CoolDiff::Common::Range<size_t>(0, rows * cols);
   if (auto it = std::find_if(EXECUTION_PAR non_diag_idx.begin(), non_diag_idx.end(),
                 [&m, rows, cols](const size_t n) {
                   const size_t j = n % cols;
@@ -73,8 +72,8 @@ bool IsEyeMatrix(const Matrix<Type>* m) {
 }
 
 // Eye matrix addition checks
-const Matrix<Type> *EyeMatAdd(const Matrix<Type> *lhs,
-                              const Matrix<Type> *rhs) {
+const Matrix<Type>* EyeMatAdd(const Matrix<Type>* lhs,
+                              const Matrix<Type>* rhs) {
   // Left matrix rows and column numbers
   const size_t lrows = lhs->getNumRows();
   const size_t rcols = rhs->getNumColumns();
@@ -93,7 +92,7 @@ const Matrix<Type> *EyeMatAdd(const Matrix<Type> *lhs,
 }
 
 // Eye matrix scalar addition
-const Matrix<Type> *EyeMatScalarAdd(Type lhs, const Matrix<Type> *rhs) {
+const Matrix<Type>* EyeMatScalarAdd(Type lhs, const Matrix<Type>* rhs) {
   if (rhs->getMatType() == MatrixSpl::EYE) {
     return rhs;
   } else {
@@ -102,8 +101,8 @@ const Matrix<Type> *EyeMatScalarAdd(Type lhs, const Matrix<Type> *rhs) {
 }
 
 // Eye matrix subtraction
-const Matrix<Type> *EyeMatSub(const Matrix<Type> *lhs,
-                              const Matrix<Type> *rhs) {
+const Matrix<Type>* EyeMatSub(const Matrix<Type>* lhs,
+                              const Matrix<Type>* rhs) {
   // Left matrix rows and column numbers
   const size_t lrows = lhs->getNumRows();
   const size_t rcols = rhs->getNumColumns();
@@ -122,8 +121,8 @@ const Matrix<Type> *EyeMatSub(const Matrix<Type> *lhs,
 }
 
 // Eye matrix multiplication checks
-const Matrix<Type> *EyeMatMul(const Matrix<Type> *lhs,
-                              const Matrix<Type> *rhs) {
+const Matrix<Type>* EyeMatMul(const Matrix<Type>* lhs,
+                              const Matrix<Type>* rhs) {
   // Left matrix rows and column numbers
   const size_t lrows = lhs->getNumRows();
   const size_t rcols = rhs->getNumColumns();
@@ -147,7 +146,7 @@ const Matrix<Type> *EyeMatMul(const Matrix<Type> *lhs,
 }
 
 // Eye matrix scalar addition
-const Matrix<Type> *EyeMatScalarMul(Type lhs, const Matrix<Type> *rhs) {
+const Matrix<Type>* EyeMatScalarMul(Type lhs, const Matrix<Type>* rhs) {
   if (rhs->getMatType() == MatrixSpl::EYE) {
     return rhs;
   } else {
@@ -156,8 +155,8 @@ const Matrix<Type> *EyeMatScalarMul(Type lhs, const Matrix<Type> *rhs) {
 }
 
 // Eye matrix Kronocker
-const Matrix<Type> *EyeMatKron(const Matrix<Type> *lhs,
-                               const Matrix<Type> *rhs) {
+const Matrix<Type>* EyeMatKron( const Matrix<Type>* lhs,
+                                const Matrix<Type>* rhs ) {
   // Left matrix rows and right matrix columns
   const size_t lr = lhs->getNumRows();
   const size_t lc = lhs->getNumColumns();
@@ -180,8 +179,8 @@ const Matrix<Type> *EyeMatKron(const Matrix<Type> *lhs,
 }
 
 // Eye matrix Hadamard product
-const Matrix<Type> *EyeMatHadamard(const Matrix<Type> *lhs,
-                                   const Matrix<Type> *rhs) {
+const Matrix<Type>* EyeMatHadamard( const Matrix<Type>* lhs,
+                                    const Matrix<Type>* rhs ) {
   // Left matrix rows and column numbers
   const size_t lrows = lhs->getNumRows();
   const size_t rcols = rhs->getNumColumns();
@@ -205,8 +204,8 @@ const Matrix<Type> *EyeMatHadamard(const Matrix<Type> *lhs,
 }
 
 // Eye matrix addition numerical checks
-const Matrix<Type> *EyeMatAddNum(const Matrix<Type> *lhs,
-                                 const Matrix<Type> *rhs) {
+const Matrix<Type>* EyeMatAddNum( const Matrix<Type>* lhs,
+                                  const Matrix<Type>* rhs ) {
   // Left matrix rows and column numbers
   const size_t lrows = lhs->getNumRows();
   const size_t rcols = rhs->getNumColumns();
@@ -227,7 +226,7 @@ const Matrix<Type> *EyeMatAddNum(const Matrix<Type> *lhs,
 }
 
 // Eye matrix scalar addition
-const Matrix<Type> *EyeMatScalarAddNum(Type lhs, const Matrix<Type> *rhs) {
+const Matrix<Type>* EyeMatScalarAddNum(Type lhs, const Matrix<Type>* rhs) {
   const bool rhs_bool = IsEyeMatrix(rhs);
   if (rhs_bool == true) {
     return rhs;
@@ -237,8 +236,8 @@ const Matrix<Type> *EyeMatScalarAddNum(Type lhs, const Matrix<Type> *rhs) {
 }
 
 // Eye matrix subtraction numerics
-const Matrix<Type> *EyeMatSubNum(const Matrix<Type> *lhs,
-                                 const Matrix<Type> *rhs) {
+const Matrix<Type>* EyeMatSubNum( const Matrix<Type>* lhs,
+                                  const Matrix<Type>* rhs ) {
   // Left matrix rows and column numbers
   const size_t lrows = lhs->getNumRows();
   const size_t rcols = rhs->getNumColumns();
@@ -259,8 +258,8 @@ const Matrix<Type> *EyeMatSubNum(const Matrix<Type> *lhs,
 }
 
 // Eye matrix multiplication numerical check
-const Matrix<Type> *EyeMatMulNum(const Matrix<Type> *lhs,
-                                 const Matrix<Type> *rhs) {
+const Matrix<Type>* EyeMatMulNum( const Matrix<Type>* lhs,
+                                  const Matrix<Type>* rhs ) {
   // Get rows and columns
   const size_t lrows = lhs->getNumRows();
   const size_t rcols = rhs->getNumColumns();
@@ -280,7 +279,7 @@ const Matrix<Type> *EyeMatMulNum(const Matrix<Type> *lhs,
 }
 
 // Zero matrix scalar multiplication numerics
-const Matrix<Type> *EyeMatScalarMulNum(Type type, const Matrix<Type> *rhs) {
+const Matrix<Type>* EyeMatScalarMulNum(Type type, const Matrix<Type>* rhs) {
   const bool rhs_bool = IsEyeMatrix(rhs);
   if (rhs_bool == true) {
     return rhs;
@@ -290,8 +289,8 @@ const Matrix<Type> *EyeMatScalarMulNum(Type type, const Matrix<Type> *rhs) {
 }
 
 // Eye matrix Kronocker product numerics
-const Matrix<Type> *EyeMatKronNum(const Matrix<Type> *lhs,
-                                  const Matrix<Type> *rhs) {
+const Matrix<Type>* EyeMatKronNum(const Matrix<Type>* lhs,
+                                  const Matrix<Type>* rhs) {
   // Left matrix rows and right matrix columns
   const size_t lr = lhs->getNumRows();
   const size_t lc = lhs->getNumColumns();
@@ -316,8 +315,8 @@ const Matrix<Type> *EyeMatKronNum(const Matrix<Type> *lhs,
 }
 
 // Eye matrix Hadamard product numerics
-const Matrix<Type> *EyeMatHadamardNum(const Matrix<Type> *lhs,
-                                      const Matrix<Type> *rhs) {
+const Matrix<Type>* EyeMatHadamardNum(const Matrix<Type>* lhs,
+                                      const Matrix<Type>* rhs) {
   // Get rows and columns
   const size_t lrows = lhs->getNumRows();
   const size_t rcols = rhs->getNumColumns();
@@ -337,7 +336,7 @@ const Matrix<Type> *EyeMatHadamardNum(const Matrix<Type> *lhs,
 }
 
 namespace BaselineCPU {
-  void AddEye(const Matrix<Type> *it, Matrix<Type> *&result) {
+  void AddEye(const Matrix<Type>* it, Matrix<Type>*& result) {
     /*
       Rows and columns of result matrix and if result is nullptr or if dimensions
       mismatch, then create a new matrix resource
@@ -352,13 +351,13 @@ namespace BaselineCPU {
     *result = *it;
 
     // Diagonal indices (Modification)
-    const auto diag_idx = Range<size_t>(0, nrows);
+    const auto diag_idx = CoolDiff::Common::Range<size_t>(0, nrows);
     std::for_each(
         EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
         [&](const size_t i) { (*result)(i, i) = (*it)(i, i) + (Type)(1); });
   }
 
-  void Add2Eye(const Matrix<Type> *it, Matrix<Type> *&result) {
+  void Add2Eye(const Matrix<Type>* it, Matrix<Type>*& result) {
     /*
       Rows and columns of result matrix and if result is nullptr or if dimensions
       mismatch, then create a new matrix resource
@@ -370,13 +369,13 @@ namespace BaselineCPU {
     MemoryManager::MatrixPool(nrows, ncols, result);
 
     // Diagonal indices
-    const auto diag_idx = Range<size_t>(0, nrows);
+    const auto diag_idx = CoolDiff::Common::Range<size_t>(0, nrows);
     // Case when both left and right matrices are eye
     std::for_each(EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
                   [&](const size_t i) { (*result)(i, i) = (Type)(2); });
   }
 
-  void AddEye(Type val, const Matrix<Type> *it, Matrix<Type> *&result) {
+  void AddEye(Type val, const Matrix<Type>* it, Matrix<Type>*& result) {
     /*
       Rows and columns of result matrix and if result is nullptr or if dimensions
       mismatch, then create a new matrix resource
@@ -388,7 +387,7 @@ namespace BaselineCPU {
     MemoryManager::MatrixPool(nrows, ncols, result, val);
 
     // Diagonal indices (Modification)
-    const auto diag_idx = Range<size_t>(0, nrows);
+    const auto diag_idx = CoolDiff::Common::Range<size_t>(0, nrows);
     std::for_each(EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
                   [&](const size_t i) { (*result)(i, i) = (*result)(i, i) + (Type)(1); });
   }
@@ -405,7 +404,7 @@ namespace BaselineCPU {
     MemoryManager::MatrixPool(nrows, ncols, result);
 
     // Diagonal indices (Modification)
-    const auto diag_idx = Range<size_t>(0, nrows);
+    const auto diag_idx = CoolDiff::Common::Range<size_t>(0, nrows);
     std::for_each(EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
                   [&](const size_t i) { (*result)(i, i) = val; });
   }
@@ -425,7 +424,7 @@ namespace BaselineCPU {
     *result = *it;
 
     // Iteration elements (Along the diagonal)
-    const auto idx = Range<size_t>(0, nrows);
+    const auto idx = CoolDiff::Common::Range<size_t>(0, nrows);
     // For each execution
     std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t i) {
       (*result)(i, i) = (*it)(i, i) - (Type)(1);
@@ -444,7 +443,7 @@ namespace BaselineCPU {
     MemoryManager::MatrixPool(nrows, ncols, result);
 
     // Iteration elements
-    const auto idx = Range<size_t>(0, nrows * ncols);
+    const auto idx = CoolDiff::Common::Range<size_t>(0, nrows * ncols);
     // For each execution
     std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t n) {
       const size_t j = (n % ncols);
@@ -467,8 +466,8 @@ namespace BaselineCPU {
   // Pool matrix
   MemoryManager::MatrixPool((lr * rr), (lc * rc), result);
 
-  const auto lhs_idx = Range<size_t>(0, lr * lc);
-  const auto rhs_idx = Range<size_t>(0, rr * rc);
+  const auto lhs_idx = CoolDiff::Common::Range<size_t>(0, lr * lc);
+  const auto rhs_idx = CoolDiff::Common::Range<size_t>(0, rr * rc);
   std::for_each(EXECUTION_PAR lhs_idx.begin(), lhs_idx.end(),
     [&](const size_t n1) {
       const size_t j = (n1 % lc);
@@ -503,8 +502,8 @@ namespace BaselineCPU {
   // Pool matrix
   MemoryManager::MatrixPool((lr * rr), (lc * rc), result);
 
-  const auto lhs_idx = Range<size_t>(0, lr * lc);
-  const auto rhs_idx = Range<size_t>(0, rr * rc);
+  const auto lhs_idx = CoolDiff::Common::Range<size_t>(0, lr * lc);
+  const auto rhs_idx = CoolDiff::Common::Range<size_t>(0, rr * rc);
   std::for_each(EXECUTION_PAR lhs_idx.begin(), lhs_idx.end(),
     [&](const size_t n1) {
       const size_t j = (n1 % lc);
@@ -538,7 +537,7 @@ namespace BaselineCPU {
     MemoryManager::MatrixPool(nrows, ncols, result);
 
     // Diagonal indices (Modification)
-    const auto diag_idx = Range<size_t>(0, nrows);
+    const auto diag_idx = CoolDiff::Common::Range<size_t>(0, nrows);
     std::for_each(EXECUTION_PAR diag_idx.begin(), diag_idx.end(),
                   [&](const size_t i) { (*result)(i, i) = (*it)(i, i); });
   }

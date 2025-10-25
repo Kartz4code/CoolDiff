@@ -31,17 +31,18 @@ namespace CoolDiff {
             static UnOrderedMap<size_t, Matrix<Type>*> eye_register;
 
             // Result matrix
-            Matrix<Type> *result{nullptr};
+            Matrix<Type>* result{nullptr};
 
             // Find in registry of special matrices
             if (auto it = eye_register.find(n); it != eye_register.end()) {
               return it->second;
             } else {
+
               // Pool matrix
               MemoryManager::MatrixPool(n, n, result);
 
               // Vector of indices
-              const auto idx = Range<size_t>(0, n);
+              const auto idx = CoolDiff::Common::Range<size_t>(0, n);
               std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
                             [&](const size_t i) { (*result)(i, i) = (Type)(1); });
 
@@ -79,10 +80,10 @@ namespace CoolDiff {
           // Numerical Ones matrix
           const Matrix<Type>* Ones(const size_t n, const size_t m) {
             // Zeros matrix registry
-            static UnOrderedMap<Pair<size_t, size_t>, Matrix<Type> *> ones_register;
+            static UnOrderedMap<Pair<size_t, size_t>, Matrix<Type>*> ones_register;
 
             // Result matrix
-            Matrix<Type> *result{nullptr};
+            Matrix<Type>* result{nullptr};
 
             // Find in registry of special matrices
             if (auto it = ones_register.find({n, m}); it != ones_register.end()) {

@@ -19,29 +19,29 @@
  * associated repository.
  */
 
- #pragma once
+#pragma once
 
- #include "MatrixStaticHandler.hpp"
- #include "Matrix.hpp"
- #include "MatrixZeroOps.hpp"
+#include "MatrixStaticHandler.hpp"
+#include "Matrix.hpp"
+#include "MatrixZeroOps.hpp"
 
- template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
- class ZeroMatInvHandler : public T {
-    public:
-    void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
-      const size_t nrows{mat->getNumRows()};
-      const size_t ncols{mat->getNumColumns()};
-      // Assert squareness
-      ASSERT((nrows == ncols), "Matrix is not square for inverse computation");
+template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
+class ZeroMatInvHandler : public T {
+  public:
+  void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
+    const size_t nrows{mat->getNumRows()};
+    const size_t ncols{mat->getNumColumns()};
+    // Assert squareness
+    ASSERT((nrows == ncols), "Matrix is not square for inverse computation");
 
-      #if defined(USE_SYMBOLIC_CHECK)
-        /* Zero matrix special check */
-        if (true == IsZeroMatrix(mat)) {
-          ASSERT(false, "Inverse of a zero matrix");
-          return;
-        }
-      #endif
-        // Chain of responsibility
-        T::handle(mat, result);
+    #if defined(USE_SYMBOLIC_CHECK)
+      /* Zero matrix special check */
+      if (true == IsZeroMatrix(mat)) {
+        ASSERT(false, "Inverse of a zero matrix");
+        return;
       }
- };
+    #endif
+      // Chain of responsibility
+      T::handle(mat, result);
+    }
+};

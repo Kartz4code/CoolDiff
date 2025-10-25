@@ -65,10 +65,10 @@ public:
   OMMatPair m_cache;
 
   // Constructor
-  constexpr GenericMatSub(T1* u, T2* v, Callables&&... call) : mp_left{u}, 
-                                                               mp_right{v}, 
-                                                               m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                               m_nidx{this->m_idx_count++} {
+  constexpr GenericMatSub(T1* u, T2* v, Callables&&... call) :  mp_left{u}, 
+                                                                mp_right{v}, 
+                                                                m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                                m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
@@ -236,8 +236,8 @@ public:
         MATRIX_SCALAR_MUL(1, cCache, mp_arr[4]); 
         MATRIX_SCALAR_MUL(-1, cCache, mp_arr[5]);
         
-        const auto mp_arr4_val = (*mp_arr[4])(0,0);
-        const auto mp_arr5_val = (*mp_arr[5])(0,0);
+        const auto mp_arr4_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[4]);
+        const auto mp_arr5_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[5]);
 
         if(auto it2 = cache->find(mp_left->m_nidx); it2 != cache->end()) {
           MATRIX_ADD((*cache)[mp_left->m_nidx], mp_arr[4], (*cache)[mp_left->m_nidx]); 

@@ -1308,10 +1308,10 @@ TEST(OpsTest, ExpressionCopy) {
 #endif
 
 int main(int argc, char **argv) {
-#if defined(USE_COMPLEX_MATH)
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-#else
-  return RUN_ALL_TESTS();
-#endif
+  #if defined(USE_COMPLEX_MATH)
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+  #else 
+    std::cout << "OpsTest works only when USE_COMPLEX_MATH flag is ON\n";
+  #endif
 }

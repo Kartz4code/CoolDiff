@@ -19,31 +19,31 @@
  * associated repository.
  */
 
- #pragma once
+#pragma once
 
- #include "MatrixStaticHandler.hpp"
- #include "Matrix.hpp"
+#include "MatrixStaticHandler.hpp"
+#include "Matrix.hpp"
 
- template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
- class MatInverseEigenHandler : public T {
-    public:
-      void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
-        const size_t nrows{mat->getNumRows()};
-        const size_t ncols{mat->getNumColumns()};
-        // Assert squareness
-        ASSERT((nrows == ncols), "Matrix is not square for inverse computation");
+template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
+class MatInverseEigenHandler : public T {
+  public:
+    void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
+      const size_t nrows{mat->getNumRows()};
+      const size_t ncols{mat->getNumColumns()};
+      // Assert squareness
+      ASSERT((nrows == ncols), "Matrix is not square for inverse computation");
 
-        // Pool matrix
-        MemoryManager::MatrixPool(nrows, ncols, result);
-      
-        Type* res_ptr = result->getMatrixPtr();
-        Type* mat_ptr = const_cast<Matrix<Type>*>(mat)->getMatrixPtr();
-      
-        // Eigen inverse
-        const Eigen::Map<EigenMatrix> A(mat_ptr, nrows, ncols);
-        const auto inv_A = A.inverse();
-      
-        // Store result
-        Eigen::Map<EigenMatrix>(res_ptr, nrows, ncols) = inv_A;
-      }
- };
+      // Pool matrix
+      MemoryManager::MatrixPool(nrows, ncols, result);
+    
+      Type* res_ptr = result->getMatrixPtr();
+      Type* mat_ptr = const_cast<Matrix<Type>*>(mat)->getMatrixPtr();
+    
+      // Eigen inverse
+      const Eigen::Map<EigenMatrix> A(mat_ptr, nrows, ncols);
+      const auto inv_A = A.inverse();
+    
+      // Store result
+      Eigen::Map<EigenMatrix>(res_ptr, nrows, ncols) = inv_A;
+    }
+};

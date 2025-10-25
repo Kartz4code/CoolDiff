@@ -111,7 +111,7 @@ namespace CoolDiff {
         ATAN, ASINH, ACOSH, ATANH, SQRT, EXP, LOG, COUNT
       };
 
-      // Is numeric variable
+      // Is a valid numeric type
       template <typename T>
       constexpr inline static const bool is_numeric_v = (true == std::is_arithmetic_v<T> || 
                                                         true == std::is_same_v<T, Type>);
@@ -127,6 +127,10 @@ namespace CoolDiff {
                                                                   (false == std::is_arithmetic_v<T>) &&
                                                                   (false == std::is_same_v<Type, T>);
 
+
+      // Is a valid numeric type
+      template <typename T>
+      using IsValidNumericType = std::enable_if_t<is_numeric_v<T>>;
 
       // Is a valid scalar type
       template <typename T>

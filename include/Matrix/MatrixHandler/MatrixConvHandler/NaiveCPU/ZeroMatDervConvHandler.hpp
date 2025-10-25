@@ -32,15 +32,15 @@ class ZeroMatDervConvHandler : public T {
     private:
       // All matrices
       inline static constexpr const size_t m_size{8};
-      Matrix<Type> *mp_arr[m_size]{};
+      Matrix<Type>* mp_arr[m_size]{};
 
       // Boolean check for initialization
       bool m_initialized{false};
 
       void handleLHS(const size_t nrows_x, const size_t ncols_x, const size_t stride_x,
                     const size_t stride_y, const size_t pad_x, const size_t pad_y,
-                    const size_t crows, const size_t ccols, const Matrix<Type> *lhs,
-                    const Matrix<Type> *drhs, Matrix<Type> *&result) {
+                    const size_t crows, const size_t ccols, const Matrix<Type>* lhs,
+                    const Matrix<Type>* drhs, Matrix<Type>*& result) {
         // Stride must be strictly non-negative
         ASSERT(((int)stride_x > 0) && ((int)stride_y > 0), "Stride is not strictly non-negative");
         // Padding must be positive

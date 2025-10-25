@@ -40,7 +40,7 @@ class EyeMatUnaryHandler : public T {
             MemoryManager::MatrixPool(nrows, ncols, result);
 
             // Eye matrix
-            const auto idx = Range<size_t>(0, (nrows * ncols));
+            const auto idx = CoolDiff::Common::Range<size_t>(0, (nrows * ncols));
             std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t n) {
               const size_t j = (n % ncols);
               const size_t i = ((n - j) / ncols);

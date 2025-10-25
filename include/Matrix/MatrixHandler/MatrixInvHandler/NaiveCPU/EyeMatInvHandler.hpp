@@ -19,35 +19,35 @@
  * associated repository.
  */
 
- #pragma once
+#pragma once
 
- #include "MatrixStaticHandler.hpp"
- #include "Matrix.hpp"
- #include "MatrixEyeOps.hpp"
+#include "MatrixStaticHandler.hpp"
+#include "Matrix.hpp"
+#include "MatrixEyeOps.hpp"
 
- template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
- class EyeMatInvHandler : public T {
-    public:
-    void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
-      const size_t nrows{mat->getNumRows()};
-      const size_t ncols{mat->getNumColumns()};
-      // Assert squareness
-      ASSERT((nrows == ncols), "Matrix is not square for inverse computation");
+template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
+class EyeMatInvHandler : public T {
+  public:
+  void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
+    const size_t nrows{mat->getNumRows()};
+    const size_t ncols{mat->getNumColumns()};
+    // Assert squareness
+    ASSERT((nrows == ncols), "Matrix is not square for inverse computation");
 
 
-      #if defined(USE_SYMBOLIC_CHECK)
-        /* Zero matrix special check */
-        if (true == IsEyeMatrix(mat)) {
-          // Rows and columns of result matrix
-          const size_t nrows{mat->getNumRows()};
-          const size_t ncols{mat->getNumColumns()};
-      
-          // Result matrix is transposed identity matrix
-          result = MemoryManager::MatrixSplPool(nrows, ncols, MatrixSpl::EYE);
-          return;
-        }
-      #endif
-        // Chain of responsibility
-        T::handle(mat, result);
-    }
- };
+    #if defined(USE_SYMBOLIC_CHECK)
+      /* Zero matrix special check */
+      if (true == IsEyeMatrix(mat)) {
+        // Rows and columns of result matrix
+        const size_t nrows{mat->getNumRows()};
+        const size_t ncols{mat->getNumColumns()};
+    
+        // Result matrix is transposed identity matrix
+        result = MemoryManager::MatrixSplPool(nrows, ncols, MatrixSpl::EYE);
+        return;
+      }
+    #endif
+      // Chain of responsibility
+      T::handle(mat, result);
+  }
+};

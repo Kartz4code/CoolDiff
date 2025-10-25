@@ -25,7 +25,7 @@
 #define ABS(X) (X > 0 ? (X) : (-X))
 
 // Is the matrix zero
-bool IsZeroMatrix(const Matrix<Type> *m) {
+bool IsZeroMatrix(const Matrix<Type>* m) {
   // Zero special matrix check
   if (m->getMatType() == MatrixSpl::ZEROS) {
     return true;
@@ -36,23 +36,21 @@ bool IsZeroMatrix(const Matrix<Type> *m) {
   }
 
   // Get Matrix pointer and check for null pointer
-  auto *it = m->getMatrixPtr();
+  auto* it = m->getMatrixPtr();
 
   // Check all elements for zero
-  return std::all_of(EXECUTION_PAR it, it + m->getNumElem(),
-                     [](Type i) { return (i == (Type)(0)); });
+  return std::all_of( EXECUTION_PAR it, it + m->getNumElem(),
+                      [](Type i) { return (i == (Type)(0)); } );
 }
 
 // Zero matrix addition checks
-const Matrix<Type> *ZeroMatAdd(const Matrix<Type> *lhs,
-                               const Matrix<Type> *rhs) {
+const Matrix<Type>* ZeroMatAdd(const Matrix<Type>* lhs, const Matrix<Type>* rhs) {
   // Rows and columns of result matrix
   const size_t nrows{lhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
 
   // If both lhs and rhs matrices are zero matrices
-  if (lhs->getMatType() == MatrixSpl::ZEROS &&
-      rhs->getMatType() == MatrixSpl::ZEROS) {
+  if (lhs->getMatType() == MatrixSpl::ZEROS && rhs->getMatType() == MatrixSpl::ZEROS) {
     return MemoryManager::MatrixSplPool(nrows, ncols, MatrixSpl::ZEROS);
   }
   // If lhs is a zero matrix
@@ -67,13 +65,13 @@ const Matrix<Type> *ZeroMatAdd(const Matrix<Type> *lhs,
 }
 
 // Zero matrix scalar addition
-const Matrix<Type> *ZeroMatScalarAdd(Type lhs, const Matrix<Type> *rhs) {
+const Matrix<Type>* ZeroMatScalarAdd(Type lhs, const Matrix<Type>* rhs) {
   // Rows and columns of result matrix
   const size_t nrows{rhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
 
   // Result matrix
-  Matrix<Type> *result{nullptr};
+  Matrix<Type>* result{nullptr};
 
   // If both lhs and rhs matrices are zero matrices
   if ((lhs == (Type)(0)) && (rhs->getMatType() == MatrixSpl::ZEROS)) {
@@ -90,8 +88,8 @@ const Matrix<Type> *ZeroMatScalarAdd(Type lhs, const Matrix<Type> *rhs) {
 }
 
 // Zero matrix subtraction
-const Matrix<Type> *ZeroMatSub(const Matrix<Type> *lhs,
-                               const Matrix<Type> *rhs) {
+const Matrix<Type>* ZeroMatSub( const Matrix<Type>* lhs,
+                                const Matrix<Type>* rhs ) {
   // Rows and columns of result matrix
   const size_t nrows{lhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
@@ -113,8 +111,8 @@ const Matrix<Type> *ZeroMatSub(const Matrix<Type> *lhs,
 }
 
 // Zero matrix multiplication checks
-const Matrix<Type> *ZeroMatMul(const Matrix<Type> *lhs,
-                               const Matrix<Type> *rhs) {
+const Matrix<Type>* ZeroMatMul( const Matrix<Type>* lhs,
+                                const Matrix<Type>* rhs ) {
   // Left matrix rows and right matrix columns
   const size_t lr = lhs->getNumRows();
   const size_t rc = rhs->getNumColumns();
@@ -131,7 +129,7 @@ const Matrix<Type> *ZeroMatMul(const Matrix<Type> *lhs,
 }
 
 // Zero matrix scalar multiplication
-const Matrix<Type> *ZeroMatScalarMul(Type lhs, const Matrix<Type> *rhs) {
+const Matrix<Type>* ZeroMatScalarMul(Type lhs, const Matrix<Type>* rhs) {
   // Rows and columns of result matrix
   const size_t nrows{rhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
@@ -145,8 +143,8 @@ const Matrix<Type> *ZeroMatScalarMul(Type lhs, const Matrix<Type> *rhs) {
 }
 
 // Zero matrix kronocker product
-const Matrix<Type> *ZeroMatKron(const Matrix<Type> *lhs,
-                                const Matrix<Type> *rhs) {
+const Matrix<Type>* ZeroMatKron(const Matrix<Type>* lhs,
+                                const Matrix<Type>* rhs) {
   // Left matrix rows and right matrix columns
   const size_t lr = lhs->getNumRows();
   const size_t lc = lhs->getNumColumns();
@@ -165,8 +163,8 @@ const Matrix<Type> *ZeroMatKron(const Matrix<Type> *lhs,
 }
 
 // Zero matrix Hadamard product
-const Matrix<Type> *ZeroMatHadamard(const Matrix<Type> *lhs,
-                                    const Matrix<Type> *rhs) {
+const Matrix<Type>* ZeroMatHadamard(const Matrix<Type>* lhs,
+                                    const Matrix<Type>* rhs) {
   // Left matrix rows and right matrix columns
   const size_t lr = lhs->getNumRows();
   const size_t rc = rhs->getNumColumns();
@@ -183,9 +181,9 @@ const Matrix<Type> *ZeroMatHadamard(const Matrix<Type> *lhs,
 }
 
 // Zero matrix convolution
-const Matrix<Type> *ZeroMatConv(const size_t rows, const size_t cols,
-                                const Matrix<Type> *lhs,
-                                const Matrix<Type> *rhs) {
+const Matrix<Type>* ZeroMatConv(const size_t rows, const size_t cols,
+                                const Matrix<Type>* lhs,
+                                const Matrix<Type>* rhs) {
 
   // If both lhs and rhs matrices are zero matrices
   if (lhs->getMatType() == MatrixSpl::ZEROS ||
@@ -199,26 +197,22 @@ const Matrix<Type> *ZeroMatConv(const size_t rows, const size_t cols,
 }
 
 // Zero matrix derivative convolution
-const Matrix<Type> *ZeroMatDervConv(const size_t rows, const size_t cols,
-                                    const Matrix<Type> *lhs,
-                                    const Matrix<Type> *dlhs,
-                                    const Matrix<Type> *rhs,
-                                    const Matrix<Type> *drhs) {
+const Matrix<Type>* ZeroMatDervConv(const size_t rows, const size_t cols,
+                                    const Matrix<Type>* lhs,
+                                    const Matrix<Type>* dlhs,
+                                    const Matrix<Type>* rhs,
+                                    const Matrix<Type>* drhs) {
   // If both (lhs,drhs) and (dlhs,rhs) matrices are zero matrices
-  if ((lhs->getMatType() == MatrixSpl::ZEROS ||
-       drhs->getMatType() == MatrixSpl::ZEROS) &&
-      (dlhs->getMatType() == MatrixSpl::ZEROS ||
-       rhs->getMatType() == MatrixSpl::ZEROS)) {
+  if ((lhs->getMatType() == MatrixSpl::ZEROS || drhs->getMatType() == MatrixSpl::ZEROS) &&
+      (dlhs->getMatType() == MatrixSpl::ZEROS || rhs->getMatType() == MatrixSpl::ZEROS)) {
     return MemoryManager::MatrixSplPool(rows, cols, MatrixSpl::ZEROS);
   }
   // If (lhs,drhs) matrices are zero matrices
-  else if ((lhs->getMatType() == MatrixSpl::ZEROS ||
-            drhs->getMatType() == MatrixSpl::ZEROS)) {
+  else if ((lhs->getMatType() == MatrixSpl::ZEROS || drhs->getMatType() == MatrixSpl::ZEROS)) {
     return rhs;
   }
   // If (dlhs,rhs) matrices are zero matrices
-  else if ((dlhs->getMatType() == MatrixSpl::ZEROS ||
-            rhs->getMatType() == MatrixSpl::ZEROS)) {
+  else if ((dlhs->getMatType() == MatrixSpl::ZEROS || rhs->getMatType() == MatrixSpl::ZEROS)) {
     return lhs;
   }
   // If neither, then return nullptr
@@ -228,8 +222,8 @@ const Matrix<Type> *ZeroMatDervConv(const size_t rows, const size_t cols,
 }
 
 // Zero matrix addition numerical check
-const Matrix<Type> *ZeroMatAddNum(const Matrix<Type> *lhs,
-                                  const Matrix<Type> *rhs) {
+const Matrix<Type>* ZeroMatAddNum(const Matrix<Type>* lhs,
+                                  const Matrix<Type>* rhs) {
   // Boolean check
   const bool lhs_bool = IsZeroMatrix(lhs);
   const bool rhs_bool = IsZeroMatrix(rhs);
@@ -238,7 +232,7 @@ const Matrix<Type> *ZeroMatAddNum(const Matrix<Type> *lhs,
   const size_t nrows{lhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
 
-  if (lhs_bool == true && rhs_bool == true) {
+  if ((true == lhs_bool) && (true == rhs_bool)) {
     return MemoryManager::MatrixSplPool(nrows, ncols, MatrixSpl::ZEROS);
   } else if (lhs_bool == true) {
     return rhs;
@@ -250,7 +244,7 @@ const Matrix<Type> *ZeroMatAddNum(const Matrix<Type> *lhs,
 }
 
 // Zero matrix scalar addition numerics
-const Matrix<Type> *ZeroMatScalarAddNum(Type lhs, const Matrix<Type> *rhs) {
+const Matrix<Type>* ZeroMatScalarAddNum(Type lhs, const Matrix<Type>* rhs) {
   // Rows and columns of result matrix
   const size_t nrows{rhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
@@ -259,9 +253,9 @@ const Matrix<Type> *ZeroMatScalarAddNum(Type lhs, const Matrix<Type> *rhs) {
   const bool rhs_bool = IsZeroMatrix(rhs);
 
   // Result matrix
-  Matrix<Type> *result{nullptr};
+  Matrix<Type>* result{nullptr};
 
-  if ((lhs == (Type)(0)) && rhs_bool == true) {
+  if ((lhs == (Type)(0)) && (true == rhs_bool)) {
     return MemoryManager::MatrixSplPool(nrows, ncols, MatrixSpl::ZEROS);
   } else if ((lhs == (Type)(0))) {
     return rhs;
@@ -275,8 +269,8 @@ const Matrix<Type> *ZeroMatScalarAddNum(Type lhs, const Matrix<Type> *rhs) {
 }
 
 // Zero matrix subtraction numerics
-const Matrix<Type> *ZeroMatSubNum(const Matrix<Type> *lhs,
-                                  const Matrix<Type> *rhs) {
+const Matrix<Type>* ZeroMatSubNum(const Matrix<Type>* lhs,
+                                  const Matrix<Type>* rhs) {
   // Boolean check
   const bool lhs_bool = IsZeroMatrix(lhs);
   const bool rhs_bool = IsZeroMatrix(rhs);
@@ -297,8 +291,8 @@ const Matrix<Type> *ZeroMatSubNum(const Matrix<Type> *lhs,
 }
 
 // Zero matrix multiplication numerics
-const Matrix<Type> *ZeroMatMulNum(const Matrix<Type> *lhs,
-                                  const Matrix<Type> *rhs) {
+const Matrix<Type>* ZeroMatMulNum(const Matrix<Type>* lhs,
+                                  const Matrix<Type>* rhs) {
   // Left matrix rows and column numbers
   const size_t lr = lhs->getNumRows();
   const size_t rc = rhs->getNumColumns();
@@ -314,7 +308,7 @@ const Matrix<Type> *ZeroMatMulNum(const Matrix<Type> *lhs,
 }
 
 // Zero matrix scalar multiplication numerics
-const Matrix<Type> *ZeroMatScalarMulNum(Type lhs, const Matrix<Type> *rhs) {
+const Matrix<Type>* ZeroMatScalarMulNum(Type lhs, const Matrix<Type>* rhs) {
   // Rows and columns of result matrix
   const size_t nrows{rhs->getNumRows()};
   const size_t ncols{rhs->getNumColumns()};
@@ -329,8 +323,8 @@ const Matrix<Type> *ZeroMatScalarMulNum(Type lhs, const Matrix<Type> *rhs) {
 }
 
 // Zero matrix kronocker product numerics
-const Matrix<Type> *ZeroMatKronNum(const Matrix<Type> *lhs,
-                                   const Matrix<Type> *rhs) {
+const Matrix<Type>* ZeroMatKronNum( const Matrix<Type>* lhs,
+                                    const Matrix<Type>* rhs ) {
   // Left matrix rows and right matrix columns
   const size_t lr = lhs->getNumRows();
   const size_t lc = lhs->getNumColumns();
@@ -341,15 +335,15 @@ const Matrix<Type> *ZeroMatKronNum(const Matrix<Type> *lhs,
   const bool lhs_bool = IsZeroMatrix(lhs);
   const bool rhs_bool = IsZeroMatrix(rhs);
   if (lhs_bool == true || rhs_bool == true) {
-    return MemoryManager::MatrixSplPool(lr * rr, lc * rc, MatrixSpl::ZEROS);
+    return MemoryManager::MatrixSplPool((lr * rr), (lc * rc), MatrixSpl::ZEROS);
   } else {
     return nullptr;
   }
 }
 
 // Zero matrix Hadamard product
-const Matrix<Type> *ZeroMatHadamardNum(const Matrix<Type> *lhs,
-                                       const Matrix<Type> *rhs) {
+const Matrix<Type>* ZeroMatHadamardNum( const Matrix<Type>* lhs,
+                                        const Matrix<Type>* rhs  ) {
   // Left matrix rows and column numbers
   const size_t lr = lhs->getNumRows();
   const size_t rc = rhs->getNumColumns();
@@ -365,9 +359,9 @@ const Matrix<Type> *ZeroMatHadamardNum(const Matrix<Type> *lhs,
 }
 
 // Zero matrix convolution numerics
-const Matrix<Type> *ZeroMatConvNum(const size_t rows, const size_t cols,
-                                   const Matrix<Type> *lhs,
-                                   const Matrix<Type> *rhs) {
+const Matrix<Type>* ZeroMatConvNum( const size_t rows, const size_t cols,
+                                    const Matrix<Type>* lhs,
+                                    const Matrix<Type>* rhs ) {
   // Boolean check
   const bool lhs_bool = IsZeroMatrix(lhs);
   const bool rhs_bool = IsZeroMatrix(rhs);
@@ -379,11 +373,11 @@ const Matrix<Type> *ZeroMatConvNum(const size_t rows, const size_t cols,
 }
 
 // Zero matrix derivative convolution numerics
-const Matrix<Type> *ZeroMatDervConvNum(const size_t rows, const size_t cols,
-                                       const Matrix<Type> *lhs,
-                                       const Matrix<Type> *dlhs,
-                                       const Matrix<Type> *rhs,
-                                       const Matrix<Type> *drhs) {
+const Matrix<Type>* ZeroMatDervConvNum( const size_t rows, const size_t cols,
+                                        const Matrix<Type>* lhs,
+                                        const Matrix<Type>* dlhs,
+                                        const Matrix<Type>* rhs,
+                                        const Matrix<Type>* drhs  ) {
   // Boolean check
   const bool lhs_bool = IsZeroMatrix(lhs);
   const bool dlhs_bool = IsZeroMatrix(dlhs);
@@ -410,7 +404,7 @@ const Matrix<Type> *ZeroMatDervConvNum(const size_t rows, const size_t cols,
 }
 
 namespace BaselineCPU {
-  void SubZero(const Matrix<Type> *it, Matrix<Type> *&result) {
+  void SubZero(const Matrix<Type>* it, Matrix<Type>*& result) {
     /*
       Rows and columns of result matrix and if result is nullptr or if dimensions
       mismatch, then create a new matrix resource

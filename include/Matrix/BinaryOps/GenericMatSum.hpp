@@ -236,8 +236,8 @@ public:
         MATRIX_SCALAR_MUL(1, cCache, mp_arr[4]); 
         MATRIX_SCALAR_MUL(1, cCache, mp_arr[5]); 
 
-        const auto mp_arr4_val = (*mp_arr[4])(0,0);
-        const auto mp_arr5_val = (*mp_arr[5])(0,0);
+        const auto mp_arr4_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[4]);
+        const auto mp_arr5_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[5]);
 
         if(auto it2 = cache->find(mp_left->m_nidx); it2 != cache->end()) {
           MATRIX_ADD((*cache)[mp_left->m_nidx], mp_arr[4], (*cache)[mp_left->m_nidx]); 
@@ -461,7 +461,7 @@ public:
         }
         
         MATRIX_SCALAR_MUL(1, cCache, mp_arr[3]); 
-        const auto mp_arr3_val = (*mp_arr[3])(0,0);
+        const auto mp_arr3_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[3]);
 
         if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
           MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[3], (*cache)[mp_right->m_nidx]); 
@@ -651,8 +651,8 @@ public:
       MATRIX_SCALAR_MUL(n, eye_n, mp_arr[4]);
       MATRIX_SCALAR_MUL(1, eye_n, mp_arr[5]);
       
-      const auto mp_arr4_val = (*mp_arr[4])(0,0);
-      const auto mp_arr5_val = (*mp_arr[5])(0,0);
+      const auto mp_arr4_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[4]);
+      const auto mp_arr5_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[5]);
 
       if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
         MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[5], (*cache)[mp_right->m_nidx]); 
@@ -717,8 +717,8 @@ public:
 
         MATRIX_SCALAR_MUL(1, cCache, mp_arr[8]); 
 
-        const auto mp_arr7_val = (*mp_arr[7])(0,0);
-        const auto mp_arr8_val = (*mp_arr[8])(0,0);
+        const auto mp_arr7_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[7]);
+        const auto mp_arr8_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[8]);
 
         if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
           MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[8], (*cache)[mp_right->m_nidx]); 

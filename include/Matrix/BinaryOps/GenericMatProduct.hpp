@@ -188,8 +188,8 @@ public:
       MATRIX_TRANSPOSE(left_mat, mp_arr[7]); 
       MATRIX_TRANSPOSE(right_mat, mp_arr[6]); 
 
-      const auto mp_arr6_val = (*mp_arr[6])(0,0);
-      const auto mp_arr7_val = (*mp_arr[7])(0,0);
+      const auto mp_arr6_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[6]);
+      const auto mp_arr7_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[7]);
 
       if(auto it2 = cache->find(mp_left->m_nidx); it2 != cache->end()) {
         MATRIX_ADD((*cache)[mp_left->m_nidx], mp_arr[6], (*cache)[mp_left->m_nidx]); 
@@ -266,8 +266,8 @@ public:
         MATRIX_MUL(cCache, mp_arr[8], mp_arr[10]);
         MATRIX_MUL(mp_arr[9], cCache, mp_arr[11]);
 
-        const auto mp_arr10_val = (*mp_arr[10])(0,0);
-        const auto mp_arr11_val = (*mp_arr[11])(0,0);
+        const auto mp_arr10_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[10]);
+        const auto mp_arr11_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[11]);
 
         if(auto it2 = cache->find(mp_left->m_nidx); it2 != cache->end()) {
           MATRIX_ADD((*cache)[mp_left->m_nidx], mp_arr[10], (*cache)[mp_left->m_nidx]); 
@@ -378,10 +378,10 @@ public:
   OMMatPair m_cache;
 
   // Constructor
-  constexpr GenericMatScalarProduct(Type u, T* v, Callables&&... call) : m_left{u}, 
-                                                                         mp_right{v}, 
-                                                                         m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                                         m_nidx{this->m_idx_count++} {
+  constexpr GenericMatScalarProduct(Type u, T* v, Callables&&... call) :  m_left{u}, 
+                                                                          mp_right{v}, 
+                                                                          m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                                          m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
@@ -502,7 +502,7 @@ public:
         }
         
         MATRIX_SCALAR_MUL(m_left, cCache, mp_arr[3]); 
-        const auto mp_arr3_val = (*mp_arr[3])(0,0);
+        const auto mp_arr3_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[3]);
 
         if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
           MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[3], (*cache)[mp_right->m_nidx]); 
@@ -699,8 +699,8 @@ public:
       MATRIX_TRACE(right_mat, mp_arr[7]);
       MATRIX_SCALAR_MUL(left, eye_n, mp_arr[8]);
       
-      const auto mp_arr7_val = (*mp_arr[7])(0,0);
-      const auto mp_arr8_val = (*mp_arr[8])(0,0);
+      const auto mp_arr7_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[7]);
+      const auto mp_arr8_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[8]);
       
       if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
         MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[8], (*cache)[mp_right->m_nidx]); 
@@ -766,8 +766,8 @@ public:
 
         MATRIX_SCALAR_MUL(left, cCache, mp_arr[12]);
 
-        const auto mp_arr11_val = (*mp_arr[11])(0,0);
-        const auto mp_arr12_val = (*mp_arr[12])(0,0);
+        const auto mp_arr11_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[11]);
+        const auto mp_arr12_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[12]);
 
         if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
           MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[12], (*cache)[mp_right->m_nidx]); 

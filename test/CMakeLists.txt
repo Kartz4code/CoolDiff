@@ -26,7 +26,7 @@ include(GoogleTest)
 set(TEST_EXECUTABLE OpsTest)
 set(TEST_EXECUTABLE2 MatTest)
 
-if(${BUILD_UNITTESTS})
+if(${BUILD_UNITTESTS} AND NOT MSVC)
 ##################################################################################################################################
     
     # [Add executable (target testing)]

@@ -60,7 +60,7 @@ void DelPtr(T* ptr) {
   }
 }
 
-// Scalar allocator
+// Generic allocator
 template <typename T, typename... Args>
 inline SharedPtr<T> Allocate(Args&&... args) {
   const size_t size = sizeof(T);
@@ -70,10 +70,10 @@ inline SharedPtr<T> Allocate(Args&&... args) {
   SharedPtr<T> tmp{new T(std::forward<Args>(args)...), DelPtr<T>};
 
   // Push the allocated object into stack to clear it later
-  if constexpr (std::is_base_of_v<MetaVariable, T>) {
+  if constexpr (true == std::is_base_of_v<MetaVariable, T>) {
     MemoryManager::m_del_ptr.push_back(tmp);
-  } else if constexpr (std::is_base_of_v<MetaMatrix, T>) {
-    if constexpr (std::is_same_v<T, Matrix<Type>>) {
+  } else if constexpr (true == std::is_base_of_v<MetaMatrix, T>) {
+    if constexpr (true == std::is_same_v<T, Matrix<Type>>) {
       MemoryManager::m_del_mat_type_ptr.push_back(tmp);
     } else {
       MemoryManager::m_del_mat_ptr.push_back(tmp);

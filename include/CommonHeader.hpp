@@ -190,7 +190,8 @@ class Parameter;
 class Expression;
 
 // Predeclare Matrix class
-template <typename> class Matrix;
+template <typename> 
+class Matrix;
 
 // Predeclare Variable matrix
 using MatVariable = Matrix<Variable>;
@@ -202,7 +203,8 @@ using MatExpression = Matrix<Expression>;
 using MatType = Matrix<Type>;
 
 // Pair type
-template <typename T, typename U> using Pair = std::pair<T, U>;
+template <typename T, typename U> 
+using Pair = std::pair<T, U>;
 
 // Ordered map between size_t and Type
 #if defined(USE_ROBIN_HOOD_MAP)
@@ -254,8 +256,8 @@ enum ADMode { FORWARD, REVERSE };
 template <typename T> std::string ToString(const T &value) {
   // If complex number
   if constexpr (true == std::is_same_v<T, std::complex<Real>>) {
-    return std::move("(" + std::to_string(value.real()) + "," +
-                     std::to_string(value.imag()) + ")");
+    return std::move( "(" + std::to_string(value.real()) + "," +
+                      std::to_string(value.imag()) + ")"  );
   } else {
     return std::move(std::to_string(value));
   }
@@ -296,19 +298,18 @@ template <typename T> std::string ToString(const T &value) {
 #endif
 
 // Time it base
-#define TIME_IT(CODE, UNIT)                                                    \
-  {                                                                            \
-    auto start = std::chrono::high_resolution_clock::now();                    \
-    CODE;                                                                      \
-    auto stop = std::chrono::high_resolution_clock::now();                     \
-    auto duration =                                                            \
-        std::chrono::duration_cast<std::chrono::UNIT>(stop - start);           \
-    std::ostringstream oss;                                                    \
-    oss << "[COMPUTATION TIME]: " << duration.count() << " " << #UNIT << "\n"  \
-        << "[FILENAME]: " << __FILE__ << "\n"                                  \
-        << "[FUNCTION]: " << __FUNCTION__ << "\n"                              \
-        << "[LINE NO]: " << __LINE__ << "\n";                                  \
-    std::cout << oss.str() << "\n";                                            \
+#define TIME_IT(CODE, UNIT)                                                       \
+  {                                                                               \
+    auto start = std::chrono::high_resolution_clock::now();                       \
+    CODE;                                                                         \
+    auto stop = std::chrono::high_resolution_clock::now();                        \
+    auto duration = std::chrono::duration_cast<std::chrono::UNIT>(stop - start);  \
+    std::ostringstream oss;                                                       \
+    oss << "[COMPUTATION TIME]: " << duration.count() << " " << #UNIT << "\n"     \
+        << "[FILENAME]: " << __FILE__ << "\n"                                     \
+        << "[FUNCTION]: " << __FUNCTION__ << "\n"                                 \
+        << "[LINE NO]: " << __LINE__ << "\n";                                     \
+    std::cout << oss.str() << "\n";                                               \
   }
 
 // Time it in nanoseconds
@@ -321,26 +322,31 @@ template <typename T> std::string ToString(const T &value) {
 #define TIME_IT_S(CODE) TIME_IT(CODE, seconds)
 
 // Range values from start to end
-template <typename T> class Range {
-private:
-  Vector<T> m_vec;
+namespace CoolDiff{
+  namespace Common {
+      template <typename T> 
+      class Range {
+      private:
+        Vector<T> m_vec;
 
-public:
-  // Range constructor
-  constexpr Range(T start, T end) : m_vec(end - start) {
-    std::iota(m_vec.begin(), m_vec.end(), start);
+      public:
+        // Range constructor
+        constexpr Range(T start, T end) : m_vec(end - start) {
+          std::iota(m_vec.begin(), m_vec.end(), start);
+        }
+
+        constexpr typename Vector<T>::const_iterator begin() const {
+          return m_vec.cbegin();
+        }
+
+        constexpr typename Vector<T>::const_iterator end() const {
+          return m_vec.cend();
+        }
+
+        ~Range() = default;
+      };
   }
-
-  constexpr typename Vector<T>::const_iterator begin() const {
-    return m_vec.cbegin();
-  }
-
-  constexpr typename Vector<T>::const_iterator end() const {
-    return m_vec.cend();
-  }
-
-  ~Range() = default;
-};
+}
 
 // Hashing function for Pair<size_t, size_t>
 template <> struct std::hash<Pair<size_t, size_t>> {

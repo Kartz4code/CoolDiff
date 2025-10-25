@@ -37,7 +37,7 @@ class MatTraceNaiveHandler : public T {
             MemoryManager::MatrixPool(1, 1, result);
         
             // Indices for outer loop and inner loop
-            const auto outer_idx = Range<size_t>(0, nrows);
+            const auto outer_idx = CoolDiff::Common::Range<size_t>(0, nrows);
 
             // Naive matrix-matrix multiplication
             Type tmp{};

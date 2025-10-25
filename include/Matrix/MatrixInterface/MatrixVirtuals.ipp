@@ -1,4 +1,4 @@
- #pragma once
+#pragma once
 
 /**
  * @file include/Matrix/MatrixInterface/MatrixVirtuals.ipp

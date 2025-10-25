@@ -21,11 +21,14 @@
 
 #include "CommonMatFunctions.hpp"
 
-const size_t Factorial(const size_t n) {
-   static UnOrderedMap<size_t, size_t> map{{1,1}}; 
-   if(auto it = map.find(n); it == map.end()) {
-      map[n] = n*Factorial(n-1); 
+namespace CoolDiff {
+   namespace Common {
+      const size_t Factorial(const size_t n) {
+         static UnOrderedMap<size_t, size_t> map{{1,1}}; 
+         if(auto it = map.find(n); it == map.end()) {
+            map[n] = n*Factorial(n-1); 
+         }
+         return map[n]; 
+      }
    }
-   return map[n]; 
 }
- 

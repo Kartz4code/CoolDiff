@@ -22,17 +22,25 @@
 #pragma once
 #include "CommonHeader.hpp"
 
+// MetaMatrix class
 class MetaMatrix : protected CommonHeader {
-protected:
+  public:  
+    // Long long type
+    using LL_t = long long int;
+
+  private:
+    const size_t m_init_size = 16;
+
+  protected:
   // Vector of clones
   Vector<Matrix<Type>*> m_cloned{nullptr};
   // Counter values
-  long long int m_clone_counter{};
+  LL_t m_clone_counter{};
   
   // Clear clone
   void clearClone();
   // Counter increment function   
-  long long int incFunc(const size_t = 2);
+  LL_t incFunc(const size_t = 2);
 
 public:
   // Visited flag
@@ -41,11 +49,7 @@ public:
   OMMatPair m_cache{};
 
   // Default constructor
-  MetaMatrix() {
-    const constexpr size_t init_size = 32;
-    m_cloned.resize(init_size); 
-    std::fill_n(EXECUTION_PAR m_cloned.begin(), init_size, nullptr);
-  }
+  MetaMatrix();
 
   // Evaluate run-time
   V_PURE(Matrix<Type>* eval());

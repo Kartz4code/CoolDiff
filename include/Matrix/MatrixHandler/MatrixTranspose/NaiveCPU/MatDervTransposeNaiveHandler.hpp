@@ -38,8 +38,8 @@ class MatDervTransposeNaiveHandler : public T {
         // Pool matrix
         MemoryManager::MatrixPool(nrows, ncols, result);
       
-        const auto outer_idx = Range<size_t>(0, ncols_f * nrows_f);
-        const auto inner_idx = Range<size_t>(0, ncols_x * nrows_x);
+        const auto outer_idx = CoolDiff::Common::Range<size_t>(0, ncols_f * nrows_f);
+        const auto inner_idx = CoolDiff::Common::Range<size_t>(0, ncols_x * nrows_x);
       
         // Outer loop
         std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(), [&](const size_t n1) {
