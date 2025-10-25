@@ -78,7 +78,9 @@ Matrix<T>::Matrix(const size_t rows, const size_t cols) : m_rows{rows},
   mp_mat = new T[getNumElem()]{};                                                      
 }
 
-// Constructor with pointer stealer
+/*  Constructor with pointer stealer (When using external pointer for the matrix values, it is important
+    that the resource is deleted either through RAII or manual de-allocation
+*/
 template<typename T>
 Matrix<T>::Matrix(const size_t rows, const size_t cols, T* ptr)  :    m_rows{rows}, 
                                                                       m_cols{cols}, 

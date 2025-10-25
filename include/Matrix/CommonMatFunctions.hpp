@@ -36,6 +36,11 @@
 #include "MatrixBasics.hpp"
 
 namespace CoolDiff {
+  namespace Common {
+    // Factorial of n 
+    const size_t Factorial(const size_t);
+  }
+
   namespace TensorR2 {
     // Matrix evaluation
     template <typename T> 
@@ -279,8 +284,6 @@ namespace CoolDiff {
   }
 }
 
-// Factorial of n 
-const size_t Factorial(const size_t);
 
 // Custom functions
 // Matrix Sin function
@@ -302,6 +305,10 @@ UNARY_MATRIX_OPERATOR(LogM, [](Type a) { return std::log(a); },
 // Matrix Sqrt function
 UNARY_MATRIX_OPERATOR(SqrtM,  [](Type a) { return std::sqrt(a); },
                               [](Type b) { return ((Type)(1)/(2*std::sqrt(b))); })
+
+// Matrix tanh function
+UNARY_MATRIX_OPERATOR(TanhM,  [](Type a) { return std::tanh(a); },
+                              [](Type b) { return ((Type)1 - std::tanh(b)*std::tanh(b)); })
 
 // Matrix Sigmoid function
 UNARY_MATRIX_OPERATOR(SigmoidM, [](Type a) { 
@@ -404,7 +411,7 @@ Matrix<Expression>& MatrixExponential(const IMatrix<T>& X) {
   result = (*tmp[0]);
   for(size_t i{1}; i <= N; ++i) {
       (*tmp[i]) = (*tmp[i-1])*X;
-      result = result + ((*tmp[i])/Factorial(i));
+      result = result + ((*tmp[i])/CoolDiff::Common::Factorial(i));
   }
 
   // Return result

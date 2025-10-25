@@ -90,7 +90,7 @@ Matrix<T> Matrix<T>::getColumn(const size_t i) && {
   Matrix tmp(m_rows, 1);
 
   // Iteration elements
-  const auto idx = Range<size_t>(0, m_rows);
+  const auto idx = CoolDiff::Common::Range<size_t>(0, m_rows);
   // For each execution
   std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
                   [this, &tmp](const size_t n) {
@@ -109,7 +109,7 @@ Matrix<T> Matrix<T>::getColumn(const size_t i) const & {
   Matrix tmp(m_rows, 1);
 
   // Iteration elements
-  const auto idx = Range<size_t>(0, m_rows);
+  const auto idx = CoolDiff::Common::Range<size_t>(0, m_rows);
   // For each execution
   std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
                   [this, &tmp](const size_t n) {

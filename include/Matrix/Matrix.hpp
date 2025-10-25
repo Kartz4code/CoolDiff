@@ -50,6 +50,9 @@ public:
     }
   };
 
+  // Type of matrix (Special matrices)
+  MatrixSpl m_type{(size_t)(-1)};
+
 private:
   // Swap for assignment
   void swap(Matrix&) noexcept;
@@ -68,9 +71,6 @@ private:
   // Matrix row and column size
   size_t m_rows{0};
   size_t m_cols{0};
-
-  // Type of matrix (Special matrices)
-  MatrixSpl m_type{(size_t)(-1)};
 
   // Matrix raw pointer of underlying type (Expression, Variable, Parameter, Type)
   T* mp_mat{nullptr};
@@ -94,8 +94,10 @@ private:
 private:  
   // Special matrix constructor (Privatized, only for internal factory view)
   Matrix(const size_t, const size_t, const MatrixSpl&);
+  
   // Move constructor
   Matrix(Matrix&&) noexcept;
+  
   // Move assignment operator
   Matrix& operator=(Matrix&&) noexcept;
 
@@ -112,10 +114,13 @@ public:
 
   // Default constructor - Zero arguments
   Matrix();
+  
   // Constructor with rows and columns
   Matrix(const size_t, const size_t);
+  
   // Constructor with rows and columns with initial values
   Matrix(const size_t, const size_t, const T&);
+
   // Constructor with pointer stealer
   Matrix(const size_t, const size_t, T*);
 
@@ -125,7 +130,7 @@ public:
   // Clone matrix expression
   constexpr const auto& cloneExp() const;
 
-  // Matrix expressions constructor
+  // Matrix expression constructor
   template <typename Z>
   Matrix(const IMatrix<Z>& expr) :  m_rows{expr.getNumRows()}, 
                                     m_cols{expr.getNumColumns()},
@@ -141,8 +146,10 @@ public:
     static_assert(true == std::is_same_v<T, Expression>, "[ERROR] The type T is not an expression");
     // Reserve a buffer of Matrix expressions
     m_gh_vec.reserve(g_vec_init);
-    
+  
     // Emplace the expression in a generic holder
+    const size_t n = expr.getNumColumns();
+    // Expression multiplied with eye matrix 
     m_gh_vec.push_back((Matrix<Expression>*)&(expr*(*(CoolDiff::TensorR2::MatrixBasics::Eye(expr.getNumColumns())))));
   }
 
@@ -152,7 +159,7 @@ public:
     // Static assert so that type T is an expression
     static_assert(true == std::is_same_v<T, Expression>, "[ERROR] The type T is not an expression");
     // Clear buffer and set rows and columns if not recursive expression not found
-    if (static_cast<const Z &>(expr).findMe(this) == false) {
+    if (static_cast<const Z&>(expr).findMe(this) == false) {
       m_gh_vec.clear();
     }
     // If the push back bector is zero
@@ -178,12 +185,15 @@ public:
     }
 
     // Emplace the expression in a generic holder
+    const size_t n = expr.getNumColumns();
+    // Expression multiplied with eye matrix 
     m_gh_vec.push_back((Matrix<Expression>*)&(expr*(*(CoolDiff::TensorR2::MatrixBasics::Eye(expr.getNumColumns())))));
     return *this;
   }
 
   // Copy constructor
   Matrix(const Matrix&);
+  
   // Copy assignment operator
   Matrix& operator=(const Matrix&);
 
@@ -199,6 +209,7 @@ public:
 
   // Matrix 1D access using operator[] immutable
   const T& operator[](const size_t) const;
+  
   // Matrix 1D access using operator[] mutable
   T& operator[](const size_t);
 
@@ -222,8 +233,8 @@ public:
       result = MemoryManager::MatrixSplPool(row_end - row_start + 1, col_end - col_start + 1, MatrixSpl::ZEROS);
     } else {
       MemoryManager::MatrixPool(row_end - row_start + 1, col_end - col_start + 1, result);
-      const auto outer_idx = Range<size_t>(row_start, row_end + 1);
-      const auto inner_idx = Range<size_t>(col_start, col_end + 1);
+      const auto outer_idx = CoolDiff::Common::Range<size_t>(row_start, row_end + 1);
+      const auto inner_idx = CoolDiff::Common::Range<size_t>(col_start, col_end + 1);
       std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(),
         [this, &col_start, &row_start, &inner_idx, result](const size_t i) {
           std::for_each(EXECUTION_PAR inner_idx.begin(), inner_idx.end(),
@@ -252,8 +263,8 @@ public:
     ASSERT((col_end - col_start + 1 == result->getNumColumns()), "Column mismatch for insertion matrix");
 
     // Special matrix embedding
-    const auto outer_idx = Range<size_t>(row_start, row_end + 1);
-    const auto inner_idx = Range<size_t>(col_start, col_end + 1);
+    const auto outer_idx = CoolDiff::Common::Range<size_t>(row_start, row_end + 1);
+    const auto inner_idx = CoolDiff::Common::Range<size_t>(col_start, col_end + 1);
 
     // TODO Special matrix embedding
     if (MatrixSpl::ZEROS == result->getMatType()) {
@@ -286,10 +297,13 @@ public:
 
   // Get a row for matrix using move semantics
   Matrix getRow(const size_t) &&;
+ 
   // Get a row for matrix using copy semantics
   Matrix getRow(const size_t) const &;
+ 
   // Get a column for matrix using move semantics
   Matrix getColumn(const size_t) &&;
+ 
   // Get a column for matrix using copy semantics
   Matrix getColumn(const size_t) const &;
 
@@ -298,26 +312,25 @@ public:
 
   // Get final number of rows (for multi-layered expression)
   size_t getFinalNumRows() const;
+  
   // Get final number of columns (for multi-layered expression)
   size_t getFinalNumColumns() const;
+
   // Get total final number of elements (for multi-layered expression)
   size_t getFinalNumElem() const;
 
   // Get type of matrix
   MatrixSpl getMatType() const;
 
-  // Find me
-  bool findMe(void*) const;
-  // Reset impl
-  void resetImpl();
-
   // Get number of rows
   V_OVERRIDE(size_t getNumRows() const);
+  
   // Get number of columns
   V_OVERRIDE(size_t getNumColumns() const);
 
   // Evaluate matrix
   V_OVERRIDE(Matrix<Type>* eval());
+
   // Derivative matrix
   V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable>&));
 
@@ -332,6 +345,12 @@ public:
 
   // Get type
   V_OVERRIDE(std::string_view getType() const);
+  
+  // Find me (Expression finder)
+  bool findMe(void*) const;
+
+  // Reset impl (Expression resetter)
+  void resetImpl();
 
   // To output stream
   template <typename Z>
@@ -351,7 +370,7 @@ namespace CoolDiff {
   namespace TensorR2 {
     namespace Details {
       template <typename T>
-      void DevalR(T &exp, const Matrix<Variable> &X, Matrix<Type> *&result) {
+      void DevalR(T& exp, const Matrix<Variable>& X, Matrix<Type>*& result) {
         const size_t nrows_x = X.getNumRows();
         const size_t ncols_x = X.getNumColumns();
 
@@ -378,6 +397,7 @@ namespace CoolDiff {
                         [&exp2](const auto &v) { return CoolDiff::TensorR1::DevalR(exp2, v); });
         }
       }
+      Type ScalarSpl(const Matrix<Type>*); 
     }
   }
 }

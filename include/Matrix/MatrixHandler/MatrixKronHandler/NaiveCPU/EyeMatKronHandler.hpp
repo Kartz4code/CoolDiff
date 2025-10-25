@@ -67,7 +67,7 @@ class EyeMatKronHandler : public T {
                 T::handle(lhs, rhs, result);
               }
             } else {
-              result = const_cast<Matrix<Type> *>(it);
+              result = const_cast<Matrix<Type>*>(it);
             }
             return;
           }

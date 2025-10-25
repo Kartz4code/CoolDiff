@@ -60,9 +60,9 @@ public:
   OMMatPair m_cache;
 
   // Constructor
-  constexpr GenericMatInv(T* u, Callables&&... call) : mp_right{u}, 
-                                                       m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                       m_nidx{this->m_idx_count++} {
+  constexpr GenericMatInv(T* u, Callables&&... call) :  mp_right{u}, 
+                                                        m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                        m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
@@ -108,7 +108,7 @@ public:
   }
 
   // Matrix devalF computation
-  V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable> &X)) {
+  V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable>& X)) {
     // Check whether dimensions are correct
     ASSERT(verifyDim(), "Matrix is not a square matrix to compute inverse");
 
@@ -174,7 +174,7 @@ public:
       MATRIX_MUL(mp_arr[8], mp_arr[8], mp_arr[9]);
       MATRIX_SCALAR_MUL(-1,  mp_arr[9],  mp_arr[10]);
 
-      const auto mp_arr10_val = (*mp_arr[10])(0,0);
+      const auto mp_arr10_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[10]);
 
       if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
         MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[10], (*cache)[mp_right->m_nidx]); 
@@ -222,7 +222,7 @@ public:
         MATRIX_MUL(mp_arr[13], mp_arr[12], mp_arr[14]);
         MATRIX_SCALAR_MUL(-1,  mp_arr[14],  mp_arr[15]);
       
-        const auto mp_arr15_val = (*mp_arr[15])(0,0);
+        const auto mp_arr15_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[15]);
 
         if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
           MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[15], (*cache)[mp_right->m_nidx]); 

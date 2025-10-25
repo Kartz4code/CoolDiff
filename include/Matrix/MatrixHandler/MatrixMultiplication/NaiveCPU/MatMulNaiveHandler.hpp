@@ -39,6 +39,8 @@ class MatMulNaiveHandler : public T {
 
             // Pool matrix
             MemoryManager::MatrixPool(lrows, rcols, result);
+            ASSERT(lhs->m_nidx != result->m_nidx, "Matrix multiplication result matrix and lhs matrix are the same");
+            ASSERT(rhs->m_nidx != result->m_nidx, "Matrix multiplication result matrix and lhs matrix are the same");
 
             // Transpose of rhs
             #if defined(MATRIX_TRANSPOSED_MUL)
@@ -47,8 +49,8 @@ class MatMulNaiveHandler : public T {
             #endif
 
             // Indices for outer loop and inner loop
-            const auto outer_idx = Range<size_t>(0, lrows * rcols);
-            const auto inner_idx = Range<size_t>(0, rrows);
+            const auto outer_idx = CoolDiff::Common::Range<size_t>(0, lrows * rcols);
+            const auto inner_idx = CoolDiff::Common::Range<size_t>(0, rrows);
 
             // Naive matrix-matrix multiplication
             std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(), [&](const size_t n) {

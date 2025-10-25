@@ -50,9 +50,9 @@ public:
   OMMatPair m_cache;
 
   // Constructor
-  constexpr GenericMatTranspose(T* u, Callables&&... call) : mp_right{u}, 
-                                                             m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                             m_nidx{this->m_idx_count++} {
+  constexpr GenericMatTranspose(T* u, Callables&&... call) :  mp_right{u}, 
+                                                              m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                              m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
@@ -185,7 +185,7 @@ public:
         // Matrix transpose
         MATRIX_TRANSPOSE(cCache, mp_arr[4]);
 
-        const auto mp_arr4_val = (*mp_arr[4])(0,0);
+        const auto mp_arr4_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[4]);
 
         if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
           MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[4], (*cache)[mp_right->m_nidx]); 

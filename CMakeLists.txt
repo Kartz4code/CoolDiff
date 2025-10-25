@@ -75,12 +75,13 @@ option(ENABLE_CMAKE_FORMAT "Enable cmake formatter" OFF) # Default - OFF
 option(ENABLE_CLANG_FORMAT "Enable clang format" OFF) # Default - OFF
 option(ENABLE_COMPILER_WARNINGS "Enable compiler warnings" OFF) # Default - OFF
 option(ENABLE_COMPLEX_MATH "Enable complex numbers for numerics" ON) # Default - ON
-option(ENABLE_ROBIN_HOOD_MAP "Enable robin hood hashmaps" OFF) # Default - ON
+option(ENABLE_ROBIN_HOOD_MAP "Enable robin hood hashmaps" ON) # Default - ON
 # TODO - Implementation of manual dynamic dispatch for performance
 option(ENABLE_VIRTUAL_FUNCTIONS "Enable virtual functions" ON) # Default - ON
 option(ENABLE_DYNAMIC_ASSERTIONS "Enable dynamic assertions" ON) # Default - OFF
 option(ENABLE_STL_PARALLEL_EXECUTION "Enable STL libraries parallel execution feature" OFF) # Default - OFF
-option(ENABLE_SYMBOLIC_CHECK "Enable symbolic checks" ON) # Default - ON
+# TODO - Symbolic check and memory pool issue for special matrices
+option(ENABLE_SYMBOLIC_CHECK "Enable symbolic checks" OFF) # Default - ON
 # TODO - Verification of numerical checks
 option(ENABLE_NUMERICAL_CHECK "Enable numerical checks" OFF) # Default - OFF
 set(DEFAULT_MATH_TYPE 2 CACHE STRING "Value that defined the default math type: Float  - 1, Double - 2") # Default - 2
@@ -391,36 +392,37 @@ endif()
 ########################################################################################################################
 ########################################################################################################################
 
-include(GNUInstallDirs)
+if(NOT MSVC)
+    include(GNUInstallDirs)
 
-install(TARGETS ${PROJECT_NAME}
-        EXPORT "${PROJECT_NAME}Targets"
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
+    install(TARGETS ${PROJECT_NAME}
+            EXPORT "${PROJECT_NAME}Targets"
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
 
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include 
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/include 
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
 
-include(CMakePackageConfigHelpers)
-configure_package_config_file(  "${CMAKE_SOURCE_DIR}/config/${PROJECT_NAME}Config.cmake.in" 
-                                "${CMAKE_BINARY_DIR}/${PROJECT_NAME}Config.cmake"    
-                                INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}" )
+    include(CMakePackageConfigHelpers)
+    configure_package_config_file(  "${CMAKE_SOURCE_DIR}/config/${PROJECT_NAME}Config.cmake.in" 
+                                    "${CMAKE_BINARY_DIR}/${PROJECT_NAME}Config.cmake"    
+                                    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}" )
 
-write_basic_package_version_file(   "${PROJECT_NAME}ConfigVersion.cmake"
-                                    VERSION ${PROJECT_VERSION}
-                                    COMPATIBILITY SameMajorVersion  )
+    write_basic_package_version_file(   "${PROJECT_NAME}ConfigVersion.cmake"
+                                        VERSION ${PROJECT_VERSION}
+                                        COMPATIBILITY SameMajorVersion  )
 
-install(FILES   "${CMAKE_BINARY_DIR}/${PROJECT_NAME}Config.cmake" 
-                "${CMAKE_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}" )
-
-install(    EXPORT "${PROJECT_NAME}Targets"
-            FILE "${PROJECT_NAME}Targets.cmake"
-            NAMESPACE "${PROJECT_NAME}::"
+    install(FILES   "${CMAKE_BINARY_DIR}/${PROJECT_NAME}Config.cmake" 
+                    "${CMAKE_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
             DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}" )
 
+    install(    EXPORT "${PROJECT_NAME}Targets"
+                FILE "${PROJECT_NAME}Targets.cmake"
+                NAMESPACE "${PROJECT_NAME}::"
+                DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}" )
+endif()
 
 ########################################################################################################################
 ########################################################################################################################

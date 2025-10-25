@@ -28,7 +28,7 @@ const size_t MemoryManager::size() {
 
 Matrix<Type>* MemoryManager::MatrixSplPool(const size_t rows, const size_t cols, const MatrixSpl& ms) {
   // Function to check for free matrices
-  const auto functor = [rows, cols, ms](const auto &m) {
+  const auto functor = [rows, cols, ms](const auto& m) {
     if (nullptr != m) {
       return ((m->getNumRows() == rows) && (m->getNumColumns() == cols) && (m->getMatType() == ms));
     } else {

@@ -60,9 +60,9 @@ public:
   OMMatPair m_cache;
 
   // Constructor
-  constexpr GenericMatTrace(T* u, Callables&&... call) : mp_right{u}, 
-                                                         m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                         m_nidx{this->m_idx_count++} {
+  constexpr GenericMatTrace(T* u, Callables&&... call) :  mp_right{u}, 
+                                                          m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                          m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
@@ -116,7 +116,7 @@ public:
   }
 
   // Matrix devalF computation
-  V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable> &X)) {
+  V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable>& X)) {
     // Check whether dimensions are correct
     ASSERT(verifyDim(), "Matrix is not a square matrix to compute trace");
 
@@ -209,7 +209,7 @@ public:
       if(auto it = cache->find(m_nidx); it != cache->end()) {
         // Cache
         const auto cCache = it->second;
-        const auto cCache_val = (*cCache)(0,0);
+        const auto cCache_val = CoolDiff::TensorR2::Details::ScalarSpl(cCache);
         
         // Traverse right node
         if (false == mp_right->m_visited) {
@@ -223,7 +223,7 @@ public:
         // Cache multiplication
         MATRIX_SCALAR_MUL(cCache_val, eye_n, mp_arr[11]);
 
-        const auto mp_arr11_val = (*mp_arr[11])(0,0);
+        const auto mp_arr11_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[11]);
 
         if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
           MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[11], (*cache)[mp_right->m_nidx]); 

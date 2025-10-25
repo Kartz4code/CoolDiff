@@ -60,9 +60,9 @@ public:
   OMMatPair m_cache;
 
   // Constructor
-  constexpr GenericMatDet(T* u, Callables&&... call) : mp_right{u}, 
-                                                       m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                       m_nidx{this->m_idx_count++} {
+  constexpr GenericMatDet(T* u, Callables&&... call) :  mp_right{u}, 
+                                                        m_caller{std::make_tuple(std::forward<Callables>(call)...)},
+                                                        m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
@@ -190,7 +190,7 @@ public:
       // Matrix determinant
       MATRIX_DET(right_mat, mp_arr[13]);
       
-      const auto mp_arr13_val = (*mp_arr[13])(0,0); 
+      const auto mp_arr13_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[13]); 
       
       // Scalar multiplication
       MATRIX_SCALAR_MUL(mp_arr13_val, mp_arr[12], mp_arr[14]);
@@ -225,7 +225,7 @@ public:
       if(auto it = cache->find(m_nidx); it != cache->end()) {
         // Cache
         const auto cCache = it->second;
-        const auto cCache_val = (*cCache)(0,0);
+        const auto cCache_val = CoolDiff::TensorR2::Details::ScalarSpl(cCache);
 
         // Traverse right node
         if (false == mp_right->m_visited) {
@@ -242,14 +242,14 @@ public:
         MATRIX_TRANSPOSE(mp_arr[15], mp_arr[16]);
         // Matrix determinant
         MATRIX_DET(right_mat, mp_arr[17]);
-        const auto mp_arr17_val = (*mp_arr[17])(0,0); 
+        const auto mp_arr17_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[17]); 
 
         // Scalar multiplication
         MATRIX_SCALAR_MUL(mp_arr17_val, mp_arr[16], mp_arr[18]);
         
         // Cache multiplication
         MATRIX_SCALAR_MUL(cCache_val, mp_arr[18], mp_arr[19]);
-        const auto mp_arr19_val = (*mp_arr[19])(0,0);
+        const auto mp_arr19_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[19]);
 
         if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
           MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[19], (*cache)[mp_right->m_nidx]); 

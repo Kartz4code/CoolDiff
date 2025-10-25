@@ -27,7 +27,7 @@
 std::random_device rd;
 std::mt19937 gen(rd()); // Mersenne Twister engine
 // Define the range for your floating point numbers
-std::uniform_real_distribution<> dis(-0.01, +0.01); // Range: [1.0, 10.0)
+std::uniform_real_distribution<> dis(0, +0.088); // Range: [1.0, 10.0)
 
 
 // Count number of rows
@@ -101,68 +101,6 @@ Pair<Matrix<Type>*, Matrix<Type>*> LoadData() {
   }
 
   return {X, Y};
-}
-
-void RModeDerv() {
-  Matrix<Type> X(2,2);
-  X(0,0) = 4;  X(0,1) = 3; 
-  X(1,0) = 2;  X(1,1) = 1;
-
-  Matrix<Type> W1(2,1);
-  Matrix<Type> W2(2,1);
-
-  // Set W1
-  for(int i{}; i < 2; i++) {
-    for(int j{}; j < 1; j++) {
-      W1(i,j) = i+j+1;
-    }
-  }
-  // Set W2
-  for(int i{}; i < 2; i++) {
-    for(int j{}; j < 1; j++) {
-      W2(i,j) = i+2*j+2;
-    }
-  }
-
-  Variable z1{-2.3};
-
-  Expression p1 = z1*z1;
-  p1 = sin(p1)*z1;
-  
-  //auto p1 = sin(z1*z1)*z1;
-
-  auto doubler = X*X;
-  auto smax = SoftMax(doubler);
-  Matrix<Expression> l3 = p1*trace(SinM((transpose(X)^X)*inv(X/(p1*p1))*smax + 6.2*X)*X);
-
-  Matrix<Expression> res = (-1.25*CosM(p1*l3)) + p1;
-
-  res = res*CosM(res*z1*res) + 2.24*res + trace(X)*det(X) + p1*p1;
-  res = res*p1 + det(X)*z1 + trace(X) + l3*MatrixFrobeniusNorm(doubler*X) + SinM(res - res*res);
-  res = res + res + Sigma(doubler);
-
-  // Testing function
-  auto tester = res*trace(doubler)*res;
-
-  CoolDiff::TensorR2::PreComp(res); 
-  auto& DX1 = CoolDiff::TensorR2::DevalR(res, X);
-  auto& P1 = CoolDiff::TensorR2::DevalR(res, z1);
-
-  std::cout << CoolDiff::TensorR2::Eval(P1) << "\n";
-  std::cout << CoolDiff::TensorR2::Eval(DX1) << "\n";
-  std::cout << CoolDiff::TensorR2::Eval(tester) << "\n";
-
-  X[0] = 1;  X[1] = 2; 
-  X[2] = 3;  X[3] = 5;
-  z1 = 1.2;
-
-  CoolDiff::TensorR2::PreComp(res); 
-  auto& DX2 = CoolDiff::TensorR2::DevalR(res, X);
-  auto& P2 = CoolDiff::TensorR2::DevalR(res, z1);
-
-  std::cout << CoolDiff::TensorR2::Eval(P2) << "\n";
-  std::cout << CoolDiff::TensorR2::Eval(DX2) << "\n";
-  std::cout << CoolDiff::TensorR2::Eval(tester) << "\n";
 }
 
 // 2D data matching
@@ -249,7 +187,6 @@ void FillRandomWeights(MatType& M) {
   }
 }
 
-
 void GDOptimizer(Matrix<Type>& X, Matrix<Type>& dX, const Type& alpha) {
     Matrix<Type>* dX_ptr = &dX;
     Matrix<Type>* X_ptr = &X;
@@ -258,12 +195,33 @@ void GDOptimizer(Matrix<Type>& X, Matrix<Type>& dX, const Type& alpha) {
     CoolDiff::TensorR2::MatOperators::MatrixAdd(&X, dX_ptr, X_ptr);
 }
 
+auto NetworkPred( Matrix<Type>& W1, Matrix<Type>& W2, Matrix<Type>& W3, Matrix<Type>& W4,
+                  Matrix<Type>& b1, Matrix<Type>& b2, Matrix<Type>& b3, Matrix<Type>& b4,
+                  Matrix<Type>& O,  Matrix<Type>& X ) {
+
+  auto Layer1 = TanhM(W1*X + b1);
+  auto Layer2 = TanhM(W2*Layer1 + b2);
+  auto Layer3 = TanhM(W3*Layer2 + b3);
+  auto Layer4 = TanhM(W4*Layer3 + b4);
+  auto Yhat = TanhM(O*Layer4);
+
+  return Yhat;
+}
+
+auto NetworkErr(  Matrix<Type>& W1, Matrix<Type>& W2, Matrix<Type>& W3, Matrix<Type>& W4,
+                  Matrix<Type>& b1, Matrix<Type>& b2, Matrix<Type>& b3, Matrix<Type>& b4,
+                  Matrix<Type>& O,  Matrix<Type>& X, Type Y ) {
+  auto Yhat = NetworkPred(W1, W2, W3, W4, b1, b2, b3, b4, O, X);
+  auto error = (Yhat-Y)*100*(Yhat-Y);
+  return error;
+}
+
 #ifndef USE_COMPLEX_MATH
 void NN() {
   constexpr const int N = 256;
 
   Matrix<Type> X(N, 1);
-  FillRandomWeights(X);
+  X(0,0) = 2;
 
   Matrix<Type> W1(N, N), W2(2*N, N), W3(N, 2*N), W4(N, N);
   Matrix<Type> b1(N, 1), b2(2*N, 1), b3(N, 1), b4(N, 1);
@@ -274,23 +232,10 @@ void NN() {
   FillRandomWeights(b1); FillRandomWeights(b2); FillRandomWeights(b3); FillRandomWeights(b4);
   FillRandomWeights(O);
 
-  Matrix<Type>* W1_ptr = &W1; Matrix<Type>* b1_ptr = &b1;
-  Matrix<Type>* W2_ptr = &W2; Matrix<Type>* b2_ptr = &b2;
-  Matrix<Type>* W3_ptr = &W3; Matrix<Type>* b3_ptr = &b3;
-  Matrix<Type>* W4_ptr = &W4; Matrix<Type>* b4_ptr = &b4;
+  Matrix<Expression> Error = NetworkErr(W1, W2, W3, W4, b1, b2, b3, b4, O, X, 10);
 
-  Matrix<Type>* O_ptr = &O;
-
-  auto Layer1 = LeakyReLUM(W1*X + b1);
-  auto Layer2 = LeakyReLUM(W2*Layer1 + b2);
-  auto Layer3 = LeakyReLUM(W3*Layer2 + b3);
-  auto Layer4 = LeakyReLUM(W4*Layer3 + b4);
-
-  auto Yhat = LeakyReLUM(O*Layer4);
-  Matrix<Expression> Error = (Yhat-10)*(Yhat-10);
-
-  Type alpha = -0.01, beta = 0.1;
-  for(int i{}; i < 30; ++i) {
+  Type alpha = -0.00001;
+  for(int i{}; i < 100; ++i) {
     std::cout << "[ERROR]: " << CoolDiff::TensorR2::Eval(Error) << "\n";
     CoolDiff::TensorR2::PreComp(Error);
 
@@ -319,6 +264,7 @@ void NN() {
     GDOptimizer(O, dO, alpha);
   }
 
+  auto Yhat = NetworkPred(W1, W2, W3, W4, b1, b2, b3, b4, O, X);
   std::cout << CoolDiff::TensorR2::Eval(Yhat) << "\n";
 
 }
@@ -331,7 +277,5 @@ int main(int argc, char **argv) {
   #endif
   GNMatrix();
   NonLinearSolve();
-  RModeDerv();
-  //RModeDerv();
   return 0;
 }

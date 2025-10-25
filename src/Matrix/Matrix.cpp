@@ -26,10 +26,10 @@ Matrix<Type>* DervMatrix( const size_t frows, const size_t fcols,
                           const size_t xrows, const size_t xcols  ) {
   const size_t drows = frows * xrows;
   const size_t dcols = fcols * xcols;
-  Matrix<Type> *dresult = Matrix<Type>::MatrixFactory::CreateMatrixPtr(drows, dcols);
+  Matrix<Type>* dresult = Matrix<Type>::MatrixFactory::CreateMatrixPtr(drows, dcols);
 
   // Vector of indices in X matrix
-  const auto idx = Range<size_t>(0, xrows * xcols);
+  const auto idx = CoolDiff::Common::Range<size_t>(0, xrows * xcols);
   // Logic for Kronecker product (With ones)
   std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t n) {
     const size_t j = n % xcols;
@@ -39,4 +39,22 @@ Matrix<Type>* DervMatrix( const size_t frows, const size_t fcols,
   });
 
   return dresult;
+}
+
+namespace CoolDiff {
+  namespace TensorR2 {
+    namespace Details {
+        Type ScalarSpl(const Matrix<Type>* mat) {
+        if(mat->m_type == MatrixSpl::ZEROS){
+          return (Type)0;
+        } else if(mat->m_type == MatrixSpl::EYE) {
+          return (Type)1;
+        } else if(mat->m_type == MatrixSpl::ONES) {
+          return (Type)1;
+        } else {
+          return (*mat)(0,0);
+        }
+      } 
+    }
+  }
 }

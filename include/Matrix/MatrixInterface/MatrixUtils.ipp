@@ -46,8 +46,8 @@ void Matrix<T>::setDevalF(const Matrix<Variable>& X) {
             const size_t xcols = X.getNumColumns();
 
             // Vector of indices in current matrix
-            const auto outer_idx = Range<size_t>(0, getNumElem());
-            const auto inner_idx = Range<size_t>(0, (xrows * xcols));
+            const auto outer_idx = CoolDiff::Common::Range<size_t>(0, getNumElem());
+            const auto inner_idx = CoolDiff::Common::Range<size_t>(0, (xrows * xcols));
 
             // Logic for Kronecker product (Reverse mode differentiation)
             std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(),
@@ -73,7 +73,7 @@ void Matrix<T>::setDevalF(const Matrix<Variable>& X) {
             const size_t xcols = X.getNumColumns();
 
             // Vector of indices in X matrix
-            const auto idx = Range<size_t>(0, X.getNumElem());
+            const auto idx = CoolDiff::Common::Range<size_t>(0, X.getNumElem());
             // Logic for Kronecker product (With ones)
             std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
                     [this, xrows, xcols](const size_t n) {
@@ -90,8 +90,8 @@ void Matrix<T>::setDevalF(const Matrix<Variable>& X) {
             const size_t xcols = X.getNumColumns();
 
             // Vector of indices in current matrix
-            const auto outer_idx = Range<size_t>(0, getNumElem());
-            const auto inner_idx = Range<size_t>(0, xrows * xcols);
+            const auto outer_idx = CoolDiff::Common::Range<size_t>(0, getNumElem());
+            const auto inner_idx = CoolDiff::Common::Range<size_t>(0, xrows * xcols);
 
             // Logic for Kronecker product (Forward mode differentiation)
             std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(),

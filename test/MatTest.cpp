@@ -24,6 +24,80 @@
 
 #if defined(USE_COMPLEX_MATH)
 
+// Matrix traverse test
+TEST(MatTest, Test16) {
+  double epi = 0.1;
+
+  // Result set 1
+  Type Eval1_res1[1][1] = {-91346.07499};
+  Type Eval2_res1[1][1] = {576179981.3};
+  Type DX_res1[2][2] = {{(Type)-12766.18429, (Type)23236.75178}, 
+                        {(Type)28279.11054, (Type)-33275.91852}};
+
+
+  // Result set 2
+  Type Eval1_res2[1][1] = {-146287.2382};
+  Type Eval2_res2[1][1] = {12755556.36};
+  Type DX_res2[2][2] = {{(Type)-425826.1477, (Type)247697.5539}, 
+                        {(Type)147641.1972, (Type)-87382.24699}};
+
+    // Verification eval function
+  auto verify_matrix_equality = [epi](auto X, auto Xres) {
+    for (size_t i{}; i < X.getNumRows(); ++i) {
+      for (size_t j{}; j < X.getNumColumns(); ++j) {
+        if (std::abs(X(i, j) - Xres[i][j]) >= epi) {
+          return false;
+        }
+      }
+    }
+    return true;
+  };
+
+  Matrix<Type> X(2,2);
+  X(0,0) = 4;  X(0,1) = 3; 
+  X(1,0) = 2;  X(1,1) = 1;
+
+  Variable z1{-2.3};
+  Expression p1 = z1*z1;
+  p1 = sin(p1)*z1;
+
+  auto doubler = X*X;
+  auto smax = SoftMax(doubler);
+  Matrix<Expression> l3 = p1*trace(SinM((transpose(X)^X)*inv(X/(p1*p1))*smax + 6.2*X)*X);
+
+  Matrix<Expression> res = (-1.25*CosM(p1*l3)) + p1;
+
+  res = res*CosM(res*z1*res) + 2.24*res + trace(X)*det(X) + p1*p1;
+  res = res*p1 + det(X)*z1 + trace(X) + l3*MatrixFrobeniusNorm(doubler*X) + SinM(res - res*res);
+  res = res + res + Sigma(doubler);
+
+  // Testing function
+  auto tester = res*trace(doubler)*res;
+
+  CoolDiff::TensorR2::PreComp(res); 
+  auto& DX1 = CoolDiff::TensorR2::DevalR(res, X);
+  auto& P1 = CoolDiff::TensorR2::DevalR(res, z1);
+  auto& T1 = CoolDiff::TensorR2::Eval(tester);
+
+  ASSERT_TRUE(verify_matrix_equality(DX1, DX_res1));
+  ASSERT_TRUE(verify_matrix_equality(P1, Eval1_res1));
+  ASSERT_TRUE(verify_matrix_equality(T1, Eval2_res1));
+
+  X[0] = 1;  X[1] = 2; 
+  X[2] = 3;  X[3] = 5;
+  z1 = 1.2;
+
+  CoolDiff::TensorR2::PreComp(res); 
+  auto& DX2 = CoolDiff::TensorR2::DevalR(res, X);
+  auto& P2 = CoolDiff::TensorR2::DevalR(res, z1);
+  auto& T2 = CoolDiff::TensorR2::Eval(tester);
+
+  ASSERT_TRUE(verify_matrix_equality(DX2, DX_res2));
+  ASSERT_TRUE(verify_matrix_equality(P2, Eval1_res2));
+  ASSERT_TRUE(verify_matrix_equality(T2, Eval2_res2));
+}
+
+
 // Matrix derivative order test #4
 TEST(MatTest, Test15) {
   double epi = 0.001;
@@ -1035,10 +1109,10 @@ TEST(MatTest, Test1) {
 #endif
 
 int main(int argc, char **argv) {
-#if defined(USE_COMPLEX_MATH)
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-#else
-  return RUN_ALL_TESTS();
-#endif
+  #if defined(USE_COMPLEX_MATH)
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+  #else 
+    std::cout << "MatTest.cpp works only when USE_COMPLEX_MATH flag is ON\n";
+  #endif
 }

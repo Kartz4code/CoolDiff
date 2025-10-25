@@ -20,34 +20,34 @@
  */
 
 
- #pragma once
+#pragma once
 
- #include "MatrixStaticHandler.hpp"
- 
- #include "Matrix.hpp"
- #include "MatrixZeroOps.hpp"
+#include "MatrixStaticHandler.hpp"
+
+#include "Matrix.hpp"
+#include "MatrixZeroOps.hpp"
 
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class ZeroMatKronHandler : public T {
-  public:
-    void handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
-      #if defined(USE_SYMBOLIC_CHECK)
-        /* Zero matrix special check */
-        if (auto *it = ZeroMatKron(lhs, rhs); nullptr != it) {
+public:
+  void handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
+    #if defined(USE_SYMBOLIC_CHECK)
+      /* Zero matrix special check */
+      if (auto *it = ZeroMatKron(lhs, rhs); nullptr != it) {
+        result = const_cast<Matrix<Type> *>(it);
+        return;
+      }
+
+      /* Zero matrix numerical check */
+      #if defined(USE_NUMERICAL_CHECK)
+        else if (auto *it = ZeroMatKronNum(lhs, rhs); nullptr != it) {
           result = const_cast<Matrix<Type> *>(it);
           return;
         }
-
-        /* Zero matrix numerical check */
-        #if defined(USE_NUMERICAL_CHECK)
-          else if (auto *it = ZeroMatKronNum(lhs, rhs); nullptr != it) {
-            result = const_cast<Matrix<Type> *>(it);
-            return;
-          }
-        #endif
       #endif
+    #endif
 
-        // Chain of responsibility
-      T::handle(lhs, rhs, result);
-    }
+      // Chain of responsibility
+    T::handle(lhs, rhs, result);
+  }
 };

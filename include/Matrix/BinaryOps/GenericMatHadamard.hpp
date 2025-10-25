@@ -189,8 +189,8 @@ public:
       MATRIX_SCALAR_MUL(1, left_mat, mp_arr[7]); 
       MATRIX_SCALAR_MUL(1, right_mat, mp_arr[6]); 
 
-      const auto mp_arr6_val = (*mp_arr[6])(0,0);
-      const auto mp_arr7_val = (*mp_arr[7])(0,0);
+      const auto mp_arr6_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[6]);
+      const auto mp_arr7_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[7]);
 
       if(auto it2 = cache->find(mp_left->m_nidx); it2 != cache->end()) {
         MATRIX_ADD((*cache)[mp_left->m_nidx], mp_arr[6], (*cache)[mp_left->m_nidx]); 
@@ -268,8 +268,8 @@ public:
         MATRIX_HADAMARD(cCache, mp_arr[8], mp_arr[10]);
         MATRIX_HADAMARD(mp_arr[9], cCache, mp_arr[11]);
         
-        const auto mp_arr10_val = (*mp_arr[10])(0,0);
-        const auto mp_arr11_val = (*mp_arr[11])(0,0);
+        const auto mp_arr10_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[10]);
+        const auto mp_arr11_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[11]);
 
         if(auto it2 = cache->find(mp_left->m_nidx); it2 != cache->end()) {
           MATRIX_ADD((*cache)[mp_left->m_nidx], mp_arr[10], (*cache)[mp_left->m_nidx]); 

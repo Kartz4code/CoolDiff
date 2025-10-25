@@ -34,7 +34,7 @@
         // Pool matrix
         MemoryManager::MatrixPool(ncols, nrows, result);
 
-        const auto idx = Range<size_t>(0, nrows * ncols);
+        const auto idx = CoolDiff::Common::Range<size_t>(0, nrows * ncols);
         std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t n) {
           // Row and column index
           const size_t j = (n % ncols);

@@ -37,14 +37,21 @@ namespace CoolDiff {
   }
 }
 
-long long int MetaMatrix::incFunc(const size_t scale) {
-  if(const auto size = (long long)m_cloned.size(); (long long)m_clone_counter >= (size-1)) {
+// Default constructor
+MetaMatrix::MetaMatrix() {
+  m_cloned.resize(m_init_size); 
+  std::fill_n(EXECUTION_PAR m_cloned.begin(), m_init_size, nullptr);
+}
+
+MetaMatrix::LL_t MetaMatrix::incFunc(const size_t scale) {
+  if(const auto size = (LL_t)m_cloned.size(); (LL_t)m_clone_counter >= (size-1)) {
       m_cloned.resize(scale*size);
   }
   m_clone_counter += 1;
   return m_clone_counter;
 }
 
+// Clear clone counter
 void MetaMatrix::clearClone() {
   m_clone_counter = -1;
 }

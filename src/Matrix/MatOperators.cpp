@@ -323,14 +323,14 @@ namespace CoolDiff {
           */
 
             #if NAIVE_HANDLER
-              static HANDLER3(MatTransposeNaiveHandler, 
+              static HANDLER3(EyeMatTransposeHandler,
                               ZeroMatTransposeHandler,
-                              EyeMatTransposeHandler) handler;
+                              MatTransposeNaiveHandler) handler;
             #endif
 
-            static HANDLER3(MatTransposeEigenHandler, 
+            static HANDLER3(EyeMatTransposeHandler,
                             ZeroMatTransposeHandler,
-                            EyeMatTransposeHandler) handler;
+                            MatTransposeEigenHandler) handler;
               
 
             // Handle Matrix transpose
@@ -349,9 +349,9 @@ namespace CoolDiff {
                 2) Zero matrix check
                 3) Matrix transpose
             */
-            static HANDLER3(MatDervTransposeNaiveHandler, 
+            static HANDLER3(EyeMatDervTransposeHandler,
                             ZeroMatDervTransposeHandler,
-                            EyeMatDervTransposeHandler) handler;
+                            MatDervTransposeNaiveHandler) handler;
 
             // Handle Matrix transpose
             handler.handle(nrows_f, ncols_f, nrows_x, ncols_x, mat, result);

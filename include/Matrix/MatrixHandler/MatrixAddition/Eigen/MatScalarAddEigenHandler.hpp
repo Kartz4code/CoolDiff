@@ -25,7 +25,7 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatScalarAddEigenHandler : public T {
     public:
-        void handle(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
+        void handle(Type lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
             /* Matrix-Scalar numerical addition */
             
             // Dimensions of RHS matrices

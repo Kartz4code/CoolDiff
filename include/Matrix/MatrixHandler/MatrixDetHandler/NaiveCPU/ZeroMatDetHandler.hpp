@@ -19,16 +19,16 @@
  * associated repository.
  */
 
- #pragma once
+#pragma once
 
- #include "MatrixStaticHandler.hpp"
- 
- #include "Matrix.hpp"
+#include "MatrixStaticHandler.hpp"
+
+#include "Matrix.hpp"
 #include "MatrixZeroOps.hpp"
 
- template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
- class ZeroMatDetHandler : public T {
-   public:
+template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
+class ZeroMatDetHandler : public T {
+  public:
     void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
       const size_t nrows{mat->getNumRows()};
       const size_t ncols{mat->getNumColumns()};
@@ -46,4 +46,4 @@
         // Chain of responsibility
         T::handle(mat, result);
       }
- };
+};
