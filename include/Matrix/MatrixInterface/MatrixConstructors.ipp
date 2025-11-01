@@ -171,6 +171,13 @@ Matrix<T>::Matrix(Matrix&& m) noexcept :  m_rows{std::exchange(m.m_rows, -1)},
 {}
 
 
+// Copy data from another matrix (Just copy all contents from one matrix to another)
+template<typename T>
+void Matrix<T>::copyData(const Matrix<T>& M) {
+  ASSERT((m_rows == M.m_rows) && (m_cols == M.m_cols), "Matrix dimensions mismatch");
+  std::copy(EXECUTION_PAR M.mp_mat, M.mp_mat + getNumElem(), mp_mat);
+}
+
 // Move assignment operator
 template<typename T>
 Matrix<T>& Matrix<T>::operator=(Matrix&& m) noexcept {

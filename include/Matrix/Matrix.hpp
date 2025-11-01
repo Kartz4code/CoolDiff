@@ -288,6 +288,9 @@ public:
     }
   }
 
+  // Copy data from another matrix (Just copy all contents from one matrix to another)
+  void copyData(const Matrix<T>&);
+
   // Add zero padding
   void pad(const size_t r, const size_t c, Matrix*& result) const {
     // Special matrix embedding
@@ -297,13 +300,13 @@ public:
 
   // Get a row for matrix using move semantics
   Matrix getRow(const size_t) &&;
- 
+
   // Get a row for matrix using copy semantics
   Matrix getRow(const size_t) const &;
- 
+
   // Get a column for matrix using move semantics
   Matrix getColumn(const size_t) &&;
- 
+
   // Get a column for matrix using copy semantics
   Matrix getColumn(const size_t) const &;
 

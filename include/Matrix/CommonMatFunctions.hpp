@@ -348,7 +348,7 @@ constexpr const auto& MatrixFrobeniusNorm(const IMatrix<T>& X) {
 }
 
 // Matrix vertical concatenation
-template<ConcatAxis axis, typename T1, typename T2>
+template<ConcatAxis axis = ConcatAxis::VERTICAL, typename T1, typename T2>
 constexpr const auto& concat(const IMatrix<T1>& X, const IMatrix<T2>& Y) {
   const size_t x_rows = X.getNumRows();
   const size_t x_cols = X.getNumColumns(); 

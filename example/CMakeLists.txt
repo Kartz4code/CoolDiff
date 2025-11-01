@@ -90,4 +90,34 @@ if(${BUILD_EXAMPLES})
 
     # [Set link options]
     target_link_options(GaussNewton PRIVATE ${HOOK_ADDRESS_SANITIZER})
+
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
+                                    # [Neural network example]
+########################################################################################################################
+########################################################################################################################
+######################################################################################################################## 
+
+    # [Add executable (target testing)]
+    set(SOURCES ${CMAKE_SOURCE_DIR}/example/NeuralNet/src/Layer.cpp)
+
+    add_executable(NeuralNet ${CMAKE_SOURCE_DIR}/example/NeuralNet/main.cpp ${SOURCES})
+
+    # [Set target include directories]
+    target_include_directories(NeuralNet PUBLIC ${PUBLIC_INCLUDES} 
+                                                ${CMAKE_SOURCE_DIR}/example/NeuralNet/include)
+
+    # [Link target libraries]
+    target_link_libraries(NeuralNet PRIVATE CoolDiff)
+
+    # [Set compile options]
+    if(${ENABLE_COMPILER_WARNINGS})
+        target_compile_options(NeuralNet PRIVATE ${COMPILE_WARNING_FLAGS})
+    endif()
+    target_compile_options(NeuralNet PRIVATE ${COMPILE_PERMISSION_FLAGS})
+    target_compile_options(NeuralNet PRIVATE ${HOOK_ADDRESS_SANITIZER})
+
+    # [Set link options]
+    target_link_options(NeuralNet PRIVATE ${HOOK_ADDRESS_SANITIZER})
 endif()

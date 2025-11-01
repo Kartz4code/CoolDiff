@@ -81,6 +81,14 @@ enum class ConcatAxis {
   HORIZONTAL, VERTICAL
 };
 
+// Activation funcions
+enum class Activation {
+  SIGMOID, 
+  RELU,
+  LRELU,
+  TANH
+};
+
 // Special matrices
 enum MatrixSpl : size_t {
   ZEROS = 1 << 1,
