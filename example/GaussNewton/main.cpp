@@ -22,12 +22,6 @@
 #include "GaussNewton.hpp"
 #include "GaussNewtonData.hpp"
 #include <fstream>
-#include <random>
-// Create a random device and seed the engine
-std::random_device rd;
-std::mt19937 gen(rd()); // Mersenne Twister engine
-// Define the range for your floating point numbers
-std::uniform_real_distribution<> dis(-1, +1); // Range: [1.0, 10.0)
 
 // Count number of rows
 int CountRows(std::string_view file) {
@@ -178,101 +172,7 @@ void ScalarSolve() {
   std::cout << "Computed values: " << CoolDiff::TensorR1::Eval(x) << "\n";
 }
 
-void FillRandomWeights(MatType& M) {
-  for(int i{}; i < M.getNumRows(); ++i) {
-    for(int j{}; j < M.getNumColumns(); ++j) {
-      M(i,j) = dis(gen);
-    }
-  }
-}
-
-void GDOptimizer(Matrix<Type>& X, Matrix<Type>& dX, const Type& alpha) {
-    Matrix<Type>* dX_ptr = &dX;
-    Matrix<Type>* X_ptr = &X;
-
-    CoolDiff::TensorR2::MatOperators::MatrixScalarMul(alpha, &dX, dX_ptr);
-    CoolDiff::TensorR2::MatOperators::MatrixAdd(&X, dX_ptr, X_ptr);
-}
-
-auto NetworkPred( Matrix<Type>& W1, Matrix<Type>& W2, Matrix<Type>& W3, Matrix<Type>& W4,
-                  Matrix<Type>& b1, Matrix<Type>& b2, Matrix<Type>& b3, Matrix<Type>& b4,
-                  Matrix<Type>& O,  Matrix<Type>& X ) {
-
-  auto Layer1 = SigmoidM(W1*X + b1);
-  auto Layer2 = SigmoidM(W2*Layer1 + b2);
-  auto Layer3 = SigmoidM(W3*Layer2 + b3);
-  auto Layer4 = SigmoidM(W4*Layer3 + b4);
-  auto Yhat = (O*Layer4);
-
-  return Yhat;
-}
-
-auto NetworkErr(  Matrix<Type>& W1, Matrix<Type>& W2, Matrix<Type>& W3, Matrix<Type>& W4,
-                  Matrix<Type>& b1, Matrix<Type>& b2, Matrix<Type>& b3, Matrix<Type>& b4,
-                  Matrix<Type>& O,  Matrix<Type>& X, Type Y ) {
-  auto Yhat = NetworkPred(W1, W2, W3, W4, b1, b2, b3, b4, O, X);
-  auto error = (Yhat-Y)*100*(Yhat-Y);
-  return error;
-}
-
-#ifndef USE_COMPLEX_MATH
-void NN() {
-  constexpr const int N = 256;
-
-  Matrix<Type> X(N, 1);
-  FillRandomWeights(X);
-
-  Matrix<Type> W1(N, N), W2(2*N, N), W3(N, 2*N), W4(N, N);
-  Matrix<Type> b1(N, 1), b2(2*N, 1), b3(N, 1), b4(N, 1);
-
-  Matrix<Type> O(1, N);
-
-  FillRandomWeights(W1); FillRandomWeights(W2); FillRandomWeights(W3); FillRandomWeights(W4);
-  FillRandomWeights(b1); FillRandomWeights(b2); FillRandomWeights(b3); FillRandomWeights(b4);
-  FillRandomWeights(O);
-
-  Matrix<Expression> Error = NetworkErr(W1, W2, W3, W4, b1, b2, b3, b4, O, X, 10);
-
-  Type alpha = -0.0001;
-  for(int i{}; i < 20; ++i) {
-    std::cout << "[ERROR]: " << CoolDiff::TensorR2::Eval(Error) << "\n";
-    CoolDiff::TensorR2::PreComp(Error);
-
-    auto& dW1 = CoolDiff::TensorR2::DevalR(Error, W1);
-    auto& dW2 = CoolDiff::TensorR2::DevalR(Error, W2);
-    auto& dW3 = CoolDiff::TensorR2::DevalR(Error, W3);
-    auto& dW4 = CoolDiff::TensorR2::DevalR(Error, W4);
-
-    auto& db1 = CoolDiff::TensorR2::DevalR(Error, b1);
-    auto& db2 = CoolDiff::TensorR2::DevalR(Error, b2);
-    auto& db3 = CoolDiff::TensorR2::DevalR(Error, b3);
-    auto& db4 = CoolDiff::TensorR2::DevalR(Error, b4);
-
-    auto& dO = CoolDiff::TensorR2::DevalR(Error, O);
-
-    GDOptimizer(W1, dW1, alpha);
-    GDOptimizer(W2, dW2, alpha);
-    GDOptimizer(W3, dW3, alpha);
-    GDOptimizer(W4, dW4, alpha);
-
-    GDOptimizer(b1, db1, alpha);
-    GDOptimizer(b2, db2, alpha);
-    GDOptimizer(b3, db3, alpha);
-    GDOptimizer(b4, db4, alpha);
-
-    GDOptimizer(O, dO, alpha);
-  }
-
-  auto Yhat = NetworkPred(W1, W2, W3, W4, b1, b2, b3, b4, O, X);
-  std::cout << CoolDiff::TensorR2::Eval(Yhat) << "\n";
-
-}
-#endif
-
 int main(int argc, char **argv) {  
-  #ifndef USE_COMPLEX_MATH
-    NN();
-  #endif
   GNMatrix();
   NonLinearSolve();
   return 0;
