@@ -372,6 +372,8 @@ public:
 namespace CoolDiff {
   namespace TensorR2 {
     namespace Details {
+
+      // DevalR computation for matrix forward mode differentiation
       template <typename T>
       void DevalR(T& exp, const Matrix<Variable>& X, Matrix<Type>*& result) {
         const size_t nrows_x = X.getNumRows();
@@ -379,8 +381,7 @@ namespace CoolDiff {
 
         if (nullptr == result) {
           result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(nrows_x, ncols_x);
-        } else if ((nrows_x != result->getNumRows()) ||
-                  (ncols_x != result->getNumColumns())) {
+        } else if ((nrows_x != result->getNumRows()) || (ncols_x != result->getNumColumns())) {
           result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(nrows_x, ncols_x);
         }
 
@@ -388,19 +389,34 @@ namespace CoolDiff {
         // Precompute (By design, the operation is serial)
         if constexpr (true == std::is_same_v<Expression, T>) {
           CoolDiff::TensorR1::PreComp(exp);
-          std::transform(EXECUTION_SEQ X.getMatrixPtr(), X.getMatrixPtr() + n_size,
-                        result->getMatrixPtr(),
+          std::transform(EXECUTION_SEQ X.getMatrixPtr(), X.getMatrixPtr() + n_size, result->getMatrixPtr(), 
                         [&exp](const auto &v) { return CoolDiff::TensorR1::DevalR(exp, v); });
         } else {
           // Create a new expression
           Expression exp2{exp};
           CoolDiff::TensorR1::PreComp(exp2);
-          std::transform(EXECUTION_SEQ X.getMatrixPtr(), X.getMatrixPtr() + n_size,
-                        result->getMatrixPtr(),
+          std::transform(EXECUTION_SEQ X.getMatrixPtr(), X.getMatrixPtr() + n_size, result->getMatrixPtr(),
                         [&exp2](const auto &v) { return CoolDiff::TensorR1::DevalR(exp2, v); });
         }
       }
+      
+      // Return scalar value for matrix based on it's type
       Type ScalarSpl(const Matrix<Type>*); 
+
+      // Random number generation
+      static std::random_device rd;
+      static std::mt19937 gen(rd());
+
+      // Fill matrix with random weights
+      template<template <typename> class T, typename... Args>
+      void FillRandomValues(MatType& M, Args&&... args) {
+          T<Type> dis(std::forward<Args>(args)...);
+          for(int i{}; i < M.getNumRows(); ++i) {
+              for(int j{}; j < M.getNumColumns(); ++j) {
+                  M(i,j) = dis(gen);
+              }
+          }
+      }
     }
   }
 }

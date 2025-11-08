@@ -38,6 +38,7 @@
 #include <tuple>
 #include <type_traits>
 #include <vector>
+#include <random>
 
 /* [Deprecated]
   Matrix transpose based matrix multiplication (Naive implementation) 

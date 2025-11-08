@@ -104,12 +104,38 @@ if(${BUILD_EXAMPLES})
 
     add_executable(NeuralNet ${CMAKE_SOURCE_DIR}/example/NeuralNet/main.cpp ${SOURCES})
 
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/NeuralNet/config/MNISTData.hpp.in MNISTData.hpp @ONLY)
+
+    # Find and install csv-parser package
+    find_package(csv QUIET)
+    if(DEFINED csv_FOUND AND DEFINED csv_VERSION)
+        message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] csv installed version ${csv_VERSION}")
+    endif()
+    if(NOT csv_FOUND)
+        FetchContent_Declare(
+        csv
+        GIT_REPOSITORY https://github.com/vincentlaucsb/csv-parser.git
+        GIT_TAG master
+        GIT_SHALLOW TRUE
+        ) 
+        # Check if the dependency has already been downloaded and built
+        FetchContent_GetProperties(csv)
+        if(NOT csv_POPULATED)
+            message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Setting latest csv library")
+            FetchContent_MakeAvailable(csv)
+        endif()
+    else()
+        message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] csv library found in system")
+    endif()
+
     # [Set target include directories]
     target_include_directories(NeuralNet PUBLIC ${PUBLIC_INCLUDES} 
-                                                ${CMAKE_SOURCE_DIR}/example/NeuralNet/include)
+                                                ${CMAKE_SOURCE_DIR}/example/NeuralNet/include
+                                                ${CSV_INCLUDE_DIR}
+                                                ${CMAKE_CURRENT_BINARY_DIR})
 
     # [Link target libraries]
-    target_link_libraries(NeuralNet PRIVATE CoolDiff)
+    target_link_libraries(NeuralNet PUBLIC csv CoolDiff  gcov)
 
     # [Set compile options]
     if(${ENABLE_COMPILER_WARNINGS})
