@@ -88,7 +88,7 @@ class NeuralNet {
             }
         }
 
-        // optimize
+        // Optimize
         void optimize(const Type& alpha, bool threading) {
             if(true == threading) {
                 // Dispatch threads
@@ -183,13 +183,48 @@ class NeuralNet {
             return CoolDiff::TensorR2::Eval(std::get<M>(tuple));
         }
 
+        // Accuracy computation
+        template<typename Z>
+        Type accuracy(Z& net, Matrix<Type>& X_data, Matrix<Type>& Y_data) {
+            size_t count{}; const size_t data_size = X_data.getNumRows();
+            for(size_t i{}; i < data_size-1; ++i) {
+                // Last layer of the network
+                constexpr const size_t N = std::tuple_size_v<Z>-1;
+
+                // Predicted and real values
+                const auto& est = CoolDiff::TensorR2::Eval(predict<N>(X_data.getRow(i), net));
+                const auto& real = Y_data.getRow(i);
+                
+                const auto& it_est = est.getMatrixPtr();
+                const auto& it_real = real.getMatrixPtr();
+
+                const auto& est_elems = est.getNumElem();
+                const auto& real_elems = real.getNumElem();
+
+                const size_t ep = std::distance(it_est, std::max_element(it_est, it_est + est_elems));
+                const size_t rp = std::distance(it_real, std::max_element(it_real, it_real + real_elems));
+
+                // Increment count if values match up between predicted and real
+                if(ep == rp) {
+                    count += 1;
+                }
+            }
+
+            // Convert to percentage and return
+            return Type((count/(Type)(data_size-1))*100.0);
+        }
+
         
         void train( Matrix<Type>& X_data, Matrix<Type>& Y_data, 
                     const Type& rate = -0.01, const size_t batch_size = 1, const size_t epoch = 1, 
                     bool threading = false, bool display_stats = true ) {
 
+            // Get network 
+            auto tuple = networkLayers();
+
             // Matrix error
             Matrix<Expression> err = error();
+
             // Learning rate (normalized by batch size)
             Type alpha = (rate/((Type)batch_size)); 
 
@@ -216,7 +251,9 @@ class NeuralNet {
                         accumulateGradients(err, threading);
 
                         // Accumulate error 
-                        acc_err += CoolDiff::TensorR2::Eval(err)(0,0);
+                        if(true == display_stats) {
+                            acc_err += CoolDiff::TensorR2::Eval(err)(0,0);
+                        }
                     }
 
                     // Mini batch update
@@ -225,12 +262,12 @@ class NeuralNet {
 
                 // Display stats
                 if(true == display_stats) {
+                    Type acc = accuracy(tuple, X_data, Y_data);
                     oss << "       <------------------------------ Computation stats ------------------------------>       \n"
-                        << std::string(100, '-') << "\n" << std::string(3, ' ')
+                        << std::string(100, '-') << "\n" << std::string(10, ' ')
                         << "| [EPOCH]: " << std::to_string(i) << " |"
-                        << " [LOSS ERROR]: " << std::to_string(acc_err) << " |"
-                        << " [BATCH SIZE]: " << std::to_string(batch_size) << " | "
-                        << " [LEARNING RATE]: " << std::to_string(alpha) << " |\n"
+                        << " [LOSS VALUE]: " << std::to_string(acc_err) << " |"
+                        << " [ACCURACY]: " << std::to_string(acc) << "% |\n"
                         << std::string(100, '-') << "\n";
 
                     std::cout << oss.str() << "\n";

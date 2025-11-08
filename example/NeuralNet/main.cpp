@@ -50,8 +50,8 @@ void MNISTPrediction() {
     CustomNet n({N,1},{M,1});
 
     // Generate network layers
-    auto tuple = n.addLayer(Layer::LayerFactory::CreateLayer<std::uniform_real_distribution>(M, N, -1, 1))
-                    .addLayer(Layer::LayerFactory::CreateLayer<std::uniform_real_distribution>(M, -1, 1))
+    auto tuple = n.addLayer(Layer::LayerFactory::CreateLayer<std::uniform_real_distribution>(2*M, N, -1, 1))
+                    .addLayer(Layer::LayerFactory::CreateLayer<std::uniform_real_distribution>(M, 2*M, -1, 1))
                     .networkLayers();
 
     // Train MNIST data (60000 x 784)
@@ -67,14 +67,10 @@ void MNISTPrediction() {
     LoadData(MNISTData::g_mnist_test_data, Xtest, Ytest);
 
     // Train data
-    TIME_IT_MS(n.train(Xtrain, Ytrain, -0.1, 128, 25, false));
+    TIME_IT_MS(n.train(Xtrain, Ytrain, -0.1, 128, 50, false));
 
     // Prediction test
-    std::cout << CoolDiff::TensorR2::Eval(n.predict<2>(Xtest.getRow(2), tuple)) << "\n";
-    std::cout << CoolDiff::TensorR2::Eval(n.predict<2>(Xtest.getRow(3), tuple)) << "\n";
-    std::cout << CoolDiff::TensorR2::Eval(n.predict<2>(Xtest.getRow(4), tuple)) << "\n";
-    std::cout << CoolDiff::TensorR2::Eval(n.predict<2>(Xtest.getRow(5), tuple)) << "\n";
-    std::cout << CoolDiff::TensorR2::Eval(n.predict<2>(Xtest.getRow(6), tuple)) << "\n";
+    std::cout << "Prediction accuracy: " << n.accuracy(tuple, Xtest, Ytest) << "%\n";
 }
 
 
