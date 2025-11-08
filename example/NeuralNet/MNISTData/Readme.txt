@@ -1,0 +1,1 @@
+Add the MNIST data set here, i.e. mnist_train.csv and mnist_test.csv

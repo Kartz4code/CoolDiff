@@ -2,3 +2,5 @@ build
 __pycache__
 GaussNewtonData.py
 .vscode
+mnist_test.csv
+mnist_train.csv
