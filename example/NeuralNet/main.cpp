@@ -19,7 +19,7 @@ class CustomNet : public NeuralNet<CustomNet> {
         }
 
         auto error() { 
-            auto Yp = GetLayer<2>(networkLayers());
+            auto Yp = GetFinalLayer(networkLayers());
             auto error = -1*transpose(Y)*LogM(Yp);
             return error;
         }
@@ -50,8 +50,8 @@ void MNISTPrediction() {
     CustomNet n({N,1},{M,1});
 
     // Generate network layers
-    auto tuple = n.addLayer(Layer::LayerFactory::CreateLayer<std::uniform_real_distribution>(2*M, N, -1, 1))
-                    .addLayer(Layer::LayerFactory::CreateLayer<std::uniform_real_distribution>(M, 2*M, -1, 1))
+    auto tuple = n.addLayer(Layer::LayerFactory::CreateLayer<std::uniform_real_distribution>(5*M, N, -1, 1))
+                    .addLayer(Layer::LayerFactory::CreateLayer<std::uniform_real_distribution>(M, 5*M, -1, 1))
                     .networkLayers();
 
     // Train MNIST data (60000 x 784)

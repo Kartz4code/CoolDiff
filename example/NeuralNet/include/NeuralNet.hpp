@@ -8,8 +8,9 @@
                                 using Base::W; using Base::b;         \
                                 using Base::X; using Base::Y;
 
-template<size_t N, typename... Args>
-auto GetLayer(const Tuples<Args...>& tuple) {
+template<typename... Args>
+auto GetFinalLayer(const Tuples<Args...>& tuple) {
+    constexpr const size_t N = (std::tuple_size_v<Tuples<Args...>>-1);
     return std::get<N>(tuple);
 }
 
@@ -21,7 +22,6 @@ void GDOptimizer(Matrix<Type>& X, Matrix<Type>& dX, const Type& alpha) {
     CoolDiff::TensorR2::MatOperators::MatrixScalarMul(alpha, &dX, dX_ptr);
     CoolDiff::TensorR2::MatOperators::MatrixAdd(&X, dX_ptr, X_ptr);
 }
-
 
 // Templatized neural net: T -> for CRTP, N -> Layer depth
 template<typename T>
@@ -183,7 +183,7 @@ class NeuralNet {
             return CoolDiff::TensorR2::Eval(std::get<M>(tuple));
         }
 
-        // Accuracy computation
+        // Classification accuracy computation
         template<typename Z>
         Type accuracy(Z& net, Matrix<Type>& X_data, Matrix<Type>& Y_data) {
             size_t count{}; const size_t data_size = X_data.getNumRows();

@@ -1,11 +1,11 @@
 
-# CoolDiff :sunglasses:: A Symbolic/Auto differentiation C++ tool  
+# CoolDiff :sunglasses:: A Symbolic/Automatic differentiation C++ tool  
 
 ---
 
-* **CoolDiff** is a C++ 17 library dedicated to compute both automatic as well as symbolic differentiation of mathematical expressions.
+* **CoolDiff** is a C++ 17 library dedicated to compute both automatic as well as symbolic differentiation of scalar and matrix mathematical expressions.
 
-* **CoolDiff** APIs provide an easy and simple way of modeling and evaluating scalar and matrix expressions, computing forward/reverse(adjoint) mode derivatives and symbolic derivatives (objects).
+* **CoolDiff** APIs provide an easy and simple way of modeling and evaluating scalar and matrix expressions, computing forward/reverse(adjoint) mode derivatives and symbolic derivatives (for scalar expressions).
   
 ---
 
@@ -20,87 +20,14 @@ The following steps will build the library
 2. Build the library using following steps
 
 - `cmake -S . -B build`
-- `cmake --build build -j16 `
+- `cmake --build build -j${nproc}`
 
-3. Execute the Gaussian example to verify the success of the build
-- `./build/example/Gaussian`
+1. Install the **CoolDiff** library using 
+- `sudo cmake --install build`
 
-Link the generated **CoolDiff** library with your project and include the header `CoolDiff.hpp` to utilize the **CoolDiff** APIs. 
+Link the generated **CoolDiff** library with your project and include the header `CoolDiff.hpp` to utilize the **CoolDiff** APIs (See CMakeLists.txt in the examples folder). 
 
-The example folder has few examples to exhibit the use case of the library.  
-
----
-## Classes & Types :white_check_mark:
-
-The main classes/types involved in **CoolDiff** library are:
-1. **Expression** - Expression objects are used to model  mathematical expressions.
-2. **Variable** - Variable objects are the optimization/decision/control variables that are of interest for computing the derivatives. 
-3. **Parameter** - Parameter objects are used to model scalar variables that are either constant or vary over run-time (e.g. parameter varying system).   
-4. **Type** - Type objects are used to model scalar variables, however, unlike Parameters, the value of Type objects *cannot* be changed over run-time. 
-
----
-## Mathematical Operators :white_check_mark:
-
-### 1. Binary operators
-
-The list of implemented binary operators in **CoolDiff** library are listed in the following table 
-
-| Function (Operator) | LHS operand type | RHS operand type |
-| ----------- | ----------- | ----------- |  
-| **Addition** (+) | Variable/Parameter/Expression | Variable/Parameter/Expression
-| **Addition** (+) | Type | Variable/Parameter/Expression
-| **Addition** (+) | Variable/Parameter/Expression | Type
-| **Subtraction** (-) | Variable/Parameter/Expression | Variable/Parameter/Expression
-| **Subtraction** (-) | Variable/Parameter/Expression | Type
-| **Subtraction** (-) | Type | Variable/Parameter/Expression
-| **Multiplication** (*) | Variable/Parameter/Expression | Variable/Parameter/Expression
-| **Multiplication** (*) | Type | Variable/Parameter/Expression
-| **Multiplication** (*) | Variable/Parameter/Expression | Type
-| **Division** (/) | Variable/Parameter/Expression | Variable/Parameter/Expression
-| **Division** (/) | Type | Variable/Parameter/Expression
-| **Division** (/) | Variable/Parameter/Expression | Type
-| **Exponentiation** (pow) | Variable/Parameter/Expression | Variable/Parameter/Expression
-| **Exponentiation** (pow) | Type | Variable/Parameter/Expression
-| **Exponentiation** (pow) | Variable/Parameter/Expression | Type
-
-
-### 2. Unary operators
-
-The list of implemented unary operators in **CoolDiff** library are listed in the following table 
-
-| Function (Operator) | Operand type |
-| ----------- | ----------- |
-| **Sin** (sin) | Variable/Parameter/Expression
-| **Cos** (cos) | Variable/Parameter/Expression
-| **Tan** (tan) | Variable/Parameter/Expression
-| **Asin** (asin) | Variable/Parameter/Expression
-| **Acos** (acos) | Variable/Parameter/Expression
-| **Atan** (atan) | Variable/Parameter/Expression
-| **Sinh** (sinh) | Variable/Parameter/Expression
-| **Cosh** (cosh) | Variable/Parameter/Expression
-| **Tanh** (tanh) | Variable/Parameter/Expression
-| **Asinh** (asinh) | Variable/Parameter/Expression
-| **Acosh** (acosh) | Variable/Parameter/Expression
-| **Atanh** (atanh) | Variable/Parameter/Expression
-| **Exp** (exp) | Variable/Parameter/Expression
-| **Log** (log) | Variable/Parameter/Expression
-| **Sqrt** (sqrt) | Variable/Parameter/Expression
-
----
-## Important APIs :white_check_mark:
-
-The list of 8 important APIs and along with its description are listed in the following table.  
-
-| API | Description | 1st Argument type | 2nd Argument type | Output type |
-| ----------- | ----------- | ----------- | ----------- | ----------- | 
-| **Eval** | Evaluates the given expression | Expression& | - | Type |
-| **DevalF** | Computes the forward AD derivative for the given expression and variable | Expression& | const Variable& | Type |
-| **PreComp** | Precomputes all the reverse AD (adjoint) derivatives for the given expression | Expression& | - | - |
-| **DevalR** | Returns the reverse AD derivative for the given expression and variable | Expression& | const Variable& | Type |
-| **SymDiff** | Computes the symbolic derivative for the given expression and variable | Expression& | const Variable& | Expression& |
-| **CreateExpr** | Factory method to create Expression object on heap | const Type& | - | Expression& |
-| **CreateVar** | Factory method to create Variable object  on heap | const Type& | - | Expression& |
-| **CreateParam** | Factory method to create Parameter object on heap | const Type& | - | Expression& |
+Kindly refer to the examples folder on usage of **CoolDiff** APIs for your application.
 
 ---
 
