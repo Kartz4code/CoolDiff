@@ -67,7 +67,7 @@ void MNISTPrediction() {
     LoadData(MNISTData::g_mnist_test_data, Xtest, Ytest);
 
     // Train data
-    TIME_IT_MS(n.train(Xtrain, Ytrain, -0.1, 128, 50, false));
+    TIME_IT_MS(n.train(Xtrain, Ytrain, -0.1, 128, 25, false));
 
     // Prediction test
     std::cout << "Prediction accuracy: " << n.accuracy(tuple, Xtest, Ytest) << "%\n";

@@ -210,69 +210,50 @@ set(PRIVATE_INCLUDES    # Matrix handler include directory
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler
 
                         # Naive CPU addition handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddHandler/NaiveCPU
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/NaiveCPU
-
                         # Eigen library addition handler
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/Eigen
 
                         # Naive CPU multiplication handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMulHandler/NaiveCPU
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/NaiveCPU
-
                         # Eigen library multiplication handler
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/Eigen
 
                         # Naive CPU subtraction handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubHandler/NaiveCPU
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/NaiveCPU
-
                         # Eigen library subtraction handler
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/Eigen
 
                         # Naive CPU Hadamard handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamardHandler/NaiveCPU
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/NaiveCPU
-
                         # Eigen library Hadamard handler
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/Eigen
 
                         # Naive CPU Kronecker product handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronHandler/NaiveCPU
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/NaiveCPU
-
                         # Eigen library Kronecker handler
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/Eigen
 
                         # Naive CPU Transpose handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTransposeHandler/NaiveCPU
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose/NaiveCPU
-
                         # Eigen Transpose handlers
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose/Eigen
 
-                        # Determinant handlers
+                        # Eigen determinant handlers
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDet/Eigen
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDetHandler/NaiveCPU
 
-                        # Trace handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTraceHandler/NaiveCPU
+                        # Naive trace handlers
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTrace/NaiveCPU
-
                         # Eigen trace handlers
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTrace/Eigen
                         
-
-                        # Unary handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnaryHandler/NaiveCPU
+                        # Naive unary handlers
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary/NaiveCPU
 
-                        # Inverse handlers
+                        # Eigen inverse handlers
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInverse/Eigen
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInvHandler/NaiveCPU
 
-                        # Convolution handlers            
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvHandler/NaiveCPU
+                        # Naive Convolution handlers            
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvolution/NaiveCPU)
 
 set(PUBLIC_INCLUDES     #General include (CommonHeader.hpp, CoolDiff.hpp)
