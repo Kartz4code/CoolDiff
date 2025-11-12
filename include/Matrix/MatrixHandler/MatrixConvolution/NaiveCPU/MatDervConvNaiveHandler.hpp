@@ -2,7 +2,7 @@
  * @file
  * include/Matrix/MatrixHandler/MatrixConvolution/NaiveCPU/MatDervConvNaiveHandler.hpp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -38,10 +38,8 @@ class MatDervConvNaiveHandler : public T {
     bool m_initialized{false};
     
   public:
-    void handle(const size_t nrows_x, const size_t ncols_x, const size_t stride_x,
-                const size_t stride_y, const size_t pad_x, const size_t pad_y,
-                const Matrix<Type>* lhs, const Matrix<Type>* dlhs, const Matrix<Type>* rhs,
-                const Matrix<Type>* drhs, Matrix<Type>*& result) {
+    void handle(const size_t nrows_x, const size_t ncols_x, const size_t stride_x, const size_t stride_y, const size_t pad_x, const size_t pad_y,
+                const Matrix<Type>* lhs, const Matrix<Type>* dlhs, const Matrix<Type>* rhs, const Matrix<Type>* drhs, Matrix<Type>*& result) {
       // Stride must be strictly non-negative
       ASSERT(((int)stride_x > 0) && ((int)stride_y > 0), "Stride is not strictly non-negative");
       // Padding must be positive
@@ -66,7 +64,6 @@ class MatDervConvNaiveHandler : public T {
 
       // Pad left derivative matrix with required padding
       dlhs->pad((pad_x * nrows_x), (pad_y * ncols_x), mp_arr[0]);
-
       // Pad left matrix with required padding
       lhs->pad(pad_x, pad_y, mp_arr[1]);
 
@@ -82,14 +79,14 @@ class MatDervConvNaiveHandler : public T {
           }
 
           // Left block matrix
-          mp_arr[1]->getBlockMat({(i * stride_x), (i * stride_x) + crows - 1},
-                                 {(j * stride_y), (j * stride_y) + ccols - 1},
-                                 mp_arr[2]);
+          mp_arr[1]->getBlockMat( {(i * stride_x), (i * stride_x) + crows - 1},
+                                  {(j * stride_y), (j * stride_y) + ccols - 1},
+                                  mp_arr[2] );
 
           // Left derivative block matrix
-          mp_arr[0]->getBlockMat({(i * stride_x * nrows_x), (i * stride_x * nrows_x) + (nrows_x * crows) - 1},
-                                 {(j * stride_y * ncols_x), (j * stride_y * ncols_x) + (ncols_x * ccols) - 1},
-                                 mp_arr[3]);
+          mp_arr[0]->getBlockMat( {(i * stride_x * nrows_x), (i * stride_x * nrows_x) + (nrows_x * crows) - 1},
+                                  {(j * stride_y * ncols_x), (j * stride_y * ncols_x) + (ncols_x * ccols) - 1},
+                                  mp_arr[3] );
 
           // L (X) I - Left matrix and identity Kronocker product (Policy design)
           CoolDiff::TensorR2::MatOperators::MatrixKron(mp_arr[2], CoolDiff::TensorR2::MatrixBasics::Ones(nrows_x, ncols_x), mp_arr[4]);

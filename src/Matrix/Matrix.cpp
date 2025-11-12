@@ -1,7 +1,7 @@
 /**
  * @file src/Matrix/Matrix.cpp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -45,15 +45,7 @@ namespace CoolDiff {
   namespace TensorR2 {
     namespace Details {
         Type ScalarSpl(const Matrix<Type>* mat) {
-        if(mat->m_type == MatrixSpl::ZEROS){
-          return (Type)0;
-        } else if(mat->m_type == MatrixSpl::EYE) {
-          return (Type)1;
-        } else if(mat->m_type == MatrixSpl::ONES) {
-          return (Type)1;
-        } else {
           return (*mat)(0,0);
-        }
       } 
     }
   }

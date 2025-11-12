@@ -1,7 +1,7 @@
 /**
  * @file src/MemoryManager/MemoryManager.cpp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -26,34 +26,13 @@ const size_t MemoryManager::size() {
   return m_del_ptr.size(); 
 }
 
-Matrix<Type>* MemoryManager::MatrixSplPool(const size_t rows, const size_t cols, const MatrixSpl& ms) {
-  // Function to check for free matrices
-  const auto functor = [rows, cols, ms](const auto& m) {
-    if (nullptr != m) {
-      return ((m->getNumRows() == rows) && (m->getNumColumns() == cols) && (m->getMatType() == ms));
-    } else {
-      return false;
-    }
-  };
-
-  // Matrix<Type> database
-  auto& mat_ptr = MemoryManager::m_del_mat_type_ptr;
-
-  // Dispatch matrix from pool
-  if (auto it = std::find_if(EXECUTION_PAR mat_ptr.begin(), mat_ptr.end(), functor); it != mat_ptr.end()) {
-    return it->get();
-  } else {
-    return Matrix<Type>::MatrixFactory::CreateMatrixPtr(rows, cols, ms);
-  }
-}
-
 void MemoryManager::MatrixPool(const size_t rows, const size_t cols, Matrix<Type>*& result, const Type& val) {
   // Dispatch matrix from pool
   if (nullptr == result) {
     result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(rows, cols, val);
     return;
   } 
-  else if ((rows != result->getNumRows()) || (cols != result->getNumColumns()) || (-1 != result->getMatType())) {
+  else if ((rows != result->getNumRows()) || (cols != result->getNumColumns())) {
     result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(rows, cols, val);
     return;
   } else {

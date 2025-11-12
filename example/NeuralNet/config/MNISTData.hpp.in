@@ -1,7 +1,7 @@
 /**
  * @file example/NeuralNet/config/MNISTData.hpp.in
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -24,6 +24,6 @@
 #include <string_view>
 
 namespace MNISTData {
-    constexpr const std::string_view g_mnist_train_data = "@CMAKE_CURRENT_SOURCE_DIR@/NeuralNet/MNISTData/mnist_train.csv";
-    constexpr const std::string_view g_mnist_test_data = "@CMAKE_CURRENT_SOURCE_DIR@/NeuralNet/MNISTData/mnist_test.csv";
+    constexpr const std::string_view g_mnist_train_data_path = "@CMAKE_CURRENT_SOURCE_DIR@/NeuralNet/MNISTData/mnist_train.csv";
+    constexpr const std::string_view g_mnist_test_data_path = "@CMAKE_CURRENT_SOURCE_DIR@/NeuralNet/MNISTData/mnist_test.csv";
 }

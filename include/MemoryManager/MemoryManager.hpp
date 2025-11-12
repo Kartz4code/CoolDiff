@@ -1,7 +1,7 @@
 /**
  * @file include/MemoryManager/MemoryManager.hpp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -44,9 +44,7 @@ private:
 public:
   // Get size of memory allocated
   static const size_t size();
-
-  // Special matrix pool allocation
-  static Matrix<Type>* MatrixSplPool(const size_t, const size_t, const MatrixSpl&);
+  
   // Matrix pool allocation
   static void MatrixPool(const size_t, const size_t, Matrix<Type>*&, const Type& = (Type)0);
 };

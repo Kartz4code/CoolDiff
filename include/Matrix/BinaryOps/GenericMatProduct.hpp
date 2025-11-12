@@ -1,7 +1,7 @@
 /**
  * @file include/Matrix/BinaryOps/GenericMatProduct.hpp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -25,15 +25,12 @@
 #include "MatrixBasics.hpp"
 
 // Left/right side is a Matrix
-template <typename T1, typename T2, typename... Callables>
-class GenericMatProduct : public IMatrix<GenericMatProduct<T1, T2, Callables...>> {
+template <typename T1, typename T2>
+class GenericMatProduct : public IMatrix<GenericMatProduct<T1, T2>> {
 private:
   // Resources
   T1* mp_left{nullptr};
   T2* mp_right{nullptr};
-
-  // Callables
-  Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
   #if 0
@@ -62,10 +59,7 @@ public:
   OMMatPair m_cache;
 
   // Constructor
-  constexpr GenericMatProduct(T1* u, T2* v, Callables&&... call) :  mp_left{u}, 
-                                                                    mp_right{v}, 
-                                                                    m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                                    m_nidx{this->m_idx_count++} {
+  constexpr GenericMatProduct(T1* u, T2* v) : mp_left{u}, mp_right{v}, m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
 
   }
@@ -351,15 +345,12 @@ public:
 };
 
 // Left is Type and right is a matrix
-template <typename T, typename... Callables>
-class GenericMatScalarProduct : public IMatrix<GenericMatScalarProduct<T, Callables...>> {
+template <typename T>
+class GenericMatScalarProduct : public IMatrix<GenericMatScalarProduct<T>> {
 private:
   // Resources
   Type m_left{};
   T* mp_right{nullptr};
-
-  // Callables
-  Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
   #if 0
@@ -378,10 +369,7 @@ public:
   OMMatPair m_cache;
 
   // Constructor
-  constexpr GenericMatScalarProduct(Type u, T* v, Callables&&... call) :  m_left{u}, 
-                                                                          mp_right{v}, 
-                                                                          m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                                          m_nidx{this->m_idx_count++} {
+  constexpr GenericMatScalarProduct(Type u, T* v) : m_left{u}, mp_right{v}, m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
@@ -559,15 +547,12 @@ public:
 };
 
 // Left is Expression/Variable/Parameter and right is a matrix
-template <typename T1, typename T2, typename... Callables>
-class GenericMatScalarProductExp : public IMatrix<GenericMatScalarProductExp<T1, T2, Callables...>> { 
+template <typename T1, typename T2>
+class GenericMatScalarProductExp : public IMatrix<GenericMatScalarProductExp<T1, T2>> { 
 private:
   // Resources
   T1* mp_left{nullptr};
   T2* mp_right{nullptr};
-
-  // Callables
-  Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
   #if 0
@@ -587,10 +572,7 @@ public:
   OMPair m_cache_v; 
 
   // Constructor
-  constexpr GenericMatScalarProductExp(T1* u, T2* v, Callables&&... call) : mp_left{u}, 
-                                                                            mp_right{v}, 
-                                                                            m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                                            m_nidx{this->m_idx_count++} {
+  constexpr GenericMatScalarProductExp(T1* u, T2* v) : mp_left{u}, mp_right{v}, m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
@@ -846,15 +828,15 @@ public:
 
 // GenericMatProduct with 2 typename callables
 template <typename T1, typename T2>
-using GenericMatProductT = GenericMatProduct<T1, T2, OpMatType>;
+using GenericMatProductT = GenericMatProduct<T1, T2>;
 
 // GenericMatScalarProduct with 1 typename and callables
 template <typename T>
-using GenericMatScalarProductT = GenericMatScalarProduct<T, OpMatType>;
+using GenericMatScalarProductT = GenericMatScalarProduct<T>;
 
 // GenericMatScalarProductExp with 2 typename and callables
 template <typename T1, typename T2>
-using GenericMatScalarProductExpT = GenericMatScalarProductExp<T1, T2, OpMatType>;
+using GenericMatScalarProductExpT = GenericMatScalarProductExp<T1, T2>;
 
 // Function for product computation
 template <typename T1, typename T2>
@@ -862,8 +844,7 @@ constexpr const auto& operator*(const IMatrix<T1>& u, const IMatrix<T2>& v) {
   const auto& _u = u.cloneExp();
   const auto& _v = v.cloneExp();
   auto tmp = Allocate<GenericMatProductT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&_u)),
-                                                  const_cast<T2*>(static_cast<const T2*>(&_v)), 
-                                                  OpMatObj);
+                                                  const_cast<T2*>(static_cast<const T2*>(&_v)));
   return *tmp;
 }
 
@@ -871,7 +852,7 @@ constexpr const auto& operator*(const IMatrix<T1>& u, const IMatrix<T2>& v) {
 template <typename T>
 constexpr const auto& operator*(Type u, const IMatrix<T>& v) {
   const auto& _v = v.cloneExp();
-  auto tmp = Allocate<GenericMatScalarProductT<T>>(u, const_cast<T *>(static_cast<const T*>(&_v)), OpMatObj);
+  auto tmp = Allocate<GenericMatScalarProductT<T>>(u, const_cast<T *>(static_cast<const T*>(&_v)));
   return *tmp;
 }
 
@@ -901,8 +882,7 @@ constexpr const auto& operator*(const T1& v, const IMatrix<T2>& u) {
   const auto& _v = v.cloneExp();
 
   auto tmp = Allocate<GenericMatScalarProductExpT<T1, T2>>( const_cast<T1*>(static_cast<const T1*>(&_v)),
-                                                            const_cast<T2*>(static_cast<const T2*>(&_u)), 
-                                                            OpMatObj  );
+                                                            const_cast<T2*>(static_cast<const T2*>(&_u)) );
   return *tmp;
 }
 

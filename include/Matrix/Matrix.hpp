@@ -1,7 +1,7 @@
 /**
  * @file include/Matrix/Matrix.hpp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -50,9 +50,6 @@ public:
     }
   };
 
-  // Type of matrix (Special matrices)
-  MatrixSpl m_type{(size_t)(-1)};
-
 private:
   // Swap for assignment
   void swap(Matrix&) noexcept;
@@ -92,9 +89,6 @@ private:
   Matrix<Type>* mp_dresult{nullptr};
 
 private:  
-  // Special matrix constructor (Privatized, only for internal factory view)
-  Matrix(const size_t, const size_t, const MatrixSpl&);
-  
   // Move constructor
   Matrix(Matrix&&) noexcept;
   
@@ -103,6 +97,7 @@ private:
 
   // Set values for the result matrix
   void setEval();
+
   // Set value for the derivative result matrix
   void setDevalF(const Matrix<Variable>&);
 
@@ -130,11 +125,13 @@ public:
   // Clone matrix expression
   constexpr const auto& cloneExp() const;
 
+  // Matrix reshape
+  void reshape(const size_t, const size_t);
+
   // Matrix expression constructor
   template <typename Z>
   Matrix(const IMatrix<Z>& expr) :  m_rows{expr.getNumRows()}, 
                                     m_cols{expr.getNumColumns()},
-                                    m_type{(size_t)(-1)}, 
                                     mp_mat{nullptr}, 
                                     mp_result{nullptr},
                                     mp_dresult{nullptr}, 
@@ -146,10 +143,7 @@ public:
     static_assert(true == std::is_same_v<T, Expression>, "[ERROR] The type T is not an expression");
     // Reserve a buffer of Matrix expressions
     m_gh_vec.reserve(g_vec_init);
-  
-    // Emplace the expression in a generic holder
-    const size_t n = expr.getNumColumns();
-    // Expression multiplied with eye matrix 
+    // Expression multiplied with eye matrix and emplace it in a generic holder
     m_gh_vec.push_back((Matrix<Expression>*)&(expr*(*(CoolDiff::TensorR2::MatrixBasics::Eye(expr.getNumColumns())))));
   }
 
@@ -166,7 +160,6 @@ public:
     if (true == m_gh_vec.empty()) {
       m_rows = expr.getNumRows();
       m_cols = expr.getNumColumns();
-      m_type = MatrixSpl::NONE;
       if (nullptr != mp_mat) {
         delete[] mp_mat;
         mp_mat = nullptr;
@@ -183,10 +176,7 @@ public:
       m_devalf = false;
       m_dest = true;
     }
-
-    // Emplace the expression in a generic holder
-    const size_t n = expr.getNumColumns();
-    // Expression multiplied with eye matrix 
+    // Expression multiplied with eye matrix and emplace it in a generic holder
     m_gh_vec.push_back((Matrix<Expression>*)&(expr*(*(CoolDiff::TensorR2::MatrixBasics::Eye(expr.getNumColumns())))));
     return *this;
   }
@@ -199,11 +189,13 @@ public:
 
   // Get matrix pointer immutable
   const T* getMatrixPtr() const;
+
   // Get matrix pointer mutable
   T* getMatrixPtr();
 
   // Matrix 2D access using operator()() immutable
   const T& operator()(const size_t, const size_t) const;
+
   // Matrix 2D access using operator()() mutable
   T& operator()(const size_t, const size_t);
 
@@ -214,89 +206,16 @@ public:
   T& operator[](const size_t);
 
   // Get block matrix
-  void getBlockMat(const Pair<size_t, size_t>& rows, const Pair<size_t, size_t>& cols, Matrix*& result) const {
-    const size_t row_start = rows.first;
-    const size_t row_end = rows.second;
-    const size_t col_start = cols.first;
-    const size_t col_end = cols.second;
-
-    // Assert for row start/end, column start/end and index out of bound checks
-    ASSERT((row_start >= 0 && row_start < m_rows), "Row starting index out of bound");
-    ASSERT((row_end >= 0 && row_end < m_rows), "Row ending index out of bound");
-    ASSERT((col_start >= 0 && col_start < m_cols), "Column starting index out of bound");
-    ASSERT((col_end >= 0 && col_end < m_cols), "Column ending index out of bound");
-    ASSERT((row_start <= row_end), "Row start greater than row ending");
-    ASSERT((col_start <= col_end), "Column start greater than row ending");
-
-    // TODO Special matrix embedding
-    if (MatrixSpl::ZEROS == getMatType()) {
-      result = MemoryManager::MatrixSplPool(row_end - row_start + 1, col_end - col_start + 1, MatrixSpl::ZEROS);
-    } else {
-      MemoryManager::MatrixPool(row_end - row_start + 1, col_end - col_start + 1, result);
-      const auto outer_idx = CoolDiff::Common::Range<size_t>(row_start, row_end + 1);
-      const auto inner_idx = CoolDiff::Common::Range<size_t>(col_start, col_end + 1);
-      std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(),
-        [this, &col_start, &row_start, &inner_idx, result](const size_t i) {
-          std::for_each(EXECUTION_PAR inner_idx.begin(), inner_idx.end(),
-                        [i, this, &col_start, &row_start, &inner_idx, result](const size_t j) {
-                          (*result)(i - row_start, j - col_start) = (*this)(i, j);
-            });
-        });
-    }
-  }
+  void getBlockMat(const Pair<size_t, size_t>&, const Pair<size_t, size_t>&, Matrix*&) const;
 
   // Set block matrix
-  void setBlockMat(const Pair<size_t, size_t>& rows, const Pair<size_t, size_t>& cols, const Matrix* result) {
-    const size_t row_start = rows.first;
-    const size_t row_end = rows.second;
-    const size_t col_start = cols.first;
-    const size_t col_end = cols.second;
-
-    // Assert for row start/end, column start/end and index out of bound checks
-    ASSERT((row_start >= 0 && row_start < m_rows), "Row starting index out of bound");
-    ASSERT((row_end >= 0 && row_end < m_rows), "Row ending index out of bound");
-    ASSERT((col_start >= 0 && col_start < m_cols), "Column starting index out of bound");
-    ASSERT((col_end >= 0 && col_end < m_cols), "Column ending index out of bound");
-    ASSERT((row_start <= row_end), "Row start greater than row ending");
-    ASSERT((col_start <= col_end), "Column start greater than row ending");
-    ASSERT((row_end - row_start + 1 == result->getNumRows()), "Row mismatch for insertion matrix");
-    ASSERT((col_end - col_start + 1 == result->getNumColumns()), "Column mismatch for insertion matrix");
-
-    // Special matrix embedding
-    const auto outer_idx = CoolDiff::Common::Range<size_t>(row_start, row_end + 1);
-    const auto inner_idx = CoolDiff::Common::Range<size_t>(col_start, col_end + 1);
-
-    // TODO Special matrix embedding
-    if (MatrixSpl::ZEROS == result->getMatType()) {
-      if constexpr (std::is_same_v<T, Type>) {
-        std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(),
-          [this, &col_start, &row_start, &inner_idx, result](const size_t i) {
-              std::for_each(EXECUTION_PAR inner_idx.begin(), inner_idx.end(),
-                [i, this, &col_start, &row_start, &inner_idx, result](const size_t j) { 
-                  (*this)(i, j) = (Type)(0); 
-              });
-        });
-      }
-    } else {
-      std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(),
-        [this, &col_start, &row_start, &inner_idx, result](const size_t i) {
-            std::for_each(EXECUTION_PAR inner_idx.begin(), inner_idx.end(),
-              [i, this, &col_start, &row_start, &inner_idx, result](const size_t j) {
-                (*this)(i, j) = (*result)(i - row_start, j - col_start);
-            });
-      });
-    }
-  }
+  void setBlockMat(const Pair<size_t, size_t>&, const Pair<size_t, size_t>&, const Matrix*);
 
   // Copy data from another matrix (Just copy all contents from one matrix to another)
   void copyData(const Matrix<T>&);
 
   // Add zero padding
-  void pad(const size_t r, const size_t c, Matrix*& result) const {
-    // Special matrix embedding
-    MemoryManager::MatrixPool(m_rows + 2 * r, m_cols + 2 * c, result);
-    result->setBlockMat({r, r + m_rows - 1}, {c, c + m_cols - 1}, this);
-  }
+  void pad(const size_t, const size_t, Matrix*&) const;
 
   // Get a row for matrix using move semantics
   Matrix getRow(const size_t) &&;
@@ -321,9 +240,6 @@ public:
 
   // Get total final number of elements (for multi-layered expression)
   size_t getFinalNumElem() const;
-
-  // Get type of matrix
-  MatrixSpl getMatType() const;
 
   // Get number of rows
   V_OVERRIDE(size_t getNumRows() const);

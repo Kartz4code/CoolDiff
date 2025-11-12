@@ -1,7 +1,7 @@
 /**
  * @file test/MatTest.cpp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -558,7 +558,7 @@ TEST(MatTest, Test7) {
   W2(1, 0) = -5;
   W2(1, 1) = 6;
 
-  /* TODO - Fix this issue
+  /* //TODO - Fix this issue
   Matrix<Expression> E;
   E = conv(X, W2, 1, 1, 1, 1);
   E = conv(E, W1, 1, 1, 1, 1);

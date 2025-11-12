@@ -1,7 +1,7 @@
 /**
  * @file include/Matrix/CommonMatFunctions.hpp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -31,6 +31,7 @@
 #include "GenericMatUnary.hpp"
 #include "GenericMatInv.hpp"
 #include "GenericMatDet.hpp"
+#include "GenericMatVec.hpp"
 
 #include "Matrix.hpp"
 #include "MatrixBasics.hpp"
@@ -95,15 +96,17 @@ namespace CoolDiff {
                                                                   std::is_base_of_v<MetaVariable, U>  ||
                                                                   std::is_base_of_v<MetaMatrix, T>>>
     inline Matrix<Type>& DevalR(T& Mexp, const U& X) {
-      const size_t nrows = X.getNumRows();
-      const size_t ncols = X.getNumColumns();
       if constexpr(true == std::is_base_of_v<U, MetaMatrix>) {
+        const size_t nrows = X.getNumRows();
+        const size_t ncols = X.getNumColumns();
         if(auto it = Mexp.getCache().find(X.m_nidx); it != Mexp.getCache().end()) {
           return (*Mexp.getCache()[X.m_nidx]);
         } else {
           return *const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Zeros(nrows, ncols));
         }
       } else {
+        const size_t nrows = Mexp.getNumRows();
+        const size_t ncols = Mexp.getNumColumns();
         if(auto it = Mexp.getCache().find(X.m_nidx); it != Mexp.getCache().end()) {
           return (*Mexp.getCache()[X.m_nidx]);
         } else {
@@ -473,7 +476,7 @@ Matrix<Expression>& MatrixLog(const IMatrix<T>& X) {
   result = CoolDiff::TensorR2::MatrixBasics::ZerosRef(rows, cols);
   for(size_t i{1}; i <= N; ++i) {
       (*tmp[i]) = (*tmp[i-1])*(X - CoolDiff::TensorR2::MatrixBasics::EyeRef(rows));
-      result = result + (std::pow(((Type)(-1)), i+1)/i)*((*tmp[i]));
+      result = result + ((Type)std::pow(((Type)(-1)), i+1)/((Type)(i)))*((*tmp[i]));
   }
 
   // Return result

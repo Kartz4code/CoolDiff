@@ -1,7 +1,7 @@
 /**
  * @file include/Matrix/UnaryOps/GenericMatDet.hpp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -25,13 +25,10 @@
 
 // Left/right side is a Matrix
 template <typename T, typename... Callables>
-class GenericMatDet : public IMatrix<GenericMatDet<T, Callables...>> {
+class GenericMatDet : public IMatrix<GenericMatDet<T>> {
 private:
   // Resources
   T* mp_right{nullptr};
-
-  // Callables
-  Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
   #if 0
@@ -60,9 +57,7 @@ public:
   OMMatPair m_cache;
 
   // Constructor
-  constexpr GenericMatDet(T* u, Callables&&... call) :  mp_right{u}, 
-                                                        m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                        m_nidx{this->m_idx_count++} {
+  constexpr GenericMatDet(T* u) : mp_right{u}, m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
@@ -141,7 +136,7 @@ public:
     MATRIX_DET(right_mat, mp_arr[9]);
     // Scalar multiplication
     MATRIX_SCALAR_MUL((*mp_arr[9])(0,0), mp_arr[2], mp_arr[10]);
-   
+  
     // L (X) I - Left matrix and identity Kronocker product (Policy design)
     MATRIX_KRON(mp_arr[10], CoolDiff::TensorR2::MatrixBasics::Ones(nrows_x, ncols_x), mp_arr[3]);
     // Hadamard product with left and right derivatives (Policy design)
@@ -306,12 +301,12 @@ public:
 
 // GenericMatDet with 1 typename and callables
 template <typename T> 
-using GenericMatDetT = GenericMatDet<T, OpMatType>;
+using GenericMatDetT = GenericMatDet<T>;
 
 // Function for determinant computation
 template <typename T> 
 constexpr const auto& det(const IMatrix<T>& u) {
   const auto& _u = u.cloneExp();
-  auto tmp = Allocate<GenericMatDetT<T>>(const_cast<T*>(static_cast<const T*>(&_u)), OpMatObj);
+  auto tmp = Allocate<GenericMatDetT<T>>(const_cast<T*>(static_cast<const T*>(&_u)));
   return *tmp;
 }

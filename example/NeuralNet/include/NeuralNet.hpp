@@ -19,8 +19,8 @@ void GDOptimizer(Matrix<Type>& X, Matrix<Type>& dX, const Type& alpha) {
     Matrix<Type>* dX_ptr = &dX;
     Matrix<Type>* X_ptr = &X;
 
-    CoolDiff::TensorR2::MatOperators::MatrixScalarMul(alpha, &dX, dX_ptr);
-    CoolDiff::TensorR2::MatOperators::MatrixAdd(&X, dX_ptr, X_ptr);
+    MATRIX_SCALAR_MUL(alpha, &dX, dX_ptr);
+    MATRIX_ADD(&X, dX_ptr, X_ptr);
 }
 
 // Templatized neural net: T -> for CRTP, N -> Layer depth
@@ -82,8 +82,8 @@ class NeuralNet {
                 for(size_t r{}; r < size(); ++r) {
                     auto& dW = CoolDiff::TensorR2::DevalR(err, W(r));
                     auto& db = CoolDiff::TensorR2::DevalR(err, b(r));
-                    CoolDiff::TensorR2::MatOperators::MatrixAdd(WBatch(r), &dW, WBatch(r));
-                    CoolDiff::TensorR2::MatOperators::MatrixAdd(bBatch(r), &db, bBatch(r));
+                    MATRIX_ADD(WBatch(r), &dW, WBatch(r));
+                    MATRIX_ADD(bBatch(r), &db, bBatch(r));
                 }
             }
         }

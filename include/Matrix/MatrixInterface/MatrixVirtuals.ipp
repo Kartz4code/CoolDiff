@@ -3,7 +3,7 @@
 /**
  * @file include/Matrix/MatrixInterface/MatrixVirtuals.ipp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -65,11 +65,7 @@ Matrix<Type>* Matrix<T>::devalF(Matrix<Variable>& X) {
     const size_t xrows = X.getNumRows();
     const size_t xcols = X.getNumColumns();
     if constexpr (true == std::is_same_v<T, Type> || true == std::is_same_v<T, Parameter>) {
-        #if defined(USE_SYMBOLIC_CHECK)
-            mp_dresult = MemoryManager::MatrixSplPool((m_rows * xrows), (m_cols * xcols), MatrixSpl::ZEROS);
-        #else
-            MemoryManager::MatrixPool((m_rows * xrows), (m_cols * xcols), mp_dresult);
-        #endif
+        MemoryManager::MatrixPool((m_rows * xrows), (m_cols * xcols), mp_dresult);
     } else {
         if (nullptr != mp_mat) {
             MemoryManager::MatrixPool((m_rows * xrows), (m_cols * xcols), mp_dresult);

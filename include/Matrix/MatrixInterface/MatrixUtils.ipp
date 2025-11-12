@@ -3,7 +3,7 @@
 /**
  * @file include/Matrix/MatrixInterface/MatrixUtils.ipp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -22,6 +22,73 @@
  */
 
 #include "Matrix.hpp"
+
+// Get block matrix
+template<typename T>
+void Matrix<T>::getBlockMat(const Pair<size_t, size_t>& rows, const Pair<size_t, size_t>& cols, Matrix*& result) const {
+    const size_t row_start = rows.first;
+    const size_t row_end = rows.second;
+    const size_t col_start = cols.first;
+    const size_t col_end = cols.second;
+
+    // Assert for row start/end, column start/end and index out of bound checks
+    ASSERT((row_start >= 0 && row_start < m_rows), "Row starting index out of bound");
+    ASSERT((row_end >= 0 && row_end < m_rows), "Row ending index out of bound");
+    ASSERT((col_start >= 0 && col_start < m_cols), "Column starting index out of bound");
+    ASSERT((col_end >= 0 && col_end < m_cols), "Column ending index out of bound");
+    ASSERT((row_start <= row_end), "Row start greater than row ending");
+    ASSERT((col_start <= col_end), "Column start greater than row ending");
+
+    MemoryManager::MatrixPool(row_end - row_start + 1, col_end - col_start + 1, result);
+    const auto outer_idx = CoolDiff::Common::Range<size_t>(row_start, row_end + 1);
+    const auto inner_idx = CoolDiff::Common::Range<size_t>(col_start, col_end + 1);
+    std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(),
+    [this, &col_start, &row_start, &inner_idx, result](const size_t i) {
+        std::for_each(EXECUTION_PAR inner_idx.begin(), inner_idx.end(),
+                    [i, this, &col_start, &row_start, &inner_idx, result](const size_t j) {
+                        (*result)(i - row_start, j - col_start) = (*this)(i, j);
+        });
+    });
+}
+
+// Set block matrix
+template<typename T>
+void Matrix<T>::setBlockMat(const Pair<size_t, size_t>& rows, const Pair<size_t, size_t>& cols, const Matrix* result) {
+    const size_t row_start = rows.first;
+    const size_t row_end = rows.second;
+    const size_t col_start = cols.first;
+    const size_t col_end = cols.second;
+
+    // Assert for row start/end, column start/end and index out of bound checks
+    ASSERT((row_start >= 0 && row_start < m_rows), "Row starting index out of bound");
+    ASSERT((row_end >= 0 && row_end < m_rows), "Row ending index out of bound");
+    ASSERT((col_start >= 0 && col_start < m_cols), "Column starting index out of bound");
+    ASSERT((col_end >= 0 && col_end < m_cols), "Column ending index out of bound");
+    ASSERT((row_start <= row_end), "Row start greater than row ending");
+    ASSERT((col_start <= col_end), "Column start greater than row ending");
+    ASSERT((row_end - row_start + 1 == result->getNumRows()), "Row mismatch for insertion matrix");
+    ASSERT((col_end - col_start + 1 == result->getNumColumns()), "Column mismatch for insertion matrix");
+
+    // Special matrix embedding
+    const auto outer_idx = CoolDiff::Common::Range<size_t>(row_start, row_end + 1);
+    const auto inner_idx = CoolDiff::Common::Range<size_t>(col_start, col_end + 1);
+
+    std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(),
+    [this, &col_start, &row_start, &inner_idx, result](const size_t i) {
+        std::for_each(EXECUTION_PAR inner_idx.begin(), inner_idx.end(),
+            [i, this, &col_start, &row_start, &inner_idx, result](const size_t j) {
+            (*this)(i, j) = (*result)(i - row_start, j - col_start);
+        });
+    });
+}
+
+// Add zero padding
+template<typename T>
+void Matrix<T>::pad(const size_t r, const size_t c, Matrix*& result) const {
+// Special matrix embedding
+MemoryManager::MatrixPool(m_rows + 2 * r, m_cols + 2 * c, result);
+result->setBlockMat({r, r + m_rows - 1}, {c, c + m_cols - 1}, this);
+}
 
 // Set values for the result matrix
 template<typename T>
@@ -147,24 +214,25 @@ void Matrix<T>::resetImpl() {
     this->m_visited = false;
 }
 
+// Matrix reshape
+template<typename T>
+void Matrix<T>::reshape(const size_t rows, const size_t cols) {
+    ASSERT((rows*cols == getNumElem()), "Number of elements not the same between reshape and actual matrix");
+    m_rows = rows; m_cols = cols;
+}
+
 // To output stream
 template<typename T>
 std::ostream& operator<<(std::ostream& os, const Matrix<T>& mat) {
     const size_t rows = mat.getFinalNumRows();
     const size_t cols = mat.getFinalNumColumns();
     if constexpr (true == std::is_same_v<T, Type>) {
-        if (mat.getMatType() == MatrixSpl::ZEROS) {
-            os << "Zero matrix of dimension: " << "(" << rows << "," << cols << ")\n";
-        } else if (mat.getMatType() == MatrixSpl::EYE) {
-            os << "Identity matrix of dimension: " << "(" << rows << "," << cols << ")\n";
-        } else {
-            // Serial print
-            for (size_t i{}; i < rows; ++i) {
-                for (size_t j{}; j < cols; ++j) {
-                    os << mat(i, j) << " ";
-                }
-                os << "\n";
+        // Serial print
+        for (size_t i{}; i < rows; ++i) {
+            for (size_t j{}; j < cols; ++j) {
+                os << mat(i, j) << " ";
             }
+            os << "\n";
         }
         return os;
     } else if constexpr (true == std::is_arithmetic_v<T>) {

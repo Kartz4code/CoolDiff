@@ -1,7 +1,7 @@
 /**
  * @file include/Matrix/BinaryOps/GenericMatHadamard.hpp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -25,15 +25,12 @@
 #include "MatrixBasics.hpp"
 
 // Left/right side is a Matrix
-template <typename T1, typename T2, typename... Callables>
-class GenericMatHadamard : public IMatrix<GenericMatHadamard<T1, T2, Callables...>> {
+template <typename T1, typename T2>
+class GenericMatHadamard : public IMatrix<GenericMatHadamard<T1, T2>> {
 private:
   // Resources
   T1* mp_left{nullptr};
   T2* mp_right{nullptr};
-
-  // Callables
-  Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
   #if 0
@@ -66,10 +63,7 @@ public:
   OMMatPair m_cache;
 
   // Constructor
-  constexpr GenericMatHadamard(T1* u, T2* v, Callables&&... call) : mp_left{u}, 
-                                                                    mp_right{v}, 
-                                                                    m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                                    m_nidx{this->m_idx_count++} {
+  constexpr GenericMatHadamard(T1* u, T2* v) : mp_left{u}, mp_right{v}, m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
@@ -354,7 +348,7 @@ public:
 
 // GenericMatHadamard with 2 typename callables
 template <typename T1, typename T2>
-using GenericMatHadamardT = GenericMatHadamard<T1, T2, OpMatType>;
+using GenericMatHadamardT = GenericMatHadamard<T1, T2>;
 
 // Function for Hadamard product computation
 template <typename T1, typename T2>
@@ -362,7 +356,6 @@ constexpr const auto& operator^(const IMatrix<T1>& u, const IMatrix<T2>& v) {
   const auto& _u = u.cloneExp();
   const auto& _v = v.cloneExp();
   auto tmp = Allocate<GenericMatHadamardT<T1, T2>>( const_cast<T1*>(static_cast<const T1*>(&_u)),
-                                                    const_cast<T2*>(static_cast<const T2*>(&_v)), 
-                                                    OpMatObj  );
+                                                    const_cast<T2*>(static_cast<const T2*>(&_v)) );
   return *tmp;
 }

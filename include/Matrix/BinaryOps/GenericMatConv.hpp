@@ -1,7 +1,7 @@
 /**
  * @file include/Matrix/BinaryOps/GenericMatConv.hpp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -25,8 +25,8 @@
 #include "MatrixBasics.hpp"
 
 // Left/right side is a Matrix
-template <typename T1, typename T2, typename... Callables>
-class GenericMatConv : public IMatrix<GenericMatConv<T1, T2, Callables...>> {
+template <typename T1, typename T2>
+class GenericMatConv : public IMatrix<GenericMatConv<T1, T2>> {
 private:
   // Resources
   T1* mp_left{nullptr};
@@ -34,9 +34,6 @@ private:
 
   const size_t m_stride_x{1}, m_stride_y{1};
   const size_t m_pad_x{0}, m_pad_y{0};
-
-  // Callables
-  Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
   #if 0
@@ -61,15 +58,14 @@ public:
   OMMatPair m_cache;
 
   // Constructor
-  GenericMatConv(T1* u, T2* v, const size_t stride_x, const size_t stride_y,
-                 const size_t pad_x, const size_t pad_y, Callables&&... call) : mp_left{u}, 
-                                                                                mp_right{v}, 
-                                                                                m_stride_x{stride_x}, 
-                                                                                m_stride_y{stride_y},
-                                                                                m_pad_x{pad_x}, 
-                                                                                m_pad_y{pad_y}, 
-                                                                                m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                                                m_nidx{this->m_idx_count++} {
+  GenericMatConv( T1* u, T2* v, const size_t stride_x, const size_t stride_y,
+                  const size_t pad_x, const size_t pad_y  ) : mp_left{u}, 
+                                                              mp_right{v}, 
+                                                              m_stride_x{stride_x}, 
+                                                              m_stride_y{stride_y},
+                                                              m_pad_x{pad_x}, 
+                                                              m_pad_y{pad_y}, 
+                                                              m_nidx{this->m_idx_count++} {
     // Stride must be strictly non-negative
     ASSERT(((int)m_stride_x > 0) && ((int)m_stride_y > 0), "Stride is not strictly non-negative");
     // Padding must be positive
@@ -154,6 +150,17 @@ public:
     return mp_arr[1];
   }
 
+    // Traverse
+  V_OVERRIDE(void traverse(OMMatPair* cache = nullptr)) {
+    // TODO - Convolution traverse
+  }
+
+  // Get cache
+  V_OVERRIDE(OMMatPair& getCache()) {
+    return m_cache;
+  }
+
+
   // Reset visit run-time
   V_OVERRIDE(void reset()) { 
     BINARY_MAT_RESET(); 
@@ -170,17 +177,17 @@ public:
 
 // GenericMatConv with 2 typename callables
 template <typename T1, typename T2>
-using GenericMatConvT = GenericMatConv<T1, T2, OpMatType>;
+using GenericMatConvT = GenericMatConv<T1, T2>;
 
 // Function for sub computation
 template <typename T1, typename T2>
-constexpr const auto& conv(const IMatrix<T1>& u, const IMatrix<T2>& v,
-                           const size_t stride_x = 1, const size_t stride_y = 1,
-                           const size_t pad_x = 0, const size_t pad_y = 0) {
+constexpr const auto& conv( const IMatrix<T1>& u, const IMatrix<T2>& v,
+                            const size_t stride_x = 1, const size_t stride_y = 1,
+                            const size_t pad_x = 0, const size_t pad_y = 0  ) {
   const auto& _u = u.cloneExp();
   const auto& _v = v.cloneExp();
-  auto tmp = Allocate<GenericMatConvT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&_u)),
-                                               const_cast<T2*>(static_cast<const T2*>(&_v)), 
-                                               stride_x, stride_y, pad_x, pad_y, OpMatObj);
+  auto tmp = Allocate<GenericMatConvT<T1, T2>>( const_cast<T1*>(static_cast<const T1*>(&_u)),
+                                                const_cast<T2*>(static_cast<const T2*>(&_v)), 
+                                                stride_x, stride_y, pad_x, pad_y );
   return *tmp;
 }

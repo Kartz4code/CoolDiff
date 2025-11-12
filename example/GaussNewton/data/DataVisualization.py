@@ -2,7 +2,7 @@
 
 # @file example/GaussNewton/data/DataVisualization.py
 #
-# @copyright 2023-2024 Karthik Murali Madhavan Rathai
+# @copyright 2023-2025 Karthik Murali Madhavan Rathai
 #
 #
 # This file is part of CoolDiff library.

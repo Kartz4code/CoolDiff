@@ -1,7 +1,7 @@
 /**
  * @file include/Matrix/UnaryOps/GenericMatUnary.hpp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -24,19 +24,16 @@
 #include "Matrix.hpp"
 
 #define UNARY_MATRIX_OPERATOR(OPS, FUNC1, FUNC2)                                                    \
-template <typename T, typename... Callables>                                                        \
-class GenericMat##OPS : public IMatrix<GenericMat##OPS<T, Callables...>> {                          \
+template <typename T>                                                                               \
+class GenericMat##OPS : public IMatrix<GenericMat##OPS<T>> {                                        \
   private:                                                                                          \
     T* mp_right{nullptr};                                                                           \
-    Tuples<Callables...> m_caller;                                                                  \
     inline static constexpr const size_t m_size{9};                                                 \
     Matrix<Type>* mp_arr[m_size]{};                                                                 \
   public:                                                                                           \
     const size_t m_nidx{};                                                                          \
     OMMatPair m_cache;                                                                              \
-    constexpr GenericMat##OPS(T* u, Callables&&... call) :  mp_right{u},                            \
-                                                            m_caller{std::make_tuple(std::forward<Callables>(call)...)},\
-                                                            m_nidx{this->m_idx_count++}{            \
+    constexpr GenericMat##OPS(T* u) : mp_right{u}, m_nidx{this->m_idx_count++} {                    \
         std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);                                         \
     }                                                                                               \
     V_OVERRIDE(size_t getNumRows() const) { return mp_right->getNumRows(); }                        \
@@ -147,10 +144,10 @@ class GenericMat##OPS : public IMatrix<GenericMat##OPS<T, Callables...>> {      
     V_DTR(~GenericMat##OPS()) = default;                                                            \
   };                                                                                                \
 template <typename T>                                                                               \
-using CONCAT3(GenericMat, OPS, T) = GenericMat##OPS<T, OpMatType>;                                  \
+using CONCAT3(GenericMat, OPS, T) = GenericMat##OPS<T>;                                             \
 template <typename T> constexpr const auto& OPS(const IMatrix<T>& u) {                              \
   const auto& _u = u.cloneExp();                                                                    \
-  auto tmp = Allocate<CONCAT3(GenericMat, OPS, T)<T>>(const_cast<T*>(static_cast<const T*>(&_u)), OpMatObj); \
+  auto tmp = Allocate<CONCAT3(GenericMat, OPS, T)<T>>(const_cast<T*>(static_cast<const T*>(&_u)));  \
   return *tmp;                                                                                      \
 }
 

@@ -1,7 +1,7 @@
 /**
  * @file include/Matrix/MatrixBasics.hpp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -49,8 +49,14 @@ namespace CoolDiff {
             // Numerical Ones matrix
             const Matrix<Type>& OnesRef(const size_t, const size_t);
 
+            // Numerical Ones square matrix
+            const Matrix<Type>& OnesRef(const size_t);
+
             // Numerical Zero matrix
             const Matrix<Type>& ZerosRef(const size_t, const size_t);
+
+            // Numerical Zero square matrix
+            const Matrix<Type>& ZerosRef(const size_t);
         }
     }
 }

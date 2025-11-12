@@ -1,7 +1,7 @@
 /**
  * @file src/Matrix/MetaMatrix.cpp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -27,7 +27,7 @@ namespace CoolDiff {
   namespace TensorR2 {
     namespace Details {
       void ResetZero(Matrix<Type>* ptr) {
-        if ((nullptr != ptr) && (-1 == ptr->getMatType())) {
+        if ((nullptr != ptr)) {
           const size_t size = ptr->getNumElem();
           auto* mptr = ptr->getMatrixPtr();
           std::fill(EXECUTION_PAR mptr, mptr + size, (Type)(0));

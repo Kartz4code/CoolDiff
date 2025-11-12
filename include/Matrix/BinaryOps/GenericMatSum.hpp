@@ -1,7 +1,7 @@
 /**
  * @file include/Matrix/BinaryOps/GenericMatSum.hpp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -24,15 +24,12 @@
 #include "Matrix.hpp"
 
 // Left/right side is a Matrix expression
-template <typename T1, typename T2, typename... Callables>
-class GenericMatSum : public IMatrix<GenericMatSum<T1, T2, Callables...>> {
+template <typename T1, typename T2>
+class GenericMatSum : public IMatrix<GenericMatSum<T1, T2>> {
 private:
   // Resources
   T1* mp_left{nullptr};
   T2* mp_right{nullptr};
-
-  // Callables
-  Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
   #if 0
@@ -65,10 +62,7 @@ public:
   OMMatPair m_cache{};
 
   // Constructor
-  constexpr GenericMatSum(T1* u, T2* v, Callables&&... call) :  mp_left{u}, 
-                                                                mp_right{v}, 
-                                                                m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                                m_nidx{this->m_idx_count++} {
+  constexpr GenericMatSum(T1* u, T2* v) : mp_left{u}, mp_right{v}, m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
@@ -320,15 +314,12 @@ public:
 };
 
 // Left is Type (scalar) and right is a matrix
-template <typename T, typename... Callables>
-class GenericMatScalarSum : public IMatrix<GenericMatScalarSum<T, Callables...>> {
+template <typename T>
+class GenericMatScalarSum : public IMatrix<GenericMatScalarSum<T>> {
 private:
   // Resources
   Type m_left{};
   T* mp_right{nullptr};
-
-  // Callables
-  Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
   #if 0
@@ -347,10 +338,7 @@ public:
   OMMatPair m_cache;
 
   // Constructor
-  constexpr GenericMatScalarSum(Type u, T* v, Callables&&... call) : m_left{u}, 
-                                                                     mp_right{v}, 
-                                                                     m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                                     m_nidx{this->m_idx_count++} {
+  constexpr GenericMatScalarSum(Type u, T* v) : m_left{u}, mp_right{v}, m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
@@ -518,15 +506,12 @@ public:
 };
 
 // Left is Expression/Variable/Parameter (scalar) and right is a matrix
-template <typename T1, typename T2, typename... Callables>
-class GenericMatScalarSumExp : public IMatrix<GenericMatScalarSumExp<T1, T2, Callables...>> {
+template <typename T1, typename T2>
+class GenericMatScalarSumExp : public IMatrix<GenericMatScalarSumExp<T1, T2>> {
 private:
   // Resources
   T1* mp_left{nullptr};
   T2* mp_right{nullptr};
-
-  // Callables
-  Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
   #if 0
@@ -546,11 +531,7 @@ public:
   OMPair m_cache_v; 
 
   // Constructor
-  constexpr GenericMatScalarSumExp(T1* u, T2* v, Callables&&... call) : mp_left{u}, 
-                                                                        mp_right{v}, 
-                                                                        m_caller{std::make_tuple(
-                                                                        std::forward<Callables>(call)...)},
-                                                                        m_nidx{this->m_idx_count++} {
+  constexpr GenericMatScalarSumExp(T1* u, T2* v) : mp_left{u}, mp_right{v}, m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
@@ -797,15 +778,15 @@ public:
 
 // GenericMatSum with 2 typename and callables
 template <typename T1, typename T2>
-using GenericMatSumT = GenericMatSum<T1, T2, OpMatType>;
+using GenericMatSumT = GenericMatSum<T1, T2>;
 
 // GenericMatScalarSum with 1 typename and callables
 template <typename T>
-using GenericMatScalarSumT = GenericMatScalarSum<T, OpMatType>;
+using GenericMatScalarSumT = GenericMatScalarSum<T>;
 
 // GenericMatScalarSumExp with 2 typename and callables
 template <typename T1, typename T2>
-using GenericMatScalarSumExpT = GenericMatScalarSumExp<T1, T2, OpMatType>;
+using GenericMatScalarSumExpT = GenericMatScalarSumExp<T1, T2>;
 
 // Function for sum computation
 template <typename T1, typename T2>
@@ -813,8 +794,7 @@ constexpr const auto& operator+(const IMatrix<T1>& u, const IMatrix<T2>& v) {
   const auto& _u = u.cloneExp();
   const auto& _v = v.cloneExp();
   auto tmp = Allocate<GenericMatSumT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&_u)),
-                                              const_cast<T2*>(static_cast<const T2*>(&_v)), 
-                                              OpMatObj);
+                                              const_cast<T2*>(static_cast<const T2*>(&_v)));
   return *tmp;
 }
 
@@ -822,7 +802,7 @@ constexpr const auto& operator+(const IMatrix<T1>& u, const IMatrix<T2>& v) {
 template <typename T>
 constexpr const auto& operator+(Type u, const IMatrix<T>& v) {
   const auto& _v = v.cloneExp();
-  auto tmp = Allocate<GenericMatScalarSumT<T>>(u, const_cast<T*>(static_cast<const T*>(&_v)), OpMatObj);
+  auto tmp = Allocate<GenericMatScalarSumT<T>>(u, const_cast<T*>(static_cast<const T*>(&_v)));
   return *tmp;
 }
 
@@ -838,9 +818,8 @@ constexpr const auto& operator+(const T1& v, const IMatrix<T2>& u) {
   const auto& _u = u.cloneExp();
   const auto& _v = v.cloneExp();
 
-  auto tmp = Allocate<GenericMatScalarSumExpT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&_v)),
-                                                      const_cast<T2*>(static_cast<const T2*>(&_u)), 
-                                                      OpMatObj);
+  auto tmp = Allocate<GenericMatScalarSumExpT<T1, T2>>( const_cast<T1*>(static_cast<const T1*>(&_v)),
+                                                        const_cast<T2*>(static_cast<const T2*>(&_u)) );
   return *tmp;
 }
 

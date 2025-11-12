@@ -2,7 +2,7 @@
 /**
 * @file CMakeLists.txt
 *
-* @copyright 2023-2024 Karthik Murali Madhavan Rathai
+* @copyright 2023-2025 Karthik Murali Madhavan Rathai
 */
 /*
 * This file is part of CoolDiff library.
@@ -80,11 +80,7 @@ option(ENABLE_ROBIN_HOOD_MAP "Enable robin hood hashmaps" ON) # Default - ON
 option(ENABLE_VIRTUAL_FUNCTIONS "Enable virtual functions" ON) # Default - ON
 option(ENABLE_DYNAMIC_ASSERTIONS "Enable dynamic assertions" ON) # Default - OFF
 option(ENABLE_STL_PARALLEL_EXECUTION "Enable STL libraries parallel execution feature" OFF) # Default - OFF
-# TODO - Symbolic check and memory pool issue for special matrices
-option(ENABLE_SYMBOLIC_CHECK "Enable symbolic checks" OFF) # Default - ON
-# TODO - Verification of numerical checks
-option(ENABLE_NUMERICAL_CHECK "Enable numerical checks" OFF) # Default - OFF
-set(DEFAULT_MATH_TYPE 1 CACHE STRING "Value that defined the default math type: Float  - 1, Double - 2") # Default - 2
+set(DEFAULT_MATH_TYPE 1 CACHE STRING "Value that defined the default math type: Float  - 1, Double - 2") # Default - 2 for test cases
 
 
 ########################################################################################################################
@@ -193,8 +189,6 @@ set(SRC # Scalar folder *.cpp files
         ${CMAKE_SOURCE_DIR}/src/Matrix/MetaMatrix.cpp
         ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixBasics.cpp
         ${CMAKE_SOURCE_DIR}/src/Matrix/Matrix.cpp
-        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixSplOps/MatrixZeroOps.cpp
-        ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixSplOps/MatrixEyeOps.cpp
         # Memory manager folder
         ${CMAKE_SOURCE_DIR}/src/MemoryManager/MemoryManager.cpp)
 
@@ -254,7 +248,8 @@ set(PRIVATE_INCLUDES    # Matrix handler include directory
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInverse/Eigen
 
                         # Naive Convolution handlers            
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvolution/NaiveCPU)
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvolution/NaiveCPU
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvolution/Eigen)
 
 set(PUBLIC_INCLUDES     #General include (CommonHeader.hpp, CoolDiff.hpp)
                         ${CMAKE_SOURCE_DIR}/include
@@ -271,9 +266,6 @@ set(PUBLIC_INCLUDES     #General include (CommonHeader.hpp, CoolDiff.hpp)
                         # Matrix unary and binary ops
                         ${CMAKE_SOURCE_DIR}/include/Matrix/BinaryOps
                         ${CMAKE_SOURCE_DIR}/include/Matrix/UnaryOps
-
-                        # Matrix special ops
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixSplOps
                         
                         # Memory manager
                         ${CMAKE_SOURCE_DIR}/include/MemoryManager)
@@ -355,15 +347,7 @@ endif()
 
 if(${ENABLE_STL_PARALLEL_EXECUTION})
     target_compile_definitions(${PROJECT_NAME} PUBLIC USE_CXX_PARALLEL_POLICY)
-endif()
-
-if(${ENABLE_SYMBOLIC_CHECK})
-    target_compile_definitions(${PROJECT_NAME} PUBLIC USE_SYMBOLIC_CHECK)
-endif()
-
-if(${ENABLE_NUMERICAL_CHECK})
-    target_compile_definitions(${PROJECT_NAME} PUBLIC USE_NUMERICAL_CHECK)
-endif()    
+endif() 
 
 ########################################################################################################################
 ########################################################################################################################

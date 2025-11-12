@@ -3,7 +3,7 @@
 /**
  * @file include/Matrix/MatrixInterface/MatrixAccessors.ipp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -185,12 +185,6 @@ size_t Matrix<T>::getFinalNumColumns() const {
 template<typename T>
 size_t Matrix<T>::getFinalNumElem() const {
   return (getFinalNumRows() * getFinalNumColumns());
-}
-
-// Get type of matrix
-template<typename T>
-MatrixSpl Matrix<T>::getMatType() const { 
-  return m_type; 
 }
 
 // Get type

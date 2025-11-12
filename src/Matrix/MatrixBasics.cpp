@@ -1,7 +1,7 @@
 /**
  * @file src/Matrix/MatrixBasics.cpp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -112,9 +112,19 @@ namespace CoolDiff {
             return *Ones(n,m);
           }
 
+          // Numerical Ones matrix
+          const Matrix<Type>& OnesRef(const size_t n) {
+            return OnesRef(n,n);
+          }
+
           // Numerical Zero matrix
           const Matrix<Type>& ZerosRef(const size_t n, const size_t m) {
             return *Zeros(n,m);
+          }
+
+          // Numerical Zero matrix
+          const Matrix<Type>& ZerosRef(const size_t n) {
+            return ZerosRef(n, n);
           }
         }
     }

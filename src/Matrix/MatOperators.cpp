@@ -1,7 +1,7 @@
 /**
  * @file src/Matrix/MatOperators.cpp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -23,48 +23,36 @@
 
 // Static handlers
 // Matrix-Matrix addition
-#include "EyeMatAddHandler.hpp"
-#include "ZeroMatAddHandler.hpp"
 #include "MatAddNaiveHandler.hpp"
 
 // Eigen implementation
 #include "MatAddEigenHandler.hpp"
 
 // Matrix-scalar addition
-#include "EyeMatScalarAddHandler.hpp"
-#include "ZeroMatScalarAddHandler.hpp"
 #include "MatScalarAddNaiveHandler.hpp"
 
 // Eigen implementation
 #include "MatScalarAddEigenHandler.hpp"
 
 // Matrix-Matrix multiplication
-#include "EyeMatMulHandler.hpp"
-#include "ZeroMatMulHandler.hpp"
 #include "MatMulNaiveHandler.hpp"
 
 // Eigen implementation
 #include "MatMulEigenHandler.hpp"
 
 // Matrix-scalar multiplication
-#include "EyeMatScalarMulHandler.hpp"
-#include "ZeroMatScalarMulHandler.hpp"
 #include "MatScalarMulNaiveHandler.hpp"
 
 // Eigen implementation
 #include "MatScalarMulEigenHandler.hpp"
 
 // Matrix-Matrix subtraction
-#include "EyeMatSubHandler.hpp"
-#include "ZeroMatSubHandler.hpp"
 #include "MatSubNaiveHandler.hpp"
 
 // Eigen implementation
 #include "MatSubEigenHandler.hpp"
 
 // Matrix-Matrix Kronocker product
-#include "EyeMatKronHandler.hpp"
-#include "ZeroMatKronHandler.hpp"
 #include "MatKronNaiveHandler.hpp"
 
 // Eigen implementation
@@ -72,21 +60,15 @@
 
 // Matrix determinant
 #include "MatDetEigenHandler.hpp"
-#include "EyeMatDetHandler.hpp"
-#include "ZeroMatDetHandler.hpp"
 
 // Matrix trace
 #include "MatTraceNaiveHandler.hpp"
-#include "EyeMatTraceHandler.hpp"
-#include "ZeroMatTraceHandler.hpp"
 
 // Eigen trace
 #include "MatTraceEigenHandler.hpp" 
 
 // Matrix Hadamard product
 #include "MatHadamardNaiveHandler.hpp"
-#include "EyeMatHadamardHandler.hpp"
-#include "ZeroMatHadamardHandler.hpp"
 
 // Eigen implementation
 #include "MatHadamardEigenHandler.hpp"
@@ -94,31 +76,23 @@
 // Matrix transpose
 #include "MatDervTransposeNaiveHandler.hpp"
 #include "MatTransposeNaiveHandler.hpp"
-#include "EyeMatDervTransposeHandler.hpp"
-#include "EyeMatTransposeHandler.hpp"
-#include "ZeroMatDervTransposeHandler.hpp"
-#include "ZeroMatTransposeHandler.hpp"
 
 // Eigen implementation
 #include "MatTransposeEigenHandler.hpp"
 
 // Matrix unary
 #include "MatUnaryNaiveHandler.hpp"
-#include "EyeMatUnaryHandler.hpp"
-#include "ZeroMatUnaryHandler.hpp"
 
 // Matrix convolution
-#include "ZeroMatConvHandler.hpp"
-#include "ZeroMatDervConvHandler.hpp"
 #include "MatConvNaiveHandler.hpp"
+#include "MatConvEigenHandler.hpp"
 #include "MatDervConvNaiveHandler.hpp"
 
 // Matrix inverse
 #include "MatInverseEigenHandler.hpp"
-#include "EyeMatInvHandler.hpp"
-#include "ZeroMatInvHandler.hpp"
 
-// Handler of sizes 2,3,4,5,6,7
+// Handler of sizes {1,2,3,4,5,6,7}
+#define HANDLER1(X) X<MatrixStaticHandler>
 #define HANDLER2(X1,X2) X1<X2<MatrixStaticHandler>>
 #define HANDLER3(X1,X2,X3) X1<X2<X3<MatrixStaticHandler>>>
 #define HANDLER4(X1,X2,X3,X4) X1<X2<X3<X4<MatrixStaticHandler>>>>
@@ -135,22 +109,11 @@ namespace CoolDiff {
             NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            /* Chain of responsibility (Order matters)
-                1) Eye matrix check
-                2) Zero matrix check
-                3) Matrix-Matrix addition
-            */
-
             #ifdef NAIVE_HANDLER
-              static HANDLER3(EyeMatAddHandler, 
-                              ZeroMatAddHandler,
-                              MatAddNaiveHandler) handler;
+              static HANDLER1(MatAddNaiveHandler) handler;
             #endif
 
-            static HANDLER3(EyeMatAddHandler, 
-                            ZeroMatAddHandler,
-                            MatAddEigenHandler) handler;
-              
+            static HANDLER1(MatAddEigenHandler) handler;
 
             // Handle matrix addition
             handler.handle(lhs, rhs, result);
@@ -161,21 +124,11 @@ namespace CoolDiff {
             // Null pointer check
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            /* Chain of responsibility (Order matters)
-                1) Eye matrix check
-                2) Zero matrix check
-                3) Matrix-Matrix Hadamard product
-            */
-
             #ifdef NAIVE_HANDLER
-              static HANDLER3(EyeMatScalarAddHandler, 
-                              ZeroMatScalarAddHandler,
-                              MatScalarAddNaiveHandler) handler;
+              static HANDLER1(MatScalarAddNaiveHandler) handler;
             #endif
 
-            static HANDLER3(EyeMatScalarAddHandler, 
-                            ZeroMatScalarAddHandler,
-                            MatScalarAddEigenHandler) handler;
+            static HANDLER1(MatScalarAddEigenHandler) handler;
                             
             // Handle Matrix-Scalar addition
             handler.handle(lhs, rhs, result);
@@ -187,22 +140,11 @@ namespace CoolDiff {
             NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            /* Chain of responsibility (Order matters)
-                1) Eye matrix check
-                2) Zero matrix check
-                3) Matrix-Matrix subtraction
-            */
-
             #ifdef NAIVE_HANDLER
-              static HANDLER3(EyeMatSubHandler, 
-                              ZeroMatSubHandler,
-                              MatSubNaiveHandler) handler;
+              static HANDLER1(MatSubNaiveHandler) handler;
             #endif
-
             
-            static HANDLER3(EyeMatSubHandler, 
-                            ZeroMatSubHandler,
-                            MatSubEigenHandler) handler;
+            static HANDLER1(MatSubEigenHandler) handler;
             
             // Handle matrix addition
             handler.handle(lhs, rhs, result);
@@ -214,21 +156,11 @@ namespace CoolDiff {
             NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            /* Chain of responsibility (Order matters)
-                1) Eye matrix check
-                2) Zero matrix check
-                3) Matrix-Matrix multiplication
-            */
-
             #ifdef NAIVE_HANDLER
-              static HANDLER3(EyeMatMulHandler,
-                              ZeroMatMulHandler,
-                              MatMulNaiveHandler) handler;
+              static HANDLER1(MatMulNaiveHandler) handler;
             #endif
 
-            static HANDLER3(EyeMatMulHandler,
-                            ZeroMatMulHandler,
-                            MatMulEigenHandler) handler;
+            static HANDLER1(MatMulEigenHandler) handler;
 
             // Handle matrix multiplication
             handler.handle(lhs, rhs, result);
@@ -239,21 +171,11 @@ namespace CoolDiff {
             // Null pointer check
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            /* Chain of responsibility (Order matters)
-              1) Eye matrix check
-              2) Zero matrix check
-              3) Matrix-Matrix Hadamard product
-          */
-
             #ifdef NAIVE_HANDLER
-              static HANDLER3(EyeMatScalarMulHandler,
-                              ZeroMatScalarMulHandler,
-                              MatScalarMulNaiveHandler) handler;
+              static HANDLER1(MatScalarMulNaiveHandler) handler;
             #endif
 
-            static HANDLER3(EyeMatScalarMulHandler,
-                            ZeroMatScalarMulHandler,
-                            MatScalarMulEigenHandler) handler;
+            static HANDLER1(MatScalarMulEigenHandler) handler;
             
             // Handle Matrix-Scalar multiplication
             handler.handle(lhs, rhs, result);
@@ -265,21 +187,11 @@ namespace CoolDiff {
             NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            /* Chain of responsibility (Order matters)
-                1) Eye matrix check
-                2) Zero matrix check
-                3) Matrix-Matrix Kronocker product
-            */
-
             #ifdef NAIVE_HANDLER
-              static HANDLER3(EyeMatKronHandler, 
-                              ZeroMatKronHandler,
-                              MatKronNaiveHandler) handler;
+              static HANDLER1(MatKronNaiveHandler) handler;
             #endif
 
-            static HANDLER3(EyeMatKronHandler, 
-                            ZeroMatKronHandler,
-                            MatKronEigenHandler) handler;
+            static HANDLER1(MatKronEigenHandler) handler;
             
             // Handle Kronocker product
             handler.handle(lhs, rhs, result);
@@ -291,21 +203,11 @@ namespace CoolDiff {
             NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            /* Chain of responsibility (Order matters)
-                1) Eye matrix check
-                2) Zero matrix check
-                3) Matrix-Matrix Hadamard product
-            */
-
             #ifdef NAIVE_HANDLER
-              static HANDLER3(EyeMatHadamardHandler, 
-                              ZeroMatHadamardHandler,
-                              MatHadamardNaiveHandler) handler;
+              static HANDLER1(MatHadamardNaiveHandler) handler;
             #endif
             
-            static HANDLER3(EyeMatHadamardHandler, 
-                            ZeroMatHadamardHandler,
-                            MatHadamardEigenHandler) handler;
+            static HANDLER1(MatHadamardEigenHandler) handler;
             
             // Handle Hadamard product
             handler.handle(lhs, rhs, result);
@@ -316,23 +218,12 @@ namespace CoolDiff {
             // Null pointer check
             NULL_CHECK(mat, "Matrix (mat) is a nullptr");
 
-            /* Chain of responsibility (Order matters)
-              1) Eye matrix check
-              2) Zero matrix check
-              3) Matrix transpose
-          */
-
             #if NAIVE_HANDLER
-              static HANDLER3(EyeMatTransposeHandler,
-                              ZeroMatTransposeHandler,
-                              MatTransposeNaiveHandler) handler;
+              static HANDLER1(MatTransposeNaiveHandler) handler;
             #endif
 
-            static HANDLER3(EyeMatTransposeHandler,
-                            ZeroMatTransposeHandler,
-                            MatTransposeEigenHandler) handler;
+            static HANDLER1(MatTransposeEigenHandler) handler;
               
-
             // Handle Matrix transpose
             handler.handle(mat, result);
           }
@@ -344,14 +235,7 @@ namespace CoolDiff {
             // Null pointer check
             NULL_CHECK(mat, "Matrix (mat) is a nullptr");
 
-            /* Chain of responsibility (Order matters)
-                1) Eye matrix check
-                2) Zero matrix check
-                3) Matrix transpose
-            */
-            static HANDLER3(EyeMatDervTransposeHandler,
-                            ZeroMatDervTransposeHandler,
-                            MatDervTransposeNaiveHandler) handler;
+            static HANDLER1(MatDervTransposeNaiveHandler) handler;
 
             // Handle Matrix transpose
             handler.handle(nrows_f, ncols_f, nrows_x, ncols_x, mat, result);
@@ -361,9 +245,7 @@ namespace CoolDiff {
           void MatrixInverse(const Matrix<Type>* mat, Matrix<Type>*& result) {
             NULL_CHECK(mat, "Matrix mat is a nullptr");
 
-            static HANDLER3(EyeMatInvHandler, 
-                            ZeroMatInvHandler,
-                            MatInverseEigenHandler) handler;
+            static HANDLER1(MatInverseEigenHandler) handler;
 
             // Handle Matrix Inverse
             handler.handle(mat, result);
@@ -374,14 +256,7 @@ namespace CoolDiff {
             // Null pointer check
             NULL_CHECK(mat, "Matrix mat is a nullptr");
 
-            /* Chain of responsibility (Order matters)
-              1) Eye matrix check
-              2) Zero matrix check
-              3) Matrix convolution derivative
-            */
-            static HANDLER3(EyeMatDetHandler, 
-                            ZeroMatDetHandler,
-                            MatDetEigenHandler) handler;
+            static HANDLER1(MatDetEigenHandler) handler;
 
             // Handle matrix determinant
             handler.handle(mat, result);
@@ -392,21 +267,10 @@ namespace CoolDiff {
             // Null pointer check
             NULL_CHECK(mat, "Matrix mat is a nullptr");
 
-            /* Chain of responsibility (Order matters)
-              1) Eye matrix check
-              2) Zero matrix check
-              3) Matrix convolution derivative
-            */
-
-            
             #if NAIVE_HANDLER
-              static HANDLER3(EyeMatTraceHandler, 
-                              ZeroMatTraceHandler,
-                              MatTraceNaiveHandler) handler;
+              static HANDLER1(MatTraceNaiveHandler) handler;
             #endif  
-            static HANDLER3(EyeMatTraceHandler, 
-                            ZeroMatTraceHandler,
-                            MatTraceEigenHandler) handler;
+            static HANDLER1(MatTraceEigenHandler) handler;
 
             // Handle matrix determinant
             handler.handle(mat, result);
@@ -416,9 +280,7 @@ namespace CoolDiff {
           void MatrixUnary(const Matrix<Type> *mat, const FunctionType1 &func, Matrix<Type> *&result) {
             NULL_CHECK(mat, "Matrix mat is a nullptr");
 
-            static HANDLER3(EyeMatUnaryHandler, 
-                            ZeroMatUnaryHandler,
-                            MatUnaryNaiveHandler) handler;
+            static HANDLER1(MatUnaryNaiveHandler) handler;
 
             // Handle Unary Matrix
             handler.handle(mat, func, result);
@@ -432,15 +294,11 @@ namespace CoolDiff {
             NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            /* Chain of responsibility (Order matters)
-                1) Eye matrix check
-                2) Zero matrix check
-                3) Matrix convolution
-            */
-
-            static HANDLER2(ZeroMatConvHandler, 
-                            MatConvNaiveHandler) handler;
-
+            #if NAIVE_HANDLER
+              static HANDLER1(MatConvNaiveHandler) handler;
+            #endif  
+            static HANDLER1(MatConvEigenHandler) handler;
+            
             // Handle Matrix convolution
             handler.handle(stride_x, stride_y, pad_x, pad_y, lhs, rhs, result);
           }
@@ -459,14 +317,7 @@ namespace CoolDiff {
             NULL_CHECK(dlhs, "LHS Derivative Matrix (lhs) is a nullptr");
             NULL_CHECK(drhs, "RHS Derivative Matrix (rhs) is a nullptr");
 
-            /* Chain of responsibility (Order matters)
-                1) Eye matrix check
-                2) Zero matrix check
-                3) Matrix convolution derivative
-            */
-
-            static HANDLER2(ZeroMatDervConvHandler, 
-                            MatDervConvNaiveHandler) handler;
+            static HANDLER1(MatDervConvNaiveHandler) handler;
 
             // Handle Matrix convolution derivative
             handler.handle(nrows_x, ncols_x, stride_x, stride_y, pad_x, pad_y, lhs, dlhs, rhs, drhs, result);

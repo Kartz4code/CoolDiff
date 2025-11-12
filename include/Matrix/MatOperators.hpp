@@ -1,7 +1,7 @@
 /**
  * @file include/Matrix/MatOperators.hpp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -51,8 +51,7 @@ namespace CoolDiff {
             void MatrixTranspose(const Matrix<Type>*, Matrix<Type>*&);
 
             // Matrix derivative transpose
-            void MatrixDervTranspose(   const size_t, const size_t, const size_t, const size_t,
-                                        const Matrix<Type>*, Matrix<Type>*& );
+            void MatrixDervTranspose(const size_t, const size_t, const size_t, const size_t, const Matrix<Type>*, Matrix<Type>*&);
 
             // Matrix convolution
             void MatrixConv(const size_t, const size_t, const size_t, const size_t,

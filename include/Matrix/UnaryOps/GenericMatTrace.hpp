@@ -1,7 +1,7 @@
 /**
  * @file include/Matrix/UnaryOps/GenericMatTrace.hpp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -24,14 +24,11 @@
 #include "Matrix.hpp"
 
 // Left/right side is a Matrix
-template <typename T, typename... Callables>
-class GenericMatTrace : public IMatrix<GenericMatTrace<T, Callables...>> {
+template <typename T>
+class GenericMatTrace : public IMatrix<GenericMatTrace<T>> {
 private:
   // Resources
   T* mp_right{nullptr};
-
-  // Callables
-  Tuples<Callables...> m_caller;
 
   // Disable copy and move constructors/assignments
   #if 0
@@ -60,9 +57,7 @@ public:
   OMMatPair m_cache;
 
   // Constructor
-  constexpr GenericMatTrace(T* u, Callables&&... call) :  mp_right{u}, 
-                                                          m_caller{std::make_tuple(std::forward<Callables>(call)...)},
-                                                          m_nidx{this->m_idx_count++} {
+  constexpr GenericMatTrace(T* u) : mp_right{u}, m_nidx{this->m_idx_count++} {
     std::fill_n(EXECUTION_PAR mp_arr, m_size, nullptr);
   }
 
@@ -280,12 +275,12 @@ public:
 
 // GenericMatTrace with 1 typename and callables
 template <typename T> 
-using GenericMatTraceT = GenericMatTrace<T, OpMatType>;
+using GenericMatTraceT = GenericMatTrace<T>;
 
 // Function for trace computation
 template <typename T> 
 constexpr const auto& trace(const IMatrix<T>& u) {
   const auto& _u = u.cloneExp();
-  auto tmp = Allocate<GenericMatTraceT<T>>(const_cast<T*>(static_cast<const T*>(&_u)), OpMatObj);
+  auto tmp = Allocate<GenericMatTraceT<T>>(const_cast<T*>(static_cast<const T*>(&_u)));
   return *tmp;
 }

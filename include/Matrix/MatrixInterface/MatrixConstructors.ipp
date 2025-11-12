@@ -1,9 +1,9 @@
- #pragma once
+#pragma once
 
 /**
  * @file include/Matrix/MatrixInterface/MatrixConstructors.ipp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -27,7 +27,6 @@ template<typename T>
 void Matrix<T>::swap(Matrix& other) noexcept {
   std::swap(m_rows, other.m_rows);
   std::swap(m_cols, other.m_cols);
-  std::swap(m_type, other.m_type);
   std::swap(mp_mat, other.mp_mat);
   std::swap(m_gh_vec, other.m_gh_vec);
   std::swap(m_eval, other.m_eval);
@@ -39,20 +38,10 @@ void Matrix<T>::swap(Matrix& other) noexcept {
   std::swap(m_cache, other.m_cache);
 }
 
-// Special matrix constructor (Privatized, only for internal factory view)
-template<typename T>
-Matrix<T>::Matrix(const size_t rows, const size_t cols, const MatrixSpl& type) :  m_rows{rows}, 
-                                                                                  m_cols{cols},
-                                                                                  m_type{type} {
-  // Assert for strictly non-negative values for rows and columns
-  ASSERT((rows > 0) && (cols > 0), "Row/Column size is not strictly non-negative");                                                                                  
-}
-
 // Default constructor - Zero arguments
 template<typename T>
 Matrix<T>::Matrix() : m_rows{1}, 
-                      m_cols{1}, 
-                      m_type{(size_t)(-1)}, 
+                      m_cols{1},
                       mp_mat{new T[1]{}},
                       mp_result{nullptr}, 
                       mp_dresult{nullptr}, 
@@ -65,8 +54,7 @@ Matrix<T>::Matrix() : m_rows{1},
 // Constructor with rows and columns
 template<typename T>
 Matrix<T>::Matrix(const size_t rows, const size_t cols) : m_rows{rows}, 
-                                                          m_cols{cols}, 
-                                                          m_type{(size_t)(-1)},
+                                                          m_cols{cols},
                                                           mp_result{nullptr}, 
                                                           mp_dresult{nullptr},
                                                           m_eval{false}, 
@@ -83,8 +71,7 @@ Matrix<T>::Matrix(const size_t rows, const size_t cols) : m_rows{rows},
 */
 template<typename T>
 Matrix<T>::Matrix(const size_t rows, const size_t cols, T* ptr)  :    m_rows{rows}, 
-                                                                      m_cols{cols}, 
-                                                                      m_type{(size_t)(-1)},
+                                                                      m_cols{cols},
                                                                       mp_result{nullptr}, 
                                                                       mp_dresult{nullptr},
                                                                       m_eval{false}, 
@@ -125,8 +112,7 @@ Matrix<T>::Matrix(const size_t rows, const size_t cols, const T& val) : Matrix(r
 // Copy constructor
 template<typename T>
 Matrix<T>::Matrix(const Matrix& m) :  m_rows{m.m_rows}, 
-                                      m_cols{m.m_cols}, 
-                                      m_type{m.m_type},
+                                      m_cols{m.m_cols},
                                       m_eval{m.m_eval}, 
                                       m_devalf{m.m_devalf},
                                       m_dest{m.m_dest},
@@ -158,7 +144,6 @@ Matrix<T>& Matrix<T>::operator=(const Matrix& m) {
 template<typename T>
 Matrix<T>::Matrix(Matrix&& m) noexcept :  m_rows{std::exchange(m.m_rows, -1)}, 
                                           m_cols{std::exchange(m.m_cols,-1)},
-                                          m_type{std::exchange(m.m_type, -1)}, 
                                           mp_mat{std::exchange(m.mp_mat, nullptr)},
                                           mp_result{std::exchange(m.mp_result, nullptr)},
                                           mp_dresult{std::exchange(m.mp_dresult, nullptr)}, 
@@ -174,7 +159,7 @@ Matrix<T>::Matrix(Matrix&& m) noexcept :  m_rows{std::exchange(m.m_rows, -1)},
 // Copy data from another matrix (Just copy all contents from one matrix to another)
 template<typename T>
 void Matrix<T>::copyData(const Matrix<T>& M) {
-  ASSERT((m_rows == M.m_rows) && (m_cols == M.m_cols), "Matrix dimensions mismatch");
+  ASSERT((m_rows*m_cols == M.m_rows*M.m_cols), "Matrix dimensions mismatch");
   std::copy(EXECUTION_PAR M.mp_mat, M.mp_mat + getNumElem(), mp_mat);
 }
 

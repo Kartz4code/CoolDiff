@@ -1,7 +1,7 @@
 /**
  * @file include/Matrix/IMatrix.hpp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -57,6 +57,16 @@ public:
   V_DTR(~IMatrix()) = default;
 };
 
+// Axis based operations
+enum class Axis {
+  ROW, COLUMN, ALL
+};
+
+// Matrix concatenation direction 
+enum class ConcatAxis {
+  HORIZONTAL, VERTICAL
+};
+
 // Binary matrix reset
 #define BINARY_MAT_RESET()                                                     \
   this->m_visited = false;                                                     \
@@ -71,90 +81,19 @@ public:
   if (false == m_cache.empty()) { m_cache.clear(); }                           \
   mp_right->reset();                                                           \
 
-// Axis based operations
-enum class Axis {
-  ROW, COLUMN, ALL
-};
-
-// Matrix concatenation direction 
-enum class ConcatAxis {
-  HORIZONTAL, VERTICAL
-};
-
-// Activation funcions
-enum class Activation {
-  SIGMOID, 
-  RELU,
-  LRELU,
-  TANH
-};
-
-// Special matrices
-enum MatrixSpl : size_t {
-  ZEROS = 1 << 1,
-  EYE   = 1 << 2,
-  ONES  = 1 << 3,
-  DIAG  = 1 << 4,
-  SYMM  = 1 << 5,
-  NONE  = 1 << 30
-};
-
-// Operations enum [Order matters!]
-enum OpMat : size_t {
-  ADD_MAT = 0, MUL_MAT, KRON_MAT, SUB_MAT,
-  HADAMARD_MAT, ADD_SCALAR_MAT, MUL_SCALAR_MAT, TRANSPOSE_MAT,
-  TRANSPOSE_DERV_MAT, CONV_MAT, CONV_DERV_MAT, UNARY_OP_MAT,
-  INV_MAT, DET_MAT, TRACE_MAT, COUNT_MAT
-};
-
-// Matrix operations Macros
-#define MATRIX_ADD(X, Y, Z) std::get<OpMat::ADD_MAT>(m_caller)(X, Y, Z)
-#define MATRIX_MUL(X, Y, Z) std::get<OpMat::MUL_MAT>(m_caller)(X, Y, Z)
-#define MATRIX_KRON(X, Y, Z) std::get<OpMat::KRON_MAT>(m_caller)(X, Y, Z)
-#define MATRIX_SUB(X, Y, Z) std::get<OpMat::SUB_MAT>(m_caller)(X, Y, Z)
-#define MATRIX_HADAMARD(X, Y, Z) std::get<OpMat::HADAMARD_MAT>(m_caller)(X, Y, Z)
-#define MATRIX_SCALAR_ADD(X, Y, Z) std::get<OpMat::ADD_SCALAR_MAT>(m_caller)(X, Y, Z)
-#define MATRIX_SCALAR_MUL(X, Y, Z) std::get<OpMat::MUL_SCALAR_MAT>(m_caller)(X, Y, Z)
-#define MATRIX_TRANSPOSE(X, Y) std::get<OpMat::TRANSPOSE_MAT>(m_caller)(X, Y)
-#define MATRIX_DERV_TRANSPOSE(X1, X2, X3, X4, X5, X6) std::get<OpMat::TRANSPOSE_DERV_MAT>(m_caller)(X1, X2, X3, X4, X5, X6)
-#define MATRIX_CONV(X1, X2, X3, X4, X5, X6, X7) std::get<OpMat::CONV_MAT>(m_caller)(X1, X2, X3, X4, X5, X6, X7)
-#define MATRIX_DERV_CONV(X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11) std::get<OpMat::CONV_DERV_MAT>(m_caller)(X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11)
-
-#define UNARY_OP_MAT(X, Y, Z) std::get<OpMat::UNARY_OP_MAT>(m_caller)(X, Y, Z)
-#define MATRIX_INVERSE(X, Y)  std::get<OpMat::INV_MAT>(m_caller)(X, Y)
-#define MATRIX_DET(X, Y)      std::get<OpMat::DET_MAT>(m_caller)(X, Y)
-#define MATRIX_TRACE(X, Y)    std::get<OpMat::TRACE_MAT>(m_caller)(X, Y)
-
-// Operation type [Order matters!]
-#define OpMatType void (*)(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&),             \
-                  void (*)(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&),             \
-                  void (*)(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&),             \
-                  void (*)(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&),             \
-                  void (*)(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&),             \
-                  void (*)(Type, const Matrix<Type>*, Matrix<Type>*&),                            \
-                  void (*)(Type, const Matrix<Type>*, Matrix<Type>*&),                            \
-                  void (*)(const Matrix<Type>*, Matrix<Type>*&),                                  \
-                  void (*)(const size_t, const size_t, const size_t, const size_t, const Matrix<Type>*, Matrix<Type>*&), \
-                  void (*)(const size_t, const size_t, const size_t, const size_t, const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&), \
-                  void (*)(const size_t, const size_t, const size_t, const size_t, const size_t, const size_t, const Matrix<Type>*, const Matrix<Type>*, const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&), \
-                  void (*)(const Matrix<Type>*, const FunctionType1&, Matrix<Type>*&),            \
-                  void (*)(const Matrix<Type>*, Matrix<Type>*&),                                  \
-                  void (*)(const Matrix<Type>*, Matrix<Type>*&),                                  \
-                  void (*)(const Matrix<Type>*, Matrix<Type>*&)
-
-// Operation objects [Order matters!]
-#define OpMatObj  CoolDiff::TensorR2::MatOperators::MatrixAdd,            \
-                  CoolDiff::TensorR2::MatOperators::MatrixMul,            \
-                  CoolDiff::TensorR2::MatOperators::MatrixKron,           \
-                  CoolDiff::TensorR2::MatOperators::MatrixSub,            \
-                  CoolDiff::TensorR2::MatOperators::MatrixHadamard,       \
-                  CoolDiff::TensorR2::MatOperators::MatrixScalarAdd,      \
-                  CoolDiff::TensorR2::MatOperators::MatrixScalarMul,      \
-                  CoolDiff::TensorR2::MatOperators::MatrixTranspose,      \
-                  CoolDiff::TensorR2::MatOperators::MatrixDervTranspose,  \
-                  CoolDiff::TensorR2::MatOperators::MatrixConv,           \
-                  CoolDiff::TensorR2::MatOperators::MatrixDervConv,       \
-                  CoolDiff::TensorR2::MatOperators::MatrixUnary,          \
-                  CoolDiff::TensorR2::MatOperators::MatrixInverse,        \
-                  CoolDiff::TensorR2::MatOperators::MatrixDet,            \
-                  CoolDiff::TensorR2::MatOperators::MatrixTrace
+// Matrix operations macros (shorthand)
+#define MATRIX_ADD(...)             CoolDiff::TensorR2::MatOperators::MatrixAdd(__VA_ARGS__)
+#define MATRIX_MUL(...)             CoolDiff::TensorR2::MatOperators::MatrixMul(__VA_ARGS__)
+#define MATRIX_KRON(...)            CoolDiff::TensorR2::MatOperators::MatrixKron(__VA_ARGS__)
+#define MATRIX_SUB(...)             CoolDiff::TensorR2::MatOperators::MatrixSub(__VA_ARGS__)
+#define MATRIX_HADAMARD(...)        CoolDiff::TensorR2::MatOperators::MatrixHadamard(__VA_ARGS__)
+#define MATRIX_SCALAR_ADD(...)      CoolDiff::TensorR2::MatOperators::MatrixScalarAdd(__VA_ARGS__)
+#define MATRIX_SCALAR_MUL(...)      CoolDiff::TensorR2::MatOperators::MatrixScalarMul(__VA_ARGS__)
+#define MATRIX_TRANSPOSE(...)       CoolDiff::TensorR2::MatOperators::MatrixTranspose(__VA_ARGS__)
+#define MATRIX_DERV_TRANSPOSE(...)  CoolDiff::TensorR2::MatOperators::MatrixDervTranspose(__VA_ARGS__)
+#define MATRIX_CONV(...)            CoolDiff::TensorR2::MatOperators::MatrixConv(__VA_ARGS__)
+#define MATRIX_DERV_CONV(...)       CoolDiff::TensorR2::MatOperators::MatrixDervConv(__VA_ARGS__)
+#define UNARY_OP_MAT(...)           CoolDiff::TensorR2::MatOperators::MatrixUnary(__VA_ARGS__)
+#define MATRIX_INVERSE(...)         CoolDiff::TensorR2::MatOperators::MatrixInverse(__VA_ARGS__)
+#define MATRIX_DET(...)             CoolDiff::TensorR2::MatOperators::MatrixDet(__VA_ARGS__)
+#define MATRIX_TRACE(...)           CoolDiff::TensorR2::MatOperators::MatrixTrace(__VA_ARGS__)

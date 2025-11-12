@@ -1,7 +1,7 @@
 /**
  * @file example/GaussNewton/src/GaussNewton.cpp
  *
- * @copyright 2023-2024 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2025 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -53,13 +53,13 @@ void GaussNewton::computeABScalar(const size_t var_size) {
     const Matrix<Type>* jacobian = static_cast<OracleScalar*>(m_oracle)->jacobian();
 
     // Compute A matrix
-    CoolDiff::TensorR2::MatOperators::MatrixTranspose(jacobian, m_tempA1);
-    CoolDiff::TensorR2::MatOperators::MatrixMul(m_tempA1, jacobian, m_tempA2);
-    CoolDiff::TensorR2::MatOperators::MatrixAdd(m_A, m_tempA2, m_A);
+    MATRIX_TRANSPOSE(jacobian, m_tempA1);
+    MATRIX_MUL(m_tempA1, jacobian, m_tempA2);
+    MATRIX_ADD(m_A, m_tempA2, m_A);
 
     // Compute B matrix
-    CoolDiff::TensorR2::MatOperators::MatrixScalarMul(eval, m_tempA1, m_tempB);
-    CoolDiff::TensorR2::MatOperators::MatrixAdd(m_B, m_tempB, m_B);
+    MATRIX_SCALAR_MUL(eval, m_tempA1, m_tempB);
+    MATRIX_ADD(m_B, m_tempB, m_B);
   }
 }
 
@@ -78,13 +78,13 @@ void GaussNewton::computeABMatrix(const size_t var_size) {
     const Matrix<Type>* jacobian = static_cast<OracleMatrix*>(m_oracle)->jacobian();
 
     // Compute A matrix
-    CoolDiff::TensorR2::MatOperators::MatrixTranspose(jacobian, m_tempA1);
-    CoolDiff::TensorR2::MatOperators::MatrixMul(m_tempA1, jacobian, m_tempA2);
-    CoolDiff::TensorR2::MatOperators::MatrixAdd(m_A, m_tempA2, m_A);
+    MATRIX_TRANSPOSE(jacobian, m_tempA1);
+    MATRIX_MUL(m_tempA1, jacobian, m_tempA2);
+    MATRIX_ADD(m_A, m_tempA2, m_A);
 
     // Compute B matrix
-    CoolDiff::TensorR2::MatOperators::MatrixMul(m_tempA1, eval, m_tempB);
-    CoolDiff::TensorR2::MatOperators::MatrixAdd(m_B, m_tempB, m_B);
+    MATRIX_MUL(m_tempA1, eval, m_tempB);
+    MATRIX_ADD(m_B, m_tempB, m_B);
   }
 }
 
