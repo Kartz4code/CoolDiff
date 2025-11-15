@@ -2,6 +2,7 @@
 #include "MNISTData.hpp"
 #include "csv.hpp"
 
+// Custom net design 
 class CustomNet : public NeuralNet<CustomNet> {
     private:
         BASE_CLASS_DEF(CustomNet);
@@ -9,6 +10,7 @@ class CustomNet : public NeuralNet<CustomNet> {
     public:
         CustomNet() = default;
 
+        // CRTP overload - networkLayers
         auto networkLayers() {
             auto l1 = LeakyReLUM(W(0)*X + b(0));
             auto l2 = LeakyReLUM(W(1)*l1 + b(1));
@@ -18,9 +20,19 @@ class CustomNet : public NeuralNet<CustomNet> {
             return list;
         }
 
+        // CRTP overload - error
         auto error() { 
+            // Get final layer of the network
             auto Yp = GetFinalLayer(networkLayers());
-            auto error = -1*transpose(Y)*LogM(Yp);
+
+            // Cross entropy weights
+            Matrix<Expression> error = -1*transpose(Y)*LogM(Yp);
+
+            // Error with L2 regulatization
+            for(size_t i{}; i < size(); ++i) {
+                error = error + 0.001*(Sigma(W(i)^W(i)) + Sigma(b(i)^b(i)));
+            }
+
             return error;
         }
         
@@ -74,36 +86,13 @@ void MNISTPrediction() {
     LoadData(MNISTData::g_mnist_test_data_path, Xtest, Ytest);
 
     // Train data
-    TIME_IT_MS(n.train(Xtrain, Ytrain, -0.1, 64, 25, false));
+    TIME_IT_MS(n.train(Xtrain, Ytrain, -0.1, 32, 5, false));
 
     // Prediction test
-    std::cout << "Prediction accuracy: " << n.accuracy(tuple, Xtest, Ytest) << "%\n";
+    std::cout << "Test prediction accuracy: " << n.accuracy(tuple, Xtest, Ytest) << "%\n";
 }
 
 int main(int argc, char** argv) {
-
-    Matrix<Variable> X(2,2), W(2,2); 
-    X(0, 0) = 1; X(0, 1) = 2;
-    X(1, 0) = 3; X(1, 1) = 4;
-
-    for(size_t i{}; i < 2; ++i) {
-        for(size_t j{}; j < 2; ++j) {
-            W(i,j) = i+j;
-        }
-    }
-
-    Matrix<Expression> Y = transpose(vec(W*X))*(vec(W*X)); 
-
-    std::cout << CoolDiff::TensorR2::Eval(Y) << "\n";
-    std::cout << CoolDiff::TensorR2::DevalF(Y, X) << "\n";
-
-    X(0, 0) = 4; X(0, 1) = 3;
-    X(1, 0) = 2; X(1, 1) = 1;
-    
-    std::cout << CoolDiff::TensorR2::Eval(Y) << "\n";
-    std::cout << CoolDiff::TensorR2::DevalF(Y, X) << "\n";
-
-
     #ifndef USE_COMPLEX_MATH
         MNISTPrediction();
     #endif

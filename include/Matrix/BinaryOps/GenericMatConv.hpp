@@ -48,7 +48,7 @@ private:
   }
 
   // All matrices
-  inline static constexpr const size_t m_size{2};
+  inline static constexpr const size_t m_size{4};
   Matrix<Type>* mp_arr[m_size]{};
 
 public:
@@ -118,7 +118,7 @@ public:
   }
 
   // Matrix devalF computation
-  V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable> &X)) {
+  V_OVERRIDE(Matrix<Type>* devalF(Matrix<Variable>& X)) {
     // Check whether dimensions are correct
     ASSERT(verifyDim(), "Matrix-Matrix convolution dimensions invalid");
 
@@ -150,9 +150,187 @@ public:
     return mp_arr[1];
   }
 
-    // Traverse
+  // Traverse
   V_OVERRIDE(void traverse(OMMatPair* cache = nullptr)) {
-    // TODO - Convolution traverse
+    // If cache is nullptr, i.e. for the first step
+    if (cache == nullptr) {
+      // cache is m_cache
+      cache = &m_cache;
+      cache->reserve(g_map_reserve);
+      // Clear cache in the first entry
+      if (false == (*cache).empty()) {
+        (*cache).clear();
+      }
+
+      // Traverse left node
+      if (false == mp_left->m_visited) {
+        mp_left->traverse(cache);
+      }
+      // Traverse right node
+      if (false == mp_right->m_visited) {
+        mp_right->traverse(cache);
+      }
+
+      // Get raw pointers to result, left and right matrices
+      const Matrix<Type>* left_mat = mp_left->eval();
+      const Matrix<Type>* right_mat = mp_right->eval();
+
+      const auto mp_right_val = CoolDiff::TensorR2::Details::ScalarSpl(right_mat);
+      const auto mp_left_val = CoolDiff::TensorR2::Details::ScalarSpl(left_mat);
+
+      if(auto it2 = cache->find(mp_left->m_nidx); it2 != cache->end()) {
+        MATRIX_ADD((*cache)[mp_left->m_nidx], right_mat, (*cache)[mp_left->m_nidx]); 
+      } else {
+        (*cache)[mp_left->m_nidx] = const_cast<Matrix<Type>*>(right_mat);
+      }
+
+      if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
+        MATRIX_ADD((*cache)[mp_right->m_nidx], left_mat, (*cache)[mp_right->m_nidx]); 
+      } else {
+        (*cache)[mp_right->m_nidx] = const_cast<Matrix<Type>*>(left_mat);
+      }
+
+      // Clone the cache
+      for(const auto& [k,v] : (*cache)) {
+        (*cache)[k] = v->clone(this->m_cloned[this->incFunc()]);
+      }
+
+      // Modify cache for left node
+      std::for_each(EXECUTION_PAR mp_left->m_cache.begin(), mp_left->m_cache.end(), 
+                      [&](const auto& item) {
+                      const size_t rows = right_mat->getNumRows();
+                      const size_t cols = right_mat->getNumColumns(); 
+                      ASSERT((rows == 1) && (cols == 1), "Matrix expression not scalar for reverse mode derivative"); 
+
+                      const auto idx = item.first; const auto val = item.second;
+                      MatType*& ptr = this->m_cloned[this->incFunc()];
+                      MATRIX_SCALAR_MUL(mp_right_val, val, ptr);
+                      if(auto it2 = cache->find(idx); it2 != cache->end()) {
+                        MATRIX_ADD((*cache)[idx], ptr, (*cache)[idx]);
+                      } else {
+                        (*cache)[idx] = ptr;
+                      }
+      });
+  
+      // Modify cache for right node
+      std::for_each(EXECUTION_PAR mp_right->m_cache.begin(), mp_right->m_cache.end(), 
+                    [&](const auto& item) {
+                      const size_t rows = left_mat->getNumRows();
+                      const size_t cols = left_mat->getNumColumns(); 
+                      ASSERT((rows == 1) && (cols == 1), "Matrix expression not scalar for reverse mode derivative"); 
+
+                      const auto idx = item.first; const auto val = item.second;
+                      MatType*& ptr = this->m_cloned[this->incFunc()];
+                      MATRIX_SCALAR_MUL(mp_left_val, val, ptr);
+                      if(auto it2 = cache->find(idx); it2 != cache->end()) {
+                        MATRIX_ADD((*cache)[idx], ptr, (*cache)[idx]);
+                      } else {
+                        (*cache)[idx] = ptr;
+                      }
+      });    
+    } else {
+      // Cached value
+      if(auto it = cache->find(m_nidx); it != cache->end()) {
+        const auto cCache = it->second;
+
+        // Traverse left node
+        if (false == mp_left->m_visited) {
+          mp_left->traverse(cache);
+        }
+        // Traverse right node
+        if (false == mp_right->m_visited) {
+          mp_right->traverse(cache);
+        }
+
+        // Get raw pointers to result, left and right matrices
+        const Matrix<Type>* left_mat = mp_left->eval();
+        const Matrix<Type>* right_mat = mp_right->eval();
+
+        // Right matrix rows and columns size (Kernel)
+        const size_t rrows = right_mat->getNumRows();
+        const size_t rcols = right_mat->getNumColumns();
+        
+        // Left matrix rows and columns size (Input)
+        const size_t lrows = left_mat->getNumRows();
+        const size_t lcols = left_mat->getNumColumns();
+
+        // Cache rows and columns size (Pullback)
+        const size_t crows = cCache->getNumRows();
+        const size_t ccols = cCache->getNumColumns(); 
+
+        /* IMPORTANT: The derivative is computed here */
+        // Typically, right_mat will be less than cCache dimension, so no need for padding
+        MATRIX_CONV(m_stride_x, m_stride_y, m_pad_x, m_pad_y, cCache, right_mat, mp_arr[2]);
+
+        // Find the best number of zero padding on the input to match the output dimensions (right_mat)
+        const size_t px = (m_stride_x*(rrows - 1) + crows - lrows)/2; 
+        const size_t py = (m_stride_y*(rcols - 1) + ccols - lcols)/2;
+
+        MATRIX_CONV(m_stride_x, m_stride_y, px, py, left_mat, cCache, mp_arr[3]);
+
+        const auto mp_arr2_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[2]);
+        const auto mp_arr3_val = CoolDiff::TensorR2::Details::ScalarSpl(mp_arr[3]);
+
+        if(auto it2 = cache->find(mp_left->m_nidx); it2 != cache->end()) {
+          MATRIX_ADD((*cache)[mp_left->m_nidx], mp_arr[2], (*cache)[mp_left->m_nidx]); 
+        } else {
+          (*cache)[mp_left->m_nidx] = mp_arr[2];
+        }
+
+        if(auto it2 = cache->find(mp_right->m_nidx); it2 != cache->end()) {
+          MATRIX_ADD((*cache)[mp_right->m_nidx], mp_arr[3], (*cache)[mp_right->m_nidx]); 
+        } else {
+          (*cache)[mp_right->m_nidx] = mp_arr[3];
+        }
+
+        // Clone the cache
+        for(const auto& [k,v] : (*cache)) {
+          (*cache)[k] = v->clone(this->m_cloned[this->incFunc()]);
+        }
+
+        // Modify cache for left node
+        std::for_each(EXECUTION_PAR mp_left->m_cache.begin(), mp_left->m_cache.end(), 
+                      [&](const auto& item) {
+                        const size_t rows = mp_arr[2]->getNumRows();
+                        const size_t cols = mp_arr[2]->getNumColumns(); 
+                        ASSERT((rows == 1) && (cols == 1), "Matrix expression not scalar for reverse mode derivative"); 
+
+                        const auto idx = item.first; const auto val = item.second;
+                        MatType*& ptr = this->m_cloned[this->incFunc()];
+                        MATRIX_SCALAR_MUL(mp_arr2_val, val, ptr);
+                        if(auto it2 = cache->find(idx); it2 != cache->end()) {
+                          MATRIX_ADD((*cache)[idx], ptr, (*cache)[idx]);
+                        } else {
+                          (*cache)[idx] = ptr;
+                        }
+        });
+      
+        // Modify cache for right node
+        std::for_each(EXECUTION_PAR mp_right->m_cache.begin(),
+                      mp_right->m_cache.end(), [&](const auto &item) {
+                      const size_t rows = mp_arr[3]->getNumRows();
+                      const size_t cols = mp_arr[3]->getNumColumns(); 
+                      ASSERT((rows == 1) && (cols == 1), "Matrix expression not scalar for reverse mode derivative"); 
+
+                      const auto idx = item.first; const auto val = item.second;
+                      MatType*& ptr = this->m_cloned[this->incFunc()];
+                      MATRIX_SCALAR_MUL(mp_arr3_val, val, ptr);
+                      if(auto it2 = cache->find(idx); it2 != cache->end()) {
+                        MATRIX_ADD((*cache)[idx], ptr, (*cache)[idx]);
+                      } else {
+                        (*cache)[idx] = ptr;
+                      }
+        });
+      }
+    }
+
+    // Traverse left/right nodes
+    if (false == mp_left->m_visited) {
+      mp_left->traverse(cache);
+    }
+    if (false == mp_right->m_visited) {
+      mp_right->traverse(cache);
+    }
   }
 
   // Get cache

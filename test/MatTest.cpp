@@ -524,7 +524,7 @@ TEST(MatTest, Test8) {
 }
 
 // Matrix convolution operation (with variable change)
-TEST(MatTest, Test7) {
+TEST(MatTest, Test7p5) {
   // Result set 1
   Type Eres1[1][1] = {(Type)-182};
   Type DW1res1[2][2] = {{(Type)-26, (Type)-26}, {(Type)-26, (Type)-26}};
@@ -538,32 +538,15 @@ TEST(MatTest, Test7) {
   Matrix<Type> X(3, 3);
   Matrix<Variable> W1(2, 2), W2(2, 2);
 
-  X(0, 0) = -1;
-  X(0, 1) = 2;
-  X(0, 2) = -3;
-  X(1, 0) = 4;
-  X(1, 1) = -13;
-  X(1, 2) = 5;
-  X(2, 0) = -6;
-  X(2, 1) = 7;
-  X(2, 2) = -8;
+  X(0, 0) = -1; X(0, 1) = 2;   X(0, 2) = -3;
+  X(1, 0) = 4;  X(1, 1) = -13; X(1, 2) = 5;
+  X(2, 0) = -6; X(2, 1) = 7;   X(2, 2) = -8;
 
-  W1(0, 0) = -1;
-  W1(0, 1) = 2;
-  W1(1, 0) = -3;
-  W1(1, 1) = 9;
+  W1(0, 0) = -1; W1(0, 1) = 2;
+  W1(1, 0) = -3; W1(1, 1) = 9;
 
-  W2(0, 0) = -3;
-  W2(0, 1) = 4;
-  W2(1, 0) = -5;
-  W2(1, 1) = 6;
-
-  /* //TODO - Fix this issue
-  Matrix<Expression> E;
-  E = conv(X, W2, 1, 1, 1, 1);
-  E = conv(E, W1, 1, 1, 1, 1);
-  E = Sigma(E);
-  */
+  W2(0, 0) = -3; W2(0, 1) = 4;
+  W2(1, 0) = -5; W2(1, 1) = 6;
 
   Matrix<Expression> Exp1, Exp2;
   Exp1 = conv(X, W2, 1, 1, 1, 1);
@@ -584,7 +567,7 @@ TEST(MatTest, Test7) {
   };
 
   // Verification deval function
-  auto verify_deval_function = [&](auto DXres, auto &X) {
+  auto verify_deval_function = [&](auto DXres, auto& X) {
     const auto& DR = CoolDiff::TensorR2::DevalF(E, X);
     for (size_t i{}; i < DR.getNumRows(); ++i) {
       for (size_t j{}; j < DR.getNumColumns(); ++j) {
@@ -601,15 +584,92 @@ TEST(MatTest, Test7) {
   ASSERT_TRUE(verify_deval_function(DW1res1, W1));
   ASSERT_TRUE(verify_deval_function(DW2res1, W2));
 
-  W1(0, 0) = 1;
-  W1(0, 1) = 4;
-  W1(1, 0) = -1;
-  W1(1, 1) = 6;
+  W1(0, 0) = 1;  W1(0, 1) = 4;
+  W1(1, 0) = -1; W1(1, 1) = 6;
 
-  W2(0, 0) = -1;
-  W2(0, 1) = -8;
-  W2(1, 0) = 3;
-  W2(1, 1) = -2;
+  W2(0, 0) = -1; W2(0, 1) = -8;
+  W2(1, 0) = 3;  W2(1, 1) = -2;
+
+  // Assert test
+  ASSERT_TRUE(verify_eval_function(Eres2));
+  ASSERT_TRUE(verify_deval_function(DW1res2, W1));
+  ASSERT_TRUE(verify_deval_function(DW2res2, W2));
+}
+
+
+// Matrix convolution operation (with variable change)
+TEST(MatTest, Test7) {
+  // Result set 1
+  Type Eres1[1][1] = {(Type)-182};
+  Type DW1res1[2][2] = {{(Type)-26, (Type)-26}, {(Type)-26, (Type)-26}};
+  Type DW2res1[2][2] = {{(Type)-91, (Type)-91}, {(Type)-91, (Type)-91}};
+
+  // Result set 2
+  Type Eres2[1][1] = {(Type)1040};
+  Type DW1res2[2][2] = {{(Type)104, (Type)104}, {(Type)104, (Type)104}};
+  Type DW2res2[2][2] = {{(Type)-130, (Type)-130}, {(Type)-130, (Type)-130}};
+
+  Matrix<Type> X(3, 3);
+  Matrix<Type> W1(2, 2), W2(2, 2);
+
+  X(0, 0) = -1; X(0, 1) = 2;   X(0, 2) = -3;
+  X(1, 0) = 4;  X(1, 1) = -13; X(1, 2) = 5;
+  X(2, 0) = -6; X(2, 1) = 7;   X(2, 2) = -8;
+
+  W1(0, 0) = -1; W1(0, 1) = 2;
+  W1(1, 0) = -3; W1(1, 1) = 9;
+
+  W2(0, 0) = -3; W2(0, 1) = 4;
+  W2(1, 0) = -5; W2(1, 1) = 6;
+
+  /* //TODO - Fix this issue
+  Matrix<Expression> E;
+  E = conv(X, W2, 1, 1, 1, 1);
+  E = conv(E, W1, 1, 1, 1, 1);
+  E = Sigma(E);
+  */
+
+  auto ConvExp1 = conv(X, W2, 1, 1, 1, 1);
+  auto ConvExp2 = conv(ConvExp1, W1, 1, 1, 1, 1);
+  Matrix<Expression> E = Sigma(ConvExp2);
+
+  // Verification eval function
+  auto verify_eval_function = [&](auto Xres) {
+    const auto& R = CoolDiff::TensorR2::Eval(E);
+    for (size_t i{}; i < R.getNumRows(); ++i) {
+      for (size_t j{}; j < R.getNumColumns(); ++j) {
+        if (R(i, j) != Xres[i][j]) {
+          return false;
+        }
+      }
+    }
+    return true;
+  };
+
+  // Verification deval function
+  auto verify_deval_function = [&](auto DXres, auto& X) {
+    CoolDiff::TensorR2::PreComp(E);
+    const auto& DR = CoolDiff::TensorR2::DevalR(E, X);
+    for (size_t i{}; i < DR.getNumRows(); ++i) {
+      for (size_t j{}; j < DR.getNumColumns(); ++j) {
+        if (DR(i, j) != DXres[i][j]) {
+          return false;
+        }
+      }
+    }
+    return true;
+  };
+
+  // Assert test
+  ASSERT_TRUE(verify_eval_function(Eres1));
+  ASSERT_TRUE(verify_deval_function(DW1res1, W1));
+  ASSERT_TRUE(verify_deval_function(DW2res1, W2));
+
+  W1(0, 0) = 1;  W1(0, 1) = 4;
+  W1(1, 0) = -1; W1(1, 1) = 6;
+
+  W2(0, 0) = -1; W2(0, 1) = -8;
+  W2(1, 0) = 3;  W2(1, 1) = -2;
 
   // Assert test
   ASSERT_TRUE(verify_eval_function(Eres2));
