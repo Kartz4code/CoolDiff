@@ -25,19 +25,3 @@
 const size_t MemoryManager::size() { 
   return m_del_ptr.size(); 
 }
-
-void MemoryManager::MatrixPool(const size_t rows, const size_t cols, Matrix<Type>*& result, const Type& val) {
-  // Dispatch matrix from pool
-  if (nullptr == result) {
-    result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(rows, cols, val);
-    return;
-  } 
-  else if ((rows != result->getNumRows()) || (cols != result->getNumColumns())) {
-    result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(rows, cols, val);
-    return;
-  } else {
-    // Never reset result to zero. Some operations may take the same input and output
-    // e.g. MatrixAdd(result, A, result)
-    return;
-  }
-}

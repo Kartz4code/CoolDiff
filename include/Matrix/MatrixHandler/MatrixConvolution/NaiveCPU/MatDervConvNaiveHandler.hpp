@@ -30,7 +30,7 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatDervConvNaiveHandler : public T {
   private:
-    // All matrices
+    // All matrices (TODO - stateless class)
     inline static constexpr const size_t m_size{13};
     Matrix<Type>* mp_arr[m_size]{};
 

@@ -24,6 +24,7 @@
 #include "CommonFunctions.hpp"
 #include "IMatrix.hpp"
 #include "MatrixBasics.hpp"
+#include <cuda_runtime.h>
 
 // Derivative of matrices (Reverse AD)
 Matrix<Type>* DervMatrix(const size_t, const size_t, const size_t, const size_t);
@@ -72,8 +73,17 @@ private:
   // Matrix raw pointer of underlying type (Expression, Variable, Parameter, Type)
   T* mp_mat{nullptr};
 
+  // Matrix GPU pointer of underlying type
+  T* mp_mat_gpu{nullptr};
+
   // Collection of meta variable expressions
   Vector<MetaMatrix*> m_gh_vec{};
+
+  // Boolean to define on/off GPU
+  bool m_on_gpu{false};
+
+  // Delete CUDA resources
+  void freeGPU();
 
 private:
   // Boolean to verify evaluation/forward derivative values
@@ -104,6 +114,7 @@ private:
 public:
   // Block index
   size_t m_nidx{};
+
   // Cache for reverse AD
   OMMatPair m_cache{};
 
@@ -119,7 +130,13 @@ public:
   // Constructor with pointer stealer
   Matrix(const size_t, const size_t, T*);
 
-  // Matrix clone (TODO - Free clone)
+  // Copy from CPU to GPU 
+  void copyToGPU();
+
+  // Copy from GPU to CPU
+  void copyToCPU();
+
+  // Matrix clone
   Matrix* clone(Matrix*&) const;
 
   // Clone matrix expression
@@ -193,6 +210,12 @@ public:
   // Get matrix pointer mutable
   T* getMatrixPtr();
 
+  // Set matrix pointer
+  void setMatrixPtr(T*);
+
+  // Get matrix GPU pointer reference
+  T*& getGPUMatrixPtr();
+
   // Matrix 2D access using operator()() immutable
   const T& operator()(const size_t, const size_t) const;
 
@@ -214,6 +237,9 @@ public:
   // Copy data from another matrix (Just copy all contents from one matrix to another)
   void copyData(const Matrix<T>&);
 
+  // Copy data from a pointer
+  void copyData(T*);
+
   // Add zero padding
   void pad(const size_t, const size_t, Matrix*&) const;
 
@@ -222,6 +248,9 @@ public:
 
   // Get a row for matrix using copy semantics
   Matrix getRow(const size_t) const &;
+
+  // Get row pointer (Default ordering is row major)
+  T* getRowPtr(const size_t i) const;
 
   // Get a column for matrix using move semantics
   Matrix getColumn(const size_t) &&;

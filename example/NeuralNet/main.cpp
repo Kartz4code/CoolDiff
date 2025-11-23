@@ -28,9 +28,9 @@ class CustomNet : public NeuralNet<CustomNet> {
             // Cross entropy weights
             Matrix<Expression> error = -1*transpose(Y)*LogM(Yp);
 
-            // Error with L2 regulatization
-            for(size_t i{}; i < size(); ++i) {
-                error = error + 0.001*(Sigma(W(i)^W(i)) + Sigma(b(i)^b(i)));
+            // Error with L1 regulatization
+            for(size_t i{}; i < layerSize(); ++i) {
+                error = error + 0.001*(Sigma((W(i)^W(i))) + Sigma((b(i)^b(i))));
             }
 
             return error;
@@ -69,7 +69,7 @@ void MNISTPrediction() {
     CustomNet n({N,1},{M,1});
 
     // Generate network layers
-    auto tuple = n.addLayer(Layer::LayerFactory::CreateLayer<UniformDistribution>(5*M, N, -1, 1))
+    auto tuple  =  n.addLayer(Layer::LayerFactory::CreateLayer<UniformDistribution>(5*M, N, -1, 1))
                     .addLayer(Layer::LayerFactory::CreateLayer<UniformDistribution>(M, 5*M, -1, 1))
                     .networkLayers();
 
@@ -86,10 +86,10 @@ void MNISTPrediction() {
     LoadData(MNISTData::g_mnist_test_data_path, Xtest, Ytest);
 
     // Train data
-    TIME_IT_MS(n.train(Xtrain, Ytrain, -0.1, 32, 5, false));
+    TIME_IT_MS(n.train(Xtrain, Ytrain, -0.1, 32, 25, false));
 
     // Prediction test
-    std::cout << "Test prediction accuracy: " << n.accuracy(tuple, Xtest, Ytest) << "%\n";
+    std::cout << "[Test prediction accuracy]: " << n.accuracy(tuple, Xtest, Ytest) << "%\n";
 }
 
 int main(int argc, char** argv) {

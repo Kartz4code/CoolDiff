@@ -41,7 +41,7 @@ class NeuralNet {
         void resetMiniBatch(bool threading) {
             if(true == threading) {
                 // Dispatch threads
-                for(size_t r{}; r < size(); ++r) {
+                for(size_t r{}; r < layerSize(); ++r) {
                     m_thread_vec.emplace_back(std::thread(CoolDiff::TensorR2::Details::ResetZero, std::ref(WBatch(r))));
                     m_thread_vec.emplace_back(std::thread(CoolDiff::TensorR2::Details::ResetZero, std::ref(bBatch(r))));
                 }
@@ -52,7 +52,7 @@ class NeuralNet {
                     }
                 }
             } else {
-                for(size_t r{}; r < size(); ++r) {
+                for(size_t r{}; r < layerSize(); ++r) {
                     CoolDiff::TensorR2::Details::ResetZero(WBatch(r));
                     CoolDiff::TensorR2::Details::ResetZero(bBatch(r));
                 }
@@ -66,7 +66,7 @@ class NeuralNet {
 
             if(true == threading) {
                 // Dispatch threads
-                for(size_t r{}; r < size(); ++r) {
+                for(size_t r{}; r < layerSize(); ++r) {
                     auto& dW = CoolDiff::TensorR2::DevalR(err, W(r));
                     auto& db = CoolDiff::TensorR2::DevalR(err, b(r));
                     m_thread_vec.emplace_back(std::thread(CoolDiff::TensorR2::MatOperators::MatrixAdd, WBatch(r), &dW, std::ref(WBatch(r))));
@@ -79,7 +79,7 @@ class NeuralNet {
                     }
                 }
             } else {
-                for(size_t r{}; r < size(); ++r) {
+                for(size_t r{}; r < layerSize(); ++r) {
                     auto& dW = CoolDiff::TensorR2::DevalR(err, W(r));
                     auto& db = CoolDiff::TensorR2::DevalR(err, b(r));
                     MATRIX_ADD(WBatch(r), &dW, WBatch(r));
@@ -92,7 +92,7 @@ class NeuralNet {
         void optimize(const Type& alpha, bool threading) {
             if(true == threading) {
                 // Dispatch threads
-                for(size_t r{}; r < size(); ++r) {
+                for(size_t r{}; r < layerSize(); ++r) {
                     auto& dW = (*WBatch(r));
                     auto& db = (*bBatch(r));
                     m_thread_vec.emplace_back(std::thread(GDOptimizer, std::ref(W(r)), std::ref(dW), alpha));
@@ -105,7 +105,7 @@ class NeuralNet {
                     }
                 }
             } else {
-                for(size_t r{}; r < size(); ++r) {
+                for(size_t r{}; r < layerSize(); ++r) {
                     auto& dW = (*WBatch(r));
                     auto& db = (*bBatch(r));
                     GDOptimizer(W(r), dW, alpha);
@@ -121,8 +121,8 @@ class NeuralNet {
     public:
         // Default constructor
         NeuralNet(const Pair<size_t, size_t>& Xdim, const Pair<size_t, size_t>& Ydim) {
-            X = Matrix<Type>::MatrixFactory::CreateMatrix(Xdim.first, Xdim.second);
-            Y = Matrix<Type>::MatrixFactory::CreateMatrix(Ydim.first, Ydim.second);
+            X = Matrix<Type>::MatrixFactory::CreateMatrix(Xdim.first, Xdim.second, nullptr);
+            Y = Matrix<Type>::MatrixFactory::CreateMatrix(Ydim.first, Ydim.second, nullptr);
         }
 
         // Add layer to NeuralNet
@@ -132,35 +132,35 @@ class NeuralNet {
         }
 
         // Get size
-        const size_t size() const {
+        const size_t layerSize() const {
             return m_layers.size();
         }
 
         // Get weights parameter for nth layer
         Matrix<Type>& W(const size_t n) {
             std::string msg = "Weights not defined at Layer: " + std::to_string(n);
-            ASSERT((n < size()), msg);
+            ASSERT((n < layerSize()), msg);
             return m_layers[n].W();
         }  
 
         // Get bias parameter for nth layer
         Matrix<Type>& b(const size_t n) {
             std::string msg = "Bias not defined at Layer: " + std::to_string(n);
-            ASSERT((n < size()), msg);
+            ASSERT((n < layerSize()), msg);
             return m_layers[n].b();
         }  
 
         // Get weights parameter for nth layer
         Matrix<Type>*& WBatch(const size_t n) {
             std::string msg = "Weights not defined at Layer: " + std::to_string(n);
-            ASSERT((n < size()), msg);
+            ASSERT((n < layerSize()), msg);
             return m_layers[n].WBatch();
         }  
 
         // Get bias parameter for nth layer
         Matrix<Type>*& bBatch(const size_t n) {
             std::string msg = "Bias not defined at Layer: " + std::to_string(n);
-            ASSERT((n < size()), msg);
+            ASSERT((n < layerSize()), msg);
             return m_layers[n].bBatch();
         } 
 
@@ -192,14 +192,16 @@ class NeuralNet {
                 constexpr const size_t N = std::tuple_size_v<Z>-1;
 
                 // Predicted and real values
-                const auto& est = CoolDiff::TensorR2::Eval(predict<N>(X_data.getRow(i), net));
-                const auto& real = Y_data.getRow(i);
+                X.setMatrixPtr(X_data.getRowPtr(i));
+                Y.setMatrixPtr(Y_data.getRowPtr(i));
+
+                const auto& est = CoolDiff::TensorR2::Eval(predict<N>(X, net));
                 
                 const auto& it_est = est.getMatrixPtr();
-                const auto& it_real = real.getMatrixPtr();
+                const auto& it_real = Y.getMatrixPtr();
 
                 const auto& est_elems = est.getNumElem();
-                const auto& real_elems = real.getNumElem();
+                const auto& real_elems = Y.getNumElem();
 
                 const size_t ep = std::distance(it_est, std::max_element(it_est, it_est + est_elems));
                 const size_t rp = std::distance(it_real, std::max_element(it_real, it_real + real_elems));
@@ -243,10 +245,10 @@ class NeuralNet {
 
                     // Loop over the data set for a fixed batch
                     for(size_t k{j}; (k < (j + batch_size)) && (k < data_size-1); ++k) {
-                        // Copy X and Y data into X and Y 
-                        X.copyData(X_data.getRow(k)); 
-                        Y.copyData(Y_data.getRow(k));
-                        
+                        // Set input and output matrix pointer (no copy)
+                        X.setMatrixPtr(X_data.getRowPtr(k));
+                        Y.setMatrixPtr(Y_data.getRowPtr(k));
+                
                         // Accumulate gradients
                         accumulateGradients(err, threading);
 

@@ -323,11 +323,17 @@ UNARY_MATRIX_OPERATOR(SigmoidM, [](Type a) {
                                   return res * (((Type)(1)) - res); });
 // Matrix ReLU function
 #ifndef USE_COMPLEX_MATH
+  // Relu activation  
   UNARY_MATRIX_OPERATOR(ReLUM,  [](Type a) { return ((a >= (Type)(0)) ? a : 0);  },
                                 [](Type b) { return ((b >= (Type)(0)) ? 1 : 0); })
 
+  // Leaky relu activation
   UNARY_MATRIX_OPERATOR(LeakyReLUM,   [](Type a) { return ((a >= (Type)(0)) ? a : 0.1*a);  },
                                       [](Type b) { return ((b >= (Type)(0)) ? 1 : 0.1); })
+
+  // Matrix abs function
+  UNARY_MATRIX_OPERATOR(AbsM, [](Type a) { return std::abs(a); },
+                              [](Type b) { return (Type)(((Type)(0) < b) - (b < (Type)(0))); })
 #endif
 
 // Sigma computation
@@ -347,7 +353,7 @@ constexpr const auto& Sigma(const IMatrix<T>& X) {
 // Frobenius norm 
 template <typename T>
 constexpr const auto& MatrixFrobeniusNorm(const IMatrix<T>& X) {
-  return SqrtM(trace(transpose(X)*X));
+  return SqrtM(Sigma(X^X));
 }
 
 // Matrix vertical concatenation

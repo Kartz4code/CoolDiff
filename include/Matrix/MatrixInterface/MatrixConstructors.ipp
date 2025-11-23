@@ -86,12 +86,7 @@ Matrix<T>::Matrix(const size_t rows, const size_t cols, T* ptr)  :    m_rows{row
 // Matrix clone
 template<typename T>
 Matrix<T>* Matrix<T>::clone(Matrix<T>*& mat) const {
-  if constexpr(true == std::is_same_v<T, Type>) {
-    MemoryManager::MatrixPool(m_rows, m_cols, mat);
-  } else {
-    // TODO - Add logic for other types
-    ASSERT(false, "Matrix for this type is yet to be implemented");
-  }
+  MemoryManager::MatrixPool(m_rows, m_cols, mat);
   *mat = *this;
   return mat;
 } 
@@ -105,7 +100,6 @@ constexpr const auto& Matrix<T>::cloneExp() const {
 // Constructor with rows and columns with initial values
 template<typename T>
 Matrix<T>::Matrix(const size_t rows, const size_t cols, const T& val) : Matrix(rows, cols) {
-  static_assert(CoolDiff::TensorR1::Details::is_numeric_v<T> == true, "Type of matrix is not numeric");
   std::fill(EXECUTION_PAR mp_mat, mp_mat + getNumElem(), val);
 }
 
@@ -163,6 +157,12 @@ void Matrix<T>::copyData(const Matrix<T>& M) {
   std::copy(EXECUTION_PAR M.mp_mat, M.mp_mat + getNumElem(), mp_mat);
 }
 
+// Copy data from a pointer
+template<typename T>
+void Matrix<T>::copyData(T* ptr) {
+  std::copy(EXECUTION_PAR ptr, ptr + getNumElem(), mp_mat);
+}
+
 // Move assignment operator
 template<typename T>
 Matrix<T>& Matrix<T>::operator=(Matrix&& m) noexcept {
@@ -182,4 +182,7 @@ Matrix<T>::~Matrix() {
       mp_mat = nullptr;
     }
   }
+
+  // If on GPU, delete it
+  freeGPU();
 }

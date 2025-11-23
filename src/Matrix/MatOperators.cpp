@@ -83,6 +83,9 @@
 // Matrix unary
 #include "MatUnaryNaiveHandler.hpp"
 
+// Eigen implementation
+#include "MatUnaryEigenHandler.hpp"
+
 // Matrix convolution
 #include "MatConvNaiveHandler.hpp"
 #include "MatConvEigenHandler.hpp"
@@ -277,10 +280,13 @@ namespace CoolDiff {
           }
 
           // Matrix unary
-          void MatrixUnary(const Matrix<Type> *mat, const FunctionType1 &func, Matrix<Type> *&result) {
+          void MatrixUnary(const Matrix<Type>* mat, const FunctionType1& func, Matrix<Type>*& result) {
             NULL_CHECK(mat, "Matrix mat is a nullptr");
 
-            static HANDLER1(MatUnaryNaiveHandler) handler;
+            #if NAIVE_HANDLER
+              static HANDLER1(MatUnaryNaiveHandler) handler;
+            #endif
+            static HANDLER1(MatUnaryEigenHandler) handler;
 
             // Handle Unary Matrix
             handler.handle(mat, func, result);
@@ -307,9 +313,9 @@ namespace CoolDiff {
           void MatrixDervConv(const size_t nrows_x, const size_t ncols_x,
                               const size_t stride_x, const size_t stride_y,
                               const size_t pad_x, const size_t pad_y,
-                              const Matrix<Type> *lhs, const Matrix<Type> *dlhs,
-                              const Matrix<Type> *rhs, const Matrix<Type> *drhs,
-                              Matrix<Type> *&result) {
+                              const Matrix<Type>* lhs, const Matrix<Type>* dlhs,
+                              const Matrix<Type>* rhs, const Matrix<Type>* drhs,
+                              Matrix<Type>*& result) {
             // Null pointer check
             NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");

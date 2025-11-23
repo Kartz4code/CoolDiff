@@ -27,7 +27,7 @@ cmake_minimum_required(VERSION 3.22)
 # [Project name and description]
 project(CoolDiff    VERSION 1.0.1.0
                     DESCRIPTION "CoolDiff - A Symbolic/Automatic differentiation C++ tool"
-                    LANGUAGES C CXX)
+                    LANGUAGES C CXX CUDA)
 
 ########################################################################################################################
 ########################################################################################################################
@@ -38,13 +38,15 @@ project(CoolDiff    VERSION 1.0.1.0
 ######################################################################################################################## 
 
 # Custom flags
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CUDA_STANDARD 17)
+set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
 #LTO and IPO
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
@@ -54,6 +56,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 if(${CMAKE_BUILD_TYPE} EQUAL Release)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -ffast-math -funroll-loops -funroll-all-loops -ftree-vectorize -finline-functions -floop-block")
 endif()
+
+# Enable CUDA language
+enable_language(CUDA)
 
 # Include CMake scripts
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -69,18 +74,18 @@ include(Tools)
 
 # TODO - Enable shared library build 
 option(BUILD_UNITTESTS "Building unit test executables" ON) # Default - ON
-option(BUILD_EXAMPLES "Building example executables" OFF) # Default - ON
+option(BUILD_EXAMPLES "Building example executables" ON) # Default - ON
 option(ENABLE_CLANG_TIDY "Enable clang-tidy static linter" OFF) # Default - OFF
 option(ENABLE_CMAKE_FORMAT "Enable cmake formatter" OFF) # Default - OFF
 option(ENABLE_CLANG_FORMAT "Enable clang format" OFF) # Default - OFF
 option(ENABLE_COMPILER_WARNINGS "Enable compiler warnings" OFF) # Default - OFF
-option(ENABLE_COMPLEX_MATH "Enable complex numbers for numerics" ON) # Default - ON
-option(ENABLE_ROBIN_HOOD_MAP "Enable robin hood hashmaps" OFF) # Default - ON
+option(ENABLE_COMPLEX_MATH "Enable complex numbers for numerics" OFF) # Default - ON
+option(ENABLE_ROBIN_HOOD_MAP "Enable robin hood hashmaps" ON) # Default - ON
 # TODO - Implementation of manual dynamic dispatch for performance
 option(ENABLE_VIRTUAL_FUNCTIONS "Enable virtual functions" ON) # Default - ON
 option(ENABLE_DYNAMIC_ASSERTIONS "Enable dynamic assertions" ON) # Default - OFF
 option(ENABLE_STL_PARALLEL_EXECUTION "Enable STL libraries parallel execution feature" OFF) # Default - OFF
-set(DEFAULT_MATH_TYPE 2 CACHE STRING "Value that defined the default math type: Float  - 1, Double - 2") # Default - 2 for test cases
+set(DEFAULT_MATH_TYPE 1 CACHE STRING "Value that defined the default math type: Float  - 1, Double - 2") # Default - 2 for test cases
 
 
 ########################################################################################################################
@@ -165,6 +170,9 @@ endif()
 # Enable Threads package
 find_package(Threads REQUIRED)
 
+# Enable CUDA package
+find_package(CUDA REQUIRED)
+
 list(APPEND CMAKE_MODULE_PATH ${gtest_SOURCE_DIR}/cmake)
 
 ########################################################################################################################
@@ -243,6 +251,8 @@ set(PRIVATE_INCLUDES    # Matrix handler include directory
                         
                         # Naive unary handlers
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary/NaiveCPU
+                        # Eigen unary handlers
+                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary/Eigen
 
                         # Eigen inverse handlers
                         ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInverse/Eigen
@@ -287,6 +297,8 @@ if(${ENABLE_ROBIN_HOOD_MAP})
     list(APPEND LIBRARY_LIST robin_hood::robin_hood)
 endif()
 
+list(APPEND LIBRARY_LIST ${CUDA_LIBRARIES})
+
 # [Set target sources]
 target_sources(${PROJECT_NAME} PRIVATE ${SRC})
 
@@ -305,6 +317,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBRARY_LIST})
 # Attach address sanitizer
 set(HOOK_ADDRESS_SANITIZER  $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU,Clang>>:-fno-omit-frame-pointer;-fsanitize=address>
                             $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:MSVC>>:/INCREMENTAL:NO;/fsanitize=address>)
+
+
 # Set permission flags
 set(COMPILE_PERMISSION_FLAGS $<$<CXX_COMPILER_ID:GNU,Clang>:-fpermissive> 
                     $<$<CXX_COMPILER_ID:MSVC>:/permissive>)

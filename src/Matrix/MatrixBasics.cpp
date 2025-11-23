@@ -90,7 +90,7 @@ namespace CoolDiff {
               return it->second;
             } else {
               // Pool matrix
-              MemoryManager::MatrixPool(n, m, result, 1);
+              MemoryManager::MatrixPool(n, m, result, (Type)1);
               // Register and return result
               ones_register[{n, m}] = result;
               return result;

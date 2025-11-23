@@ -26,13 +26,27 @@
 // Get matrix pointer immutable
 template<typename T>
 const T* Matrix<T>::getMatrixPtr() const { 
-  return mp_mat; 
+    return mp_mat;
 }
+
+// Set matrix pointer 
+template<typename T>
+void Matrix<T>::setMatrixPtr(T* ptr) {
+  ASSERT(false == m_dest, "Setting pointer to non destroying matrix");
+  mp_mat = ptr;
+}
+
 
 // Get matrix pointer mutable
 template<typename T>
 T* Matrix<T>::getMatrixPtr() { 
-  return mp_mat; 
+    return mp_mat;
+}
+
+// Get matrix GPU pointer reference
+template<typename T>
+T*& Matrix<T>::getGPUMatrixPtr() {
+  return mp_mat_gpu;
 }
 
 // Matrix 2D access using operator()() immutable
@@ -81,6 +95,13 @@ Matrix<T> Matrix<T>::getRow(const size_t i) const & {
   Matrix tmp(m_cols, 1);
   std::copy(EXECUTION_PAR mp_mat + (i * m_cols), mp_mat + ((i + 1) * m_cols), tmp.getMatrixPtr());
   return tmp;
+}
+
+// Get row pointer (Default ordering is row major)
+template<typename T>
+T* Matrix<T>::getRowPtr(const size_t i) const {
+  ASSERT((i >= 0 && i < m_rows), "Row index out of bound");
+  return (mp_mat + (i * m_cols));
 }
 
 // Get a column for matrix using move semantics

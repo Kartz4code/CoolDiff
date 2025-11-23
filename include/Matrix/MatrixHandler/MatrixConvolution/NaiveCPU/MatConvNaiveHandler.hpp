@@ -29,9 +29,9 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatConvNaiveHandler : public T {
   private:
-    // All matrices
+    // All matrices (TODO - stateless class)
     inline static constexpr const size_t m_size{5};
-    Matrix<Type> *mp_arr[m_size]{};
+    Matrix<Type>* mp_arr[m_size]{};
 
     // Boolean check for initialization
     bool m_initialized{false};

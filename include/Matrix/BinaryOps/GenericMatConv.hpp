@@ -338,7 +338,6 @@ public:
     return m_cache;
   }
 
-
   // Reset visit run-time
   V_OVERRIDE(void reset()) { 
     BINARY_MAT_RESET(); 

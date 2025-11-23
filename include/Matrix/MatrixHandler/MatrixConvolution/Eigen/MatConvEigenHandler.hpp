@@ -53,7 +53,7 @@ EigenMatrix EigenConvolve2D(const EigenMatrix& input, const EigenMatrix& kernel,
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatConvEigenHandler : public T {
     private:
-        // All matrices
+        // All matrices (TODO - stateless class)
         Matrix<Type>* mp_arr{nullptr};
     
     public:
