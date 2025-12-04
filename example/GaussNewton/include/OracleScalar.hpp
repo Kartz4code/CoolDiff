@@ -58,8 +58,8 @@ private:
 public:
   // Oracle functions
   V_OVERRIDE(Type eval());
-  V_OVERRIDE(Matrix<Type> *evalMat());
-  V_OVERRIDE(Matrix<Type> *jacobian());
+  V_OVERRIDE(Matrix<Type>* evalMat());
+  V_OVERRIDE(Matrix<Type>* jacobian());
   V_OVERRIDE(const size_t getVariableSize() const);
   V_OVERRIDE(std::string_view getOracleType() const);
 
@@ -70,5 +70,5 @@ public:
   const Matrix<Variable>& getVariables() const;
   Matrix<Variable>& getVariables();
 
-  virtual ~OracleScalar() = default;
+  V_DTR(~OracleScalar()) = default;
 };

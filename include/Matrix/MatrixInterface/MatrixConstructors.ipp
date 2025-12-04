@@ -182,7 +182,4 @@ Matrix<T>::~Matrix() {
       mp_mat = nullptr;
     }
   }
-
-  // If on GPU, delete it
-  freeGPU();
 }

@@ -29,26 +29,26 @@ private:
   friend class Oracle;
   friend class Oracle::OracleFactory;
 
-  OracleMatrix(Matrix<Expression> &, Matrix<Variable> &);
+  OracleMatrix(Matrix<Expression>&, Matrix<Variable>&);
 
   // Dimension of variable vector
   size_t m_dim{};
   // Matrix expression
-  Matrix<Expression> &m_exp;
+  Matrix<Expression>& m_exp;
   // Matrix variable
-  Matrix<Variable> &m_X;
+  Matrix<Variable>& m_X;
 
 public:
   // Oracle functions
   V_OVERRIDE(Type eval());
-  V_OVERRIDE(Matrix<Type> *evalMat());
-  V_OVERRIDE(Matrix<Type> *jacobian());
+  V_OVERRIDE(Matrix<Type>* evalMat());
+  V_OVERRIDE(Matrix<Type>* jacobian());
   V_OVERRIDE(const size_t getVariableSize() const);
   V_OVERRIDE(std::string_view getOracleType() const);
 
   // Get variables
-  const Matrix<Variable> &getVariables() const;
-  Matrix<Variable> &getVariables();
+  const Matrix<Variable>& getVariables() const;
+  Matrix<Variable>& getVariables();
 
-  virtual ~OracleMatrix() = default;
+  V_DTR(~OracleMatrix()) = default;
 };

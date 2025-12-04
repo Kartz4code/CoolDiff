@@ -46,5 +46,5 @@ public:
   V_PURE(const size_t getVariableSize() const);
   V_PURE(std::string_view getOracleType() const);
 
-  virtual ~Oracle();
+  V_DTR(~Oracle());
 };

@@ -43,8 +43,10 @@ private:
 
 public:
   // Get size of memory allocated
-  static const size_t size();
-  
+  static const size_t size() { 
+    return m_del_ptr.size(); 
+  }
+
   // Matrix pool allocation
   template<typename T>
   static void MatrixPool(const size_t rows, const size_t cols, Matrix<T>*& result, const T& val = (T)0) {

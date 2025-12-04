@@ -25,10 +25,10 @@ class CustomNet : public NeuralNet<CustomNet> {
             // Get final layer of the network
             auto Yp = GetFinalLayer(networkLayers());
 
-            // Cross entropy weights
+            // Cross entropy objective
             Matrix<Expression> error = -1*transpose(Y)*LogM(Yp);
 
-            // Error with L1 regulatization
+            // Error with L2 regulatization
             for(size_t i{}; i < layerSize(); ++i) {
                 error = error + 0.001*(Sigma((W(i)^W(i))) + Sigma((b(i)^b(i))));
             }

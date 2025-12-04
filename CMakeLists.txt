@@ -27,7 +27,7 @@ cmake_minimum_required(VERSION 3.22)
 # [Project name and description]
 project(CoolDiff    VERSION 1.0.1.0
                     DESCRIPTION "CoolDiff - A Symbolic/Automatic differentiation C++ tool"
-                    LANGUAGES C CXX CUDA)
+                    LANGUAGES C CXX)
 
 ########################################################################################################################
 ########################################################################################################################
@@ -45,8 +45,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CUDA_STANDARD 17)
-set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
 #LTO and IPO
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
@@ -56,9 +54,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 if(${CMAKE_BUILD_TYPE} EQUAL Release)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -ffast-math -funroll-loops -funroll-all-loops -ftree-vectorize -finline-functions -floop-block")
 endif()
-
-# Enable CUDA language
-enable_language(CUDA)
 
 # Include CMake scripts
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -170,9 +165,6 @@ endif()
 # Enable Threads package
 find_package(Threads REQUIRED)
 
-# Enable CUDA package
-find_package(CUDA REQUIRED)
-
 list(APPEND CMAKE_MODULE_PATH ${gtest_SOURCE_DIR}/cmake)
 
 ########################################################################################################################
@@ -196,9 +188,7 @@ set(SRC # Scalar folder *.cpp files
         ${CMAKE_SOURCE_DIR}/src/Matrix/MatOperators.cpp
         ${CMAKE_SOURCE_DIR}/src/Matrix/MetaMatrix.cpp
         ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixBasics.cpp
-        ${CMAKE_SOURCE_DIR}/src/Matrix/Matrix.cpp
-        # Memory manager folder
-        ${CMAKE_SOURCE_DIR}/src/MemoryManager/MemoryManager.cpp)
+        ${CMAKE_SOURCE_DIR}/src/Matrix/Matrix.cpp)
 
 ########################################################################################################################
 ########################################################################################################################
@@ -296,8 +286,6 @@ set(LIBRARY_LIST Threads::Threads Eigen3::Eigen)
 if(${ENABLE_ROBIN_HOOD_MAP})
     list(APPEND LIBRARY_LIST robin_hood::robin_hood)
 endif()
-
-list(APPEND LIBRARY_LIST ${CUDA_LIBRARIES})
 
 # [Set target sources]
 target_sources(${PROJECT_NAME} PRIVATE ${SRC})

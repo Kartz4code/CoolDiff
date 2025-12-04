@@ -73,17 +73,8 @@ private:
   // Matrix raw pointer of underlying type (Expression, Variable, Parameter, Type)
   T* mp_mat{nullptr};
 
-  // Matrix GPU pointer of underlying type
-  T* mp_mat_gpu{nullptr};
-
   // Collection of meta variable expressions
   Vector<MetaMatrix*> m_gh_vec{};
-
-  // Boolean to define on/off GPU
-  bool m_on_gpu{false};
-
-  // Delete CUDA resources
-  void freeGPU();
 
 private:
   // Boolean to verify evaluation/forward derivative values
@@ -129,12 +120,6 @@ public:
 
   // Constructor with pointer stealer
   Matrix(const size_t, const size_t, T*);
-
-  // Copy from CPU to GPU 
-  void copyToGPU();
-
-  // Copy from GPU to CPU
-  void copyToCPU();
 
   // Matrix clone
   Matrix* clone(Matrix*&) const;

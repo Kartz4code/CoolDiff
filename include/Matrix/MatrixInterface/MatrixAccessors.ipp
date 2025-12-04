@@ -43,12 +43,6 @@ T* Matrix<T>::getMatrixPtr() {
     return mp_mat;
 }
 
-// Get matrix GPU pointer reference
-template<typename T>
-T*& Matrix<T>::getGPUMatrixPtr() {
-  return mp_mat_gpu;
-}
-
 // Matrix 2D access using operator()() immutable
 template<typename T>
 const T& Matrix<T>::operator()(const size_t i, const size_t j) const {

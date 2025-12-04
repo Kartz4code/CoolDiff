@@ -23,51 +23,6 @@
 
 #include "Matrix.hpp"
 
-
-  // Copy from CPU to GPU 
-template<typename T>
-void Matrix<T>::copyToGPU() {
-    ASSERT(mp_mat != nullptr, "The CPU pointer is a nullptr");
-
-    // Total number of elements with size 
-    const size_t nelems_size = (getNumElem())*sizeof(T);
-
-    // If not in GPU, copy to GPU
-    if(false == m_on_gpu) {
-        cudaMalloc((void**)&mp_mat_gpu, nelems_size);
-        m_on_gpu = true; 
-    }
-
-    ASSERT(mp_mat_gpu != nullptr, "The GPU pointer is a nullptr");
-    // Copy from CPU to GPU
-    cudaMemcpy(mp_mat_gpu, mp_mat, nelems_size, cudaMemcpyHostToDevice);
-}
-
-// Copy from GPU to CPU
-template<typename T>
-void Matrix<T>::copyToCPU() {
-    ASSERT(mp_mat != nullptr, "The CPU pointer is a nullptr");
-    ASSERT(mp_mat_gpu != nullptr, "The GPU pointer is a nullptr");
-
-    // Total number of elements with size 
-    const size_t nelems_size = (getNumElem())*sizeof(T);
-
-    // Copy from GPU to CPU
-    cudaMemcpy(mp_mat, mp_mat_gpu, nelems_size, cudaMemcpyDeviceToHost);
-}
-
-  // Delete GPU resources
-template<typename T>
-void Matrix<T>::freeGPU() {
-    if(true == m_on_gpu) {
-        if(nullptr != mp_mat_gpu) {
-            cudaFree(mp_mat_gpu);
-            m_on_gpu = false;  
-            mp_mat_gpu = nullptr;
-        }
-    }
-}
-
 // Get block matrix
 template<typename T>
 void Matrix<T>::getBlockMat(const Pair<size_t, size_t>& rows, const Pair<size_t, size_t>& cols, Matrix*& result) const {

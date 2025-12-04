@@ -131,7 +131,7 @@ void GNMatrix() {
   TIME_IT_MS(gn.solve());
 
   std::cout << "Computed values: " << CoolDiff::TensorR2::Eval(V);
-  std::cout << "Actual values: " << (Type)3.14159 / 2 << " " << (Type)5 << " " << (Type)-2 << "\n";
+  std::cout << "Actual values: " << (Type)3.14159 / 2 << " " << (Type)5 << " " << (Type)-2 << "\n\n";
 }
 
 void NonLinearSolve() {
