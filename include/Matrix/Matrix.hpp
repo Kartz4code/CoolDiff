@@ -55,6 +55,9 @@ private:
   // Swap for assignment
   void swap(Matrix&) noexcept;
 
+  // Assign clone
+  void assignClone(const Matrix*);
+
   // Allocate friend function
   template <typename Z, typename... Argz>
   friend SharedPtr<Z> Allocate(Argz&&...);
@@ -90,12 +93,6 @@ private:
   Matrix<Type>* mp_dresult{nullptr};
 
 private:  
-  // Move constructor
-  Matrix(Matrix&&) noexcept;
-  
-  // Move assignment operator
-  Matrix& operator=(Matrix&&) noexcept;
-
   // Set values for the result matrix
   void setEval();
 
@@ -189,6 +186,12 @@ public:
   // Copy assignment operator
   Matrix& operator=(const Matrix&);
 
+  // Move constructor
+  Matrix(Matrix&&) noexcept;
+  
+  // Move assignment operator
+  Matrix& operator=(Matrix&&) noexcept;
+
   // Get matrix pointer immutable
   const T* getMatrixPtr() const;
 
@@ -197,10 +200,7 @@ public:
 
   // Set matrix pointer
   void setMatrixPtr(T*);
-
-  // Get matrix GPU pointer reference
-  T*& getGPUMatrixPtr();
-
+  
   // Matrix 2D access using operator()() immutable
   const T& operator()(const size_t, const size_t) const;
 

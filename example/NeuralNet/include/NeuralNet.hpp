@@ -8,12 +8,6 @@
                                 using Base::W; using Base::b;         \
                                 using Base::X; using Base::Y;
 
-template<typename... Args>
-auto GetFinalLayer(const Tuples<Args...>& tuple) {
-    constexpr const size_t N = (std::tuple_size_v<Tuples<Args...>>-1);
-    return std::get<N>(tuple);
-}
-
 // GDOptimizer
 void GDOptimizer(Matrix<Type>& X, Matrix<Type>& dX, const Type& alpha) {
     Matrix<Type>* dX_ptr = &dX;
@@ -116,7 +110,8 @@ class NeuralNet {
 
     protected:
         // Inputs/Outputs
-        Matrix<Type> X, Y;
+        Matrix<Type> X{1, 1, nullptr};
+        Matrix<Type> Y{1, 1, nullptr};
 
     public:
         // Default constructor
@@ -165,106 +160,120 @@ class NeuralNet {
         } 
 
         // CRTP function - networkLayers (Returns tuple of layers)
-        auto networkLayers() {
-            return derived().networkLayers();
+        auto networkLayers(const size_t batch_size) {
+            return derived().networkLayers(batch_size);
         }
 
         // CRTP function - error (Returns error/objective)
-        auto error() {
-            return derived().error();
+        template<typename Z>
+        auto error(Z& net, const size_t batch_size) {
+            return derived().error(net, batch_size);
         } 
     
         // Predict output for a test input and the tuple of layers for the Mth layer
         template<size_t M, typename... Args>
         auto& predict(const Matrix<Type>& X_test, Tuples<Args...>& tuple) {
             static_assert((M < std::tuple_size_v<Tuples<Args...>>), "Accessing network layer beyond M");
-            // Copy test data into X
-            X.copyData(X_test);
-            return CoolDiff::TensorR2::Eval(std::get<M>(tuple));
+            return std::get<M>(tuple);
+        }
+
+        // Get Mth layer
+        template<size_t M, typename... Args>
+        auto& GetLayer(Tuples<Args...>& tuple) {
+            static_assert((M < std::tuple_size_v<Tuples<Args...>>), "Accessing network layer beyond M");
+            return std::get<M>(tuple);
+        }
+
+        // Get final layer
+        template<typename... Args>
+        auto& GetFinalLayer(Tuples<Args...>& tuple) {
+            constexpr const size_t N = (std::tuple_size_v<Tuples<Args...>>-1);
+            return GetLayer<N>(tuple);
         }
 
         // Classification accuracy computation
         template<typename Z>
-        Type accuracy(Z& net, Matrix<Type>& X_data, Matrix<Type>& Y_data) {
-            size_t count{}; const size_t data_size = X_data.getNumRows();
-            for(size_t i{}; i < data_size-1; ++i) {
+        Type accuracy(Z& net, Matrix<Type>& X_data, Matrix<Type>& Y_data, const size_t batch_size) {
+            size_t count{}; 
+            const size_t data_size = X_data.getNumRows(); 
+            const size_t label_size = Y_data.getNumColumns();
+            
+            for(size_t i{}; i < data_size-batch_size; i+=batch_size) {
                 // Last layer of the network
                 constexpr const size_t N = std::tuple_size_v<Z>-1;
-
+                
                 // Predicted and real values
                 X.setMatrixPtr(X_data.getRowPtr(i));
                 Y.setMatrixPtr(Y_data.getRowPtr(i));
 
-                const auto& est = CoolDiff::TensorR2::Eval(predict<N>(X, net));
-                
-                const auto& it_est = est.getMatrixPtr();
-                const auto& it_real = Y.getMatrixPtr();
+                const auto& Yh = CoolDiff::TensorR2::Eval(GetLayer<N>(net));
 
-                const auto& est_elems = est.getNumElem();
-                const auto& real_elems = Y.getNumElem();
+                // Identify estimated vs real classes and increment for positive count
+                for(size_t j{}; j < batch_size; ++j) {
+                    const auto Yh_ptr = Yh.getRowPtr(j);
+                    const auto Y_ptr = Y.getRowPtr(j);
 
-                const size_t ep = std::distance(it_est, std::max_element(it_est, it_est + est_elems));
-                const size_t rp = std::distance(it_real, std::max_element(it_real, it_real + real_elems));
+                    const size_t Yh_class = std::distance(Yh_ptr, std::max_element(Yh_ptr, Yh_ptr + label_size));
+                    const size_t Y_class = std::distance(Y_ptr, std::max_element(Y_ptr, Y_ptr + label_size));
 
-                // Increment count if values match up between predicted and real
-                if(ep == rp) {
-                    count += 1;
+                    // Increment count if values match up between predicted and real
+                    if(Yh_class == Y_class) {
+                        count += 1;
+                    }
                 }
             }
 
             // Convert to percentage and return
-            return Type((count/(Type)(data_size-1))*100.0);
+            return Type((count/(Type)(data_size))*100.0);
         }
 
         
-        void train( Matrix<Type>& X_data, Matrix<Type>& Y_data, 
-                    const Type& rate = -0.01, const size_t batch_size = 1, const size_t epoch = 1, 
-                    bool threading = false, bool display_stats = true ) {
+        template<typename Z>
+        void train(Z& net, Matrix<Type>& X_data, Matrix<Type>& Y_data, const Type& rate = -0.01, 
+                   const size_t batch_size = 1, const size_t epoch = 1, bool threading = false, bool display_stats = true) {
 
-            // Get network 
-            auto tuple = networkLayers();
-
-            // Matrix error
-            Matrix<Expression> err = error();
+            // Matrix error expression
+            Matrix<Expression> err = error(net, batch_size);
 
             // Learning rate (normalized by batch size)
             Type alpha = (rate/((Type)batch_size)); 
 
             // Data size
-            size_t data_size = Y_data.getNumRows(); 
+            size_t data_size = Y_data.getNumRows();
+
             // Stats logger
             std::ostringstream oss; 
 
             // Loop over the epochs 
             for(size_t i{}; i < epoch; ++i) {
+            
+                // Accumulated error
                 Type acc_err{};
+
                 // Loop over the batch size
-                for(size_t j{}; j < data_size; j += batch_size) {
+                for(size_t j{}; j < (data_size-batch_size); j += batch_size) {
                     // Reset all batch matrices to zero for the next batch
                     resetMiniBatch(threading);
 
-                    // Loop over the data set for a fixed batch
-                    for(size_t k{j}; (k < (j + batch_size)) && (k < data_size-1); ++k) {
-                        // Set input and output matrix pointer (no copy)
-                        X.setMatrixPtr(X_data.getRowPtr(k));
-                        Y.setMatrixPtr(Y_data.getRowPtr(k));
-                
-                        // Accumulate gradients
-                        accumulateGradients(err, threading);
+                    // Set matrix pointers
+                    X.setMatrixPtr(X_data.getRowPtr(j));
+                    Y.setMatrixPtr(Y_data.getRowPtr(j));
 
-                        // Accumulate error 
-                        if(true == display_stats) {
-                            acc_err += CoolDiff::TensorR2::Eval(err)(0,0);
-                        }
+                    // Accumulate gradients
+                    accumulateGradients(err, threading);
+
+                    // Accumulate error 
+                    if(true == display_stats) {
+                        acc_err += CoolDiff::TensorR2::Eval(err)(0,0);
                     }
-
                     // Mini batch update
                     optimize(alpha, threading);
                 }
 
                 // Display stats
                 if(true == display_stats) {
-                    Type acc = accuracy(tuple, X_data, Y_data);
+                    Type acc{};
+                    acc = accuracy(net, X_data, Y_data, batch_size);
                     oss << "       <------------------------------ Computation stats ------------------------------>       \n"
                         << std::string(100, '-') << "\n" << std::string(10, ' ')
                         << "| [EPOCH]: " << std::to_string(i) << " |"

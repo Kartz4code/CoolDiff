@@ -38,6 +38,23 @@ void Matrix<T>::swap(Matrix& other) noexcept {
   std::swap(m_cache, other.m_cache);
 }
 
+template<typename T>
+void Matrix<T>::assignClone(const Matrix<T>* other) {
+  m_rows = other->m_rows;
+  m_cols = other->m_cols;
+  m_gh_vec = other->m_gh_vec;
+  m_eval = other->m_eval;
+  m_devalf = other->m_devalf;
+  m_dest = other->m_dest;
+  mp_result = other->mp_result;
+  mp_dresult = other->mp_dresult;
+  m_nidx = other->m_nidx;
+  m_cache = other->m_cache;
+
+  // Just copy the data from other matrix and store in it in current matrix to avoid double free issues
+  std::copy(EXECUTION_PAR other->mp_mat, other->mp_mat + other->getNumElem(), mp_mat);
+}
+
 // Default constructor - Zero arguments
 template<typename T>
 Matrix<T>::Matrix() : m_rows{1}, 
@@ -87,7 +104,7 @@ Matrix<T>::Matrix(const size_t rows, const size_t cols, T* ptr)  :    m_rows{row
 template<typename T>
 Matrix<T>* Matrix<T>::clone(Matrix<T>*& mat) const {
   MemoryManager::MatrixPool(m_rows, m_cols, mat);
-  *mat = *this;
+  mat->assignClone(this);
   return mat;
 } 
 
@@ -148,7 +165,6 @@ Matrix<T>::Matrix(Matrix&& m) noexcept :  m_rows{std::exchange(m.m_rows, -1)},
                                           m_gh_vec{std::exchange(m.m_gh_vec, {})}, 
                                           m_nidx{std::exchange(m.m_nidx, -1)} 
 {}
-
 
 // Copy data from another matrix (Just copy all contents from one matrix to another)
 template<typename T>

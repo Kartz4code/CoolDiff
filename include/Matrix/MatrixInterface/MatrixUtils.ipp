@@ -85,9 +85,9 @@ void Matrix<T>::setBlockMat(const Pair<size_t, size_t>& rows, const Pair<size_t,
 // Add zero padding
 template<typename T>
 void Matrix<T>::pad(const size_t r, const size_t c, Matrix*& result) const {
-// Special matrix embedding
-MemoryManager::MatrixPool(m_rows + 2 * r, m_cols + 2 * c, result);
-result->setBlockMat({r, r + m_rows - 1}, {c, c + m_cols - 1}, this);
+    // Special matrix embedding
+    MemoryManager::MatrixPool(m_rows + 2 * r, m_cols + 2 * c, result);
+    result->setBlockMat({r, r + m_rows - 1}, {c, c + m_cols - 1}, this);
 }
 
 // Set values for the result matrix

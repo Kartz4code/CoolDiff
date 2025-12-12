@@ -11,22 +11,23 @@ class CustomNet : public NeuralNet<CustomNet> {
         CustomNet() = default;
 
         // CRTP overload - networkLayers
-        auto networkLayers() {
-            auto l1 = LeakyReLUM(W(0)*X + b(0));
-            auto l2 = LeakyReLUM(W(1)*l1 + b(1));
-            auto l3 = SoftMax(l2);
+        auto networkLayers(const size_t batch) {
+            auto l1 = LeakyReLUM(X*transpose(W(0)) + transpose(broadcast(b(0), batch)));
+            auto l2 = LeakyReLUM(l1*transpose(W(1)) + transpose(broadcast(b(1), batch)));
+            auto l3 = SoftMax<Axis::COLUMN>(l2);
 
             auto list = std::make_tuple(l1, l2, l3);
             return list;
         }
 
         // CRTP overload - error
-        auto error() { 
+        template<typename Z>
+        auto error(Z& net, const size_t batch) { 
             // Get final layer of the network
-            auto Yp = GetFinalLayer(networkLayers());
+            auto Yp = GetFinalLayer(net);
 
             // Cross entropy objective
-            Matrix<Expression> error = -1*transpose(Y)*LogM(Yp);
+            Matrix<Expression> error =  -1 * Sigma(Y^LogM(Yp));
 
             // Error with L2 regulatization
             for(size_t i{}; i < layerSize(); ++i) {
@@ -64,14 +65,7 @@ using NormalDistribution = std::normal_distribution<T>;
 
 
 void MNISTPrediction() {
-    const size_t N{784}, M{10};
-
-    CustomNet n({N,1},{M,1});
-
-    // Generate network layers
-    auto tuple  =  n.addLayer(Layer::LayerFactory::CreateLayer<UniformDistribution>(5*M, N, -1, 1))
-                    .addLayer(Layer::LayerFactory::CreateLayer<UniformDistribution>(M, 5*M, -1, 1))
-                    .networkLayers();
+    const size_t N{784}, M{10}, K{128};
 
     // Train MNIST data (60000 x 784)
     Matrix<Type>& Xtrain = Matrix<Type>::MatrixFactory::CreateMatrix(60000, N);
@@ -85,11 +79,18 @@ void MNISTPrediction() {
     LoadData(MNISTData::g_mnist_train_data_path, Xtrain, Ytrain);
     LoadData(MNISTData::g_mnist_test_data_path, Xtest, Ytest);
 
+    CustomNet n({K,N},{K,M});
+
+    // Generate network layers for prediction on test data
+    auto net  =  n.addLayer(Layer::LayerFactory::CreateLayer<UniformDistribution>(5*M, N, -1, 1))
+                  .addLayer(Layer::LayerFactory::CreateLayer<UniformDistribution>(M, 5*M, -1, 1))
+                  .networkLayers(K);
+    
     // Train data
-    TIME_IT_MS(n.train(Xtrain, Ytrain, -0.1, 32, 25, false));
+    TIME_IT_MS(n.train(net, Xtrain, Ytrain, -0.01, K, 50));
 
     // Prediction test
-    std::cout << "[Test prediction accuracy]: " << n.accuracy(tuple, Xtest, Ytest) << "%\n";
+    std::cout << "[Test prediction accuracy]: " << n.accuracy(net, Xtest, Ytest, K) << "%\n";
 }
 
 int main(int argc, char** argv) {
