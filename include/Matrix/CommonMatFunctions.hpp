@@ -338,13 +338,20 @@ UNARY_MATRIX_OPERATOR(SigmoidM, [](Type a) {
 
 
 // Broadcast 
-template<typename T>
+template<Axis axis = Axis::ALL, typename T>
 constexpr const auto& broadcast(const IMatrix<T>& X, const size_t n) {
   const size_t xrows = X.getNumRows();
   const size_t xcols = X.getNumColumns();
 
-  ASSERT(xcols == 1, "Cannot broadcast a matrix, use Kronocker product");
-  return X*CoolDiff::TensorR2::MatrixBasics::OnesRef(1, n);
+  ASSERT((xcols == 1 || xrows == 1), "Cannot broadcast a matrix, use Kronocker product");
+  
+  if constexpr(axis == Axis::COLUMN) { 
+    return (X * CoolDiff::TensorR2::MatrixBasics::OnesRef(1, n));
+  } else if constexpr(axis == Axis::ROW) {
+    return (CoolDiff::TensorR2::MatrixBasics::OnesRef(n, 1) * X);
+  } else {
+    return (CoolDiff::TensorR2::MatrixBasics::OnesRef(n, 1) * X * CoolDiff::TensorR2::MatrixBasics::OnesRef(1, n));
+  }
 }
 
 // Sigma computation

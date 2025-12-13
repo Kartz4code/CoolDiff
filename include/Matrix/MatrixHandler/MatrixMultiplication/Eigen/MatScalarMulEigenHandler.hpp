@@ -33,20 +33,33 @@ class MatScalarMulEigenHandler : public T {
             // Dimensions of RHS matrices
             const size_t nrows{rhs->getNumRows()};
             const size_t ncols{rhs->getNumColumns()};
+            const size_t nelems{rhs->getNumElem()};
 
             // Pool matrix
             MemoryManager::MatrixPool(nrows, ncols, result);
 
             // Get raw pointers to result, left and right matrices
             Type* right = const_cast<Matrix<Type>*>(rhs)->getMatrixPtr();
+            Type* result_ptr = result->getMatrixPtr();
 
-            const Eigen::Map<EigenMatrix> right_eigen(right, nrows, ncols);
-            const auto& result_eigen = (right_eigen.array() * lhs).matrix();
-
-            Eigen::Map<EigenMatrix>(result->getMatrixPtr(), 
-                                    result_eigen.rows(), 
-                                    result_eigen.cols()) = result_eigen;
-
-            return;
+            // When lhs is zero
+            if((Type)0 == lhs) {
+                CoolDiff::TensorR2::Details::ResetZero(result);
+                return;
+            } 
+            // When lhs is one
+            else if((Type)1 == lhs) {
+                std::copy(EXECUTION_PAR right, right + nelems, result_ptr);
+                return;
+            } 
+            // When lhs in neither one nor zero
+            else {
+                const Eigen::Map<EigenMatrix> right_eigen(right, nrows, ncols);
+                const auto& result_eigen = (right_eigen.array() * lhs).matrix();
+                Eigen::Map<EigenMatrix>(result->getMatrixPtr(), 
+                                        result_eigen.rows(), 
+                                        result_eigen.cols()) = result_eigen;
+                return;
+            }
         }
 };

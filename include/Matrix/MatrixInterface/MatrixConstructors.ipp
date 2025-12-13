@@ -51,8 +51,10 @@ void Matrix<T>::assignClone(const Matrix<T>* other) {
   m_nidx = other->m_nidx;
   m_cache = other->m_cache;
 
-  // Just copy the data from other matrix and store in it in current matrix to avoid double free issues
-  std::copy(EXECUTION_PAR other->mp_mat, other->mp_mat + other->getNumElem(), mp_mat);
+  // Copy the data from other matrix and store in it in current matrix to avoid double free issues
+  if(nullptr != other->mp_mat) {
+    std::copy(EXECUTION_PAR other->mp_mat, other->mp_mat + other->getNumElem(), mp_mat);
+  }
 }
 
 // Default constructor - Zero arguments
@@ -104,6 +106,7 @@ Matrix<T>::Matrix(const size_t rows, const size_t cols, T* ptr)  :    m_rows{row
 template<typename T>
 Matrix<T>* Matrix<T>::clone(Matrix<T>*& mat) const {
   MemoryManager::MatrixPool(m_rows, m_cols, mat);
+  // Dont use copy assigment, due to allocation and reallocation of resources
   mat->assignClone(this);
   return mat;
 } 

@@ -109,16 +109,17 @@ class NeuralNet {
         }
 
     protected:
-        // Inputs/Outputs
+        // Inputs/Output
         Matrix<Type> X{1, 1, nullptr};
         Matrix<Type> Y{1, 1, nullptr};
 
+        // Input/Ouput dimensions
+        Pair<size_t, size_t> m_iodim;
+        size_t m_batch_size{1};
+
     public:
         // Default constructor
-        NeuralNet(const Pair<size_t, size_t>& Xdim, const Pair<size_t, size_t>& Ydim) {
-            X = Matrix<Type>::MatrixFactory::CreateMatrix(Xdim.first, Xdim.second, nullptr);
-            Y = Matrix<Type>::MatrixFactory::CreateMatrix(Ydim.first, Ydim.second, nullptr);
-        }
+        NeuralNet(Pair<size_t, size_t> iodim) : m_iodim{iodim} {}
 
         // Add layer to NeuralNet
         NeuralNet& addLayer(const Layer& layer) {
@@ -161,13 +162,16 @@ class NeuralNet {
 
         // CRTP function - networkLayers (Returns tuple of layers)
         auto networkLayers(const size_t batch_size) {
-            return derived().networkLayers(batch_size);
+            m_batch_size = batch_size;
+            X = Matrix<Type>(m_batch_size, m_iodim.first, nullptr);
+            Y = Matrix<Type>(m_batch_size, m_iodim.second, nullptr);
+            return derived().networkLayers(m_batch_size);
         }
 
         // CRTP function - error (Returns error/objective)
         template<typename Z>
-        auto error(Z& net, const size_t batch_size) {
-            return derived().error(net, batch_size);
+        auto error(Z& net) {
+            return derived().error(net);
         } 
     
         // Predict output for a test input and the tuple of layers for the Mth layer
@@ -192,21 +196,23 @@ class NeuralNet {
         }
 
         // Classification accuracy computation
-        template<typename Z>
-        Type accuracy(Z& net, Matrix<Type>& X_data, Matrix<Type>& Y_data, const size_t batch_size) {
+        Type accuracy(const Matrix<Type>& X_data, const Matrix<Type>& Y_data, const size_t batch_size) {
             size_t count{}; 
             const size_t data_size = X_data.getNumRows(); 
+            const size_t feature_size = X_data.getNumColumns();
             const size_t label_size = Y_data.getNumColumns();
-            
-            for(size_t i{}; i < data_size-batch_size; i+=batch_size) {
-                // Last layer of the network
-                constexpr const size_t N = std::tuple_size_v<Z>-1;
-                
+
+            // Restructure network layer to match batch size
+            auto net = networkLayers(batch_size);
+
+            // Data scan size
+            const size_t scan_size = (data_size-batch_size);
+            for(size_t i{}; i < scan_size; i+=batch_size) {               
                 // Predicted and real values
                 X.setMatrixPtr(X_data.getRowPtr(i));
                 Y.setMatrixPtr(Y_data.getRowPtr(i));
 
-                const auto& Yh = CoolDiff::TensorR2::Eval(GetLayer<N>(net));
+                const auto& Yh = CoolDiff::TensorR2::Eval(GetFinalLayer(net));
 
                 // Identify estimated vs real classes and increment for positive count
                 for(size_t j{}; j < batch_size; ++j) {
@@ -224,19 +230,19 @@ class NeuralNet {
             }
 
             // Convert to percentage and return
-            return Type((count/(Type)(data_size))*100.0);
+            return Type((count/(Type)(scan_size))*100.0);
         }
 
         
-        template<typename Z>
-        void train(Z& net, Matrix<Type>& X_data, Matrix<Type>& Y_data, const Type& rate = -0.01, 
-                   const size_t batch_size = 1, const size_t epoch = 1, bool threading = false, bool display_stats = true) {
+        void train(Matrix<Type>& X_data, Matrix<Type>& Y_data, const Type& rate = -0.01, 
+                   const size_t epoch = 1, bool threading = false, bool display_stats = true) {
 
-            // Matrix error expression
-            Matrix<Expression> err = error(net, batch_size);
+            // Network layer and error function (Must be in loop for adaptive batch update)
+            auto net = networkLayers(m_batch_size);
+            Matrix<Expression> err = error(net);
 
             // Learning rate (normalized by batch size)
-            Type alpha = (rate/((Type)batch_size)); 
+            Type alpha = (rate/((Type)m_batch_size)); 
 
             // Data size
             size_t data_size = Y_data.getNumRows();
@@ -251,7 +257,7 @@ class NeuralNet {
                 Type acc_err{};
 
                 // Loop over the batch size
-                for(size_t j{}; j < (data_size-batch_size); j += batch_size) {
+                for(size_t j{}; j < (data_size-m_batch_size); j += m_batch_size) {
                     // Reset all batch matrices to zero for the next batch
                     resetMiniBatch(threading);
 
@@ -273,7 +279,7 @@ class NeuralNet {
                 // Display stats
                 if(true == display_stats) {
                     Type acc{};
-                    acc = accuracy(net, X_data, Y_data, batch_size);
+                    acc = accuracy(X_data, Y_data, m_batch_size);
                     oss << "       <------------------------------ Computation stats ------------------------------>       \n"
                         << std::string(100, '-') << "\n" << std::string(10, ' ')
                         << "| [EPOCH]: " << std::to_string(i) << " |"
