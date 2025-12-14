@@ -45,16 +45,15 @@ void Matrix<T>::assignClone(const Matrix<T>* other) {
   m_gh_vec = other->m_gh_vec;
   m_eval = other->m_eval;
   m_devalf = other->m_devalf;
-  m_dest = other->m_dest;
   mp_result = other->mp_result;
   mp_dresult = other->mp_dresult;
   m_nidx = other->m_nidx;
   m_cache = other->m_cache;
+  mp_mat = other->mp_mat;
 
-  // Copy the data from other matrix and store in it in current matrix to avoid double free issues
-  if(nullptr != other->mp_mat) {
-    std::copy(EXECUTION_PAR other->mp_mat, other->mp_mat + other->getNumElem(), mp_mat);
-  }
+  // The temporary that is created for assignClone is non-destroyable. 
+  // It just holds the pointer of other matrix
+  m_dest = false;
 }
 
 // Default constructor - Zero arguments
@@ -105,8 +104,10 @@ Matrix<T>::Matrix(const size_t rows, const size_t cols, T* ptr)  :    m_rows{row
 // Matrix clone
 template<typename T>
 Matrix<T>* Matrix<T>::clone(Matrix<T>*& mat) const {
-  MemoryManager::MatrixPool(m_rows, m_cols, mat);
-  // Dont use copy assigment, due to allocation and reallocation of resources
+  if(nullptr == mat) {
+    mat = Matrix<Type>::MatrixFactory::CreateMatrixPtr(m_rows, m_cols, nullptr);
+  }
+  // Dont use copy assigment, due to allocation and reallocation of resources!
   mat->assignClone(this);
   return mat;
 } 
@@ -129,7 +130,7 @@ Matrix<T>::Matrix(const Matrix& m) :  m_rows{m.m_rows},
                                       m_cols{m.m_cols},
                                       m_eval{m.m_eval}, 
                                       m_devalf{m.m_devalf},
-                                      m_dest{m.m_dest},
+                                      m_dest{true},
                                       m_cache{m.m_cache}, 
                                       m_nidx{m.m_nidx} {
   // If T is an Expression type

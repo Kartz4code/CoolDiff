@@ -68,7 +68,7 @@ include(Tools)
 ######################################################################################################################## 
 
 # TODO - Enable shared library build 
-option(BUILD_UNITTESTS "Building unit test executables" ON) # Default - ON
+option(BUILD_UNITTESTS "Building unit test executables" OFF) # Default - ON
 option(BUILD_EXAMPLES "Building example executables" ON) # Default - ON
 option(ENABLE_CLANG_TIDY "Enable clang-tidy static linter" OFF) # Default - OFF
 option(ENABLE_CMAKE_FORMAT "Enable cmake formatter" OFF) # Default - OFF

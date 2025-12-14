@@ -24,7 +24,7 @@
 #include "CommonFunctions.hpp"
 #include "IMatrix.hpp"
 #include "MatrixBasics.hpp"
-#include <cuda_runtime.h>
+//#include <cuda_runtime.h>
 
 // Derivative of matrices (Reverse AD)
 Matrix<Type>* DervMatrix(const size_t, const size_t, const size_t, const size_t);
@@ -84,7 +84,7 @@ private:
   bool m_eval{false};
   bool m_devalf{false};
   
-  // Should destructor be called? 
+  // Should destructor be called? (True by default)
   bool m_dest{true};
 
   // Matrix pointer for evaluation result (Type)
