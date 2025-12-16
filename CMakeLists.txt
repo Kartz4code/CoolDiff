@@ -24,6 +24,14 @@
 # [CMake version]
 cmake_minimum_required(VERSION 3.22)
 
+if(NOT DEFINED CMAKE_C_COMPILER)
+  set(CMAKE_C_COMPILER gcc-12 CACHE STRING "C compiler" FORCE)
+endif()
+
+if(NOT DEFINED CMAKE_CXX_COMPILER)
+  set(CMAKE_CXX_COMPILER g++-12 CACHE STRING "C++ compiler" FORCE)
+endif()
+
 # [Project name and description]
 project(CoolDiff    VERSION 1.0.1.0
                     DESCRIPTION "CoolDiff - A Symbolic/Automatic differentiation C++ tool"
@@ -80,6 +88,7 @@ option(ENABLE_ROBIN_HOOD_MAP "Enable robin hood hashmaps" ON) # Default - ON
 option(ENABLE_VIRTUAL_FUNCTIONS "Enable virtual functions" ON) # Default - ON
 option(ENABLE_DYNAMIC_ASSERTIONS "Enable dynamic assertions" ON) # Default - OFF
 option(ENABLE_STL_PARALLEL_EXECUTION "Enable STL libraries parallel execution feature" OFF) # Default - OFF
+option(ENABLE_ADDRESS_SANITIZER "Enable address sanitizer" OFF) # Default - ON
 set(DEFAULT_MATH_TYPE 1 CACHE STRING "Value that defined the default math type: Float  - 1, Double - 2") # Default - 2 for test cases
 
 
@@ -303,8 +312,10 @@ set_target_properties(${PROJECT_NAME}   PROPERTIES  VERSION ${PROJECT_VERSION}
 target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBRARY_LIST})
 
 # Attach address sanitizer
-set(HOOK_ADDRESS_SANITIZER  $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU,Clang>>:-fno-omit-frame-pointer;-fsanitize=address>
-                            $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:MSVC>>:/INCREMENTAL:NO;/fsanitize=address>)
+if(${ENABLE_ADDRESS_SANITIZER})
+    set(HOOK_ADDRESS_SANITIZER  $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU,Clang>>:-fno-omit-frame-pointer;-fsanitize=address>
+                                $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:MSVC>>:/INCREMENTAL:NO;/fsanitize=address>)
+endif()
 
 
 # Set permission flags

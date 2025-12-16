@@ -42,12 +42,12 @@ class MatScalarMulEigenHandler : public T {
             Type* right = const_cast<Matrix<Type>*>(rhs)->getMatrixPtr();
             Type* result_ptr = result->getMatrixPtr();
 
-            // When lhs is zero
+            // When lhs is zero, reset result pointer
             if((Type)0 == lhs) {
                 CoolDiff::TensorR2::Details::ResetZero(result);
                 return;
             } 
-            // When lhs is one
+            // When lhs is one, copy right matrix to result
             else if((Type)1 == lhs) {
                 std::copy(EXECUTION_PAR right, right + nelems, result_ptr);
                 return;
