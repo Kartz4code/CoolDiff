@@ -1,5 +1,3 @@
- #pragma once
-
 /**
  * @file include/Matrix/MatrixInterface/MatrixAccessors.ipp
  *
@@ -20,6 +18,8 @@
  * notwithstanding of any reference thereto in the software or
  * associated repository.
  */
+
+#pragma once
 
 #include "Matrix.hpp"
 

@@ -142,8 +142,8 @@ public:
     static_assert(true == std::is_same_v<T, Expression>, "[ERROR] The type T is not an expression");
     // Reserve a buffer of Matrix expressions
     m_gh_vec.reserve(g_vec_init);
-    // Expression multiplied with one and emplace it in a generic holder
-    m_gh_vec.push_back((Matrix<Expression>*)&(expr*1));
+    // Expression multiplied with eye matrix and emplace it in a generic holder (Dont change it)
+    m_gh_vec.push_back((Matrix<Expression>*)&(expr*(*(CoolDiff::TensorR2::MatrixBasics::Eye(expr.getNumColumns())))));
   }
 
   /* Copy assignment for expression evaluation */
@@ -175,8 +175,8 @@ public:
       m_devalf = false;
       m_dest = true;
     }
-    // Expression multiplied with one and emplace it in a generic holder
-    m_gh_vec.push_back((Matrix<Expression>*)&(expr*1));
+    // Expression multiplied with eye matrix and emplace it in a generic holder (Dont change it)
+    m_gh_vec.push_back((Matrix<Expression>*)&(expr*(*(CoolDiff::TensorR2::MatrixBasics::Eye(expr.getNumColumns())))));
     return *this;
   }
 

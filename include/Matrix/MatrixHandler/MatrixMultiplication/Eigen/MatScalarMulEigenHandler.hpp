@@ -40,26 +40,12 @@ class MatScalarMulEigenHandler : public T {
 
             // Get raw pointers to result, left and right matrices
             Type* right = const_cast<Matrix<Type>*>(rhs)->getMatrixPtr();
-            Type* result_ptr = result->getMatrixPtr();
 
-            // When lhs is zero, reset result pointer
-            if((Type)0 == lhs) {
-                CoolDiff::TensorR2::Details::ResetZero(result);
-                return;
-            } 
-            // When lhs is one, copy right matrix to result
-            else if((Type)1 == lhs) {
-                std::copy(EXECUTION_PAR right, right + nelems, result_ptr);
-                return;
-            } 
-            // When lhs in neither one nor zero
-            else {
-                const Eigen::Map<EigenMatrix> right_eigen(right, nrows, ncols);
-                const auto& result_eigen = (right_eigen.array() * lhs).matrix();
-                Eigen::Map<EigenMatrix>(result->getMatrixPtr(), 
-                                        result_eigen.rows(), 
-                                        result_eigen.cols()) = result_eigen;
-                return;
-            }
+            const Eigen::Map<EigenMatrix> right_eigen(right, nrows, ncols);
+            const auto& result_eigen = (right_eigen.array() * lhs).matrix();
+            Eigen::Map<EigenMatrix>(result->getMatrixPtr(), 
+                                    result_eigen.rows(), 
+                                    result_eigen.cols()) = result_eigen;
+            return;
         }
 };

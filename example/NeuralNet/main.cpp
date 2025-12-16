@@ -66,7 +66,7 @@ using NormalDistribution = std::normal_distribution<T>;
 
 void MNISTPrediction() {
     // Dimension of input, ouput and batch size
-    const size_t N{784}, M{10}, K{32};
+    const size_t N{784}, M{10}, K{500};
 
     // Train MNIST data (60000 x 784)
     Matrix<Type>& Xtrain = Matrix<Type>::MatrixFactory::CreateMatrix(60000, N);
@@ -88,7 +88,7 @@ void MNISTPrediction() {
                   .networkLayers(K);
 
     // Train data
-    TIME_IT_MS(n.train(Xtrain, Ytrain, -0.05, 50));
+    TIME_IT_MS(n.train(Xtrain, Ytrain, -0.1, 10, true));
 
     // Prediction test
     std::cout << "[Test prediction accuracy]: " << n.accuracy(Xtest, Ytest, 1) << "%\n";
