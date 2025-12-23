@@ -40,7 +40,7 @@ class MatAddNaiveHandler : public T {
             ASSERT((nrows == rrows) && (ncols == lcols), "Matrix addition dimensions mismatch");
 
             // Pool matrix
-            MemoryManager::MatrixPool(nrows, ncols, result);
+            MemoryManager::MatrixPool(result, nrows, ncols);
 
             // Get raw pointers to result, left and right matrices
             Type* res = result->getMatrixPtr();

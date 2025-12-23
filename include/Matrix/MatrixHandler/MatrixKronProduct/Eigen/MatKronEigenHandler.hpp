@@ -37,7 +37,7 @@ class MatKronEigenHandler : public T {
       const size_t rc{rhs->getNumColumns()};
 
       // Pool matrix
-      MemoryManager::MatrixPool((lr * rr), (lc * rc), result);
+      MemoryManager::MatrixPool(result, (lr * rr), (lc * rc));
 
       // Get raw pointers to result, left and right matrices
       Type* left = const_cast<Matrix<Type>*>(lhs)->getMatrixPtr();

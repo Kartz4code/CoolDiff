@@ -22,6 +22,16 @@
 #include "Matrix.hpp"
 #include "MemoryManager.hpp"
 
+// Set handler
+void GlobalParameters::setHandler(HandlerType ht) {
+  m_ht = ht;
+}
+
+// get handler
+GlobalParameters::HandlerType GlobalParameters::getHandler() {
+  return m_ht;
+}
+
 Matrix<Type>* DervMatrix( const size_t frows, const size_t fcols,
                           const size_t xrows, const size_t xcols  ) {
   const size_t drows = frows * xrows;
@@ -45,7 +55,8 @@ namespace CoolDiff {
   namespace TensorR2 {
     namespace Details {
         Type ScalarSpl(const Matrix<Type>* mat) {
-          return (*mat)(0,0);
+          Type value = *(mat->getMatrixPtr()); 
+          return value;
       } 
     }
   }

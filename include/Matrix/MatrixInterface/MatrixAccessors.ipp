@@ -23,10 +23,66 @@
 
 #include "Matrix.hpp"
 
+#if defined(ENABLE_CUDA_HANDLER)
+  #include <cuda_runtime.h>
+#endif
+
+// Matrix internal allocator
+template<typename T>
+void Matrix<T>::allocator() {
+  const size_t size = getNumElem();
+
+  if(GlobalParameters::HandlerType::CUDA == GlobalParameters::getHandler()) {
+    // Allocate/deallocate memory in GPU only for data intensitve operations (Pinned memory)
+    if constexpr(true == std::is_same_v<T, Type>) {
+      cudaMallocHost((void**)&mp_mat, (size * sizeof(T)));
+      ASSERT((nullptr != mp_mat), "Local GPU allocation failed");
+    } else {
+      mp_mat = new T[getNumElem()]{};
+      ASSERT((nullptr != mp_mat), "Local CPU allocation failed");
+    }
+  } else {
+    mp_mat = new T[getNumElem()]{};
+    ASSERT((nullptr != mp_mat), "Local CPU allocation failed");
+  }
+}
+
+// Matrix internal deallocator
+template<typename T>
+void Matrix<T>::deallocator() noexcept {
+  if(GlobalParameters::HandlerType::CUDA == GlobalParameters::getHandler()) {
+    // Allocate/deallocate memory in GPU only for data intensitve operations (Pinned memory) 
+    if constexpr(true == std::is_same_v<T, Type>) {
+      if (nullptr != mp_mat) {
+          // Deallocate memory on GPU
+          cudaFreeHost(mp_mat);
+          mp_mat = nullptr;
+      }
+    } else {
+      if (nullptr != mp_mat) {
+          delete[] mp_mat;
+          mp_mat = nullptr;
+      }
+    }
+  } else { 
+    if (nullptr != mp_mat) {
+        delete[] mp_mat;
+        mp_mat = nullptr;
+    }
+  }
+}
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------- 
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+                                                  Getters/Setters for CPU & GPU pointers
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+*/
+
 // Get matrix pointer immutable
 template<typename T>
-const T* Matrix<T>::getMatrixPtr() const { 
-    return mp_mat;
+const T* Matrix<T>::getMatrixPtr() const {
+  return mp_mat;
 }
 
 // Set matrix pointer 
@@ -36,12 +92,39 @@ void Matrix<T>::setMatrixPtr(T* ptr) {
   mp_mat = ptr;
 }
 
-
 // Get matrix pointer mutable
 template<typename T>
 T* Matrix<T>::getMatrixPtr() { 
     return mp_mat;
 }
+
+// Get row pointer (Default ordering is row major)
+template<typename T>
+T* Matrix<T>::getRowPtr(const size_t i) const {
+  ASSERT((i >= 0 && i < m_rows), "Row index out of bound");
+  return (mp_mat + (i * m_cols));
+}
+
+// Copy data from another matrix (Just copy all contents from one matrix to another)
+template<typename T>
+void Matrix<T>::copyData(const Matrix<T>& M) {
+  ASSERT((m_rows*m_cols == M.m_rows*M.m_cols), "Matrix dimensions mismatch");
+  std::copy(EXECUTION_PAR M.mp_mat, M.mp_mat + getNumElem(), mp_mat);
+}
+
+// Copy data from a pointer
+template<typename T>
+void Matrix<T>::copyData(T* ptr) {
+  ASSERT(nullptr != ptr, "The data pointer is a nullptr");
+  std::copy(EXECUTION_PAR ptr, ptr + getNumElem(), mp_mat);
+}
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------- 
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+                                                  operator(), opeartor[] for CPU & GPU pointers
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+*/
 
 // Matrix 2D access using operator()() immutable
 template<typename T>
@@ -73,6 +156,13 @@ T& Matrix<T>::operator[](const size_t l) {
   return mp_mat[l];
 }
 
+/*---------------------------------------------------------------------------------------------------------------------------------------------------- 
+----------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------
+*/
+
+
 // Get a row for matrix using move semantics
 template<typename T>
 Matrix<T> Matrix<T>::getRow(const size_t i) && {
@@ -89,13 +179,6 @@ Matrix<T> Matrix<T>::getRow(const size_t i) const & {
   Matrix tmp(m_cols, 1);
   std::copy(EXECUTION_PAR mp_mat + (i * m_cols), mp_mat + ((i + 1) * m_cols), tmp.getMatrixPtr());
   return tmp;
-}
-
-// Get row pointer (Default ordering is row major)
-template<typename T>
-T* Matrix<T>::getRowPtr(const size_t i) const {
-  ASSERT((i >= 0 && i < m_rows), "Row index out of bound");
-  return (mp_mat + (i * m_cols));
 }
 
 // Get a column for matrix using move semantics

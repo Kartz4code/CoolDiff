@@ -34,7 +34,7 @@ class MatInverseEigenHandler : public T {
       ASSERT((nrows == ncols), "Matrix is not square for inverse computation");
 
       // Pool matrix
-      MemoryManager::MatrixPool(nrows, ncols, result);
+      MemoryManager::MatrixPool(result, nrows, ncols);
     
       Type* res_ptr = result->getMatrixPtr();
       Type* mat_ptr = const_cast<Matrix<Type>*>(mat)->getMatrixPtr();

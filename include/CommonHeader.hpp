@@ -237,7 +237,7 @@ template <typename T>
 using SharedPtr = std::shared_ptr<T>;
 
 // Function type
-using FunctionType1 = std::function<Type(Type)>;
+using FunctionType1 = Type(*)(Type);
 
 // A generic future
 template <typename T> 
@@ -254,7 +254,8 @@ using Future = std::future<T>;
 enum ADMode { FORWARD, REVERSE };
 
 // Convert to string
-template <typename T> std::string ToString(const T &value) {
+template <typename T> 
+std::string ToString(const T &value) {
   // If complex number
   if constexpr (true == std::is_same_v<T, std::complex<Real>>) {
     return std::move( "(" + std::to_string(value.real()) + "," +

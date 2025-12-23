@@ -14,9 +14,10 @@ class CustomNet : public NeuralNet<CustomNet> {
         auto networkLayers(const size_t batch) {
             auto l1 = LeakyReLUM(X*transpose(W(0)) + transpose(broadcast<Axis::COLUMN>(b(0), batch)));
             auto l2 = LeakyReLUM(l1*transpose(W(1)) + transpose(broadcast<Axis::COLUMN>(b(1), batch)));
-            auto l3 = SoftMax<Axis::COLUMN>(l2);
+            auto l3 = LeakyReLUM(l2*transpose(W(2)) + transpose(broadcast<Axis::COLUMN>(b(2), batch)));
+            auto l4 = SoftMax<Axis::COLUMN>(l3);
 
-            auto list = std::make_tuple(l1, l2, l3);
+            auto list = std::make_tuple(l1, l2, l3, l4);
             return list;
         }
 
@@ -45,6 +46,7 @@ void LoadData(std::string_view path, Matrix<Type>& X, Matrix<Type>& Y) {
     csv::CSVReader reader(path);
     size_t irows{}; size_t icols{};
     for (csv::CSVRow& row: reader) {
+        //if(irows == 1000) break;
         for (csv::CSVField& field: row) {
             if(0 == icols) {
                 Y(irows, field.get<size_t>()) = 1;
@@ -66,7 +68,7 @@ using NormalDistribution = std::normal_distribution<T>;
 
 void MNISTPrediction() {
     // Dimension of input, ouput and batch size
-    const size_t N{784}, M{10}, K{500};
+    const size_t N{784}, M{10}, K{4096};
 
     // Train MNIST data (60000 x 784)
     Matrix<Type>& Xtrain = Matrix<Type>::MatrixFactory::CreateMatrix(60000, N);
@@ -83,18 +85,21 @@ void MNISTPrediction() {
     CustomNet n({N,M});
 
     // Generate network layers for prediction on test data
-    auto net  =  n.addLayer(Layer::LayerFactory::CreateLayer<UniformDistribution>(5*M, N, -1, 1))
-                  .addLayer(Layer::LayerFactory::CreateLayer<UniformDistribution>(M, 5*M, -1, 1))
+    auto net  =  n.addLayer(Layer::LayerFactory::CreateLayer<UniformDistribution>(50*M, N, -0.1, 0.1))
+                  .addLayer(Layer::LayerFactory::CreateLayer<UniformDistribution>(10*M, 50*M, -0.1, 0.1))
+                  .addLayer(Layer::LayerFactory::CreateLayer<UniformDistribution>(M, 10*M, -0.1, 0.1))
                   .networkLayers(K);
 
     // Train data
-    TIME_IT_MS(n.train(Xtrain, Ytrain, -0.1, 10, true));
+    TIME_IT_MS(n.train(Xtrain, Ytrain, -0.1, 20, false));
 
     // Prediction test
     std::cout << "[Test prediction accuracy]: " << n.accuracy(Xtest, Ytest, 1) << "%\n";
 }
 
 int main(int argc, char** argv) {
+    // Set handler global parameter - CUDA
+    GlobalParameters::setHandler(GlobalParameters::HandlerType::CUDA);
     #ifndef USE_COMPLEX_MATH
         MNISTPrediction();
     #endif

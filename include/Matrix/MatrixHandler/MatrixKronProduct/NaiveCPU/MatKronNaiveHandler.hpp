@@ -37,7 +37,7 @@ class MatKronNaiveHandler : public T {
       const size_t rc{rhs->getNumColumns()};
 
       // Pool matrix
-      MemoryManager::MatrixPool((lr * rr), (lc * rc), result);
+      MemoryManager::MatrixPool(result, (lr * rr), (lc * rc));
 
       const auto lhs_idx = CoolDiff::Common::Range<size_t>(0, (lr * lc));
       const auto rhs_idx = CoolDiff::Common::Range<size_t>(0, (rr * rc));

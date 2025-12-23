@@ -34,7 +34,7 @@ class MatTraceNaiveHandler : public T {
             ASSERT((nrows == ncols), "Matrix is not square for trace computation");
         
             // Pool matrix
-            MemoryManager::MatrixPool(1, 1, result);
+            MemoryManager::MatrixPool(result, 1, 1);
         
             // Indices for outer loop and inner loop
             const auto outer_idx = CoolDiff::Common::Range<size_t>(0, nrows);

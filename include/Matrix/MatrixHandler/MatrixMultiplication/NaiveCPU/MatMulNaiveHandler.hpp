@@ -38,7 +38,7 @@ class MatMulNaiveHandler : public T {
             ASSERT(lcols == rrows, "Matrix multiplication dimensions mismatch");
 
             // Pool matrix
-            MemoryManager::MatrixPool(lrows, rcols, result);
+            MemoryManager::MatrixPool(result, lrows, rcols);
             ASSERT(lhs->m_nidx != result->m_nidx, "Matrix multiplication result matrix and lhs matrix are the same");
             ASSERT(rhs->m_nidx != result->m_nidx, "Matrix multiplication result matrix and lhs matrix are the same");
 

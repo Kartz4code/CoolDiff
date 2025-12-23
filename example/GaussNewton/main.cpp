@@ -172,7 +172,10 @@ void ScalarSolve() {
   std::cout << "Computed values: " << CoolDiff::TensorR1::Eval(x) << "\n";
 }
 
-int main(int argc, char **argv) {  
+int main(int argc, char **argv) { 
+  // Set handler global parameter - Eigen
+  GlobalParameters::setHandler(GlobalParameters::HandlerType::EIGEN);
+
   GNMatrix();
   NonLinearSolve();
   return 0;

@@ -34,7 +34,7 @@ class MatTraceEigenHandler : public T {
         ASSERT((nrows == ncols), "Matrix is not square for trace computation");
       
         // Pool matrix
-        MemoryManager::MatrixPool(1, 1, result);
+        MemoryManager::MatrixPool(result, 1, 1);
       
         Type* mat_ptr = const_cast<Matrix<Type>*>(mat)->getMatrixPtr();
       

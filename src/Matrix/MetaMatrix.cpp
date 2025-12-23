@@ -26,11 +26,16 @@
 namespace CoolDiff {
   namespace TensorR2 {
     namespace Details {
-      void ResetZero(Matrix<Type>* ptr) {
-        if ((nullptr != ptr)) {
-          const size_t size = ptr->getNumElem();
-          auto* mptr = ptr->getMatrixPtr();
-          std::fill(EXECUTION_PAR mptr, mptr + size, (Type)(0));
+      void ResetZero(Matrix<Type>* mat) {
+        if ((nullptr != mat)) {
+          // Get CPU/GPU pointer
+          const size_t size = mat->getNumElem();
+          Type* ptr = mat->getMatrixPtr();
+          
+          // Clear CPU pointer values
+          if(nullptr != ptr) {
+            std::fill(EXECUTION_PAR ptr, ptr + size, (Type)(0));
+          }
         }
       }
     }

@@ -212,18 +212,19 @@ class NeuralNet {
                 X.setMatrixPtr(X_data.getRowPtr(i));
                 Y.setMatrixPtr(Y_data.getRowPtr(i));
 
-                const auto& Yh = CoolDiff::TensorR2::Eval(GetFinalLayer(net));
+                // Get prediction from final layer
+                auto& Yhat = CoolDiff::TensorR2::Eval(GetFinalLayer(net));
 
                 // Identify estimated vs real classes and increment for positive count
                 for(size_t j{}; j < batch_size; ++j) {
-                    const auto Yh_ptr = Yh.getRowPtr(j);
+                    const auto Yhat_ptr = Yhat.getRowPtr(j);
                     const auto Y_ptr = Y.getRowPtr(j);
 
-                    const size_t Yh_class = std::distance(Yh_ptr, std::max_element(Yh_ptr, Yh_ptr + label_size));
+                    const size_t Yhat_class = std::distance(Yhat_ptr, std::max_element(Yhat_ptr, Yhat_ptr + label_size));
                     const size_t Y_class = std::distance(Y_ptr, std::max_element(Y_ptr, Y_ptr + label_size));
 
                     // Increment count if values match up between predicted and real
-                    if(Yh_class == Y_class) {
+                    if(Yhat_class == Y_class) {
                         count += 1;
                     }
                 }
@@ -257,7 +258,12 @@ class NeuralNet {
                 Type acc_err{};
 
                 // Loop over the batch size
-                for(size_t j{}; j < (data_size-m_batch_size); j += m_batch_size) {
+                for(size_t j{}; j < data_size; j += m_batch_size) {
+                    // Logic for training the last batch of the dataset
+                    if((j + m_batch_size) > data_size) {
+                        j = data_size - m_batch_size;
+                    } 
+
                     // Reset all batch matrices to zero for the next batch
                     resetMiniBatch(threading);
 
@@ -270,7 +276,7 @@ class NeuralNet {
 
                     // Accumulate error 
                     if(true == display_stats) {
-                        acc_err += CoolDiff::TensorR2::Eval(err)(0,0);
+                        acc_err += CoolDiff::TensorR2::Details::ScalarSpl(&CoolDiff::TensorR2::Eval(err));
                     }
                     // Mini batch update
                     optimize(alpha, threading);
@@ -290,7 +296,7 @@ class NeuralNet {
                     std::cout << oss.str() << "\n";
                     oss.clear(); oss.str("");
                 }
-            }
+            };
         }
 
         // NeuralNet default destructor

@@ -33,7 +33,7 @@ class MatUnaryNaiveHandler : public T {
         const size_t ncols{mat->getNumColumns()};
 
         // Pool matrix
-        MemoryManager::MatrixPool(nrows, ncols, result);
+        MemoryManager::MatrixPool(result, nrows, ncols);
 
         // Get raw pointers to result and right matrix
         Type* res = result->getMatrixPtr();

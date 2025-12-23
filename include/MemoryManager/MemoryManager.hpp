@@ -48,15 +48,15 @@ public:
   }
 
   // Matrix pool allocation
-  template<typename T>
-  static void MatrixPool(const size_t rows, const size_t cols, Matrix<T>*& result, const T& val = (T)0) {
+  template<typename T, typename... Args>
+  static void MatrixPool(Matrix<T>*& result, const size_t rows, const size_t cols, Args&&... args) {
     // Dispatch matrix from pool
     if (nullptr == result) {
-      result = Matrix<T>::MatrixFactory::CreateMatrixPtr(rows, cols, val);
+      result = Matrix<T>::MatrixFactory::CreateMatrixPtr(rows, cols, std::forward<Args>(args)...);
       return;
     } 
     else if ((rows != result->getNumRows()) || (cols != result->getNumColumns())) {
-      result = Matrix<T>::MatrixFactory::CreateMatrixPtr(rows, cols, val);
+      result = Matrix<T>::MatrixFactory::CreateMatrixPtr(rows, cols, std::forward<Args>(args)...);
       return;
     } else {
       // Never reset result to zero. Some operations may take the same input and output

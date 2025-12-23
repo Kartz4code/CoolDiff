@@ -66,8 +66,10 @@ Matrix<T>::Matrix() : m_rows{1},
                       m_eval{false}, 
                       m_devalf{false},
                       m_dest{true},
-                      m_nidx{this->m_idx_count++} 
-{}
+                      m_nidx{this->m_idx_count++} {
+  // Allocate CPU and GPU resources
+  allocator();
+}
 
 // Constructor with rows and columns
 template<typename T>
@@ -81,24 +83,25 @@ Matrix<T>::Matrix(const size_t rows, const size_t cols) : m_rows{rows},
                                                           m_nidx{this->m_idx_count++} {
   // Assert for strictly non-negative values for rows and columns
   ASSERT((rows > 0) && (cols > 0), "Row/Column size is not strictly non-negative");  
-  mp_mat = new T[getNumElem()]{};                                                      
+  // Allocate CPU and GPU resources
+  allocator();                                                   
 }
 
 /*  Constructor with pointer stealer (When using external pointer for the matrix values, it is important
     that the resource is deleted either through RAII or manual de-allocation
 */
 template<typename T>
-Matrix<T>::Matrix(const size_t rows, const size_t cols, T* ptr)  :    m_rows{rows}, 
-                                                                      m_cols{cols},
-                                                                      mp_result{nullptr}, 
-                                                                      mp_dresult{nullptr},
-                                                                      m_eval{false}, 
-                                                                      m_devalf{false}, 
-                                                                      m_dest{false},
-                                                                      m_nidx{this->m_idx_count++} {
+Matrix<T>::Matrix(const size_t rows, const size_t cols, T* cpu_ptr, T* gpu_ptr)  :  m_rows{rows}, 
+                                                                                    m_cols{cols},
+                                                                                    mp_result{nullptr}, 
+                                                                                    mp_dresult{nullptr},
+                                                                                    m_eval{false}, 
+                                                                                    m_devalf{false}, 
+                                                                                    m_dest{false},
+                                                                                    m_nidx{this->m_idx_count++} {
   // Assert for strictly non-negative values for rows and columns
   ASSERT((rows > 0) && (cols > 0), "Row/Column size is not strictly non-negative");  
-  mp_mat = ptr;                                                                     
+  mp_mat = cpu_ptr;                                                                   
 }
 
 // Matrix clone
@@ -136,8 +139,9 @@ Matrix<T>::Matrix(const Matrix& m) :  m_rows{m.m_rows},
   // If T is an Expression type
   if constexpr(false == std::is_same_v<T,Expression>) {
     if(nullptr != m.mp_mat) {
-      // Copy values
-      mp_mat = new T[getNumElem()]{};
+      // Allocate CPU/GPU memory
+      allocator();
+      // Copy CPU data from argument to current matrix CPU data
       std::copy(EXECUTION_PAR m.mp_mat, m.mp_mat + getNumElem(), mp_mat);
     }
   } else {
@@ -170,19 +174,6 @@ Matrix<T>::Matrix(Matrix&& m) noexcept :  m_rows{std::exchange(m.m_rows, -1)},
                                           m_nidx{std::exchange(m.m_nidx, -1)} 
 {}
 
-// Copy data from another matrix (Just copy all contents from one matrix to another)
-template<typename T>
-void Matrix<T>::copyData(const Matrix<T>& M) {
-  ASSERT((m_rows*m_cols == M.m_rows*M.m_cols), "Matrix dimensions mismatch");
-  std::copy(EXECUTION_PAR M.mp_mat, M.mp_mat + getNumElem(), mp_mat);
-}
-
-// Copy data from a pointer
-template<typename T>
-void Matrix<T>::copyData(T* ptr) {
-  std::copy(EXECUTION_PAR ptr, ptr + getNumElem(), mp_mat);
-}
-
 // Move assignment operator
 template<typename T>
 Matrix<T>& Matrix<T>::operator=(Matrix&& m) noexcept {
@@ -195,11 +186,8 @@ Matrix<T>& Matrix<T>::operator=(Matrix&& m) noexcept {
 // Destructor
 template<typename T>
 Matrix<T>::~Matrix() {
-  // If mp_mat is not nullptr, delete it
+  // Deallocate CPU/GPU memory
   if(true == m_dest) {
-    if (nullptr != mp_mat) {
-      delete[] mp_mat;
-      mp_mat = nullptr;
-    }
+    deallocator();
   }
 }

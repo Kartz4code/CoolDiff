@@ -86,7 +86,7 @@ class MatConvEigenHandler : public T {
             const size_t pcols = mp_arr->getNumColumns();
 
             // Get result matrix from pool
-            MemoryManager::MatrixPool(rows, cols, result);
+            MemoryManager::MatrixPool(result, rows, cols);
 
             // Get raw pointers to result, left and right matrices
             Type* left = const_cast<Matrix<Type>*>(mp_arr)->getMatrixPtr();

@@ -135,7 +135,7 @@ if(${BUILD_EXAMPLES})
                                                 ${CMAKE_CURRENT_BINARY_DIR})
 
     # [Link target libraries]
-    target_link_libraries(NeuralNet PUBLIC csv CoolDiff  gcov)
+    target_link_libraries(NeuralNet PUBLIC csv CoolDiff gcov)
 
     # [Set compile options]
     if(${ENABLE_COMPILER_WARNINGS})

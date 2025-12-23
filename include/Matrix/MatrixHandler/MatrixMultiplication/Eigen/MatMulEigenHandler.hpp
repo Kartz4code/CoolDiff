@@ -38,7 +38,7 @@ class MatMulEigenHandler : public T {
             ASSERT(lcols == rrows, "Matrix multiplication dimensions mismatch");
 
             // Pool matrix
-            MemoryManager::MatrixPool(lrows, rcols, result);
+            MemoryManager::MatrixPool(result, lrows, rcols);
 
             // Get raw pointers to result, left and right matrices
             Type* left = const_cast<Matrix<Type>*>(lhs)->getMatrixPtr();

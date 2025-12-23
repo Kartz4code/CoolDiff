@@ -35,6 +35,7 @@
 
 #include "Matrix.hpp"
 #include "MatrixBasics.hpp"
+#include "UnaryFunctions.cuh"
 
 namespace CoolDiff {
   namespace Common {
@@ -287,53 +288,38 @@ namespace CoolDiff {
   }
 }
 
-
 // Custom functions
 // Matrix Sin function
-UNARY_MATRIX_OPERATOR(SinM, [](Type a) { return std::sin(a); },
-                            [](Type b) { return std::cos(b); })
+UNARY_MATRIX_OPERATOR(SinM, Sin<Type>, DSin<Type>)
 
 // Matrix Cos function
-UNARY_MATRIX_OPERATOR(CosM, [](Type a) { return std::cos(a); },
-                            [](Type b) { return -std::sin(b); })
+UNARY_MATRIX_OPERATOR(CosM, Cos<Type>, DCos<Type>)
 
 // Matrix Exp function
-UNARY_MATRIX_OPERATOR(ExpM, [](Type a) { return std::exp(a); },
-                            [](Type b) { return std::exp(b); })
+UNARY_MATRIX_OPERATOR(ExpM, Exp<Type>, Exp<Type>)
 
 // Matrix Log function
-UNARY_MATRIX_OPERATOR(LogM, [](Type a) { return std::log(a); },
-                            [](Type b) { return ((Type)(1)/b); })
+UNARY_MATRIX_OPERATOR(LogM, Log<Type>, DLog<Type>)
 
 // Matrix Sqrt function
-UNARY_MATRIX_OPERATOR(SqrtM,  [](Type a) { return std::sqrt(a); },
-                              [](Type b) { return ((Type)(1)/(2*std::sqrt(b))); })
+UNARY_MATRIX_OPERATOR(SqrtM, Sqrt<Type>, DSqrt<Type>)
 
 // Matrix tanh function
-UNARY_MATRIX_OPERATOR(TanhM,  [](Type a) { return std::tanh(a); },
-                              [](Type b) { return ((Type)1 - std::tanh(b)*std::tanh(b)); })
+UNARY_MATRIX_OPERATOR(TanhM, Tanh<Type>, DTanh<Type>)
 
 // Matrix Sigmoid function
-UNARY_MATRIX_OPERATOR(SigmoidM, [](Type a) { 
-                                  Type res = ((Type)(1)) / (((Type)(1)) + std::exp(-a));
-                                  return res;
-                                  },
-                                [](Type b) {
-                                  Type res = ((Type)(1)) / (((Type)(1)) + std::exp(-b));
-                                  return res * (((Type)(1)) - res); });
+UNARY_MATRIX_OPERATOR(SigmoidM, Sigmoid<Type>, DSigmoid<Type>);
+
 // Matrix ReLU function
 #ifndef USE_COMPLEX_MATH
   // Relu activation  
-  UNARY_MATRIX_OPERATOR(ReLUM,  [](Type a) { return ((a >= (Type)(0)) ? a : 0);  },
-                                [](Type b) { return ((b >= (Type)(0)) ? 1 : 0); })
+  UNARY_MATRIX_OPERATOR(ReLUM, ReLU<Type>, DReLU<Type>)
 
   // Leaky relu activation
-  UNARY_MATRIX_OPERATOR(LeakyReLUM,   [](Type a) { return ((a >= (Type)(0)) ? a : 0.1*a);  },
-                                      [](Type b) { return ((b >= (Type)(0)) ? 1 : 0.1); })
+  UNARY_MATRIX_OPERATOR(LeakyReLUM, LeakyReLU<Type>, DLeakyReLU<Type>)
 
   // Matrix abs function
-  UNARY_MATRIX_OPERATOR(AbsM, [](Type a) { return std::abs(a); },
-                              [](Type b) { return (Type)(((Type)(0) < b) - (b < (Type)(0))); })
+  UNARY_MATRIX_OPERATOR(AbsM, Abs<Type>, DAbs<Type>)
 #endif
 
 

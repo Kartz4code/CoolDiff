@@ -39,12 +39,11 @@ namespace CoolDiff {
             } else {
 
               // Pool matrix
-              MemoryManager::MatrixPool(n, n, result);
+              MemoryManager::MatrixPool(result, n, n);
 
               // Vector of indices
               const auto idx = CoolDiff::Common::Range<size_t>(0, n);
-              std::for_each(EXECUTION_PAR idx.begin(), idx.end(),
-                            [&](const size_t i) { (*result)(i, i) = (Type)(1); });
+              std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t i) { (*result)(i, i) = (Type)(1); });
 
               // Register and return result
               eye_register[n] = result;
@@ -65,7 +64,7 @@ namespace CoolDiff {
               return it->second;
             } else {
               // Pool matrix
-              MemoryManager::MatrixPool(n, m, result);
+              MemoryManager::MatrixPool(result, n, m);
               // Register and return result
               zeros_register[{n, m}] = result;
               return result;
@@ -90,7 +89,7 @@ namespace CoolDiff {
               return it->second;
             } else {
               // Pool matrix
-              MemoryManager::MatrixPool(n, m, result, (Type)1);
+              MemoryManager::MatrixPool(result, n, m, (Type)1);
               // Register and return result
               ones_register[{n, m}] = result;
               return result;

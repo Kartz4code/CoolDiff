@@ -62,6 +62,7 @@ Variable& Variable::operator=(const Type& value) {
   m_gh_vec.clear();
   // Clear cache
   m_cache.clear();
+  
   return *this;
 }
 

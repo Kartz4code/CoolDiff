@@ -66,7 +66,7 @@ class MatConvNaiveHandler : public T {
         lhs->pad(pad_x, pad_y, mp_arr[0]);
 
         // Get result matrix from pool
-        MemoryManager::MatrixPool(rows, cols, result);
+        MemoryManager::MatrixPool(result, rows, cols);
 
         // Fill the elements of result matrix
         for (size_t i{}; i < rows; ++i) {

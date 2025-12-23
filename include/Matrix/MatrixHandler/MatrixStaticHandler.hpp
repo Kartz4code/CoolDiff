@@ -23,6 +23,8 @@
 
 #include "CommonHeader.hpp"
 
+#define THREAD_SIZE 32
+
 class MatrixStaticHandler {
   public:
     void handle(const Matrix<Type>*, const Matrix<Type>*, Matrix<Type>*&) {

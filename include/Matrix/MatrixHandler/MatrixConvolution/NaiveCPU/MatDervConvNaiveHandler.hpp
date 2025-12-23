@@ -68,7 +68,7 @@ class MatDervConvNaiveHandler : public T {
       lhs->pad(pad_x, pad_y, mp_arr[1]);
 
       // Get result matrix from pool
-      MemoryManager::MatrixPool((rows * nrows_x), (cols * ncols_x), result);
+      MemoryManager::MatrixPool(result, (rows * nrows_x), (cols * ncols_x));
 
       for (size_t i{}; i < rows; ++i) {
         for (size_t j{}; j < cols; ++j) {

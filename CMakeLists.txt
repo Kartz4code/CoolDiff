@@ -24,6 +24,7 @@
 # [CMake version]
 cmake_minimum_required(VERSION 3.22)
 
+# [Tested for GCC-12 version]
 if(NOT DEFINED CMAKE_C_COMPILER)
   set(CMAKE_C_COMPILER gcc-12 CACHE STRING "C compiler" FORCE)
 endif()
@@ -33,9 +34,9 @@ if(NOT DEFINED CMAKE_CXX_COMPILER)
 endif()
 
 # [Project name and description]
-project(CoolDiff    VERSION 1.0.1.0
-                    DESCRIPTION "CoolDiff - A Symbolic/Automatic differentiation C++ tool"
-                    LANGUAGES C CXX)
+project(CoolDiff VERSION 1.0.1.0
+                 DESCRIPTION "CoolDiff - A Symbolic/Automatic differentiation C++ tool"
+                 LANGUAGES C CXX CUDA)
 
 ########################################################################################################################
 ########################################################################################################################
@@ -44,6 +45,9 @@ project(CoolDiff    VERSION 1.0.1.0
 ########################################################################################################################
 ########################################################################################################################
 ######################################################################################################################## 
+
+# Enable language CUDA
+enable_language(CUDA)
 
 # Custom flags
 set(CMAKE_BUILD_TYPE Release)
@@ -76,7 +80,7 @@ include(Tools)
 ######################################################################################################################## 
 
 # TODO - Enable shared library build 
-option(BUILD_UNITTESTS "Building unit test executables" OFF) # Default - ON
+option(BUILD_UNITTESTS "Building unit test executables" ON) # Default - ON
 option(BUILD_EXAMPLES "Building example executables" ON) # Default - ON
 option(ENABLE_CLANG_TIDY "Enable clang-tidy static linter" OFF) # Default - OFF
 option(ENABLE_CMAKE_FORMAT "Enable cmake formatter" OFF) # Default - OFF
@@ -134,10 +138,10 @@ if(DEFINED Eigen3_FOUND AND DEFINED Eigen3_VERSION)
 endif()
 if(NOT Eigen3_FOUND OR Eigen3_VERSION VERSION_LESS "3.4")
     FetchContent_Declare(
-    Eigen
-    GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
-    GIT_TAG master
-    GIT_SHALLOW TRUE
+        Eigen
+        GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+        GIT_TAG master
+        GIT_SHALLOW TRUE
     ) 
     # Check if the dependency has already been downloaded and built
     FetchContent_GetProperties(Eigen)
@@ -174,6 +178,10 @@ endif()
 # Enable Threads package
 find_package(Threads REQUIRED)
 
+# Enable CUDA package
+find_package(CUDA REQUIRED)
+
+# CMake modules path
 list(APPEND CMAKE_MODULE_PATH ${gtest_SOURCE_DIR}/cmake)
 
 ########################################################################################################################
@@ -183,6 +191,16 @@ list(APPEND CMAKE_MODULE_PATH ${gtest_SOURCE_DIR}/cmake)
 ########################################################################################################################
 ########################################################################################################################
 ########################################################################################################################
+
+set(CUDA_SRC # Matrix folder *.cu files 
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary/CUDA/src/MatUnaryCUDAHandler.cu
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/CUDA/src/MatMulCUDAHandler.cu
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/CUDA/src/MatScalarMulCUDAHandler.cu
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/CUDA/src/MatAddCUDAHandler.cu
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/CUDA/src/MatScalarAddCUDAHandler.cu        
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/CUDA/src/MatSubCUDAHandler.cu
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/CUDA/src/MatHadamardCUDAHandler.cu        
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose/CUDA/src/MatTransposeCUDAHandler.cu)
 
 set(SRC # Scalar folder *.cpp files
         ${CMAKE_SOURCE_DIR}/src/CommonHeader.cpp
@@ -199,6 +217,8 @@ set(SRC # Scalar folder *.cpp files
         ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixBasics.cpp
         ${CMAKE_SOURCE_DIR}/src/Matrix/Matrix.cpp)
 
+list(APPEND SRC ${CUDA_SRC})
+
 ########################################################################################################################
 ########################################################################################################################
 ########################################################################################################################
@@ -207,77 +227,63 @@ set(SRC # Scalar folder *.cpp files
 ########################################################################################################################
 ########################################################################################################################
 
-set(PRIVATE_INCLUDES    # Matrix handler include directory
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler
+set(CUDA_PRIVATE_INCLUDES #CUDA handlers
+                          ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/CUDA/include
+                          ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/CUDA/include
+                          ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/CUDA/include
+                          ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/CUDA/include
+                          ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose/CUDA/include
+                          ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary/CUDA/include)
 
-                        # Naive CPU addition handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/NaiveCPU
-                        # Eigen library addition handler
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/Eigen
+set(EIGEN_PRIVATE_INCLUDES #Eigen handlers
+                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/Eigen
+                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/Eigen
+                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/Eigen
+                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/Eigen
+                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/Eigen
+                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose/Eigen
+                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDet/Eigen
+                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTrace/Eigen
+                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary/Eigen
+                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary/NaiveCPU
+                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInverse/Eigen
+                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvolution/Eigen)
 
-                        # Naive CPU multiplication handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/NaiveCPU
-                        # Eigen library multiplication handler
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/Eigen
+set(NAIVE_PRIVATE_INCLUDES # Naive handlers
+                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/NaiveCPU
+                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/NaiveCPU
+                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/NaiveCPU
+                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/NaiveCPU
+                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/NaiveCPU
+                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose/NaiveCPU
+                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTrace/NaiveCPU           
+                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvolution/NaiveCPU)
 
-                        # Naive CPU subtraction handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/NaiveCPU
-                        # Eigen library subtraction handler
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/Eigen
+list(APPEND PRIVATE_INCLUDES ${CUDA_PRIVATE_INCLUDES} 
+                             ${EIGEN_PRIVATE_INCLUDES} 
+                             ${NAIVE_PRIVATE_INCLUDES})
 
-                        # Naive CPU Hadamard handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/NaiveCPU
-                        # Eigen library Hadamard handler
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/Eigen
+set(PUBLIC_INCLUDES #General include (CommonHeader.hpp, CoolDiff.hpp)
+                    ${CMAKE_SOURCE_DIR}/include
 
-                        # Naive CPU Kronecker product handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/NaiveCPU
-                        # Eigen library Kronecker handler
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/Eigen
-
-                        # Naive CPU Transpose handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose/NaiveCPU
-                        # Eigen Transpose handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose/Eigen
-
-                        # Eigen determinant handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixDet/Eigen
-
-                        # Naive trace handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTrace/NaiveCPU
-                        # Eigen trace handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTrace/Eigen
+                    # Scalar classes (Variable, Parameter, Expression), unary and binary ops
+                    ${CMAKE_SOURCE_DIR}/include/Scalar
+                    ${CMAKE_SOURCE_DIR}/include/Scalar/BinaryOps
+                    ${CMAKE_SOURCE_DIR}/include/Scalar/UnaryOps
                         
-                        # Naive unary handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary/NaiveCPU
-                        # Eigen unary handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary/Eigen
+                    # Matrix class 
+                    ${CMAKE_SOURCE_DIR}/include/Matrix
+                    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixInterface
 
-                        # Eigen inverse handlers
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInverse/Eigen
-
-                        # Naive Convolution handlers            
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvolution/NaiveCPU
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvolution/Eigen)
-
-set(PUBLIC_INCLUDES     #General include (CommonHeader.hpp, CoolDiff.hpp)
-                        ${CMAKE_SOURCE_DIR}/include
-
-                        # Scalar classes (Variable, Parameter, Expression), unary and binary ops
-                        ${CMAKE_SOURCE_DIR}/include/Scalar
-                        ${CMAKE_SOURCE_DIR}/include/Scalar/BinaryOps
-                        ${CMAKE_SOURCE_DIR}/include/Scalar/UnaryOps
+                    # Matrix unary and binary ops
+                    ${CMAKE_SOURCE_DIR}/include/Matrix/BinaryOps
+                    ${CMAKE_SOURCE_DIR}/include/Matrix/UnaryOps
                         
-                        # Matrix class 
-                        ${CMAKE_SOURCE_DIR}/include/Matrix
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixInterface
+                    # Matrix handler
+                    ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler
 
-                        # Matrix unary and binary ops
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/BinaryOps
-                        ${CMAKE_SOURCE_DIR}/include/Matrix/UnaryOps
-                        
-                        # Memory manager
-                        ${CMAKE_SOURCE_DIR}/include/MemoryManager)
+                    # Memory manager
+                    ${CMAKE_SOURCE_DIR}/include/MemoryManager)
 
 ########################################################################################################################
 ########################################################################################################################
@@ -291,7 +297,7 @@ set(PUBLIC_INCLUDES     #General include (CommonHeader.hpp, CoolDiff.hpp)
 add_library(${PROJECT_NAME})
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
-set(LIBRARY_LIST Threads::Threads Eigen3::Eigen)
+set(LIBRARY_LIST Threads::Threads Eigen3::Eigen ${CUDA_LIBRARIES})
 if(${ENABLE_ROBIN_HOOD_MAP})
     list(APPEND LIBRARY_LIST robin_hood::robin_hood)
 endif()
@@ -300,16 +306,17 @@ endif()
 target_sources(${PROJECT_NAME} PRIVATE ${SRC})
 
 # [Set target include directories]
-target_include_directories(${PROJECT_NAME}  PRIVATE ${PRIVATE_INCLUDES}
-                                            PUBLIC  $<BUILD_INTERFACE:;${PUBLIC_INCLUDES}> 
-                                                    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PRIVATE_INCLUDES}
+                                           PUBLIC  $<BUILD_INTERFACE:;${PUBLIC_INCLUDES}> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>)
 
 # [Set target properties]
-set_target_properties(${PROJECT_NAME}   PROPERTIES  VERSION ${PROJECT_VERSION}
-                                                    SOVERSION ${PROJECT_VERSION_MAJOR})
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR})
 
 # [Link target libraries]
 target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBRARY_LIST})
+
+# [Target compile options]
+target_compile_options(${PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--default-stream per-thread -O3 -use_fast_math>)
 
 # Attach address sanitizer
 if(${ENABLE_ADDRESS_SANITIZER})
@@ -317,13 +324,10 @@ if(${ENABLE_ADDRESS_SANITIZER})
                                 $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:MSVC>>:/INCREMENTAL:NO;/fsanitize=address>)
 endif()
 
-
 # Set permission flags
-set(COMPILE_PERMISSION_FLAGS $<$<CXX_COMPILER_ID:GNU,Clang>:-fpermissive> 
-                    $<$<CXX_COMPILER_ID:MSVC>:/permissive>)
+set(COMPILE_PERMISSION_FLAGS $<$<CXX_COMPILER_ID:GNU,Clang>:-fpermissive> $<$<CXX_COMPILER_ID:MSVC>:/permissive>)
 # Set warning flags
-set(COMPILE_WARNING_FLAGS $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU,Clang>>:-Wpedantic;-Wall;-Wextra>
-                $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:MSVC>>:/W4>)   
+set(COMPILE_WARNING_FLAGS $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU,Clang>>:-Wpedantic;-Wall;-Wextra> $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:MSVC>>:/W4>)   
 
 # [Set compile options]
 if(${ENABLE_COMPILER_WARNINGS})
@@ -384,22 +388,21 @@ if(NOT MSVC)
             DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
 
     include(CMakePackageConfigHelpers)
-    configure_package_config_file(  "${CMAKE_SOURCE_DIR}/config/${PROJECT_NAME}Config.cmake.in" 
-                                    "${CMAKE_BINARY_DIR}/${PROJECT_NAME}Config.cmake"    
-                                    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}" )
+    configure_package_config_file("${CMAKE_SOURCE_DIR}/config/${PROJECT_NAME}Config.cmake.in" 
+                                  "${CMAKE_BINARY_DIR}/${PROJECT_NAME}Config.cmake"    
+                                  INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}" )
 
-    write_basic_package_version_file(   "${PROJECT_NAME}ConfigVersion.cmake"
-                                        VERSION ${PROJECT_VERSION}
-                                        COMPATIBILITY SameMajorVersion  )
+    write_basic_package_version_file("${PROJECT_NAME}ConfigVersion.cmake"
+                                     VERSION ${PROJECT_VERSION}
+                                     COMPATIBILITY SameMajorVersion  )
 
-    install(FILES   "${CMAKE_BINARY_DIR}/${PROJECT_NAME}Config.cmake" 
-                    "${CMAKE_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-            DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}" )
+    install(FILES "${CMAKE_BINARY_DIR}/${PROJECT_NAME}Config.cmake" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+            DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
-    install(    EXPORT "${PROJECT_NAME}Targets"
-                FILE "${PROJECT_NAME}Targets.cmake"
-                NAMESPACE "${PROJECT_NAME}::"
-                DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}" )
+    install(EXPORT "${PROJECT_NAME}Targets"
+            FILE "${PROJECT_NAME}Targets.cmake"
+            NAMESPACE "${PROJECT_NAME}::"
+            DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 endif()
 
 ########################################################################################################################

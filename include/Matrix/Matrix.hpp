@@ -24,7 +24,24 @@
 #include "CommonFunctions.hpp"
 #include "IMatrix.hpp"
 #include "MatrixBasics.hpp"
-//#include <cuda_runtime.h>
+
+class GlobalParameters {
+    public:
+        enum class HandlerType {
+            EIGEN, CUDA
+        };
+
+    private:
+        inline static HandlerType m_ht{HandlerType::EIGEN};
+
+
+    public:
+        static void setHandler(HandlerType);
+        static HandlerType getHandler();
+};
+
+// TODO - Define this as an element of g;obal group
+#define ENABLE_CUDA_HANDLER
 
 // Derivative of matrices (Reverse AD)
 Matrix<Type>* DervMatrix(const size_t, const size_t, const size_t, const size_t);
@@ -32,6 +49,13 @@ Matrix<Type>* DervMatrix(const size_t, const size_t, const size_t, const size_t)
 // Matrix class
 template <typename T> 
 class Matrix : public IMatrix<Matrix<T>> {
+private:
+  // Matrix internal allocator
+  void allocator();
+
+  // Matrix internal deallocator
+  void deallocator() noexcept;
+
 public:
   // Matrix factory
   class MatrixFactory {
@@ -51,6 +75,49 @@ public:
     }
   };
 
+/*---------------------------------------------------------------------------------------------------------------------------------------------------- 
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+                                                  Matrix class members
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+*/
+
+public:
+  // Block index
+  size_t m_nidx{};
+
+  // Cache for reverse AD
+  OMMatPair m_cache{};
+
+private:
+  // Matrix row and column size
+  size_t m_rows{0};
+  size_t m_cols{0};
+
+  // Boolean to verify evaluation/forward derivative values
+  bool m_eval{false};
+  bool m_devalf{false};
+  
+  // Should destructor be called? (True by default)
+  bool m_dest{true};
+
+  // Matrix raw pointer of underlying type (Expression, Variable, Parameter, Type)
+  T* mp_mat{nullptr};
+
+  // Collection of meta variable expressions
+  Vector<MetaMatrix*> m_gh_vec{};
+
+  // Matrix pointer for evaluation result (Type)
+  Matrix<Type>* mp_result{nullptr};
+  // Matrix pointer for forward derivative (Type)
+  Matrix<Type>* mp_dresult{nullptr};
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------- 
+----------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------
+*/
+
 private:
   // Swap for assignment
   void swap(Matrix&) noexcept;
@@ -69,29 +136,6 @@ private:
   template <typename Z> 
   friend class Matrix;
 
-  // Matrix row and column size
-  size_t m_rows{0};
-  size_t m_cols{0};
-
-  // Matrix raw pointer of underlying type (Expression, Variable, Parameter, Type)
-  T* mp_mat{nullptr};
-
-  // Collection of meta variable expressions
-  Vector<MetaMatrix*> m_gh_vec{};
-
-private:
-  // Boolean to verify evaluation/forward derivative values
-  bool m_eval{false};
-  bool m_devalf{false};
-  
-  // Should destructor be called? (True by default)
-  bool m_dest{true};
-
-  // Matrix pointer for evaluation result (Type)
-  Matrix<Type>* mp_result{nullptr};
-  // Matrix pointer for forward derivative (Type)
-  Matrix<Type>* mp_dresult{nullptr};
-
 private:  
   // Set values for the result matrix
   void setEval();
@@ -100,11 +144,12 @@ private:
   void setDevalF(const Matrix<Variable>&);
 
 public:
-  // Block index
-  size_t m_nidx{};
-
-  // Cache for reverse AD
-  OMMatPair m_cache{};
+/*---------------------------------------------------------------------------------------------------------------------------------------------------- 
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+                                                  Constructors and Destructors
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+*/
 
   // Default constructor - Zero arguments
   Matrix();
@@ -116,7 +161,7 @@ public:
   Matrix(const size_t, const size_t, const T&);
 
   // Constructor with pointer stealer
-  Matrix(const size_t, const size_t, T*);
+  Matrix(const size_t, const size_t, T*, T* = nullptr);
 
   // Matrix clone
   Matrix* clone(Matrix*&) const;
@@ -159,18 +204,16 @@ public:
     if (true == m_gh_vec.empty()) {
       m_rows = expr.getNumRows();
       m_cols = expr.getNumColumns();
-      if (nullptr != mp_mat) {
-        delete[] mp_mat;
-        mp_mat = nullptr;
+
+      // Deallocate mp_mat, mp_result, mp_dresult;
+      deallocator();
+      if(nullptr != mp_result) {
+        mp_result->deallocator();
       }
-      if (nullptr != mp_result) {
-        delete[] mp_result;
-        mp_result = nullptr;
+      if(nullptr != mp_dresult) {
+        mp_dresult->deallocator();
       }
-      if (nullptr != mp_dresult) {
-        delete[] mp_dresult;
-        mp_dresult = nullptr;
-      }
+
       m_eval = false;
       m_devalf = false;
       m_dest = true;
@@ -192,6 +235,16 @@ public:
   // Move assignment operator
   Matrix& operator=(Matrix&&) noexcept;
 
+  // Destructor
+  V_DTR(~Matrix());
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------- 
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+                                                  Getters/Setters for CPU & GPU pointers
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+*/
+
   // Get matrix pointer immutable
   const T* getMatrixPtr() const;
 
@@ -200,7 +253,24 @@ public:
 
   // Set matrix pointer
   void setMatrixPtr(T*);
+
+  // Get row pointer (Default ordering is row major)
+  T* getRowPtr(const size_t i) const;
+
+  // Copy data from another matrix (Just copy all contents from one matrix to another)
+  void copyData(const Matrix<T>&);
+
+  // Copy data from a pointer
+  void copyData(T*);
+
   
+/*---------------------------------------------------------------------------------------------------------------------------------------------------- 
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+                                                  operator(), opeartor[] for CPU & GPU pointers
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+*/
+
   // Matrix 2D access using operator()() immutable
   const T& operator()(const size_t, const size_t) const;
 
@@ -213,17 +283,17 @@ public:
   // Matrix 1D access using operator[] mutable
   T& operator[](const size_t);
 
+/*---------------------------------------------------------------------------------------------------------------------------------------------------- 
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+*/
+
   // Get block matrix
   void getBlockMat(const Pair<size_t, size_t>&, const Pair<size_t, size_t>&, Matrix*&) const;
 
   // Set block matrix
   void setBlockMat(const Pair<size_t, size_t>&, const Pair<size_t, size_t>&, const Matrix*);
-
-  // Copy data from another matrix (Just copy all contents from one matrix to another)
-  void copyData(const Matrix<T>&);
-
-  // Copy data from a pointer
-  void copyData(T*);
 
   // Add zero padding
   void pad(const size_t, const size_t, Matrix*&) const;
@@ -233,9 +303,6 @@ public:
 
   // Get a row for matrix using copy semantics
   Matrix getRow(const size_t) const &;
-
-  // Get row pointer (Default ordering is row major)
-  T* getRowPtr(const size_t i) const;
 
   // Get a column for matrix using move semantics
   Matrix getColumn(const size_t) &&;
@@ -254,6 +321,13 @@ public:
 
   // Get total final number of elements (for multi-layered expression)
   size_t getFinalNumElem() const;
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------- 
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+                                                  Virtual and CRTP overloads
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+*/
 
   // Get number of rows
   V_OVERRIDE(size_t getNumRows() const);
@@ -285,12 +359,15 @@ public:
   // Reset impl (Expression resetter)
   void resetImpl();
 
+/*---------------------------------------------------------------------------------------------------------------------------------------------------- 
+----------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------
+*/ 
+
   // To output stream
   template <typename Z>
-  friend std::ostream &operator<<(std::ostream&, const Matrix<Z>&);
-
-  // Destructor
-  V_DTR(~Matrix());
+  friend std::ostream &operator<<(std::ostream&, Matrix<Z>&);
 };
 
 // Method implementation
@@ -340,7 +417,10 @@ namespace CoolDiff {
       // Fill matrix with random weights
       template<template <typename> class T, typename... Args>
       void FillRandomValues(MatType& M, Args&&... args) {
+          // Distribution
           T<Type> dis(std::forward<Args>(args)...);
+
+          // Loop to sample values
           for(int i{}; i < M.getNumRows(); ++i) {
               for(int j{}; j < M.getNumColumns(); ++j) {
                   M(i,j) = dis(gen);
