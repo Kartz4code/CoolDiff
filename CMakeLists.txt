@@ -196,6 +196,7 @@ set(CUDA_SRC # Matrix folder *.cu files
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary/CUDA/src/MatUnaryCUDAHandler.cu
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/CUDA/src/MatMulCUDAHandler.cu
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/CUDA/src/MatScalarMulCUDAHandler.cu
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/CUDA/src/MatKronCUDAHandler.cu
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/CUDA/src/MatAddCUDAHandler.cu
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/CUDA/src/MatScalarAddCUDAHandler.cu        
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/CUDA/src/MatSubCUDAHandler.cu
@@ -232,6 +233,7 @@ set(CUDA_PRIVATE_INCLUDES #CUDA handlers
                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/CUDA/include
                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/CUDA/include
                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/CUDA/include
+                          ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/CUDA/include
                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose/CUDA/include
                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary/CUDA/include)
 

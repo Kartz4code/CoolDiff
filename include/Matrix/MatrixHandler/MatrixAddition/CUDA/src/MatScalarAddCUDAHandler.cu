@@ -24,8 +24,8 @@
 // Scalar-Matrix addition kernel
 template<typename T>
 __global__ void MatrixScalarAdd(const T* A, T* B, const size_t M, const size_t N, T val) {
-    auto row = blockIdx.y * blockDim.y + threadIdx.y;
-    auto col = blockIdx.x * blockDim.x + threadIdx.x;
+    const auto row = blockIdx.y * blockDim.y + threadIdx.y;
+    const auto col = blockIdx.x * blockDim.x + threadIdx.x;
 
     if ((row < M) && (col < N)) {
         auto idx = row * N + col;

@@ -25,6 +25,13 @@
 #include "IMatrix.hpp"
 #include "MatrixBasics.hpp"
 
+// Random Distributions
+template<typename T>
+using UniformDistribution = std::uniform_real_distribution<T>;
+template<typename T>
+using NormalDistribution = std::normal_distribution<T>;
+
+// Global parameters
 class GlobalParameters {
     public:
         enum class HandlerType {
@@ -34,13 +41,12 @@ class GlobalParameters {
     private:
         inline static HandlerType m_ht{HandlerType::EIGEN};
 
-
     public:
         static void setHandler(HandlerType);
         static HandlerType getHandler();
 };
 
-// TODO - Define this as an element of g;obal group
+// TODO - Define this as an element of global group
 #define ENABLE_CUDA_HANDLER
 
 // Derivative of matrices (Reverse AD)
@@ -143,7 +149,6 @@ private:
   // Set value for the derivative result matrix
   void setDevalF(const Matrix<Variable>&);
 
-public:
 /*---------------------------------------------------------------------------------------------------------------------------------------------------- 
   ----------------------------------------------------------------------------------------------------------------------------------------------------
                                                   Constructors and Destructors
@@ -151,6 +156,7 @@ public:
   ----------------------------------------------------------------------------------------------------------------------------------------------------
 */
 
+public:
   // Default constructor - Zero arguments
   Matrix();
   
@@ -367,7 +373,7 @@ public:
 
   // To output stream
   template <typename Z>
-  friend std::ostream &operator<<(std::ostream&, Matrix<Z>&);
+  friend std::ostream &operator<<(std::ostream&, const Matrix<Z>&);
 };
 
 // Method implementation

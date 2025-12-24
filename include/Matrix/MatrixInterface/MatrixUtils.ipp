@@ -223,27 +223,28 @@ void Matrix<T>::reshape(const size_t rows, const size_t cols) {
 
 // To output stream
 template<typename T>
-std::ostream& operator<<(std::ostream& os, Matrix<T>& mat) { 
+std::ostream& operator<<(std::ostream& os, const Matrix<T>& mat) { 
     const size_t rows = mat.getFinalNumRows();
     const size_t cols = mat.getFinalNumColumns();
+    std::ostringstream oss;
     if constexpr (true == std::is_same_v<T, Type>) {
         // Serial print
         for (size_t i{}; i < rows; ++i) {
             for (size_t j{}; j < cols; ++j) {
-                os << mat(i, j) << " ";
+                oss << mat(i, j) << " ";
             }
-            os << "\n";
+            oss << "\n";
         }
-        return os;
+        return { os << oss.str() };
     } else if constexpr (true == std::is_arithmetic_v<T>) {
         // Serial print
         for (size_t i{}; i < rows; ++i) {
             for (size_t j{}; j < cols; ++j) {
-                os << mat(i, j) << " ";
+                oss << mat(i, j) << " ";
             }
-            os << "\n";
+            oss << "\n";
         }
-        return os;
+        return { os << oss.str() };
     } else {
         ASSERT(false, "Matrix not in printable format");
     }

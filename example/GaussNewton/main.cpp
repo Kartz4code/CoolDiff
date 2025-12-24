@@ -115,7 +115,6 @@ void GNMatrix() {
   R(0, 0) = cos(V[0]); R(0, 1) = sin(V[0]);
   R(1, 0) = -sin(V[0]); R(1, 1) = cos(V[0]);
 
-
   // Parameter for input/output data
   Matrix<Parameter> PX(2, 1), PY(2, 1);
 

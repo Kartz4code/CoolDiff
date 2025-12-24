@@ -60,6 +60,7 @@
 #include "MatHadamardCUDAHandler.hpp"
 #include "MatMulCUDAHandler.hpp"
 #include "MatScalarMulCUDAHandler.hpp"
+#include "MatKronCUDAHandler.hpp"
 #include "MatTransposeCUDAHandler.hpp"
 #include "MatUnaryCUDAHandler.hpp"
 
@@ -169,8 +170,10 @@ namespace CoolDiff {
             NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            // TODO - CUDA Handler
-            if(GlobalParameters::HandlerType::EIGEN == GlobalParameters::getHandler()) {
+            if(GlobalParameters::HandlerType::CUDA == GlobalParameters::getHandler()) {
+              static HANDLER1(MatKronCUDAHandler) handler;
+              handler.handle(lhs, rhs, result);
+            } else if(GlobalParameters::HandlerType::EIGEN == GlobalParameters::getHandler()) {
               static HANDLER1(MatKronEigenHandler) handler;
               handler.handle(lhs, rhs, result);
             } else {

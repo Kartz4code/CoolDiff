@@ -25,11 +25,11 @@
 // Matrix-Matrix subtraction kernel
 template<typename T>
 __global__ void MatrixSub(const T* A, const T* B, T* C, const size_t M, const size_t N) {
-    auto row = blockIdx.y * blockDim.y + threadIdx.y;
-    auto col = blockIdx.x * blockDim.x + threadIdx.x;
+    const auto row = blockIdx.y * blockDim.y + threadIdx.y;
+    const auto col = blockIdx.x * blockDim.x + threadIdx.x;
 
     if ((row < M) && (col < N)) {
-        auto idx = row * N + col;
+        const auto idx = row * N + col;
         C[idx] = A[idx] - B[idx];
     }
 }

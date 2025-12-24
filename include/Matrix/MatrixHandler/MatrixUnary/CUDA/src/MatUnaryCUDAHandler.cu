@@ -28,11 +28,11 @@ static bool g_init{false};
 // Matrix element-wise application of unary function
 template<typename T>
 __global__ void MatrixUnary(const T* A, T* B, int func_num, const size_t M, const size_t N) {
-    auto row = blockIdx.y * blockDim.y + threadIdx.y;
-    auto col = blockIdx.x * blockDim.x + threadIdx.x;
+    const auto row = blockIdx.y * blockDim.y + threadIdx.y;
+    const auto col = blockIdx.x * blockDim.x + threadIdx.x;
 
     if ((row < M) && (col < N)) {
-        auto idx = row * N + col;
+        const auto idx = row * N + col;
         B[idx] = (*device_functions<T>[func_num])(A[idx]);
     }
 }

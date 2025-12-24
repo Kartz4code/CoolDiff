@@ -46,7 +46,6 @@ void LoadData(std::string_view path, Matrix<Type>& X, Matrix<Type>& Y) {
     csv::CSVReader reader(path);
     size_t irows{}; size_t icols{};
     for (csv::CSVRow& row: reader) {
-        //if(irows == 1000) break;
         for (csv::CSVField& field: row) {
             if(0 == icols) {
                 Y(irows, field.get<size_t>()) = 1;
@@ -58,13 +57,6 @@ void LoadData(std::string_view path, Matrix<Type>& X, Matrix<Type>& Y) {
         icols = 0; ++irows;
     }
 }
-
-// Distribution
-template<typename T>
-using UniformDistribution = std::uniform_real_distribution<T>;
-template<typename T>
-using NormalDistribution = std::normal_distribution<T>;
-
 
 void MNISTPrediction() {
     // Dimension of input, ouput and batch size
@@ -91,7 +83,7 @@ void MNISTPrediction() {
                   .networkLayers(K);
 
     // Train data
-    TIME_IT_MS(n.train(Xtrain, Ytrain, -0.1, 20, false));
+    TIME_IT_MS(n.train(Xtrain, Ytrain, -0.1, 50, false));
 
     // Prediction test
     std::cout << "[Test prediction accuracy]: " << n.accuracy(Xtest, Ytest, 1) << "%\n";
@@ -100,8 +92,10 @@ void MNISTPrediction() {
 int main(int argc, char** argv) {
     // Set handler global parameter - CUDA
     GlobalParameters::setHandler(GlobalParameters::HandlerType::CUDA);
+
     #ifndef USE_COMPLEX_MATH
         MNISTPrediction();
     #endif
+    
     return 0;
 }

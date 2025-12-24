@@ -28,15 +28,12 @@ __global__ void MatrixMul(const T* A, const T* B, T* C, const size_t M, const si
     __shared__ T As[TILE_SIZE][TILE_SIZE];
     __shared__ T Bs[TILE_SIZE][TILE_SIZE];
 
-    auto row = blockIdx.y * TILE_SIZE + threadIdx.y;
-    auto col = blockIdx.x * TILE_SIZE + threadIdx.x;
+    const auto row = blockIdx.y * TILE_SIZE + threadIdx.y;
+    const auto col = blockIdx.x * TILE_SIZE + threadIdx.x;
 
-    // Intermediate value
     T value = 0.0f;
 
-    // Loop over tiles
     for (int t{}; t < (K + TILE_SIZE - 1) / TILE_SIZE; ++t) {
-        // Load A tile
         if (row < M && t * TILE_SIZE + threadIdx.x < K) {
             As[threadIdx.y][threadIdx.x] = A[row * K + t * TILE_SIZE + threadIdx.x];
         }
@@ -44,7 +41,6 @@ __global__ void MatrixMul(const T* A, const T* B, T* C, const size_t M, const si
             As[threadIdx.y][threadIdx.x] = 0;
         }
 
-        // Load B tile
         if (col < N && t * TILE_SIZE + threadIdx.y < K) {
             Bs[threadIdx.y][threadIdx.x] = B[(t * TILE_SIZE + threadIdx.y) * N + col];
         }
@@ -54,7 +50,6 @@ __global__ void MatrixMul(const T* A, const T* B, T* C, const size_t M, const si
 
         __syncthreads();
 
-        // Compute partial product
         #pragma unroll
         for (int i{}; i < TILE_SIZE; ++i) {
             value += As[threadIdx.y][i] * Bs[i][threadIdx.x];
@@ -63,7 +58,6 @@ __global__ void MatrixMul(const T* A, const T* B, T* C, const size_t M, const si
         __syncthreads();
     }
 
-    // Write result
     if ((row < M) && (col < N)) {
         C[row * N + col] = value;
     }
