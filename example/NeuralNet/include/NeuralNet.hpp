@@ -108,6 +108,43 @@ class NeuralNet {
             }
         }
 
+        // Classification accuracy computation for internal use (no or infrequent restructuring of the network batch size)
+        template<typename Z>
+        Type accuracy(Z& net, const Matrix<Type>& X_data, const Matrix<Type>& Y_data, const size_t batch_size) {
+            size_t count{}; 
+            const size_t data_size = X_data.getNumRows(); 
+            const size_t feature_size = X_data.getNumColumns();
+            const size_t label_size = Y_data.getNumColumns();
+
+            // Data scan size
+            const size_t scan_size = (data_size-batch_size);
+            for(size_t i{}; i < scan_size; i+=batch_size) {               
+                // Predicted and real values
+                X.setMatrixPtr(X_data.getRowPtr(i));
+                Y.setMatrixPtr(Y_data.getRowPtr(i));
+
+                // Get prediction from final layer
+                auto& Yhat = CoolDiff::TensorR2::Eval(GetFinalLayer(net));
+
+                // Identify estimated vs real classes and increment for positive count
+                for(size_t j{}; j < batch_size; ++j) {
+                    const auto Yhat_ptr = Yhat.getRowPtr(j);
+                    const auto Y_ptr = Y.getRowPtr(j);
+
+                    const size_t Yhat_class = std::distance(Yhat_ptr, std::max_element(Yhat_ptr, Yhat_ptr + label_size));
+                    const size_t Y_class = std::distance(Y_ptr, std::max_element(Y_ptr, Y_ptr + label_size));
+
+                    // Increment count if values match up between predicted and real
+                    if(Yhat_class == Y_class) {
+                        count += 1;
+                    }
+                }
+            }
+
+            // Convert to percentage and return
+            return Type((count/(Type)(scan_size))*100.0);
+        }
+
     protected:
         // Inputs/Output
         Matrix<Type> X{1, 1, nullptr};
@@ -195,7 +232,7 @@ class NeuralNet {
             return GetLayer<N>(tuple);
         }
 
-        // Classification accuracy computation
+        // Classification accuracy computation for external use, i.e. varying batch size (test case)
         Type accuracy(const Matrix<Type>& X_data, const Matrix<Type>& Y_data, const size_t batch_size) {
             size_t count{}; 
             const size_t data_size = X_data.getNumRows(); 
@@ -285,7 +322,7 @@ class NeuralNet {
                 // Display stats
                 if(true == display_stats) {
                     Type acc{};
-                    acc = accuracy(X_data, Y_data, m_batch_size);
+                    acc = accuracy(net, X_data, Y_data, m_batch_size);
                     oss << "       <------------------------------ Computation stats ------------------------------>       \n"
                         << std::string(100, '-') << "\n" << std::string(10, ' ')
                         << "| [EPOCH]: " << std::to_string(i) << " |"
