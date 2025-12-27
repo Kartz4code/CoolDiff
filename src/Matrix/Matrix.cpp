@@ -23,13 +23,15 @@
 #include "MemoryManager.hpp"
 
 // Set handler
-void GlobalParameters::setHandler(HandlerType ht) {
-  m_ht = ht;
-}
+namespace CoolDiff {
+  void GlobalParameters::setHandler(HandlerType ht) {
+    m_ht = ht;
+  }
 
-// get handler
-GlobalParameters::HandlerType GlobalParameters::getHandler() {
-  return m_ht;
+  // get handler
+  GlobalParameters::HandlerType GlobalParameters::getHandler() {
+    return m_ht;
+  }
 }
 
 Matrix<Type>* DervMatrix( const size_t frows, const size_t fcols,

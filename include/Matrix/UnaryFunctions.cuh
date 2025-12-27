@@ -125,15 +125,17 @@ __host__ __device__ T DReLU(T x) {
 }
 
 // Leaky ReLU function 
+#define NEG_SLOPE() 0.01
+
 template<typename T>
 __host__ __device__ T LeakyReLU(T x) { 
-    return (T)((x >= (T)(0)) ? x : 0.1*x);
+    return (T)((x >= (T)(0)) ? x : NEG_SLOPE()*x);
 }
 
 // Derivative of Leaky ReLU function 
 template<typename T>
 __host__ __device__ T DLeakyReLU(T x) { 
-    return (T)((x >= (T)(0)) ? 1 : 0.1);
+    return (T)((x >= (T)(0)) ? 1 : NEG_SLOPE());
 }
 
 // Abs function 
@@ -150,9 +152,16 @@ __host__ __device__ T DAbs(T x) {
 
 // List of device functions
 enum DEVICE_FUNCTIONS {
-    SIN = 0, DSIN, COS, DCOS, EXP, LOG, DLOG,  
-    SQRT, DSQRT, TANH, DTANH, SIGMOID, DSIGMOID,
-    RELU, DRELU, LEAKYRELU, DLEAKYRELU, ABS, DABS,
+    SIN = 0, DSIN, 
+    COS, DCOS, 
+    EXP, 
+    LOG, DLOG,  
+    SQRT, DSQRT, 
+    TANH, DTANH, 
+    SIGMOID, DSIGMOID,
+    RELU, DRELU, 
+    LEAKYRELU, DLEAKYRELU, 
+    ABS, DABS,
     COUNT
 };
 
@@ -163,6 +172,7 @@ __device__ FunctionType<T> device_functions[DEVICE_FUNCTIONS::COUNT];
 // Device function intialization
 template<typename T>
 __global__ void DeviceFunctionsInit() {
+    /*    <----------- Function ----------->                                   <----------- Derivative ----------->           */
     device_functions<T>[DEVICE_FUNCTIONS::SIN]  = Sin<T>;            device_functions<T>[DEVICE_FUNCTIONS::DSIN] = DSin<T>;
     device_functions<T>[DEVICE_FUNCTIONS::COS]  = Cos<T>;            device_functions<T>[DEVICE_FUNCTIONS::DCOS] = DCos<T>;
     device_functions<T>[DEVICE_FUNCTIONS::EXP]  = Exp<T>;
@@ -177,7 +187,8 @@ __global__ void DeviceFunctionsInit() {
 
 // Map of all device functions and its enum
 template<typename T>
-std::unordered_map<FunctionType<T>, int> device_functions_map{  {Sin<T>, SIN},                  {DSin<T>, DSIN}, 
+std::unordered_map<FunctionType<T>, int> device_functions_map{  /* <-- Function -->             <-- Derivative-->           */
+                                                                {Sin<T>, SIN},                  {DSin<T>, DSIN}, 
                                                                 {Cos<T>, COS},                  {DCos<T>, DCOS}, 
                                                                 {Exp<T>, EXP},
                                                                 {Log<T>, LOG},                  {DLog<T>, DLOG},

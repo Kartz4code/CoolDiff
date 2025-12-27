@@ -28,7 +28,7 @@ __global__ void MatrixScalarAdd(const T* A, T* B, const size_t M, const size_t N
     const auto col = blockIdx.x * blockDim.x + threadIdx.x;
 
     if ((row < M) && (col < N)) {
-        auto idx = row * N + col;
+        const auto idx = row * N + col;
         B[idx] = val + A[idx];
     }
 }

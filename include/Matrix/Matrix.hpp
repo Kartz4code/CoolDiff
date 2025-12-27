@@ -32,19 +32,21 @@ template<typename T>
 using NormalDistribution = std::normal_distribution<T>;
 
 // Global parameters
-class GlobalParameters {
-    public:
-        enum class HandlerType {
-            EIGEN, CUDA
-        };
+namespace CoolDiff {
+  class GlobalParameters {
+      public:
+          enum class HandlerType {
+              EIGEN, CUDA
+          };
 
-    private:
-        inline static HandlerType m_ht{HandlerType::EIGEN};
+      private:
+          inline static HandlerType m_ht{HandlerType::EIGEN};
 
-    public:
-        static void setHandler(HandlerType);
-        static HandlerType getHandler();
-};
+      public:
+          static void setHandler(HandlerType);
+          static HandlerType getHandler();
+  };
+}
 
 // TODO - Define this as an element of global group
 #define ENABLE_CUDA_HANDLER

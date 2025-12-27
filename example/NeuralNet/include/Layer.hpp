@@ -24,14 +24,20 @@ class Layer {
                 public:
                     LayerFactory() = default;
                     // Create layer of size (N X N) for weights and (N X 1) for bias with randomization
-                    template<template <typename> class T, typename... Args> 
-                    static Layer CreateLayer(const size_t N, Args&&... args) {
+                    template<template <typename> class T, typename U, typename... Args> 
+                    static Layer CreateLayer(const U N, Args&&... args) {
+                        // Check whether U is an integral type
+                        static_assert(true == std::is_integral_v<U>, "N is not an integral type");
                         return CreateLayer<T>(N, N, std::forward<Args>(args)...);
                     }
 
                     // Create layer of size (N X M) for weights and (M x 1) for bias with randomization
-                    template<template <typename> class T, typename... Args>
-                    static Layer CreateLayer(const size_t N, const size_t M, Args&&... args) {
+                    template<template <typename> class T, typename U, typename V, typename... Args>
+                    static Layer CreateLayer(const U N, const V M, Args&&... args) {
+                        // Check whether U and V are integral types
+                        static_assert(true == std::is_integral_v<U>, "N is not an integral type");
+                        static_assert(true == std::is_integral_v<V>, "M is not an integral type");
+
                         Layer result; 
 
                         result.m_W = Matrix<Type>::MatrixFactory::CreateMatrix(N, M);

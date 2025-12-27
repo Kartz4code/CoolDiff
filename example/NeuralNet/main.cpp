@@ -15,9 +15,10 @@ class CustomNet : public NeuralNet<CustomNet> {
             auto l1 = LeakyReLUM(X*transpose(W(0)) + transpose(broadcast<Axis::COLUMN>(b(0), batch)));
             auto l2 = LeakyReLUM(l1*transpose(W(1)) + transpose(broadcast<Axis::COLUMN>(b(1), batch)));
             auto l3 = LeakyReLUM(l2*transpose(W(2)) + transpose(broadcast<Axis::COLUMN>(b(2), batch)));
-            auto l4 = SoftMax<Axis::COLUMN>(l3);
+            auto l4 = LeakyReLUM(l3*transpose(W(3)) + transpose(broadcast<Axis::COLUMN>(b(3), batch)));
+            auto l5 = SoftMax<Axis::COLUMN>(l4);
 
-            auto list = std::make_tuple(l1, l2, l3, l4);
+            auto list = std::make_tuple(l1, l2, l3, l4, l5);
             return list;
         }
 
@@ -76,10 +77,14 @@ void MNISTPrediction() {
 
     CustomNet n({N,M});
 
+    // Uniform random parameters
+    Type a = 0.25;
+
     // Generate network layers for prediction on test data
-    auto net  =  n.addLayer(Layer::LayerFactory::CreateLayer<UniformDistribution>(50*M, N, -0.1, 0.1))
-                  .addLayer(Layer::LayerFactory::CreateLayer<UniformDistribution>(10*M, 50*M, -0.1, 0.1))
-                  .addLayer(Layer::LayerFactory::CreateLayer<UniformDistribution>(M, 10*M, -0.1, 0.1))
+    auto net  =  n.addLayer(Layer::LayerFactory::CreateLayer<UniformDistribution>(128, N, -a, a))
+                  .addLayer(Layer::LayerFactory::CreateLayer<UniformDistribution>(64, 128, -a, a))
+                  .addLayer(Layer::LayerFactory::CreateLayer<UniformDistribution>(32, 64, -a, a))
+                  .addLayer(Layer::LayerFactory::CreateLayer<UniformDistribution>(M, 32, -a, a))
                   .networkLayers(K);
 
     // Train data
@@ -91,7 +96,7 @@ void MNISTPrediction() {
 
 int main(int argc, char** argv) {
     // Set handler global parameter - CUDA
-    GlobalParameters::setHandler(GlobalParameters::HandlerType::CUDA);
+    CoolDiff::GlobalParameters::setHandler(CoolDiff::GlobalParameters::HandlerType::CUDA);
 
     #ifndef USE_COMPLEX_MATH
         MNISTPrediction();

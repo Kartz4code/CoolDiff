@@ -32,7 +32,7 @@ template<typename T>
 void Matrix<T>::allocator() {
   const size_t size = getNumElem();
 
-  if(GlobalParameters::HandlerType::CUDA == GlobalParameters::getHandler()) {
+  if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
     // Allocate/deallocate memory in GPU only for data intensitve operations (Pinned memory)
     if constexpr(true == std::is_same_v<T, Type>) {
       cudaMallocHost((void**)&mp_mat, (size * sizeof(T)));
@@ -50,7 +50,7 @@ void Matrix<T>::allocator() {
 // Matrix internal deallocator
 template<typename T>
 void Matrix<T>::deallocator() noexcept {
-  if(GlobalParameters::HandlerType::CUDA == GlobalParameters::getHandler()) {
+  if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
     // Allocate/deallocate memory in GPU only for data intensitve operations (Pinned memory) 
     if constexpr(true == std::is_same_v<T, Type>) {
       if (nullptr != mp_mat) {

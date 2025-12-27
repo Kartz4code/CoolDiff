@@ -82,10 +82,10 @@ namespace CoolDiff {
             NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            if(GlobalParameters::HandlerType::CUDA == GlobalParameters::getHandler()) {
+            if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
               static HANDLER1(MatAddCUDAHandler) handler;
               handler.handle(lhs, rhs, result);
-            } else if(GlobalParameters::HandlerType::EIGEN == GlobalParameters::getHandler()) {
+            } else if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
               static HANDLER1(MatAddEigenHandler) handler;
               handler.handle(lhs, rhs, result);
             } else {
@@ -99,10 +99,10 @@ namespace CoolDiff {
             // Null pointer check
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            if(GlobalParameters::HandlerType::CUDA == GlobalParameters::getHandler()) {
+            if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
               static HANDLER1(MatScalarAddCUDAHandler) handler;
               handler.handle(lhs, rhs, result);
-            } else if(GlobalParameters::HandlerType::EIGEN == GlobalParameters::getHandler()) {
+            } else if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
               static HANDLER1(MatScalarAddEigenHandler) handler;
               handler.handle(lhs, rhs, result);
             } else {
@@ -117,10 +117,10 @@ namespace CoolDiff {
             NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            if(GlobalParameters::HandlerType::CUDA == GlobalParameters::getHandler()) {
+            if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
               static HANDLER1(MatSubCUDAHandler) handler;
               handler.handle(lhs, rhs, result);
-            } else if(GlobalParameters::HandlerType::EIGEN == GlobalParameters::getHandler()) {
+            } else if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
               static HANDLER1(MatSubEigenHandler) handler;
               handler.handle(lhs, rhs, result);
             } else {
@@ -135,10 +135,10 @@ namespace CoolDiff {
             NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            if(GlobalParameters::HandlerType::CUDA == GlobalParameters::getHandler()) {
+            if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
               static HANDLER1(MatMulCUDAHandler) handler;
               handler.handle(lhs, rhs, result);
-            } else if(GlobalParameters::HandlerType::EIGEN == GlobalParameters::getHandler()) {
+            } else if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
               static HANDLER1(MatMulEigenHandler) handler;
               handler.handle(lhs, rhs, result);
             } else {
@@ -152,10 +152,10 @@ namespace CoolDiff {
             // Null pointer check
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            if(GlobalParameters::HandlerType::CUDA == GlobalParameters::getHandler()) {
+            if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
               static HANDLER1(MatScalarMulCUDAHandler) handler;
               handler.handle(lhs, rhs, result);
-            } else if(GlobalParameters::HandlerType::EIGEN == GlobalParameters::getHandler()) {
+            } else if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
               static HANDLER1(MatScalarMulEigenHandler) handler;
               handler.handle(lhs, rhs, result);
             } else {
@@ -170,10 +170,10 @@ namespace CoolDiff {
             NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            if(GlobalParameters::HandlerType::CUDA == GlobalParameters::getHandler()) {
+            if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
               static HANDLER1(MatKronCUDAHandler) handler;
               handler.handle(lhs, rhs, result);
-            } else if(GlobalParameters::HandlerType::EIGEN == GlobalParameters::getHandler()) {
+            } else if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
               static HANDLER1(MatKronEigenHandler) handler;
               handler.handle(lhs, rhs, result);
             } else {
@@ -188,10 +188,10 @@ namespace CoolDiff {
             NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            if(GlobalParameters::HandlerType::CUDA == GlobalParameters::getHandler()) {
+            if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
               static HANDLER1(MatHadamardCUDAHandler) handler;
               handler.handle(lhs, rhs, result);
-            } else if(GlobalParameters::HandlerType::EIGEN == GlobalParameters::getHandler()) {
+            } else if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
               static HANDLER1(MatHadamardEigenHandler) handler;
               handler.handle(lhs, rhs, result);
             } else {
@@ -205,10 +205,10 @@ namespace CoolDiff {
             // Null pointer check
             NULL_CHECK(mat, "Matrix (mat) is a nullptr");
 
-            if(GlobalParameters::HandlerType::CUDA == GlobalParameters::getHandler()) {
+            if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
               static HANDLER1(MatTransposeCUDAHandler) handler;
                handler.handle(mat, result);
-            } else if(GlobalParameters::HandlerType::EIGEN == GlobalParameters::getHandler()) {
+            } else if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
               static HANDLER1(MatTransposeEigenHandler) handler;
                handler.handle(mat, result);
             } else {
@@ -260,7 +260,7 @@ namespace CoolDiff {
             NULL_CHECK(mat, "Matrix mat is a nullptr");
 
             // TODO - CUDA
-            if(GlobalParameters::HandlerType::EIGEN == GlobalParameters::getHandler()) {
+            if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
                static HANDLER1(MatTraceEigenHandler) handler;
                handler.handle(mat, result);
             } else {
@@ -273,10 +273,10 @@ namespace CoolDiff {
           void MatrixUnary(const Matrix<Type>* mat, const FunctionType1& func, Matrix<Type>*& result) {
             NULL_CHECK(mat, "Matrix mat is a nullptr");
 
-            if(GlobalParameters::HandlerType::CUDA == GlobalParameters::getHandler()) {
+            if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
                static HANDLER1(MatUnaryCUDAHandler) handler;
                handler.handle(mat, func, result);
-            } else if(GlobalParameters::HandlerType::EIGEN == GlobalParameters::getHandler()) {
+            } else if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
                static HANDLER1(MatUnaryEigenHandler) handler;
                handler.handle(mat, func, result);
             } else {
@@ -294,7 +294,7 @@ namespace CoolDiff {
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
              // Todo - CUDA
-            if(GlobalParameters::HandlerType::EIGEN == GlobalParameters::getHandler()) {
+            if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
                static HANDLER1(MatConvEigenHandler) handler;
                handler.handle(stride_x, stride_y, pad_x, pad_y, lhs, rhs, result);
             } else {

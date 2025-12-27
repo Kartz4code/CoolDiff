@@ -173,7 +173,7 @@ void ScalarSolve() {
 
 int main(int argc, char **argv) { 
   // Set handler global parameter - Eigen
-  GlobalParameters::setHandler(GlobalParameters::HandlerType::EIGEN);
+  CoolDiff::GlobalParameters::setHandler(CoolDiff::GlobalParameters::HandlerType::EIGEN);
 
   GNMatrix();
   NonLinearSolve();
