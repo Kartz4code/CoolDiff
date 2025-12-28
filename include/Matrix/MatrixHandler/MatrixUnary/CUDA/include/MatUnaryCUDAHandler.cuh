@@ -26,8 +26,8 @@
 
 // Function pointer of unary functions
 template<typename T>
-using FunctionType = T(*)(T);
+using FunctionTypeCuda = T(*)(T);
 
 // Custom unary function kernel
 template<typename T>
-void CustomUnaryKernel(const dim3, const dim3, const T*, T*, FunctionType<T>, const size_t, const size_t);
+void CustomUnaryKernel(const dim3, const dim3, const T*, T*, FunctionTypeCuda<T>, const size_t, const size_t);

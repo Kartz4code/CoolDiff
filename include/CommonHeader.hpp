@@ -237,7 +237,7 @@ template <typename T>
 using SharedPtr = std::shared_ptr<T>;
 
 // Function type
-using FunctionType1 = Type(*)(Type);
+using FunctionType = Type(*)(Type);
 
 // A generic future
 template <typename T> 

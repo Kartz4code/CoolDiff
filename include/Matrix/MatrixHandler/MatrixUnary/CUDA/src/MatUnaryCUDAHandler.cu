@@ -39,7 +39,7 @@ __global__ void MatrixUnary(const T* A, T* B, int func_num, const size_t M, cons
 
 // Custom unary function kernel
 template<typename T>
-void CustomUnaryKernel(const dim3 blocks, const dim3 threads, const T* A, T* B, FunctionType<T> func, const size_t M, const size_t N) {
+void CustomUnaryKernel(const dim3 blocks, const dim3 threads, const T* A, T* B, FunctionTypeCuda<T> func, const size_t M, const size_t N) {
     // First time initalization
     if(false == g_init) {
         DeviceFunctionsInit<T> <<<1,1>>>();
@@ -52,6 +52,6 @@ void CustomUnaryKernel(const dim3 blocks, const dim3 threads, const T* A, T* B, 
 }
 
 // Custom unary function kernel (float)
-template void CustomUnaryKernel<float>(const dim3, const dim3, const float*, float*, FunctionType<float>, const size_t, const size_t);
+template void CustomUnaryKernel<float>(const dim3, const dim3, const float*, float*, FunctionTypeCuda<float>, const size_t, const size_t);
 // Custom unary function kernel (double)
-template void CustomUnaryKernel<double>(const dim3, const dim3, const double*, double*, FunctionType<double>, const size_t, const size_t);
+template void CustomUnaryKernel<double>(const dim3, const dim3, const double*, double*, FunctionTypeCuda<double>, const size_t, const size_t);

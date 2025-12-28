@@ -64,7 +64,7 @@ namespace CoolDiff {
                                 const Matrix<Type>*, Matrix<Type>*&);
 
             // Matrix unary
-            void MatrixUnary(const Matrix<Type>*, const FunctionType1&, Matrix<Type>*&);
+            void MatrixUnary(const Matrix<Type>*, const FunctionType&, Matrix<Type>*&);
 
             // Matrix inverse
             void MatrixInverse(const Matrix<Type>*, Matrix<Type>*&);

@@ -27,7 +27,7 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatUnaryEigenHandler : public T {
     public:
-        void handle(const Matrix<Type>* mat, const FunctionType1& func, Matrix<Type>*& result) {
+        void handle(const Matrix<Type>* mat, const FunctionType& func, Matrix<Type>*& result) {
             const size_t nrows{mat->getNumRows()};
             const size_t ncols{mat->getNumColumns()};
 

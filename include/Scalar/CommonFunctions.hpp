@@ -52,13 +52,13 @@
 #include "GenericTanh.hpp"
 #include "GenericScalarUnary.hpp"
 
+#include "UnaryFunctions.cuh"
+
 /* Custom functions (Unary operations) */
 // Sin scalar 
-UNARY_SCALAR_OPERATOR(SinS, [](Type a) { return std::sin(a); },
-                            [](Type b) { return std::cos(b); })
+UNARY_SCALAR_OPERATOR(SinS, Sin<Type>, DSin<Type>)
 // Cos scalar
-UNARY_SCALAR_OPERATOR(CosS, [](Type a) { return std::cos(a); },
-                            [](Type b) { return -std::sin(b); })
+UNARY_SCALAR_OPERATOR(CosS, Cos<Type>, DCos<Type>)
 
 /* Custom functions (Binary operations) */
 // Product scalar
@@ -205,8 +205,7 @@ namespace CoolDiff {
 }
 
 
-/*
-
+/* TODO - Hessian implementation
 // Jacobian forward mode (Vector)
 Matrix<Type> &JacobF(Expression &, const Vector<Variable> &, bool = false);
 

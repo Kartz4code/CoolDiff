@@ -82,15 +82,25 @@ namespace CoolDiff {
             NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
-              static HANDLER1(MatAddCUDAHandler) handler;
-              handler.handle(lhs, rhs, result);
-            } else if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
-              static HANDLER1(MatAddEigenHandler) handler;
-              handler.handle(lhs, rhs, result);
-            } else {
-              static HANDLER1(MatAddNaiveHandler) handler;
-              handler.handle(lhs, rhs, result);
+
+            switch(CoolDiff::GlobalParameters::getHandler()) {
+              case CoolDiff::GlobalParameters::HandlerType::CUDA: {
+                static HANDLER1(MatAddCUDAHandler) handler;
+                handler.handle(lhs, rhs, result);
+                break;
+              }
+
+              case CoolDiff::GlobalParameters::HandlerType::EIGEN: {
+                static HANDLER1(MatAddEigenHandler) handler;
+                handler.handle(lhs, rhs, result);
+                break;
+              }
+
+              default: {
+                static HANDLER1(MatAddNaiveHandler) handler;
+                handler.handle(lhs, rhs, result);
+                break;
+              }
             }
           }
 
@@ -99,15 +109,24 @@ namespace CoolDiff {
             // Null pointer check
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
-              static HANDLER1(MatScalarAddCUDAHandler) handler;
-              handler.handle(lhs, rhs, result);
-            } else if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
-              static HANDLER1(MatScalarAddEigenHandler) handler;
-              handler.handle(lhs, rhs, result);
-            } else {
-              static HANDLER1(MatScalarAddNaiveHandler) handler;
-              handler.handle(lhs, rhs, result);
+            switch(CoolDiff::GlobalParameters::getHandler()) {
+              case CoolDiff::GlobalParameters::HandlerType::CUDA: {
+                static HANDLER1(MatScalarAddCUDAHandler) handler;
+                handler.handle(lhs, rhs, result);
+                break;
+              }
+
+              case CoolDiff::GlobalParameters::HandlerType::EIGEN: {
+                static HANDLER1(MatScalarAddEigenHandler) handler;
+                handler.handle(lhs, rhs, result);
+                break;
+              }
+
+              default: {
+                static HANDLER1(MatScalarAddNaiveHandler) handler;
+                handler.handle(lhs, rhs, result);
+                break;
+              }
             }
           }
 
@@ -117,15 +136,24 @@ namespace CoolDiff {
             NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
-              static HANDLER1(MatSubCUDAHandler) handler;
-              handler.handle(lhs, rhs, result);
-            } else if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
-              static HANDLER1(MatSubEigenHandler) handler;
-              handler.handle(lhs, rhs, result);
-            } else {
-              static HANDLER1(MatSubNaiveHandler) handler;
-              handler.handle(lhs, rhs, result);
+            switch(CoolDiff::GlobalParameters::getHandler()) {
+              case CoolDiff::GlobalParameters::HandlerType::CUDA: {
+                static HANDLER1(MatSubCUDAHandler) handler;
+                handler.handle(lhs, rhs, result);
+                break;
+              }
+
+              case CoolDiff::GlobalParameters::HandlerType::EIGEN: {
+                static HANDLER1(MatSubEigenHandler) handler;
+                handler.handle(lhs, rhs, result);
+                break;
+              }
+
+              default: {
+                static HANDLER1(MatSubNaiveHandler) handler;
+                handler.handle(lhs, rhs, result);
+                break;
+              }
             }
           }
 
@@ -135,15 +163,24 @@ namespace CoolDiff {
             NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
-              static HANDLER1(MatMulCUDAHandler) handler;
-              handler.handle(lhs, rhs, result);
-            } else if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
-              static HANDLER1(MatMulEigenHandler) handler;
-              handler.handle(lhs, rhs, result);
-            } else {
-              static HANDLER1(MatMulNaiveHandler) handler;
-              handler.handle(lhs, rhs, result);
+            switch(CoolDiff::GlobalParameters::getHandler()) {
+              case CoolDiff::GlobalParameters::HandlerType::CUDA: {
+                static HANDLER1(MatMulCUDAHandler) handler;
+                handler.handle(lhs, rhs, result);
+                break;
+              }
+
+              case CoolDiff::GlobalParameters::HandlerType::EIGEN: {
+                static HANDLER1(MatMulEigenHandler) handler;
+                handler.handle(lhs, rhs, result);
+                break;
+              }
+
+              default: {
+                static HANDLER1(MatMulNaiveHandler) handler;
+                handler.handle(lhs, rhs, result);
+                break;
+              }
             }
           }
 
@@ -152,15 +189,24 @@ namespace CoolDiff {
             // Null pointer check
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
-              static HANDLER1(MatScalarMulCUDAHandler) handler;
-              handler.handle(lhs, rhs, result);
-            } else if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
-              static HANDLER1(MatScalarMulEigenHandler) handler;
-              handler.handle(lhs, rhs, result);
-            } else {
-              static HANDLER1(MatScalarMulNaiveHandler) handler;
-              handler.handle(lhs, rhs, result);
+            switch(CoolDiff::GlobalParameters::getHandler()) {
+              case CoolDiff::GlobalParameters::HandlerType::CUDA: {
+                static HANDLER1(MatScalarMulCUDAHandler) handler;
+                handler.handle(lhs, rhs, result);
+                break;
+              }
+
+              case CoolDiff::GlobalParameters::HandlerType::EIGEN: {
+                static HANDLER1(MatScalarMulEigenHandler) handler;
+                handler.handle(lhs, rhs, result);
+                break;
+              }
+
+              default: {
+                static HANDLER1(MatScalarMulNaiveHandler) handler;
+                handler.handle(lhs, rhs, result);
+                break;
+              }
             }
           }
 
@@ -170,15 +216,24 @@ namespace CoolDiff {
             NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
-              static HANDLER1(MatKronCUDAHandler) handler;
-              handler.handle(lhs, rhs, result);
-            } else if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
-              static HANDLER1(MatKronEigenHandler) handler;
-              handler.handle(lhs, rhs, result);
-            } else {
-              static HANDLER1(MatKronNaiveHandler) handler;
-              handler.handle(lhs, rhs, result);
+            switch(CoolDiff::GlobalParameters::getHandler()) {
+              case CoolDiff::GlobalParameters::HandlerType::CUDA: {
+                static HANDLER1(MatKronCUDAHandler) handler;
+                handler.handle(lhs, rhs, result);
+                break;
+              }
+
+              case CoolDiff::GlobalParameters::HandlerType::EIGEN: {
+                static HANDLER1(MatKronEigenHandler) handler;
+                handler.handle(lhs, rhs, result);
+                break;
+              }
+
+              default: {
+                static HANDLER1(MatKronNaiveHandler) handler;
+                handler.handle(lhs, rhs, result);
+                break;
+              }
             }
           }
 
@@ -188,15 +243,24 @@ namespace CoolDiff {
             NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-            if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
-              static HANDLER1(MatHadamardCUDAHandler) handler;
-              handler.handle(lhs, rhs, result);
-            } else if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
-              static HANDLER1(MatHadamardEigenHandler) handler;
-              handler.handle(lhs, rhs, result);
-            } else {
-              static HANDLER1(MatHadamardNaiveHandler) handler;
-              handler.handle(lhs, rhs, result);
+            switch(CoolDiff::GlobalParameters::getHandler()) {
+              case CoolDiff::GlobalParameters::HandlerType::CUDA: {
+                static HANDLER1(MatHadamardCUDAHandler) handler;
+                handler.handle(lhs, rhs, result);
+                break;
+              }
+
+              case CoolDiff::GlobalParameters::HandlerType::EIGEN: {
+                static HANDLER1(MatHadamardEigenHandler) handler;
+                handler.handle(lhs, rhs, result);
+                break;
+              }
+
+              default: {
+                static HANDLER1(MatHadamardNaiveHandler) handler;
+                handler.handle(lhs, rhs, result);
+                break;
+              }
             }
           }
 
@@ -205,15 +269,24 @@ namespace CoolDiff {
             // Null pointer check
             NULL_CHECK(mat, "Matrix (mat) is a nullptr");
 
-            if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
-              static HANDLER1(MatTransposeCUDAHandler) handler;
-               handler.handle(mat, result);
-            } else if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
-              static HANDLER1(MatTransposeEigenHandler) handler;
-               handler.handle(mat, result);
-            } else {
-              static HANDLER1(MatTransposeNaiveHandler) handler;
-               handler.handle(mat, result);
+            switch(CoolDiff::GlobalParameters::getHandler()) {
+              case CoolDiff::GlobalParameters::HandlerType::CUDA: {
+                static HANDLER1(MatTransposeCUDAHandler) handler;
+                handler.handle(mat, result);
+                break;
+              }
+
+              case CoolDiff::GlobalParameters::HandlerType::EIGEN: {
+                static HANDLER1(MatTransposeEigenHandler) handler;
+                handler.handle(mat, result);
+                break;
+              }
+
+              default: {
+                static HANDLER1(MatTransposeNaiveHandler) handler;
+                handler.handle(mat, result);
+                break;
+              }
             }
           }
 
@@ -260,28 +333,43 @@ namespace CoolDiff {
             NULL_CHECK(mat, "Matrix mat is a nullptr");
 
             // TODO - CUDA
-            if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
-               static HANDLER1(MatTraceEigenHandler) handler;
-               handler.handle(mat, result);
-            } else {
-               static HANDLER1(MatTraceNaiveHandler) handler;
-               handler.handle(mat, result);
+            switch(CoolDiff::GlobalParameters::getHandler()) {
+              case CoolDiff::GlobalParameters::HandlerType::EIGEN: {
+                static HANDLER1(MatTraceEigenHandler) handler;
+                handler.handle(mat, result);
+                break;
+              }
+
+              default: {
+                static HANDLER1(MatTraceNaiveHandler) handler;
+                handler.handle(mat, result);
+                break;
+              }
             }
           }
 
           // Matrix unary
-          void MatrixUnary(const Matrix<Type>* mat, const FunctionType1& func, Matrix<Type>*& result) {
+          void MatrixUnary(const Matrix<Type>* mat, const FunctionType& func, Matrix<Type>*& result) {
             NULL_CHECK(mat, "Matrix mat is a nullptr");
 
-            if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
-               static HANDLER1(MatUnaryCUDAHandler) handler;
-               handler.handle(mat, func, result);
-            } else if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
-               static HANDLER1(MatUnaryEigenHandler) handler;
-               handler.handle(mat, func, result);
-            } else {
-               static HANDLER1(MatUnaryNaiveHandler) handler;
-               handler.handle(mat, func, result);
+            switch(CoolDiff::GlobalParameters::getHandler()) {
+              case CoolDiff::GlobalParameters::HandlerType::CUDA: {
+                static HANDLER1(MatUnaryCUDAHandler) handler;
+                handler.handle(mat, func, result);
+                break;
+              }
+
+              case CoolDiff::GlobalParameters::HandlerType::EIGEN: {
+                static HANDLER1(MatUnaryEigenHandler) handler;
+                handler.handle(mat, func, result);
+                break;
+              }
+
+              default: {
+                static HANDLER1(MatUnaryNaiveHandler) handler;
+                handler.handle(mat, func, result);
+                break;
+              }
             }
           }
 
@@ -293,13 +381,19 @@ namespace CoolDiff {
             NULL_CHECK(lhs, "LHS Matrix (lhs) is a nullptr");
             NULL_CHECK(rhs, "RHS Matrix (rhs) is a nullptr");
 
-             // Todo - CUDA
-            if(CoolDiff::GlobalParameters::HandlerType::EIGEN == CoolDiff::GlobalParameters::getHandler()) {
-               static HANDLER1(MatConvEigenHandler) handler;
-               handler.handle(stride_x, stride_y, pad_x, pad_y, lhs, rhs, result);
-            } else {
-               static HANDLER1(MatConvNaiveHandler) handler;
-               handler.handle(stride_x, stride_y, pad_x, pad_y, lhs, rhs, result);
+            // TODO - CUDA
+            switch(CoolDiff::GlobalParameters::getHandler()) {
+              case CoolDiff::GlobalParameters::HandlerType::EIGEN: {
+                static HANDLER1(MatConvEigenHandler) handler;
+                handler.handle(stride_x, stride_y, pad_x, pad_y, lhs, rhs, result);
+                break;
+              }
+
+              default: {
+                static HANDLER1(MatConvNaiveHandler) handler;
+                handler.handle(stride_x, stride_y, pad_x, pad_y, lhs, rhs, result);
+                break;
+              }
             }
           }
 

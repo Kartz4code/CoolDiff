@@ -35,20 +35,23 @@ using NormalDistribution = std::normal_distribution<T>;
 namespace CoolDiff {
   class GlobalParameters {
       public:
+          // Backend handlers
           enum class HandlerType {
               EIGEN, CUDA
           };
 
       private:
+          // Handler 
           inline static HandlerType m_ht{HandlerType::EIGEN};
 
       public:
+          // Getters and setters
           static void setHandler(HandlerType);
           static HandlerType getHandler();
   };
 }
 
-// TODO - Define this as an element of global group
+// TODO - Define this as an element of build system in CMake
 #define ENABLE_CUDA_HANDLER
 
 // Derivative of matrices (Reverse AD)

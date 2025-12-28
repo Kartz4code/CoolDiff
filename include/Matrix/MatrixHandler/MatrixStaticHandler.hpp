@@ -43,7 +43,7 @@ class MatrixStaticHandler {
       ASSERT(false, "Invalid Handler - Entered base case");
     }
 
-    void handle(const Matrix<Type>*, const FunctionType1&, Matrix<Type>*&) {
+    void handle(const Matrix<Type>*, const FunctionType&, Matrix<Type>*&) {
       ASSERT(false, "Invalid Handler - Entered base case");
     }
 

@@ -29,7 +29,7 @@
 
 // Function pointer of unary functions
 template<typename T>
-using FunctionType = T(*)(T);
+using FunctionTypeCuda = T(*)(T);
 
 // Sin function
 template<typename T>
@@ -167,7 +167,7 @@ enum DEVICE_FUNCTIONS {
 
 // List of all device functions
 template<typename T>
-__device__ FunctionType<T> device_functions[DEVICE_FUNCTIONS::COUNT];
+__device__ FunctionTypeCuda<T> device_functions[DEVICE_FUNCTIONS::COUNT];
 
 // Device function intialization
 template<typename T>
@@ -187,15 +187,15 @@ __global__ void DeviceFunctionsInit() {
 
 // Map of all device functions and its enum
 template<typename T>
-std::unordered_map<FunctionType<T>, int> device_functions_map{  /* <-- Function -->             <-- Derivative-->           */
-                                                                {Sin<T>, SIN},                  {DSin<T>, DSIN}, 
-                                                                {Cos<T>, COS},                  {DCos<T>, DCOS}, 
-                                                                {Exp<T>, EXP},
-                                                                {Log<T>, LOG},                  {DLog<T>, DLOG},
-                                                                {Sqrt<T>, SQRT},                {DSqrt<T>, DSQRT},
-                                                                {Tanh<T>, TANH},                {DTanh<T>, DTANH},
-                                                                {Sigmoid<T>, SIGMOID},          {DSigmoid<T>, DSIGMOID},
-                                                                {ReLU<T>, RELU},                {DReLU<T>, DRELU},
-                                                                {LeakyReLU<T>, LEAKYRELU},      {DLeakyReLU<T>, DLEAKYRELU},
-                                                                {Abs<T>, ABS},                  {DAbs<T>, DABS}
+std::unordered_map<FunctionTypeCuda<T>, int> device_functions_map{  /* <-- Function -->             <-- Derivative-->           */
+                                                                    {Sin<T>, SIN},                  {DSin<T>, DSIN}, 
+                                                                    {Cos<T>, COS},                  {DCos<T>, DCOS}, 
+                                                                    {Exp<T>, EXP},
+                                                                    {Log<T>, LOG},                  {DLog<T>, DLOG},
+                                                                    {Sqrt<T>, SQRT},                {DSqrt<T>, DSQRT},
+                                                                    {Tanh<T>, TANH},                {DTanh<T>, DTANH},
+                                                                    {Sigmoid<T>, SIGMOID},          {DSigmoid<T>, DSIGMOID},
+                                                                    {ReLU<T>, RELU},                {DReLU<T>, DRELU},
+                                                                    {LeakyReLU<T>, LEAKYRELU},      {DLeakyReLU<T>, DLEAKYRELU},
+                                                                    {Abs<T>, ABS},                  {DAbs<T>, DABS}
                                                             };
