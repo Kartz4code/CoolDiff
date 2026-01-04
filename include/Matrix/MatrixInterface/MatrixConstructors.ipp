@@ -1,7 +1,7 @@
 /**
  * @file include/Matrix/MatrixInterface/MatrixConstructors.ipp
  *
- * @copyright 2023-2025 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2026 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -91,14 +91,14 @@ Matrix<T>::Matrix(const size_t rows, const size_t cols) : m_rows{rows},
     that the resource is deleted either through RAII or manual de-allocation
 */
 template<typename T>
-Matrix<T>::Matrix(const size_t rows, const size_t cols, T* cpu_ptr, T* gpu_ptr)  :  m_rows{rows}, 
-                                                                                    m_cols{cols},
-                                                                                    mp_result{nullptr}, 
-                                                                                    mp_dresult{nullptr},
-                                                                                    m_eval{false}, 
-                                                                                    m_devalf{false}, 
-                                                                                    m_dest{false},
-                                                                                    m_nidx{this->m_idx_count++} {
+Matrix<T>::Matrix(const size_t rows, const size_t cols, T* cpu_ptr)  :  m_rows{rows}, 
+                                                                        m_cols{cols},
+                                                                        mp_result{nullptr}, 
+                                                                        mp_dresult{nullptr},
+                                                                        m_eval{false}, 
+                                                                        m_devalf{false}, 
+                                                                        m_dest{false},
+                                                                        m_nidx{this->m_idx_count++} {
   // Assert for strictly non-negative values for rows and columns
   ASSERT((rows > 0) && (cols > 0), "Row/Column size is not strictly non-negative");  
   mp_mat = cpu_ptr;                                                                   

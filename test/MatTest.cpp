@@ -1,7 +1,7 @@
 /**
  * @file test/MatTest.cpp
  *
- * @copyright 2023-2025 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2026 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.

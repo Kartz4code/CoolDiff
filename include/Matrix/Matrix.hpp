@@ -1,7 +1,7 @@
 /**
  * @file include/Matrix/Matrix.hpp
  *
- * @copyright 2023-2025 Karthik Murali Madhavan Rathai
+ * @copyright 2023-2026 Karthik Murali Madhavan Rathai
  */
 /*
  * This file is part of CoolDiff library.
@@ -172,7 +172,7 @@ public:
   Matrix(const size_t, const size_t, const T&);
 
   // Constructor with pointer stealer
-  Matrix(const size_t, const size_t, T*, T* = nullptr);
+  Matrix(const size_t, const size_t, T*);
 
   // Matrix clone
   Matrix* clone(Matrix*&) const;
