@@ -49,7 +49,8 @@ void Matrix<T>::assignClone(const Matrix<T>* other) {
   mp_dresult = other->mp_dresult;
   m_nidx = other->m_nidx;
   m_cache = other->m_cache;
-  mp_mat = other->mp_mat;
+
+  setMatrixPtr(const_cast<T*>(other->getMatrixPtr()));
 
   // The temporary that is created for assignClone is non-destroyable. 
   // It just holds the pointer of other matrix
@@ -60,7 +61,6 @@ void Matrix<T>::assignClone(const Matrix<T>* other) {
 template<typename T>
 Matrix<T>::Matrix() : m_rows{1}, 
                       m_cols{1},
-                      mp_mat{new T[1]{}},
                       mp_result{nullptr}, 
                       mp_dresult{nullptr}, 
                       m_eval{false}, 
@@ -101,7 +101,7 @@ Matrix<T>::Matrix(const size_t rows, const size_t cols, T* cpu_ptr)  :  m_rows{r
                                                                         m_nidx{this->m_idx_count++} {
   // Assert for strictly non-negative values for rows and columns
   ASSERT((rows > 0) && (cols > 0), "Row/Column size is not strictly non-negative");  
-  mp_mat = cpu_ptr;                                                                   
+  setMatrixPtr(cpu_ptr);                                                                
 }
 
 // Matrix clone
@@ -124,7 +124,7 @@ constexpr const auto& Matrix<T>::cloneExp() const {
 // Constructor with rows and columns with initial values
 template<typename T>
 Matrix<T>::Matrix(const size_t rows, const size_t cols, const T& val) : Matrix(rows, cols) {
-  std::fill(EXECUTION_PAR mp_mat, mp_mat + getNumElem(), val);
+  std::fill(EXECUTION_PAR getMatrixPtr(), getMatrixPtr() + getNumElem(), val);
 }
 
 // Copy constructor
@@ -138,11 +138,11 @@ Matrix<T>::Matrix(const Matrix& m) :  m_rows{m.m_rows},
                                       m_nidx{m.m_nidx} {
   // If T is an Expression type
   if constexpr(false == std::is_same_v<T,Expression>) {
-    if(nullptr != m.mp_mat) {
+    if(nullptr != m.getMatrixPtr()) {
       // Allocate CPU/GPU memory
       allocator();
       // Copy CPU data from argument to current matrix CPU data
-      std::copy(EXECUTION_PAR m.mp_mat, m.mp_mat + getNumElem(), mp_mat);
+      std::copy(EXECUTION_PAR m.getMatrixPtr(), m.getMatrixPtr() + getNumElem(), getMatrixPtr());
     }
   } else {
       // Pushback the expression in a generic holder

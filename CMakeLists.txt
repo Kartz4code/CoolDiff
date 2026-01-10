@@ -24,11 +24,12 @@
 # [CMake version]
 cmake_minimum_required(VERSION 3.22)
 
-# [Tested for GCC-12 version]
+# [Tested for gcc-12 version]
 if(NOT DEFINED CMAKE_C_COMPILER)
   set(CMAKE_C_COMPILER gcc-12 CACHE STRING "C compiler" FORCE)
 endif()
 
+# [Tested for g++-12 version]
 if(NOT DEFINED CMAKE_CXX_COMPILER)
   set(CMAKE_CXX_COMPILER g++-12 CACHE STRING "C++ compiler" FORCE)
 endif()
@@ -36,7 +37,7 @@ endif()
 # [Project name and description]
 project(CoolDiff VERSION 1.0.1.0
                  DESCRIPTION "CoolDiff - A Symbolic/Automatic differentiation C++ tool"
-                 LANGUAGES C CXX CUDA)
+                 LANGUAGES C CXX)
 
 ########################################################################################################################
 ########################################################################################################################
@@ -46,10 +47,8 @@ project(CoolDiff VERSION 1.0.1.0
 ########################################################################################################################
 ######################################################################################################################## 
 
-# Enable language CUDA
-enable_language(CUDA)
-
-# Custom flags
+# [CMake custom flags]
+# Project build type
 set(CMAKE_BUILD_TYPE Release)
 
 # Set C++ standard
@@ -79,21 +78,40 @@ include(Tools)
 ########################################################################################################################
 ######################################################################################################################## 
 
-# TODO - Enable shared library build 
-option(BUILD_UNITTESTS "Building unit test executables" ON) # Default - ON
-option(BUILD_EXAMPLES "Building example executables" ON) # Default - ON
+# Build examples or test cases (mutually exclusive) 
+option(ENABLE_EXAMPLE_BUILD "Enable example build" TRUE)
+option(ENABLE_TEST_BUILD "Enable test build" FALSE)
+
+if(${ENABLE_EXAMPLE_BUILD}) 
+    option(BUILD_UNITTESTS "Building unit test executables" OFF) # Default - ON
+    option(BUILD_EXAMPLES "Building example executables" ON) # Default - ON
+    option(ENABLE_COMPLEX_MATH "Enable complex numbers for numerics" OFF) # Default - OFF
+    set(DEFAULT_MATH_TYPE 1 CACHE STRING "Value that defined the default math type: Float  - 1, Double - 2") # Default - 1
+elseif(${ENABLE_TEST_BUILD})
+    option(BUILD_UNITTESTS "Building unit test executables" ON) # Default - ON
+    option(BUILD_EXAMPLES "Building example executables" OFF) # Default - OFF
+    option(ENABLE_COMPLEX_MATH "Enable complex numbers for numerics" ON) # Default - ON
+    set(DEFAULT_MATH_TYPE 2 CACHE STRING "Value that defined the default math type: Float  - 1, Double - 2") # Default - 2
+endif()
+
+# Other build options
 option(ENABLE_CLANG_TIDY "Enable clang-tidy static linter" OFF) # Default - OFF
 option(ENABLE_CMAKE_FORMAT "Enable cmake formatter" OFF) # Default - OFF
 option(ENABLE_CLANG_FORMAT "Enable clang format" OFF) # Default - OFF
 option(ENABLE_COMPILER_WARNINGS "Enable compiler warnings" OFF) # Default - OFF
-option(ENABLE_COMPLEX_MATH "Enable complex numbers for numerics" OFF) # Default - ON
-option(ENABLE_ROBIN_HOOD_MAP "Enable robin hood hashmaps" ON) # Default - ON
-# TODO - Implementation of manual dynamic dispatch for performance
 option(ENABLE_VIRTUAL_FUNCTIONS "Enable virtual functions" ON) # Default - ON
 option(ENABLE_DYNAMIC_ASSERTIONS "Enable dynamic assertions" ON) # Default - OFF
 option(ENABLE_STL_PARALLEL_EXECUTION "Enable STL libraries parallel execution feature" OFF) # Default - OFF
-option(ENABLE_ADDRESS_SANITIZER "Enable address sanitizer" OFF) # Default - ON
-set(DEFAULT_MATH_TYPE 1 CACHE STRING "Value that defined the default math type: Float  - 1, Double - 2") # Default - 2 for test cases
+
+# Enable robin hood hashmaps
+option(ENABLE_ROBIN_HOOD_MAP "Enable robin hood hashmaps" ON) # Default - ON
+# Enable CUDA support
+option(ENABLE_CUDA_SUPPORT "Enable CUDA support" ON)
+
+# Enable address sanitizer (Contigent upon CUDA)
+if(NOT ${ENABLE_CUDA_SUPPORT})
+    option(ENABLE_ADDRESS_SANITIZER "Enable address sanitizer" ON) # Default - ON
+endif()
 
 
 ########################################################################################################################
@@ -113,6 +131,7 @@ if(${ENABLE_ROBIN_HOOD_MAP})
         message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Robin hood installed version ${robin_hood_VERSION}")
     endif()
 
+    # If robin hood not found in the system, fetch it and install locally
     if(NOT robin_hood_FOUND)
         FetchContent_Declare(
             robin-hood-hashing
@@ -137,6 +156,7 @@ if(DEFINED Eigen3_FOUND AND DEFINED Eigen3_VERSION)
     message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Eigen installed version ${Eigen3_VERSION}")
 endif()
 if(NOT Eigen3_FOUND OR Eigen3_VERSION VERSION_LESS "3.4")
+    # If Eigen not found in the system, fetch it and install locally
     FetchContent_Declare(
         Eigen
         GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
@@ -159,6 +179,7 @@ if(DEFINED GTest_FOUND AND DEFINED GTest_VERSION)
     message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Gtest installed version ${GTest_VERSION}")
 endif()
 if(NOT GTest_FOUND OR GTest_VERSION VERSION_LESS "1.15")
+    # If Gtest not found in the system, fetch it and install locally
     FetchContent_Declare(
         googletest
         GIT_REPOSITORY https://github.com/google/googletest.git
@@ -175,11 +196,18 @@ else()
     message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] Gtest library found in system")
 endif()
 
-# Enable Threads package
+# Enable Threads package (Multithreading)
 find_package(Threads REQUIRED)
 
-# Enable CUDA package
-find_package(CUDA REQUIRED)
+# Find and enable CUDA package
+find_package(CUDA QUIET)
+if(DEFINED CUDA_FOUND AND DEFINED CUDA_VERSION)
+    # Enable language CUDA
+    enable_language(CUDA)
+    message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] CUDA installed version ${CUDA_VERSION}")
+else()
+    message("[${CMAKE_BUILD_TYPE}][${PROJECT_NAME}] CUDA not installed. Reverting to CPU Implementation")
+endif()
 
 # CMake modules path
 list(APPEND CMAKE_MODULE_PATH ${gtest_SOURCE_DIR}/cmake)
@@ -192,6 +220,7 @@ list(APPEND CMAKE_MODULE_PATH ${gtest_SOURCE_DIR}/cmake)
 ########################################################################################################################
 ########################################################################################################################
 
+# Set all CUDA sources files to the variable CUDA_SRC
 set(CUDA_SRC # Matrix folder *.cu files 
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary/CUDA/src/MatUnaryCUDAHandler.cu
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/CUDA/src/MatMulCUDAHandler.cu
@@ -203,6 +232,7 @@ set(CUDA_SRC # Matrix folder *.cu files
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/CUDA/src/MatHadamardCUDAHandler.cu        
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose/CUDA/src/MatTransposeCUDAHandler.cu)
 
+# Set all CPP source files to the variable SRC
 set(SRC # Scalar folder *.cpp files
         ${CMAKE_SOURCE_DIR}/src/CommonHeader.cpp
         ${CMAKE_SOURCE_DIR}/src/Scalar/VarWrap.cpp
@@ -218,7 +248,10 @@ set(SRC # Scalar folder *.cpp files
         ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixBasics.cpp
         ${CMAKE_SOURCE_DIR}/src/Matrix/Matrix.cpp)
 
-list(APPEND SRC ${CUDA_SRC})
+# Include CUDA source files
+if(${ENABLE_CUDA_SUPPORT} AND ${CUDA_FOUND})
+    list(APPEND SRC ${CUDA_SRC})
+endif()
 
 ########################################################################################################################
 ########################################################################################################################
@@ -228,6 +261,7 @@ list(APPEND SRC ${CUDA_SRC})
 ########################################################################################################################
 ########################################################################################################################
 
+# Set all CUDA header files to the variable CUDA_PRIVATE_INCLUDES
 set(CUDA_PRIVATE_INCLUDES #CUDA handlers
                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/CUDA/include
                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/CUDA/include
@@ -237,6 +271,7 @@ set(CUDA_PRIVATE_INCLUDES #CUDA handlers
                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose/CUDA/include
                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary/CUDA/include)
 
+# Set all Eigen header files to the variable EIGEN_PRIVATE_INCLUDES
 set(EIGEN_PRIVATE_INCLUDES #Eigen handlers
                            ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/Eigen
                            ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/Eigen
@@ -251,6 +286,7 @@ set(EIGEN_PRIVATE_INCLUDES #Eigen handlers
                            ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixInverse/Eigen
                            ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvolution/Eigen)
 
+# Set all Naive header files to the variable NAIVE_PRIVATE_INCLUDES
 set(NAIVE_PRIVATE_INCLUDES # Naive handlers
                            ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/NaiveCPU
                            ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/NaiveCPU
@@ -261,10 +297,16 @@ set(NAIVE_PRIVATE_INCLUDES # Naive handlers
                            ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTrace/NaiveCPU           
                            ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixConvolution/NaiveCPU)
 
-list(APPEND PRIVATE_INCLUDES ${CUDA_PRIVATE_INCLUDES} 
-                             ${EIGEN_PRIVATE_INCLUDES} 
+# Append to the variable list PRIVATE_INCLUDES
+list(APPEND PRIVATE_INCLUDES ${EIGEN_PRIVATE_INCLUDES} 
                              ${NAIVE_PRIVATE_INCLUDES})
 
+# Include CUDA header files to the variable list PRIVATE_INCLUDES
+if(${ENABLE_CUDA_SUPPORT} AND ${CUDA_FOUND})
+    list(APPEND PRIVATE_INCLUDES ${CUDA_PRIVATE_INCLUDES})
+endif()
+
+# Include public header files to the variable list PUBLIC_INCLUDES
 set(PUBLIC_INCLUDES #General include (CommonHeader.hpp, CoolDiff.hpp)
                     ${CMAKE_SOURCE_DIR}/include
 
@@ -285,7 +327,10 @@ set(PUBLIC_INCLUDES #General include (CommonHeader.hpp, CoolDiff.hpp)
                     ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler
 
                     # Memory manager
-                    ${CMAKE_SOURCE_DIR}/include/MemoryManager)
+                    ${CMAKE_SOURCE_DIR}/include/MemoryManager
+                    
+                    # Memory strategy(TODO)
+                    )
 
 ########################################################################################################################
 ########################################################################################################################
@@ -299,7 +344,14 @@ set(PUBLIC_INCLUDES #General include (CommonHeader.hpp, CoolDiff.hpp)
 add_library(${PROJECT_NAME})
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
-set(LIBRARY_LIST Threads::Threads Eigen3::Eigen ${CUDA_LIBRARIES})
+set(LIBRARY_LIST Threads::Threads Eigen3::Eigen)
+
+# Include CUDA libraries
+if(${ENABLE_CUDA_SUPPORT} AND ${CUDA_FOUND})
+    list(APPEND LIBRARY_LIST ${CUDA_LIBRARIES})
+endif()
+
+# Include robin hood hashmap library
 if(${ENABLE_ROBIN_HOOD_MAP})
     list(APPEND LIBRARY_LIST robin_hood::robin_hood)
 endif()
@@ -319,6 +371,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBRARY_LIST})
 
 # [Target compile options]
 target_compile_options(${PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--default-stream per-thread -O3 -use_fast_math>)
+
 
 # Attach address sanitizer
 if(${ENABLE_ADDRESS_SANITIZER})
@@ -367,6 +420,10 @@ endif()
 if(${ENABLE_STL_PARALLEL_EXECUTION})
     target_compile_definitions(${PROJECT_NAME} PUBLIC USE_CXX_PARALLEL_POLICY)
 endif() 
+
+if(${ENABLE_CUDA_SUPPORT} AND ${CUDA_FOUND})
+    target_compile_definitions(${PROJECT_NAME} PUBLIC USE_CUDA_BACKEND)
+endif()
 
 ########################################################################################################################
 ########################################################################################################################

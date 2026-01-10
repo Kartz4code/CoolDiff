@@ -28,7 +28,7 @@ template<typename T>
 Matrix<Type>* Matrix<T>::eval() {
     // Cache the mp_result value
     if constexpr (false == std::is_same_v<T, Type>) {
-        if (nullptr != mp_mat) {
+        if (nullptr != getMatrixPtr()) {
             MemoryManager::MatrixPool(mp_result, m_rows, m_cols);
         }
     } else {
@@ -68,7 +68,7 @@ Matrix<Type>* Matrix<T>::devalF(Matrix<Variable>& X) {
     if constexpr (true == std::is_same_v<T, Type> || true == std::is_same_v<T, Parameter>) {
         MemoryManager::MatrixPool(mp_dresult, (m_rows * xrows), (m_cols * xcols));
     } else {
-        if (nullptr != mp_mat) {
+        if (nullptr != getMatrixPtr()) {
             MemoryManager::MatrixPool(mp_dresult, (m_rows * xrows), (m_cols * xcols));
         }
     }

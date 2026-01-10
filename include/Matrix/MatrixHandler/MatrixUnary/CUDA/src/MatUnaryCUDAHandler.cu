@@ -20,7 +20,7 @@
  */
 
 #include "MatUnaryCUDAHandler.cuh"
-#include "UnaryFunctions.cuh"
+#include "UnaryFunctions.hpp"
 
 // First time initalization
 static bool g_init{false};

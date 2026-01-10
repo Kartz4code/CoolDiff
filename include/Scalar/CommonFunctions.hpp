@@ -52,7 +52,7 @@
 #include "GenericTanh.hpp"
 #include "GenericScalarUnary.hpp"
 
-#include "UnaryFunctions.cuh"
+#include "UnaryFunctions.hpp"
 
 /* Custom functions (Unary operations) */
 // Sin scalar 

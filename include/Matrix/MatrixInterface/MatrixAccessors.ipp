@@ -23,52 +23,60 @@
 
 #include "Matrix.hpp"
 
-#if defined(ENABLE_CUDA_HANDLER)
-  #include <cuda_runtime.h>
-#endif
-
 // Matrix internal allocator
 template<typename T>
 void Matrix<T>::allocator() {
   const size_t size = getNumElem();
 
-  if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
-    // Allocate/deallocate memory in GPU only for data intensitve operations (Pinned memory)
-    if constexpr(true == std::is_same_v<T, Type>) {
-      cudaMallocHost((void**)&mp_mat, (size * sizeof(T)));
-      ASSERT((nullptr != mp_mat), "Local GPU allocation failed");
-    } else {
-      mp_mat = new T[getNumElem()]{};
-      ASSERT((nullptr != mp_mat), "Local CPU allocation failed");
-    }
-  } else {
-    mp_mat = new T[getNumElem()]{};
-    ASSERT((nullptr != mp_mat), "Local CPU allocation failed");
+  switch(CoolDiff::GlobalParameters::getHandler()) {
+    #if defined(USE_CUDA_BACKEND)
+      case CoolDiff::GlobalParameters::HandlerType::CUDA: {
+        if constexpr(true == std::is_same_v<T, Type>) {
+          cudaMallocHost((void**)&mp_mat, (size * sizeof(T)));
+          ASSERT((nullptr != mp_mat), "Local GPU allocation failed");
+        } else {
+          mp_mat = new T[getNumElem()]{};
+          ASSERT((nullptr != mp_mat), "Local CPU allocation failed");
+        }
+        break;
+      }
+    #endif
+      default: {
+        mp_mat = new T[getNumElem()]{};
+        ASSERT((nullptr != mp_mat), "Local CPU allocation failed");
+        break;
+      }
   }
 }
 
 // Matrix internal deallocator
 template<typename T>
 void Matrix<T>::deallocator() noexcept {
-  if(CoolDiff::GlobalParameters::HandlerType::CUDA == CoolDiff::GlobalParameters::getHandler()) {
-    // Allocate/deallocate memory in GPU only for data intensitve operations (Pinned memory) 
-    if constexpr(true == std::is_same_v<T, Type>) {
-      if (nullptr != mp_mat) {
-          // Deallocate memory on GPU
-          cudaFreeHost(mp_mat);
-          mp_mat = nullptr;
+  switch(CoolDiff::GlobalParameters::getHandler()) {
+    #if defined(USE_CUDA_BACKEND)
+      case CoolDiff::GlobalParameters::HandlerType::CUDA: {
+        if constexpr(true == std::is_same_v<T, Type>) {
+          if (nullptr != mp_mat) {
+              // Deallocate memory on GPU
+              cudaFreeHost(mp_mat);
+              mp_mat = nullptr;
+          }
+        } else {
+          if (nullptr != mp_mat) {
+              delete[] mp_mat;
+              mp_mat = nullptr;
+          }
+        }
+        break;
       }
-    } else {
-      if (nullptr != mp_mat) {
-          delete[] mp_mat;
-          mp_mat = nullptr;
+    #endif
+      default: {
+        if (nullptr != mp_mat) {
+            delete[] mp_mat;
+            mp_mat = nullptr;
+        }
+        break;
       }
-    }
-  } else { 
-    if (nullptr != mp_mat) {
-        delete[] mp_mat;
-        mp_mat = nullptr;
-    }
   }
 }
 
@@ -102,21 +110,21 @@ T* Matrix<T>::getMatrixPtr() {
 template<typename T>
 T* Matrix<T>::getRowPtr(const size_t i) const {
   ASSERT((i >= 0 && i < m_rows), "Row index out of bound");
-  return (mp_mat + (i * m_cols));
+  return (const_cast<T*>(getMatrixPtr()) + (i * m_cols));
 }
 
 // Copy data from another matrix (Just copy all contents from one matrix to another)
 template<typename T>
 void Matrix<T>::copyData(const Matrix<T>& M) {
   ASSERT((m_rows*m_cols == M.m_rows*M.m_cols), "Matrix dimensions mismatch");
-  std::copy(EXECUTION_PAR M.mp_mat, M.mp_mat + getNumElem(), mp_mat);
+  std::copy(EXECUTION_PAR M.getMatrixPtr(), M.getMatrixPtr() + getNumElem(), getMatrixPtr());
 }
 
 // Copy data from a pointer
 template<typename T>
 void Matrix<T>::copyData(T* ptr) {
   ASSERT(nullptr != ptr, "The data pointer is a nullptr");
-  std::copy(EXECUTION_PAR ptr, ptr + getNumElem(), mp_mat);
+  std::copy(EXECUTION_PAR ptr, ptr + getNumElem(), getMatrixPtr());
 }
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------- 
@@ -131,7 +139,7 @@ template<typename T>
 const T& Matrix<T>::operator()(const size_t i, const size_t j) const {
   ASSERT((i >= 0 && i < m_rows), "Row index out of bound");
   ASSERT((j >= 0 && j < m_cols), "Column index out of bound");
-  return mp_mat[i * m_cols + j];
+  return getMatrixPtr()[i * m_cols + j];
 }
 
 // Matrix 2D access using operator()() mutable
@@ -139,21 +147,21 @@ template<typename T>
 T& Matrix<T>::operator()(const size_t i, const size_t j) {
   ASSERT((i >= 0 && i < m_rows), "Row index out of bound");
   ASSERT((j >= 0 && j < m_cols), "Column index out of bound");
-  return mp_mat[i * m_cols + j];
+  return getMatrixPtr()[i * m_cols + j];
 }
 
 // Matrix 1D access using operator[] immutable
 template<typename T>
 const T& Matrix<T>::operator[](const size_t l) const {
   ASSERT((l >= 0 && l < getNumElem()), "Index out of bound");
-  return mp_mat[l];
+  return getMatrixPtr()[l];
 }
 
 // Matrix 1D access using operator[] mutable
 template<typename T>
 T& Matrix<T>::operator[](const size_t l) {
   ASSERT((l >= 0 && l < getNumElem()), "Index out of bound");
-  return mp_mat[l];
+  return getMatrixPtr()[l];
 }
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------- 
@@ -168,7 +176,7 @@ template<typename T>
 Matrix<T> Matrix<T>::getRow(const size_t i) && {
   ASSERT((i >= 0 && i < m_rows), "Row index out of bound");
   Matrix tmp(m_cols, 1);
-  std::copy(EXECUTION_PAR mp_mat + (i * m_cols), mp_mat + ((i + 1) * m_cols), tmp.getMatrixPtr());
+  std::copy(EXECUTION_PAR getMatrixPtr() + (i * m_cols), getMatrixPtr() + ((i + 1) * m_cols), tmp.getMatrixPtr());
   return std::move(tmp);
 }
 
@@ -177,7 +185,7 @@ template<typename T>
 Matrix<T> Matrix<T>::getRow(const size_t i) const & {
   ASSERT((i >= 0 && i < m_rows), "Row index out of bound");
   Matrix tmp(m_cols, 1);
-  std::copy(EXECUTION_PAR mp_mat + (i * m_cols), mp_mat + ((i + 1) * m_cols), tmp.getMatrixPtr());
+  std::copy(EXECUTION_PAR getMatrixPtr() + (i * m_cols), getMatrixPtr() + ((i + 1) * m_cols), tmp.getMatrixPtr());
   return tmp;
 }
 
@@ -194,7 +202,7 @@ Matrix<T> Matrix<T>::getColumn(const size_t i) && {
                   [this, &tmp](const size_t n) {
                   const size_t j = (n % m_cols);
                   const size_t i = (n - j) / m_cols;
-                  tmp.mp_mat[j] = mp_mat[j * m_rows + i];
+                  tmp.getMatrixPtr()[j] = getMatrixPtr()[j * m_rows + i];
                   });
 
   return std::move(tmp);
@@ -213,7 +221,7 @@ Matrix<T> Matrix<T>::getColumn(const size_t i) const & {
                   [this, &tmp](const size_t n) {
                   const size_t j = (n % m_cols);
                   const size_t i = (n - j) / m_cols;
-                  tmp.mp_mat[j] = mp_mat[j * m_rows + i];
+                  tmp.getMatrixPtr()[j] = getMatrixPtr()[j * m_rows + i];
                   });
 
   return tmp;

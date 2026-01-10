@@ -25,6 +25,10 @@
 #include "IMatrix.hpp"
 #include "MatrixBasics.hpp"
 
+#if defined(USE_CUDA_BACKEND)
+  #include <cuda_runtime.h>
+#endif
+
 // Random Distributions
 template<typename T>
 using UniformDistribution = std::uniform_real_distribution<T>;
@@ -48,11 +52,19 @@ namespace CoolDiff {
           // Getters and setters
           static void setHandler(HandlerType);
           static HandlerType getHandler();
+       
+      #if defined(USE_CUDA_BACKEND)    
+        private:     
+            // Map of device and properties 
+            inline static UnOrderedMap<int, cudaDeviceProp> m_device_prop;
+            
+        public:
+            // Getters of GPU properties
+            static int getNumGPUDevices(); 
+            static cudaDeviceProp getDeviceProperties(int);
+      #endif
   };
 }
-
-// TODO - Define this as an element of build system in CMake
-#define ENABLE_CUDA_HANDLER
 
 // Derivative of matrices (Reverse AD)
 Matrix<Type>* DervMatrix(const size_t, const size_t, const size_t, const size_t);

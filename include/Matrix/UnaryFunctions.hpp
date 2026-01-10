@@ -1,5 +1,5 @@
 /**
- * @file include/Matrix/UnaryFunctions.cuh
+ * @file include/Matrix/UnaryFunctions.hpp
  *
  * @copyright 2023-2026 Karthik Murali Madhavan Rathai
  */
@@ -197,5 +197,4 @@ std::unordered_map<FunctionTypeCuda<T>, int> device_functions_map{  /* <-- Funct
                                                                     {Sigmoid<T>, SIGMOID},          {DSigmoid<T>, DSIGMOID},
                                                                     {ReLU<T>, RELU},                {DReLU<T>, DRELU},
                                                                     {LeakyReLU<T>, LEAKYRELU},      {DLeakyReLU<T>, DLEAKYRELU},
-                                                                    {Abs<T>, ABS},                  {DAbs<T>, DABS}
-                                                            };
+                                                                    {Abs<T>, ABS},                  {DAbs<T>, DABS}};

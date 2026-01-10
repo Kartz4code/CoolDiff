@@ -35,7 +35,7 @@
 
 #include "Matrix.hpp"
 #include "MatrixBasics.hpp"
-#include "UnaryFunctions.cuh"
+#include "UnaryFunctions.hpp"
 
 namespace CoolDiff {
   namespace Common {

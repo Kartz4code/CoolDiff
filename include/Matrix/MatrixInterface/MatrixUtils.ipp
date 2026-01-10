@@ -93,8 +93,8 @@ void Matrix<T>::pad(const size_t r, const size_t c, Matrix*& result) const {
 // Set values for the result matrix
 template<typename T>
 void Matrix<T>::setEval() {
-    if ((nullptr != mp_mat) && (nullptr != mp_result) && (nullptr != mp_result->mp_mat)) {
-        std::transform(EXECUTION_SEQ mp_mat, mp_mat + getNumElem(), mp_result->mp_mat, 
+    if ((nullptr != getMatrixPtr()) && (nullptr != mp_result) && (nullptr != mp_result->getMatrixPtr())) {
+        std::transform(EXECUTION_SEQ getMatrixPtr(), getMatrixPtr() + getNumElem(), mp_result->getMatrixPtr(), 
                         [this](auto& v) { return CoolDiff::TensorR1::Eval(v); });
     }
 }
@@ -104,9 +104,9 @@ template<typename T>
 void Matrix<T>::setDevalF(const Matrix<Variable>& X) {
     // If the matrix type is Expression
     if constexpr (true == std::is_same_v<T, Expression>) {
-        if ((nullptr != mp_mat) && (nullptr != mp_dresult) && (nullptr != mp_dresult->mp_mat)) {
+        if ((nullptr != getMatrixPtr()) && (nullptr != mp_dresult) && (nullptr != mp_dresult->getMatrixPtr())) {
             // Precompute the reverse derivatives
-            std::for_each(EXECUTION_SEQ mp_mat, mp_mat + getNumElem(), [](auto& i) { CoolDiff::TensorR1::PreComp(i); });
+            std::for_each(EXECUTION_SEQ getMatrixPtr(), getMatrixPtr() + getNumElem(), [](auto& i) { CoolDiff::TensorR1::PreComp(i); });
 
             // Get dimensions of X variable matrix
             const size_t xrows = X.getNumRows();
@@ -134,7 +134,7 @@ void Matrix<T>::setDevalF(const Matrix<Variable>& X) {
     // If the matrix type is Variable
     else if constexpr (true == std::is_same_v<T, Variable>) {
         // Last is the most important condition to delineate Matrix<Variable>'s
-        if ((nullptr != mp_mat) && (nullptr != mp_dresult) && (nullptr != mp_dresult->mp_mat) && (m_nidx == X.m_nidx)) {
+        if ((nullptr != getMatrixPtr()) && (nullptr != mp_dresult) && (nullptr != mp_dresult->getMatrixPtr()) && (m_nidx == X.m_nidx)) {
             // Get dimensions of X variable matrix
             const size_t xrows = X.getNumRows();
             const size_t xcols = X.getNumColumns();
@@ -151,7 +151,7 @@ void Matrix<T>::setDevalF(const Matrix<Variable>& X) {
             });
         }
         // If the Matrix is Variable, but of different form
-        else if ((nullptr != mp_mat) &&  (nullptr != mp_dresult) && (nullptr != mp_dresult->mp_mat)) {
+        else if ((nullptr != getMatrixPtr()) &&  (nullptr != mp_dresult) && (nullptr != mp_dresult->getMatrixPtr())) {
             // Get dimensions of X variable matrix
             const size_t xrows = X.getNumRows();
             const size_t xcols = X.getNumColumns();
