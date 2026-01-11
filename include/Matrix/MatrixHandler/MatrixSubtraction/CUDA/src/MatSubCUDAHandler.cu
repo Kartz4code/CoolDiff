@@ -21,6 +21,7 @@
 
 
 #include "MatSubCUDAHandler.cuh"
+#include "GlobalParameters.hpp"
 
 // Matrix-Matrix subtraction kernel
 template<typename T>

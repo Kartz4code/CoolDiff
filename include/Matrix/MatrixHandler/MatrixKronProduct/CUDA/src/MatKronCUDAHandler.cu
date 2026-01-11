@@ -21,6 +21,7 @@
 
 
 #include "MatKronCUDAHandler.cuh"
+#include "GlobalParameters.hpp"
 
 // Matrix-Matrix Hadamard product kernel
 template<typename T>

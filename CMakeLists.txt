@@ -246,7 +246,8 @@ set(SRC # Scalar folder *.cpp files
         ${CMAKE_SOURCE_DIR}/src/Matrix/MatOperators.cpp
         ${CMAKE_SOURCE_DIR}/src/Matrix/MetaMatrix.cpp
         ${CMAKE_SOURCE_DIR}/src/Matrix/MatrixBasics.cpp
-        ${CMAKE_SOURCE_DIR}/src/Matrix/Matrix.cpp)
+        ${CMAKE_SOURCE_DIR}/src/Matrix/Matrix.cpp
+        ${CMAKE_SOURCE_DIR}/src/Matrix/GlobalParameters.cpp)
 
 # Include CUDA source files
 if(${ENABLE_CUDA_SUPPORT} AND ${CUDA_FOUND})

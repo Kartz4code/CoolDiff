@@ -22,37 +22,6 @@
 #include "Matrix.hpp"
 #include "MemoryManager.hpp"
 
-// Set handler
-namespace CoolDiff {
-  void GlobalParameters::setHandler(HandlerType ht) {
-    m_ht = ht;
-  }
-
-  // Get handler
-  GlobalParameters::HandlerType GlobalParameters::getHandler() {
-    return m_ht;
-  }
-
-  #if defined(USE_CUDA_BACKEND) 
-    // Get number of GPU devices
-    int GlobalParameters::getNumGPUDevices() {
-      int ndevices{}; cudaGetDeviceCount(&ndevices);
-      return ndevices;
-    }
-
-    // Get device properties
-    cudaDeviceProp GlobalParameters::getDeviceProperties(int i) {
-      if(auto it = m_device_prop.find(i); it != m_device_prop.end()) {
-        return m_device_prop[i];
-      } else {
-        cudaDeviceProp cdp; cudaGetDeviceProperties(&cdp, i);
-        m_device_prop[i] = cdp; 
-        return cdp; 
-      }
-    }
-  #endif
-}
-
 Matrix<Type>* DervMatrix( const size_t frows, const size_t fcols,
                           const size_t xrows, const size_t xcols  ) {
   const size_t drows = frows * xrows;

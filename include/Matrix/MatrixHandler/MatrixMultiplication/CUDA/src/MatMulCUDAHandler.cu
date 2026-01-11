@@ -21,6 +21,7 @@
 
 
 #include "MatMulCUDAHandler.cuh"
+#include "GlobalParameters.hpp"
 
 template<typename T>
 __global__ void MatrixMul(const T* A, const T* B, T* C, const size_t M, const size_t K, const size_t N) {

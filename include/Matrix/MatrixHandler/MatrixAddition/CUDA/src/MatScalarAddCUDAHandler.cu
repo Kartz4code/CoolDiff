@@ -20,6 +20,8 @@
  */
 
 #include "MatScalarAddCUDAHandler.cuh"
+#include "GlobalParameters.hpp"
+
 
 // Scalar-Matrix addition kernel
 template<typename T>

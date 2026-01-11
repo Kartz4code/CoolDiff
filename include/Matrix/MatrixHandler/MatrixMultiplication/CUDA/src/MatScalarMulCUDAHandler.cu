@@ -20,6 +20,7 @@
  */
 
 #include "MatScalarMulCUDAHandler.cuh"
+#include "GlobalParameters.hpp"
 
 // Scalar-Matrix multiplication kernel
 template<typename T>

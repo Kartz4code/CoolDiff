@@ -21,6 +21,7 @@
 
 
 #include "MatAddCUDAHandler.cuh"
+#include "GlobalParameters.hpp"
 
 // Matrix-Matrix addition kernel
 template<typename T>

@@ -21,6 +21,7 @@
 
 #include "MatUnaryCUDAHandler.cuh"
 #include "UnaryFunctions.hpp"
+#include "GlobalParameters.hpp"
 
 // First time initalization
 static bool g_init{false};

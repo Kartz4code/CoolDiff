@@ -20,6 +20,7 @@
  */
 
 #include "MatTransposeCUDAHandler.cuh"
+#include "GlobalParameters.hpp"
 
 // Matrix transpose kernel
 template<typename T>
