@@ -32,6 +32,12 @@ template<typename T>
 using UniformDistribution = std::uniform_real_distribution<T>;
 template<typename T>
 using NormalDistribution = std::normal_distribution<T>;
+using BernoulliDistribution = std::bernoulli_distribution;
+
+// Random number generation
+static std::random_device rd;
+static std::mt19937 gen(rd());
+
 
 // Derivative of matrices (Reverse AD)
 Matrix<Type>* DervMatrix(const size_t, const size_t, const size_t, const size_t);
@@ -400,23 +406,24 @@ namespace CoolDiff {
       // Return scalar value for matrix based on it's type
       Type ScalarSpl(const Matrix<Type>*); 
 
-      // Random number generation
-      static std::random_device rd;
-      static std::mt19937 gen(rd());
-
-      // Fill matrix with random weights
+      // Fill matrix with random weights (Templatized distributions)
       template<template <typename> class T, typename... Args>
       void FillRandomValues(MatType& M, Args&&... args) {
           // Distribution
           T<Type> dis(std::forward<Args>(args)...);
-
-          // Loop to sample values
-          for(int i{}; i < M.getNumRows(); ++i) {
-              for(int j{}; j < M.getNumColumns(); ++j) {
-                  M(i,j) = dis(gen);
-              }
-          }
+          // Sample values
+          std::generate(EXECUTION_PAR M.getMatrixPtr(), M.getMatrixPtr() + M.getNumElem(), [&]() { return dis(gen); });
       }
+
+      // Fill matrix with random weights (Non templatized distributions)
+      template<typename T, typename... Args>
+      void FillRandomValues(MatType& M, Args&&... args) {
+          // Distribution
+          T dis(std::forward<Args>(args)...);
+          // Sample values
+          std::generate(EXECUTION_PAR M.getMatrixPtr(), M.getMatrixPtr() + M.getNumElem(), [&]() { return dis(gen); });
+      }
+
     }
   }
 }

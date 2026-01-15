@@ -12,10 +12,10 @@ class CustomNet : public NeuralNet<CustomNet> {
 
         // CRTP overload - networkLayers
         auto networkLayers(const size_t batch) {
-            auto l1 = LeakyReLUM(X*transpose(W(0)) + transpose(broadcast<Axis::COLUMN>(b(0), batch)));
-            auto l2 = LeakyReLUM(l1*transpose(W(1)) + transpose(broadcast<Axis::COLUMN>(b(1), batch)));
-            auto l3 = LeakyReLUM(l2*transpose(W(2)) + transpose(broadcast<Axis::COLUMN>(b(2), batch)));
-            auto l4 = LeakyReLUM(l3*transpose(W(3)) + transpose(broadcast<Axis::COLUMN>(b(3), batch)));
+            auto l1 = Dropout(LeakyReLUM(X*transpose(W(0)) + transpose(broadcast<Axis::COLUMN>(b(0), batch))), 0.2);
+            auto l2 = Dropout(LeakyReLUM(l1*transpose(W(1)) + transpose(broadcast<Axis::COLUMN>(b(1), batch))), 0.2);
+            auto l3 = Dropout(LeakyReLUM(l2*transpose(W(2)) + transpose(broadcast<Axis::COLUMN>(b(2), batch))), 0.2);
+            auto l4 = Dropout(LeakyReLUM(l3*transpose(W(3)) + transpose(broadcast<Axis::COLUMN>(b(3), batch))), 0.2);
             auto l5 = SoftMax<Axis::COLUMN>(l4);
 
             auto list = std::make_tuple(l1, l2, l3, l4, l5);
@@ -31,10 +31,12 @@ class CustomNet : public NeuralNet<CustomNet> {
             // Cross entropy objective
             Matrix<Expression> error =  -1 * Sigma(Y^LogM(Yp));
 
-            // Error with L2 regulatization
-            for(size_t i{}; i < layerSize(); ++i) {
-                error = error + 0.01*(Sigma((W(i)^W(i))) + Sigma((b(i)^b(i))));
-            }
+            #if 0
+                // Error with L2 regulatization
+                for(size_t i{}; i < layerSize(); ++i) {
+                    error = error + 0.01*(Sigma((W(i)^W(i))) + Sigma((b(i)^b(i))));
+                }
+            #endif
 
             return error;
         }

@@ -116,6 +116,9 @@ class NeuralNet {
             const size_t feature_size = X_data.getNumColumns();
             const size_t label_size = Y_data.getNumColumns();
 
+            // Unrandomize dropout
+            randomizeDropout<false>();
+
             // Data scan size
             const size_t scan_size = (data_size-batch_size);
             for(size_t i{}; i < scan_size; i+=batch_size) {               
@@ -145,6 +148,30 @@ class NeuralNet {
             return Type((count/(Type)(scan_size))*100.0);
         }
 
+        // Randomize dropout
+        template<bool Randomize>
+        void randomizeDropout() {
+            if constexpr(true == Randomize) {
+                // Set the radnomized dropout matrices with bernoulli distribution 
+                for(auto& [p, W] : m_dropout_mat) {
+                    CoolDiff::TensorR2::Details::FillRandomValues<BernoulliDistribution>((*W), p);
+                    // Transform the matrix with normalization factor of (1/p)
+                    std::transform(EXECUTION_PAR W->getMatrixPtr(), W->getMatrixPtr() + W->getNumElem(),
+                                                 W->getMatrixPtr(), [&p](auto& item) { return ((Type)1/p)*item; });
+                }
+            } else {
+                // Set the non-randomized dropout matirces to Ones(rows, cols)
+                for(auto& [p, W] : m_dropout_mat) {
+                    std::fill(EXECUTION_PAR W->getMatrixPtr(), W->getMatrixPtr() + W->getNumElem(), 1);
+                }
+            }
+        }
+
+        // Dropout probability
+        Vector<Pair<Type, Matrix<Type>*>> m_dropout_mat;
+        // Dropout pool
+        Vector<Matrix<Type>*> m_dropout_pool;
+
     protected:
         // Inputs/Output
         Matrix<Type> X{1, 1, nullptr};
@@ -153,6 +180,29 @@ class NeuralNet {
         // Input/Ouput dimensions
         Pair<size_t, size_t> m_iodim;
         size_t m_batch_size{1};
+
+        // Dropout layer is internal to neural network
+        template<typename Z>
+        constexpr const auto& Dropout(const IMatrix<Z>& X, const Type p) {
+            // Dimension of X matrix          
+            const size_t xrows = X.getNumRows();
+            const size_t xcols = X.getNumColumns();
+
+            // Predicate function
+            auto predicate = [xrows, xcols](const auto& item) { return ((item->getNumRows() == xrows) && (item->getNumColumns() == xcols)); };
+
+            // Reuse from pool, if possible
+            if(auto it = std::find_if(EXECUTION_PAR m_dropout_pool.begin(), m_dropout_pool.end(), predicate); it != m_dropout_pool.end()) {
+                Matrix<Type>* W = *it;
+                m_dropout_mat.push_back({(1-p), W});
+                m_dropout_pool.erase(it);
+                return (*W)^X;
+            } else {
+                Matrix<Type>* W = Matrix<Type>::MatrixFactory::CreateMatrixPtr(xrows, xcols);
+                m_dropout_mat.push_back({(1-p), W});
+                return (*W)^X;
+            }
+        }
 
     public:
         // Default constructor
@@ -199,6 +249,16 @@ class NeuralNet {
 
         // CRTP function - networkLayers (Returns tuple of layers)
         auto networkLayers(const size_t batch_size) {
+            // If m_dropout_mat not empty
+            if(true != m_dropout_mat.empty()) {
+                // Push to m_dropout_pool 
+                for(auto& [p, mat] : m_dropout_mat) {
+                    m_dropout_pool.push_back(mat);
+                }
+                // Clear m_dropout_mat
+                m_dropout_mat.clear();
+            }
+
             m_batch_size = batch_size;
             X = Matrix<Type>(m_batch_size, m_iodim.first, nullptr);
             Y = Matrix<Type>(m_batch_size, m_iodim.second, nullptr);
@@ -241,6 +301,9 @@ class NeuralNet {
 
             // Restructure network layer to match batch size
             auto net = networkLayers(batch_size);
+
+            // Unrandomize dropout
+            randomizeDropout<false>();
 
             // Data scan size
             const size_t scan_size = (data_size-batch_size);
@@ -300,6 +363,9 @@ class NeuralNet {
                     if((j + m_batch_size) > data_size) {
                         j = data_size - m_batch_size;
                     } 
+
+                    // Randomize dropout 
+                    randomizeDropout<true>();
 
                     // Reset all batch matrices to zero for the next batch
                     resetMiniBatch(threading);
