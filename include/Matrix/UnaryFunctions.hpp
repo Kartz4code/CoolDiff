@@ -21,8 +21,14 @@
 
 #pragma once
 
-#include <cuda.h>
-#include <cuda_runtime.h>
+#if defined(USE_CUDA_BACKEND)
+    #include <cuda.h>
+    #include <cuda_runtime.h>
+#else
+    #define __global__ 
+    #define __device__ 
+    #define __host__ 
+#endif
 
 #include <unordered_map>
 #include <cmath>

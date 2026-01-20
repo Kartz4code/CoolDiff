@@ -410,7 +410,7 @@ namespace CoolDiff {
       template<template <typename> class T, typename... Args>
       void FillRandomValues(MatType& M, Args&&... args) {
           // Distribution
-          T<Type> dis(std::forward<Args>(args)...);
+          static T<Type> dis(std::forward<Args>(args)...);
           // Sample values
           std::generate(EXECUTION_PAR M.getMatrixPtr(), M.getMatrixPtr() + M.getNumElem(), [&]() { return dis(gen); });
       }
@@ -419,7 +419,7 @@ namespace CoolDiff {
       template<typename T, typename... Args>
       void FillRandomValues(MatType& M, Args&&... args) {
           // Distribution
-          T dis(std::forward<Args>(args)...);
+          static T dis(std::forward<Args>(args)...);
           // Sample values
           std::generate(EXECUTION_PAR M.getMatrixPtr(), M.getMatrixPtr() + M.getNumElem(), [&]() { return dis(gen); });
       }
