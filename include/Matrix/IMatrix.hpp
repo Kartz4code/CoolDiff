@@ -24,7 +24,7 @@
 #include "MatOperators.hpp"
 #include "MemoryManager.hpp"
 
-// IVariable class to enforce expression templates for lazy evaluation
+// IMatrix class to enforce expression templates for lazy evaluation
 template <typename T> 
 class IMatrix : public MetaMatrix {
 private:
@@ -82,18 +82,18 @@ enum class ConcatAxis {
   mp_right->reset();                                                           \
 
 // Matrix operations macros (shorthand)
-#define MATRIX_ADD(...)             CoolDiff::TensorR2::MatOperators::MatrixAdd(__VA_ARGS__)
-#define MATRIX_MUL(...)             CoolDiff::TensorR2::MatOperators::MatrixMul(__VA_ARGS__)
-#define MATRIX_KRON(...)            CoolDiff::TensorR2::MatOperators::MatrixKron(__VA_ARGS__)
-#define MATRIX_SUB(...)             CoolDiff::TensorR2::MatOperators::MatrixSub(__VA_ARGS__)
-#define MATRIX_HADAMARD(...)        CoolDiff::TensorR2::MatOperators::MatrixHadamard(__VA_ARGS__)
-#define MATRIX_SCALAR_ADD(...)      CoolDiff::TensorR2::MatOperators::MatrixScalarAdd(__VA_ARGS__)
-#define MATRIX_SCALAR_MUL(...)      CoolDiff::TensorR2::MatOperators::MatrixScalarMul(__VA_ARGS__)
-#define MATRIX_TRANSPOSE(...)       CoolDiff::TensorR2::MatOperators::MatrixTranspose(__VA_ARGS__)
-#define MATRIX_DERV_TRANSPOSE(...)  CoolDiff::TensorR2::MatOperators::MatrixDervTranspose(__VA_ARGS__)
-#define MATRIX_CONV(...)            CoolDiff::TensorR2::MatOperators::MatrixConv(__VA_ARGS__)
-#define MATRIX_DERV_CONV(...)       CoolDiff::TensorR2::MatOperators::MatrixDervConv(__VA_ARGS__)
-#define UNARY_OP_MAT(...)           CoolDiff::TensorR2::MatOperators::MatrixUnary(__VA_ARGS__)
-#define MATRIX_INVERSE(...)         CoolDiff::TensorR2::MatOperators::MatrixInverse(__VA_ARGS__)
-#define MATRIX_DET(...)             CoolDiff::TensorR2::MatOperators::MatrixDet(__VA_ARGS__)
-#define MATRIX_TRACE(...)           CoolDiff::TensorR2::MatOperators::MatrixTrace(__VA_ARGS__)
+#define MATRIX_ADD(...)              CoolDiff::TensorR2::MatOperators::MatrixAdd(__VA_ARGS__)
+#define MATRIX_MUL(...)              CoolDiff::TensorR2::MatOperators::MatrixMul(__VA_ARGS__)
+#define MATRIX_KRON(...)             CoolDiff::TensorR2::MatOperators::MatrixKron(__VA_ARGS__)
+#define MATRIX_SUB(...)              CoolDiff::TensorR2::MatOperators::MatrixSub(__VA_ARGS__)
+#define MATRIX_HADAMARD(...)         CoolDiff::TensorR2::MatOperators::MatrixHadamard(__VA_ARGS__)
+#define MATRIX_SCALAR_ADD(...)       CoolDiff::TensorR2::MatOperators::MatrixScalarAdd(__VA_ARGS__)
+#define MATRIX_SCALAR_MUL(...)       CoolDiff::TensorR2::MatOperators::MatrixScalarMul(__VA_ARGS__)
+#define MATRIX_TRANSPOSE(...)        CoolDiff::TensorR2::MatOperators::MatrixTranspose(__VA_ARGS__)
+#define MATRIX_DERV_TRANSPOSE(...)   CoolDiff::TensorR2::MatOperators::MatrixDervTranspose(__VA_ARGS__)
+#define MATRIX_CONV(...)             CoolDiff::TensorR2::MatOperators::MatrixConv(__VA_ARGS__)
+#define MATRIX_DERV_CONV(...)        CoolDiff::TensorR2::MatOperators::MatrixDervConv(__VA_ARGS__)
+#define UNARY_OP_MAT(...)            CoolDiff::TensorR2::MatOperators::MatrixUnary(__VA_ARGS__)
+#define MATRIX_INVERSE(...)          CoolDiff::TensorR2::MatOperators::MatrixInverse(__VA_ARGS__)
+#define MATRIX_DET(...)              CoolDiff::TensorR2::MatOperators::MatrixDet(__VA_ARGS__)
+#define MATRIX_TRACE(...)            CoolDiff::TensorR2::MatOperators::MatrixTrace(__VA_ARGS__)

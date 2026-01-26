@@ -45,7 +45,7 @@ class MatHadamardNaiveHandler : public T {
         const Type* left = lhs->getMatrixPtr();
         const Type* right = rhs->getMatrixPtr();
 
-        // For each element, perform addition
+        // For each element, perform multiplication
         const size_t size{nrows * ncols};
         std::transform(EXECUTION_PAR left, left + size, right, res,
                       [](const Type a, const Type b) { return a * b; });

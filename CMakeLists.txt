@@ -77,11 +77,15 @@ if(${ENABLE_EXAMPLE_BUILD})
     option(BUILD_EXAMPLES "Building example executables" ON) # Default - ON
     option(ENABLE_COMPLEX_MATH "Enable complex numbers for numerics" OFF) # Default - OFF
     set(DEFAULT_MATH_TYPE 1 CACHE STRING "Value that defined the default math type: Float  - 1, Double - 2") # Default - 1
+    # Enable CUDA support
+    option(ENABLE_CUDA_SUPPORT "Enable CUDA support" ON)
 elseif(${ENABLE_TEST_BUILD})
     option(BUILD_UNITTESTS "Building unit test executables" ON) # Default - ON
     option(BUILD_EXAMPLES "Building example executables" OFF) # Default - OFF
     option(ENABLE_COMPLEX_MATH "Enable complex numbers for numerics" ON) # Default - ON
     set(DEFAULT_MATH_TYPE 2 CACHE STRING "Value that defined the default math type: Float  - 1, Double - 2") # Default - 2
+    # Disable CUDA support
+    option(ENABLE_CUDA_SUPPORT "Enable CUDA support" OFF)
 endif()
 
 # Other build options
@@ -95,8 +99,7 @@ option(ENABLE_STL_PARALLEL_EXECUTION "Enable STL libraries parallel execution fe
 
 # Enable robin hood hashmaps
 option(ENABLE_ROBIN_HOOD_MAP "Enable robin hood hashmaps" ON) # Default - ON
-# Enable CUDA support
-option(ENABLE_CUDA_SUPPORT "Enable CUDA support" ON)
+
 
 # Enable address sanitizer (Contigent upon CUDA)
 if(NOT ${ENABLE_CUDA_SUPPORT})
@@ -220,7 +223,7 @@ set(CUDA_SRC # Matrix folder *.cu files
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/CUDA/src/MatAddCUDAHandler.cu
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/CUDA/src/MatScalarAddCUDAHandler.cu        
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/CUDA/src/MatSubCUDAHandler.cu
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/CUDA/src/MatHadamardCUDAHandler.cu        
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/CUDA/src/MatHadamardCUDAHandler.cu     
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose/CUDA/src/MatTransposeCUDAHandler.cu)
 
 # Set all CPP source files to the variable SRC

@@ -1170,6 +1170,8 @@ TEST(MatTest, Test1) {
 
 int main(int argc, char **argv) {
   #if defined(USE_COMPLEX_MATH)
+    // Set handler global parameter - Eigen
+    CoolDiff::GlobalParameters::setHandler(CoolDiff::GlobalParameters::HandlerType::EIGEN);
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
   #else 

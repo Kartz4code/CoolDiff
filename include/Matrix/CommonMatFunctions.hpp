@@ -26,7 +26,6 @@
 #include "GenericMatProduct.hpp"
 #include "GenericMatSub.hpp"
 #include "GenericMatSum.hpp"
-#include "GenericMatTrace.hpp"
 #include "GenericMatTranspose.hpp"
 #include "GenericMatUnary.hpp"
 #include "GenericMatInv.hpp"
@@ -322,6 +321,23 @@ UNARY_MATRIX_OPERATOR(SigmoidM, Sigmoid<Type>, DSigmoid<Type>);
   UNARY_MATRIX_OPERATOR(AbsM, Abs<Type>, DAbs<Type>)
 #endif
 
+// Matrix element wise division
+template <typename T1, typename T2>
+constexpr const auto& operator/(const IMatrix<T1>& X, const IMatrix<T2>& Y) {
+  // Get dimensions of X matrix
+  const size_t urows = X.getNumRows();
+  const size_t ucols = X.getNumColumns(); 
+  
+  // Get dimensions of Y matrix
+  const size_t vrows = Y.getNumRows();
+  const size_t vcols = Y.getNumColumns();
+  
+  // Assert to verify conditions of same matrix dimensions
+  ASSERT((urows == vrows) && (ucols == vcols), "Matrix element-wise dimensions mismatch"); 
+  
+  // Return expression
+  return ExpM(LogM(X) - LogM(Y));
+}
 
 // Broadcast 
 template<Axis axis = Axis::ALL, typename T>
@@ -352,6 +368,17 @@ constexpr const auto& Sigma(const IMatrix<T>& X) {
   } else {
     return CoolDiff::TensorR2::MatrixBasics::OnesRef(1, rows)*X*CoolDiff::TensorR2::MatrixBasics::OnesRef(cols, 1);
   }
+}
+
+
+// Function for trace computation
+template <typename T> 
+constexpr const auto& trace(const IMatrix<T>& X) {
+  const size_t nrows = X.getNumRows();
+  const size_t ncols = X.getNumColumns(); 
+  ASSERT((nrows == ncols), "Matrix for trace is not a square matrix"); 
+  
+  return Sigma(X ^ CoolDiff::TensorR2::MatrixBasics::EyeRef(nrows));
 }
 
 // Frobenius norm 

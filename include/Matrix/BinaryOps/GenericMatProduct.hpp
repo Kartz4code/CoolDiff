@@ -869,7 +869,7 @@ constexpr const auto& operator/(const IMatrix<T>& v, Type u) {
 }
 
 template <typename T1, typename T2>
-constexpr const auto& operator/(const IMatrix<T1>& u, const IMatrix<T2>& v) {
+constexpr const auto& operator%(const IMatrix<T1>& u, const IMatrix<T2>& v) {
   const auto& _u = u.cloneExp();
   const auto& _v = v.cloneExp();
   return (_u*inv(_v));
