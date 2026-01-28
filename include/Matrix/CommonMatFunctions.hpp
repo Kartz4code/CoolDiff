@@ -321,25 +321,25 @@ UNARY_MATRIX_OPERATOR(SigmoidM, Sigmoid<Type>, DSigmoid<Type>);
   UNARY_MATRIX_OPERATOR(AbsM, Abs<Type>, DAbs<Type>)
 #endif
 
-// Matrix element wise division
+// Matrix element wise division function
 template <typename T1, typename T2>
 constexpr const auto& operator/(const IMatrix<T1>& X, const IMatrix<T2>& Y) {
   // Get dimensions of X matrix
-  const size_t urows = X.getNumRows();
-  const size_t ucols = X.getNumColumns(); 
+  const size_t xrows = X.getNumRows();
+  const size_t xcols = X.getNumColumns(); 
   
   // Get dimensions of Y matrix
-  const size_t vrows = Y.getNumRows();
-  const size_t vcols = Y.getNumColumns();
+  const size_t yrows = Y.getNumRows();
+  const size_t ycols = Y.getNumColumns();
   
   // Assert to verify conditions of same matrix dimensions
-  ASSERT((urows == vrows) && (ucols == vcols), "Matrix element-wise dimensions mismatch"); 
+  ASSERT((xrows == yrows) && (xcols == ycols), "Matrix element-wise dimensions mismatch"); 
   
   // Return expression
   return ExpM(LogM(X) - LogM(Y));
 }
 
-// Broadcast 
+// Matrix broadcast function 
 template<Axis axis = Axis::ALL, typename T>
 constexpr const auto& broadcast(const IMatrix<T>& X, const size_t n) {
   const size_t xrows = X.getNumRows();
@@ -356,7 +356,7 @@ constexpr const auto& broadcast(const IMatrix<T>& X, const size_t n) {
   }
 }
 
-// Sigma computation
+// Matrix sigma computation function
 template <Axis axis = Axis::ALL, typename T> 
 constexpr const auto& Sigma(const IMatrix<T>& X) {
   const size_t rows = X.getNumRows();
@@ -370,7 +370,6 @@ constexpr const auto& Sigma(const IMatrix<T>& X) {
   }
 }
 
-
 // Function for trace computation
 template <typename T> 
 constexpr const auto& trace(const IMatrix<T>& X) {
@@ -381,13 +380,13 @@ constexpr const auto& trace(const IMatrix<T>& X) {
   return Sigma(X ^ CoolDiff::TensorR2::MatrixBasics::EyeRef(nrows));
 }
 
-// Frobenius norm 
+// Matrix Frobenius norm function 
 template <typename T>
 constexpr const auto& MatrixFrobeniusNorm(const IMatrix<T>& X) {
   return SqrtM(Sigma(X^X));
 }
 
-// Matrix vertical concatenation
+// Matrix vertical concatenation function
 template<ConcatAxis axis = ConcatAxis::VERTICAL, typename T1, typename T2>
 constexpr const auto& concat(const IMatrix<T1>& X, const IMatrix<T2>& Y) {
   const size_t x_rows = X.getNumRows();
@@ -418,7 +417,7 @@ constexpr const auto& concat(const IMatrix<T1>& X, const IMatrix<T2>& Y) {
   }
 }
 
-// Softmax function
+// Matrix softmax function
 template<Axis axis = Axis::ALL, typename T>
 constexpr const auto& SoftMax(const IMatrix<T>& X) {
   const size_t rows = X.getNumRows();
@@ -432,90 +431,53 @@ constexpr const auto& SoftMax(const IMatrix<T>& X) {
   }
 }
 
-// Matrix pow
-template<typename T>
-Matrix<Expression>& pow(const IMatrix<T>& X, const size_t n) {
-  // Dimensions of matrix X
-  const size_t rows = X.getNumRows();
-  const size_t cols = X.getNumColumns();
+// Matrix power function
+template<size_t N, typename T>
+constexpr const auto& pow(const IMatrix<T>& X) {
+    const size_t nrows = X.getNumRows();
+    const size_t ncols = X.getNumColumns();
+    
+    // Assert for square matrix
+    ASSERT(nrows == ncols, "X matrix is not a square matrix for pow operation");
 
-  // Assert for square matrix
-  ASSERT(rows == cols, "X matrix is not a square matrix");
-
-  // Temporary matrix array
-  Matrix<Expression>* tmp[n+1];
-  for(size_t i{}; i <= n; ++i) {
-    tmp[i] = Matrix<Expression>::MatrixFactory::CreateMatrixPtr();
-  }
-
-  // Run loop till truncation
-  (*tmp[0]) = CoolDiff::TensorR2::MatrixBasics::EyeRef(rows);
-  for(size_t i{1}; i <= n; ++i) {
-      (*tmp[i]) = (*tmp[i-1])*(X);
-  }
-
-  // Return result
-  return (*tmp[n]);
+    // Check for base condition
+    if constexpr(0 == N) {
+      return CoolDiff::TensorR2::MatrixBasics::EyeRef(nrows);
+    } else {
+      return (X * pow<N-1>(X));
+    }
 }
 
-// Matrix exponential
+// Matrix exponential function
 template<size_t N = 20, typename T>
-Matrix<Expression>& MatrixExponential(const IMatrix<T>& X) {
-  // Dimensions of matrix X
-  const size_t rows = X.getNumRows();
-  const size_t cols = X.getNumColumns();
+constexpr const auto& MatrixExp(const IMatrix<T>& X) {
+    const size_t nrows = X.getNumRows();
+    const size_t ncols = X.getNumColumns();
+    
+    // Assert for square matrix
+    ASSERT(nrows == ncols, "X matrix is not a square matrix for matrix exponential operation");
 
-  // Assert for square matrix
-  ASSERT(rows == cols, "X matrix is not a square matrix");
-
-  // Create result matrix
-  auto& result = Matrix<Expression>::MatrixFactory::CreateMatrix();
-
-  // Temporary matrix array
-  Matrix<Expression>* tmp[N+1];
-  for(size_t i{}; i <= N; ++i) {
-    tmp[i] = Matrix<Expression>::MatrixFactory::CreateMatrixPtr();
-  }
-
-  // Run loop till truncation
-  (*tmp[0]) = CoolDiff::TensorR2::MatrixBasics::EyeRef(rows);
-  result = (*tmp[0]);
-  for(size_t i{1}; i <= N; ++i) {
-      (*tmp[i]) = (*tmp[i-1])*X;
-      result = result + ((*tmp[i])/CoolDiff::Common::Factorial(i));
-  }
-
-  // Return result
-  return result;
+    // Check for base condition 
+    if constexpr(0 == N) {
+      return CoolDiff::TensorR2::MatrixBasics::EyeRef(nrows);
+    } else {
+      return (pow<N>(X)/CoolDiff::Common::Factorial(N)) + MatrixExp<N-1>(X); 
+    }
 }
 
-// Matrix log
+// Matrix logarithm function
 template<size_t N = 20, typename T>
-Matrix<Expression>& MatrixLog(const IMatrix<T>& X) {
-  // Dimensions of matrix X
-  const size_t rows = X.getNumRows();
-  const size_t cols = X.getNumColumns();
+constexpr const auto& MatrixLog(const IMatrix<T>& X) {
+    const size_t nrows = X.getNumRows();
+    const size_t ncols = X.getNumColumns();
+    
+    // Assert for square matrix
+    ASSERT(nrows == ncols, "X matrix is not a square matrix for matrix log operation");
 
-  // Assert for square matrix
-  ASSERT(rows == cols, "X matrix is not a square matrix");
-
-  // Create result matrix
-  auto& result = Matrix<Expression>::MatrixFactory::CreateMatrix();
-  
-  // Temporary matrix array
-  Matrix<Expression>* tmp[N+1];
-  for(size_t i{}; i <= N; ++i) {
-    tmp[i] = Matrix<Expression>::MatrixFactory::CreateMatrixPtr();
-  }
-
-  // Run loop till truncation
-  (*tmp[0]) = CoolDiff::TensorR2::MatrixBasics::EyeRef(rows);
-  result = CoolDiff::TensorR2::MatrixBasics::ZerosRef(rows, cols);
-  for(size_t i{1}; i <= N; ++i) {
-      (*tmp[i]) = (*tmp[i-1])*(X - CoolDiff::TensorR2::MatrixBasics::EyeRef(rows));
-      result = result + ((Type)std::pow(((Type)(-1)), i+1)/((Type)(i)))*((*tmp[i]));
-  }
-
-  // Return result
-  return result;
+    // Check for base condition 
+    if constexpr(0 == N) {
+      return CoolDiff::TensorR2::MatrixBasics::ZerosRef(nrows);
+    } else {
+      return (((Type)(-1)/N) * pow<N>(CoolDiff::TensorR2::MatrixBasics::EyeRef(nrows) -  X)) + MatrixLog<N-1>(X); 
+    }
 }

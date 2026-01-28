@@ -24,7 +24,7 @@
 namespace CoolDiff {
    namespace Common {
       const size_t Factorial(const size_t n) {
-         static UnOrderedMap<size_t, size_t> map{{1,1}}; 
+         static UnOrderedMap<size_t, size_t> map{{0,1},{1,1}}; 
          if(auto it = map.find(n); it == map.end()) {
             map[n] = n*Factorial(n-1); 
          }

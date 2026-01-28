@@ -189,10 +189,12 @@ class NeuralNet {
             const size_t xcols = X.getNumColumns();
 
             // Predicate function
-            auto predicate = [xrows, xcols](const auto& item) { return ((item->getNumRows() == xrows) && (item->getNumColumns() == xcols)); };
+            auto predicate = [xrows, xcols](const auto& item) { return ((item->getNumRows() == xrows) && 
+                                                                        (item->getNumColumns() == xcols)); };
 
             // Reuse from pool, if possible
-            if(auto it = std::find_if(EXECUTION_PAR m_dropout_pool.begin(), m_dropout_pool.end(), predicate); it != m_dropout_pool.end()) {
+            if(auto it = std::find_if(EXECUTION_PAR m_dropout_pool.begin(), m_dropout_pool.end(), predicate); 
+                    it != m_dropout_pool.end()) {
                 Matrix<Type>* W = *it;
                 m_dropout_mat.push_back({(1-p), W});
                 m_dropout_pool.erase(it);
