@@ -438,7 +438,7 @@ TEST(MatTest, Test9) {
   A(1,0) = 4; A(1,1) = 5;
 
   Matrix<Expression> E;
-  E = (A*inv(MatrixExp<20>(S))*inv(A));
+  E = (A*inv(MatrixExp(S))*inv(A));
   E = inv(E)/(S(0,0)*S(1,0));
 
   CoolDiff::TensorR2::Eval(E);

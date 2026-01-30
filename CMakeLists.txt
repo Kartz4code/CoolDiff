@@ -39,7 +39,7 @@ project(CoolDiff VERSION 1.0.1.0
 
 # [CMake custom flags]
 # Project build type
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)

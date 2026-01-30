@@ -54,8 +54,11 @@ public:
     if (nullptr == result) {
       result = Matrix<T>::MatrixFactory::CreateMatrixPtr(rows, cols, std::forward<Args>(args)...);
       return;
-    } 
-    else if ((rows != result->getNumRows()) || (cols != result->getNumColumns())) {
+    } else if((rows*cols) == (result->getNumRows()*result->getNumColumns())) {
+      // Special case when using vec operator is used, the only task to reshape the result matrix 
+      result->reshape(rows, cols);
+      return;
+    } else if ((rows != result->getNumRows()) || (cols != result->getNumColumns())) {
       result = Matrix<T>::MatrixFactory::CreateMatrixPtr(rows, cols, std::forward<Args>(args)...);
       return;
     } else {
