@@ -21,11 +21,13 @@
 
 #pragma once
 
-#include <cuda.h>
-#include <cuda_runtime.h>
+#if defined(USE_CUDA_BACKEND)
+    #include <cuda.h>
+    #include <cuda_runtime.h>
 
-#define TILE_SIZE 32
+    #define TILE_SIZE 32
 
-// CUDA matrix multiplication kernel
-template<typename T>
-void MulKernel(const dim3, const dim3, const T*, const T*, T*, const size_t, const size_t, const size_t);
+    // CUDA matrix multiplication kernel
+    template<typename T>
+    void MulKernel(const dim3, const dim3, const T*, const T*, T*, const size_t, const size_t, const size_t);
+#endif

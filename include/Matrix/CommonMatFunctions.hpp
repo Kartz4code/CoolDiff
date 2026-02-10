@@ -102,7 +102,7 @@ namespace CoolDiff {
         if(auto it = Mexp.getCache().find(X.m_nidx); it != Mexp.getCache().end()) {
           return (*Mexp.getCache()[X.m_nidx]);
         } else {
-          return *const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Zeros(nrows, ncols));
+          return *const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Zeros(X.allocatorType(), nrows, ncols));
         }
       } else {
         const size_t nrows = Mexp.getNumRows();
@@ -110,7 +110,7 @@ namespace CoolDiff {
         if(auto it = Mexp.getCache().find(X.m_nidx); it != Mexp.getCache().end()) {
           return (*Mexp.getCache()[X.m_nidx]);
         } else {
-          return *const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Zeros(nrows, ncols));
+          return *const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Zeros(Mexp.allocatorType(), nrows, ncols));
         }
       }
     }
@@ -119,7 +119,7 @@ namespace CoolDiff {
     template <typename T, typename = CoolDiff::TensorR1::Details::IsPureMetaVariableType<T>>
     Matrix<Type>& DevalF(T& exp, const Matrix<Variable>& m, bool serial = true) {
       const size_t n = m.getNumElem();
-      auto& result = Matrix<Type>::MatrixFactory::CreateMatrix(m.getNumRows(), m.getNumColumns());
+      auto& result = Matrix<Type>::MatrixFactory::CreateMatrix(m.getNumRows(), m.getNumColumns(), exp.allocatorType());
 
       // If T is an expression
       if constexpr (true == std::is_same_v<T, Expression>) {
@@ -163,7 +163,7 @@ namespace CoolDiff {
     template <typename T, typename = std::enable_if_t<std::is_same_v<T, Expression>>> 
     Matrix<Type>& DevalR(T& exp, const Matrix<Variable>& m) {
       const size_t n = m.getNumElem();
-      auto& result = Matrix<Type>::MatrixFactory::CreateMatrix(m.getNumRows(), m.getNumColumns());
+      auto& result = Matrix<Type>::MatrixFactory::CreateMatrix(m.getNumRows(), m.getNumColumns(), exp.allocatorType());
 
       // Precompute (By design, the operation is serial)
       CoolDiff::TensorR1::PreComp(exp);
@@ -178,7 +178,7 @@ namespace CoolDiff {
     template <typename T, typename = std::enable_if_t<std::is_same_v<T, Expression>>>
     Matrix<Type>& JacobianR(T& exp, const Vector<Variable>& vec) {
       const size_t rows = vec.size();
-      auto& result = Matrix<Type>::MatrixFactory::CreateMatrix(rows, 1);
+      auto& result = Matrix<Type>::MatrixFactory::CreateMatrix(rows, 1, exp.allocatorType());
 
       // Precompute (By design, the operation is serial)
       CoolDiff::TensorR1::PreComp(exp);
@@ -200,7 +200,7 @@ namespace CoolDiff {
     template <typename T, typename = std::enable_if_t<std::is_same_v<T, Expression>>>
     Matrix<Type>& HessianR(T& exp, const Vector<Variable>& vec) {
       const size_t dim = vec.size();
-      auto& result = Matrix<Type>::MatrixFactory::CreateMatrix(dim, dim);
+      auto& result = Matrix<Type>::MatrixFactory::CreateMatrix(dim, dim, exp.allocatorType());
       Matrix<Expression> firstSym(dim, 1);
 
       // Exploit Hessian symmetry
@@ -250,7 +250,7 @@ namespace CoolDiff {
     template <typename T, typename = std::enable_if_t<std::is_same_v<T, Expression>>>
     Matrix<Expression>& SymHessian(T& exp, const Vector<Variable>& vec) {
       const size_t dim = vec.size();
-      auto &result = Matrix<Expression>::MatrixFactory::CreateMatrix(dim, dim);
+      auto& result = Matrix<Expression>::MatrixFactory::CreateMatrix(dim, dim);
 
       // Exploit Hessian symmetry
       for (size_t i{}; i < dim; ++i) {
@@ -334,6 +334,7 @@ constexpr const auto& operator/(const IMatrix<T1>& X, const IMatrix<T2>& Y) {
   
   // Assert to verify conditions of same matrix dimensions
   ASSERT((xrows == yrows) && (xcols == ycols), "Matrix element-wise dimensions mismatch"); 
+  ASSERT((X.allocatorType() == Y.allocatorType()), "LHS and RHS matrices live in different memory spaces");
   
   // Return expression
   return ExpM(LogM(X) - LogM(Y));
@@ -346,13 +347,13 @@ constexpr const auto& broadcast(const IMatrix<T>& X, const size_t n) {
   const size_t xcols = X.getNumColumns();
 
   ASSERT((xcols == 1 || xrows == 1), "Cannot broadcast a matrix, use Kronocker product");
-  
+
   if constexpr(axis == Axis::COLUMN) { 
-    return (X * CoolDiff::TensorR2::MatrixBasics::OnesRef(1, n));
+    return (X * CoolDiff::TensorR2::MatrixBasics::OnesRef(X.allocatorType(), 1, n));
   } else if constexpr(axis == Axis::ROW) {
-    return (CoolDiff::TensorR2::MatrixBasics::OnesRef(n, 1) * X);
+    return (CoolDiff::TensorR2::MatrixBasics::OnesRef(X.allocatorType(), n, 1) * X);
   } else {
-    return (CoolDiff::TensorR2::MatrixBasics::OnesRef(n, 1) * X * CoolDiff::TensorR2::MatrixBasics::OnesRef(1, n));
+    return (CoolDiff::TensorR2::MatrixBasics::OnesRef(X.allocatorType(), n, 1) * X * CoolDiff::TensorR2::MatrixBasics::OnesRef(X.allocatorType(), 1, n));
   }
 }
 
@@ -361,12 +362,13 @@ template <Axis axis = Axis::ALL, typename T>
 constexpr const auto& Sigma(const IMatrix<T>& X) {
   const size_t rows = X.getNumRows();
   const size_t cols = X.getNumColumns();
+
   if constexpr(axis == Axis::ROW) {  
-    return CoolDiff::TensorR2::MatrixBasics::OnesRef(1, rows)*X;
+    return CoolDiff::TensorR2::MatrixBasics::OnesRef(X.allocatorType(), 1, rows)*X;
   } else if constexpr(axis == Axis::COLUMN) {
-    return X*CoolDiff::TensorR2::MatrixBasics::OnesRef(cols, 1);
+    return X*CoolDiff::TensorR2::MatrixBasics::OnesRef(X.allocatorType(), cols, 1);
   } else {
-    return CoolDiff::TensorR2::MatrixBasics::OnesRef(1, rows)*X*CoolDiff::TensorR2::MatrixBasics::OnesRef(cols, 1);
+    return CoolDiff::TensorR2::MatrixBasics::OnesRef(X.allocatorType(), 1, rows)*X*CoolDiff::TensorR2::MatrixBasics::OnesRef(X.allocatorType(), cols, 1);
   }
 }
 
@@ -377,7 +379,7 @@ constexpr const auto& trace(const IMatrix<T>& X) {
   const size_t ncols = X.getNumColumns(); 
   ASSERT((nrows == ncols), "Matrix for trace is not a square matrix"); 
   
-  return Sigma(X ^ CoolDiff::TensorR2::MatrixBasics::EyeRef(nrows));
+  return Sigma(X ^ CoolDiff::TensorR2::MatrixBasics::EyeRef(X.allocatorType(), nrows));
 }
 
 // Matrix Frobenius norm function 
@@ -394,24 +396,26 @@ constexpr const auto& concat(const IMatrix<T1>& X, const IMatrix<T2>& Y) {
   const size_t y_rows = Y.getNumRows();
   const size_t y_cols = Y.getNumColumns(); 
 
+  ASSERT((X.allocatorType() == Y.allocatorType()), "LHS and RHS matrices live in different memory spaces");
+
   if constexpr(ConcatAxis::VERTICAL == axis) {
     ASSERT((x_cols == y_cols), "Column dimensions are not the same for concatenation");
 
-    Matrix<Type>& A = Matrix<Type>::MatrixFactory::CreateMatrix((x_rows + y_rows), x_rows);
-    Matrix<Type>& B = Matrix<Type>::MatrixFactory::CreateMatrix((x_rows + y_rows), y_rows);
+    Matrix<Type>& A = Matrix<Type>::MatrixFactory::CreateMatrix((x_rows + y_rows), x_rows, X.allocatorType());
+    Matrix<Type>& B = Matrix<Type>::MatrixFactory::CreateMatrix((x_rows + y_rows), y_rows, X.allocatorType());
 
-    A.setBlockMat({0, (x_rows-1)}, {0, (x_rows-1)}, CoolDiff::TensorR2::MatrixBasics::Eye(x_rows));
-    B.setBlockMat({x_rows, (x_rows+y_rows-1)}, {0, (y_rows-1)}, CoolDiff::TensorR2::MatrixBasics::Eye(y_rows));
+    A.setBlockMat({0, (x_rows-1)}, {0, (x_rows-1)}, CoolDiff::TensorR2::MatrixBasics::Eye(X.allocatorType(), x_rows));
+    B.setBlockMat({x_rows, (x_rows+y_rows-1)}, {0, (y_rows-1)}, CoolDiff::TensorR2::MatrixBasics::Eye(X.allocatorType(), y_rows));
     
     return A*X + B*Y;
   } else if constexpr(ConcatAxis::HORIZONTAL == axis) {
     ASSERT((x_rows == y_rows), "Column dimensions are not the same for concatenation");
 
-    Matrix<Type>& A = Matrix<Type>::MatrixFactory::CreateMatrix(x_cols, (x_cols + y_cols));
-    Matrix<Type>& B = Matrix<Type>::MatrixFactory::CreateMatrix(y_cols, (x_cols + y_cols));
+    Matrix<Type>& A = Matrix<Type>::MatrixFactory::CreateMatrix(x_cols, (x_cols + y_cols), X.allocatorType());
+    Matrix<Type>& B = Matrix<Type>::MatrixFactory::CreateMatrix(y_cols, (x_cols + y_cols), X.allocatorType());
 
-    A.setBlockMat({0, (x_cols-1)}, {0, (x_cols-1)}, CoolDiff::TensorR2::MatrixBasics::Eye(x_cols));
-    B.setBlockMat({0, (y_cols-1)}, {x_cols, (x_cols+y_cols-1)}, CoolDiff::TensorR2::MatrixBasics::Eye(y_cols));
+    A.setBlockMat({0, (x_cols-1)}, {0, (x_cols-1)}, CoolDiff::TensorR2::MatrixBasics::Eye(X.allocatorType(), x_cols));
+    B.setBlockMat({0, (y_cols-1)}, {x_cols, (x_cols+y_cols-1)}, CoolDiff::TensorR2::MatrixBasics::Eye(X.allocatorType(), y_cols));
     
     return X*A + Y*B;
   }
@@ -423,11 +427,11 @@ constexpr const auto& SoftMax(const IMatrix<T>& X) {
   const size_t rows = X.getNumRows();
   const size_t cols = X.getNumColumns();
   if constexpr(Axis::ROW == axis) {
-    return ExpM(X - (CoolDiff::TensorR2::MatrixBasics::OnesRef(rows,1))*LogM(Sigma<Axis::ROW>(ExpM(X))));
+    return ExpM(X - (CoolDiff::TensorR2::MatrixBasics::OnesRef(X.allocatorType(), rows,1))*LogM(Sigma<Axis::ROW>(ExpM(X))));
   } else if constexpr(Axis::COLUMN == axis) {
-    return ExpM(X - LogM(Sigma<Axis::COLUMN>(ExpM(X)))*(CoolDiff::TensorR2::MatrixBasics::OnesRef(1,cols)));
+    return ExpM(X - LogM(Sigma<Axis::COLUMN>(ExpM(X)))*(CoolDiff::TensorR2::MatrixBasics::OnesRef(X.allocatorType(), 1,cols)));
   } else {
-    return ExpM(X - (CoolDiff::TensorR2::MatrixBasics::OnesRef(rows,1))*LogM(Sigma<Axis::ALL>(ExpM(X)))*(CoolDiff::TensorR2::MatrixBasics::OnesRef(1,cols)));
+    return ExpM(X - (CoolDiff::TensorR2::MatrixBasics::OnesRef(X.allocatorType(), rows,1))*LogM(Sigma<Axis::ALL>(ExpM(X)))*(CoolDiff::TensorR2::MatrixBasics::OnesRef(X.allocatorType(), 1,cols)));
   }
 }
 
@@ -442,7 +446,7 @@ constexpr const auto& pow(const IMatrix<T>& X) {
 
     // Check for base condition
     if constexpr(0 == N) {
-      return CoolDiff::TensorR2::MatrixBasics::EyeRef(nrows);
+      return CoolDiff::TensorR2::MatrixBasics::EyeRef(X.allocatorType(), nrows);
     } else {
       return (X * pow<N-1>(X));
     }
@@ -459,7 +463,7 @@ constexpr const auto& MatrixExp(const IMatrix<T>& X) {
 
     // Check for base condition 
     if constexpr(0 == N) {
-      return CoolDiff::TensorR2::MatrixBasics::EyeRef(nrows);
+      return CoolDiff::TensorR2::MatrixBasics::EyeRef(X.allocatorType(), nrows);
     } else {
       return (pow<N>(X)/CoolDiff::Common::Factorial(N)) + MatrixExp<N-1>(X); 
     }
@@ -476,8 +480,8 @@ constexpr const auto& MatrixLog(const IMatrix<T>& X) {
 
     // Check for base condition 
     if constexpr(0 == N) {
-      return CoolDiff::TensorR2::MatrixBasics::ZerosRef(nrows);
+      return CoolDiff::TensorR2::MatrixBasics::ZerosRef(X.allocatorType(), nrows);
     } else {
-      return (((Type)(-1)/N) * pow<N>(CoolDiff::TensorR2::MatrixBasics::EyeRef(nrows) -  X)) + MatrixLog<N-1>(X); 
+      return (((Type)(-1)/N) * pow<N>(CoolDiff::TensorR2::MatrixBasics::EyeRef(X.allocatorType(), nrows) -  X)) + MatrixLog<N-1>(X); 
     }
 }

@@ -1309,8 +1309,9 @@ TEST(OpsTest, ExpressionCopy) {
 
 int main(int argc, char **argv) {
   #if defined(USE_COMPLEX_MATH)
-    // Set handler global parameter - Eigen
-    CoolDiff::GlobalParameters::setHandler(CoolDiff::GlobalParameters::HandlerType::EIGEN);
+    // Set backend
+    CoolDiff::GlobalParameters::setCPUHandler(CoolDiff::GlobalParameters::CPUHandlerType::EIGEN);
+    CoolDiff::GlobalParameters::setGPUHandler(CoolDiff::GlobalParameters::GPUHandlerType::CUDA);
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
   #else 

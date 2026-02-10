@@ -21,13 +21,15 @@
 
 #pragma once
 
-#include <cuda.h>
-#include <cuda_runtime.h>
+#if defined(USE_CUDA_BACKEND)
+    #include <cuda.h>
+    #include <cuda_runtime.h>
 
-// Function pointer of unary functions
-template<typename T>
-using FunctionTypeCuda = T(*)(T);
+    // Function pointer of unary functions
+    template<typename T>
+    using FunctionTypeCuda = T(*)(T);
 
-// Custom unary function kernel
-template<typename T>
-void CustomUnaryKernel(const dim3, const dim3, const T*, T*, FunctionTypeCuda<T>, const size_t, const size_t);
+    // Custom unary function kernel
+    template<typename T>
+    void CustomUnaryKernel(const dim3, const dim3, const T*, T*, FunctionTypeCuda<T>, const size_t, const size_t);
+#endif

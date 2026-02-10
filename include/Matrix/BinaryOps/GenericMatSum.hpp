@@ -86,6 +86,11 @@ public:
     return (*mp_left) + (*mp_right);
   }
 
+  // Allocator type
+  constexpr std::string_view allocatorType() const {
+    return mp_right->allocatorType();
+  }
+
   // Matrix eval computation
   V_OVERRIDE(Matrix<Type>* eval()) {
     // Check whether dimensions are correct
@@ -161,7 +166,7 @@ public:
       
       /* IMPORTANT: The derivative is computed here */
       const size_t n = mp_left->getNumRows();
-      const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(n));
+      const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(allocatorType(), n));
 
       MATRIX_SCALAR_MUL(1, eye_n, mp_arr[2]); 
       MATRIX_SCALAR_MUL(1, eye_n, mp_arr[3]); 
@@ -357,6 +362,11 @@ public:
     BINARY_RIGHT_FIND_ME(); 
   }
 
+  // Allocator type
+  constexpr std::string_view allocatorType() const {
+    return mp_right->allocatorType();
+  }
+
    // Clone matrix expression
   constexpr const auto& cloneExp() const {
     return m_left + (*mp_right);
@@ -409,7 +419,7 @@ public:
       
       /* IMPORTANT: The derivative is computed here */
       const size_t n = mp_right->getNumRows();
-      const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(n));
+      const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(allocatorType(), n));
 
       MATRIX_SCALAR_MUL(1, eye_n, mp_arr[2]);
 
@@ -550,6 +560,11 @@ public:
     BINARY_RIGHT_FIND_ME(); 
   }
 
+  // Allocator type
+  constexpr std::string_view allocatorType() const {
+    return mp_right->allocatorType();
+  }
+
    // Clone matrix expression
   constexpr const auto& cloneExp() const {
     return (*mp_left) + (*mp_right);
@@ -594,7 +609,7 @@ public:
     CoolDiff::TensorR2::Details::DevalR((*mp_left), X, mp_arr[2]);
 
     // Kronecker product with ones and add with right derivatives
-    MATRIX_KRON(CoolDiff::TensorR2::MatrixBasics::Ones(nrows_f, ncols_f), mp_arr[2], mp_arr[3]);
+    MATRIX_KRON(CoolDiff::TensorR2::MatrixBasics::Ones(allocatorType(), nrows_f, ncols_f), mp_arr[2], mp_arr[3]);
     MATRIX_ADD(mp_arr[3], dright_mat, mp_arr[1]);
 
     // Return result pointer
@@ -626,7 +641,7 @@ public:
       }
       
       const size_t n = mp_right->getNumRows();
-      const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(n));
+      const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(allocatorType(), n));
 
       /* IMPORTANT: The derivative is computed here */
       MATRIX_SCALAR_MUL(n, eye_n, mp_arr[4]);
@@ -655,7 +670,7 @@ public:
 
                       const auto idx = item.first; const auto val = item.second;
                       MatType*& ptr = this->m_cloned[this->incFunc()];
-                      MATRIX_SCALAR_MUL(mp_arr4_val*val, CoolDiff::TensorR2::MatrixBasics::Eye(1), ptr);
+                      MATRIX_SCALAR_MUL(mp_arr4_val*val, CoolDiff::TensorR2::MatrixBasics::Eye(allocatorType(), 1), ptr);
                       if(auto it2 = cache->find(idx); it2 != cache->end()) {
                         MATRIX_ADD((*cache)[idx], ptr, (*cache)[idx]);
                       } else {
@@ -693,8 +708,8 @@ public:
         const size_t cols = cCache->getNumColumns();
 
         /* IMPORTANT: The derivative is computed here */
-        MATRIX_MUL(CoolDiff::TensorR2::MatrixBasics::Ones(1, rows), cCache, mp_arr[6]);
-        MATRIX_MUL(mp_arr[6], CoolDiff::TensorR2::MatrixBasics::Ones(cols, 1), mp_arr[7]);
+        MATRIX_MUL(CoolDiff::TensorR2::MatrixBasics::Ones(allocatorType(), 1, rows), cCache, mp_arr[6]);
+        MATRIX_MUL(mp_arr[6], CoolDiff::TensorR2::MatrixBasics::Ones(allocatorType(), cols, 1), mp_arr[7]);
 
         MATRIX_SCALAR_MUL(1, cCache, mp_arr[8]); 
 
@@ -721,7 +736,7 @@ public:
 
                         const auto idx = item.first; const auto val = item.second;
                         MatType*& ptr = this->m_cloned[this->incFunc()];
-                        MATRIX_SCALAR_MUL(mp_arr7_val*val, CoolDiff::TensorR2::MatrixBasics::Eye(1), ptr);
+                        MATRIX_SCALAR_MUL(mp_arr7_val*val, CoolDiff::TensorR2::MatrixBasics::Eye(allocatorType(), 1), ptr);
                         if(auto it2 = cache->find(idx); it2 != cache->end()) {
                           MATRIX_ADD((*cache)[idx], ptr, (*cache)[idx]);
                         } else {
@@ -791,8 +806,11 @@ using GenericMatScalarSumExpT = GenericMatScalarSumExp<T1, T2>;
 // Function for sum computation
 template <typename T1, typename T2>
 constexpr const auto& operator+(const IMatrix<T1>& u, const IMatrix<T2>& v) {
-  const auto& _u = u.cloneExp();
+  const auto& _u = u.cloneExp(); 
   const auto& _v = v.cloneExp();
+  
+  ASSERT((_u.allocatorType() == _v.allocatorType()), "The allocators of LHS and RHS don't align in the same memory space");
+
   auto tmp = Allocate<GenericMatSumT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&_u)),
                                               const_cast<T2*>(static_cast<const T2*>(&_v)));
   return *tmp;

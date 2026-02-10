@@ -27,7 +27,6 @@ template<typename T>
 void Matrix<T>::swap(Matrix& other) noexcept {
   std::swap(m_rows, other.m_rows);
   std::swap(m_cols, other.m_cols);
-  std::swap(mp_mat, other.mp_mat);
   std::swap(m_gh_vec, other.m_gh_vec);
   std::swap(m_eval, other.m_eval);
   std::swap(m_devalf, other.m_devalf);
@@ -36,6 +35,7 @@ void Matrix<T>::swap(Matrix& other) noexcept {
   std::swap(mp_dresult, other.mp_dresult);
   std::swap(m_nidx, other.m_nidx);
   std::swap(m_cache, other.m_cache);
+  std::swap(mp_allocator, other.mp_allocator);
 }
 
 template<typename T>
@@ -49,9 +49,8 @@ void Matrix<T>::assignClone(const Matrix<T>* other) {
   mp_dresult = other->mp_dresult;
   m_nidx = other->m_nidx;
   m_cache = other->m_cache;
-
-  setMatrixPtr(const_cast<T*>(other->getMatrixPtr()));
-
+  mp_allocator = other->mp_allocator;
+  
   // The temporary that is created for assignClone is non-destroyable. 
   // It just holds the pointer of other matrix
   m_dest = false;
@@ -59,56 +58,54 @@ void Matrix<T>::assignClone(const Matrix<T>* other) {
 
 // Default constructor - Zero arguments
 template<typename T>
-Matrix<T>::Matrix() : m_rows{1}, 
-                      m_cols{1},
-                      mp_result{nullptr}, 
-                      mp_dresult{nullptr}, 
-                      m_eval{false}, 
-                      m_devalf{false},
-                      m_dest{true},
-                      m_nidx{this->m_idx_count++} {
-  // Allocate CPU and GPU resources
-  allocator();
+Matrix<T>::Matrix(std::string_view alloc_type) : Matrix(1, 1, alloc_type) {}
+
+// Constructor with rows and columns with initial values
+template<typename T>
+Matrix<T>::Matrix(const size_t rows, const size_t cols, const T& val, std::string_view alloc_type) : Matrix(rows, cols, alloc_type) {
+  std::fill(EXECUTION_PAR getMatrixPtr(), getMatrixPtr() + getNumElem(), val);
 }
 
-// Constructor with rows and columns
+// Constructor with rows, columns and allocator
 template<typename T>
-Matrix<T>::Matrix(const size_t rows, const size_t cols) : m_rows{rows}, 
-                                                          m_cols{cols},
-                                                          mp_result{nullptr}, 
-                                                          mp_dresult{nullptr},
-                                                          m_eval{false}, 
-                                                          m_devalf{false},
-                                                          m_dest{true},
-                                                          m_nidx{this->m_idx_count++} {
+Matrix<T>::Matrix(const size_t rows, const size_t cols, std::string_view alloc_type) : m_rows{rows}, 
+                                                                                       m_cols{cols},
+                                                                                       mp_allocator{MemoryStrategyFactory(alloc_type)},
+                                                                                       mp_result{nullptr}, 
+                                                                                       mp_dresult{nullptr},
+                                                                                       m_eval{false}, 
+                                                                                       m_devalf{false},
+                                                                                       m_dest{true},
+                                                                                       m_nidx{this->m_idx_count++} {
   // Assert for strictly non-negative values for rows and columns
   ASSERT((rows > 0) && (cols > 0), "Row/Column size is not strictly non-negative");  
   // Allocate CPU and GPU resources
-  allocator();                                                   
+  allocator();      
 }
 
 /*  Constructor with pointer stealer (When using external pointer for the matrix values, it is important
     that the resource is deleted either through RAII or manual de-allocation
 */
 template<typename T>
-Matrix<T>::Matrix(const size_t rows, const size_t cols, T* cpu_ptr)  :  m_rows{rows}, 
-                                                                        m_cols{cols},
-                                                                        mp_result{nullptr}, 
-                                                                        mp_dresult{nullptr},
-                                                                        m_eval{false}, 
-                                                                        m_devalf{false}, 
-                                                                        m_dest{false},
-                                                                        m_nidx{this->m_idx_count++} {
+Matrix<T>::Matrix(const size_t rows, const size_t cols, T* ptr, std::string_view alloc_type)  :  m_rows{rows}, 
+                                                                                                 m_cols{cols},
+                                                                                                 mp_allocator{MemoryStrategyFactory(alloc_type)},
+                                                                                                 mp_result{nullptr}, 
+                                                                                                 mp_dresult{nullptr},
+                                                                                                 m_eval{false}, 
+                                                                                                 m_devalf{false}, 
+                                                                                                 m_dest{false},
+                                                                                                 m_nidx{this->m_idx_count++} {
   // Assert for strictly non-negative values for rows and columns
   ASSERT((rows > 0) && (cols > 0), "Row/Column size is not strictly non-negative");  
-  setMatrixPtr(cpu_ptr);                                                                
+  setMatrixPtr(ptr);                                                                
 }
 
 // Matrix clone
 template<typename T>
 Matrix<T>* Matrix<T>::clone(Matrix<T>*& mat) const {
   if(nullptr == mat) {
-    mat = Matrix<Type>::MatrixFactory::CreateMatrixPtr(m_rows, m_cols, nullptr);
+    mat = Matrix<Type>::MatrixFactory::CreateMatrixPtr(m_rows, m_cols, nullptr, allocatorType());
   }
   // Dont use copy assigment, due to allocation and reallocation of resources!
   mat->assignClone(this);
@@ -121,16 +118,11 @@ constexpr const auto& Matrix<T>::cloneExp() const {
   return *this;
 }
 
-// Constructor with rows and columns with initial values
-template<typename T>
-Matrix<T>::Matrix(const size_t rows, const size_t cols, const T& val) : Matrix(rows, cols) {
-  std::fill(EXECUTION_PAR getMatrixPtr(), getMatrixPtr() + getNumElem(), val);
-}
-
 // Copy constructor
 template<typename T>
 Matrix<T>::Matrix(const Matrix& m) :  m_rows{m.m_rows}, 
                                       m_cols{m.m_cols},
+                                      mp_allocator{MemoryStrategyFactory((m.mp_allocator)->allocatorType())},
                                       m_eval{m.m_eval}, 
                                       m_devalf{m.m_devalf},
                                       m_dest{true},
@@ -163,7 +155,7 @@ Matrix<T>& Matrix<T>::operator=(const Matrix& m) {
 template<typename T>
 Matrix<T>::Matrix(Matrix&& m) noexcept :  m_rows{std::exchange(m.m_rows, -1)}, 
                                           m_cols{std::exchange(m.m_cols,-1)},
-                                          mp_mat{std::exchange(m.mp_mat, nullptr)},
+                                          mp_allocator{std::exchange(m.mp_allocator, nullptr)},
                                           mp_result{std::exchange(m.mp_result, nullptr)},
                                           mp_dresult{std::exchange(m.mp_dresult, nullptr)}, 
                                           m_eval{std::exchange(m.m_eval, false)},

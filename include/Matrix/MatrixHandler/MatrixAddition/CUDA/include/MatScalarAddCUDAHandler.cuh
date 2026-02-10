@@ -21,9 +21,11 @@
 
 #pragma once
 
-#include <cuda.h>
-#include <cuda_runtime.h>
+#if defined(USE_CUDA_BACKEND)
+    #include <cuda.h>
+    #include <cuda_runtime.h>
 
-// CUDA matrix scalar addition kernel
-template<typename T>
-void AddScalarKernel(const dim3, const dim3, const T*, T*, const size_t, const size_t, T);
+    // CUDA matrix scalar addition kernel
+    template<typename T>
+    void AddScalarKernel(const dim3, const dim3, const T*, T*, const size_t, const size_t, T);
+#endif

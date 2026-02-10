@@ -24,6 +24,16 @@
 # [CMake version]
 cmake_minimum_required(VERSION 3.22)
 
+# [Tested for gcc-12 version]
+if(NOT DEFINED CMAKE_C_COMPILER)
+  set(CMAKE_C_COMPILER gcc-12 CACHE STRING "C compiler" FORCE)
+endif()
+
+# [Tested for g++-12 version]
+if(NOT DEFINED CMAKE_CXX_COMPILER)
+  set(CMAKE_CXX_COMPILER g++-12 CACHE STRING "C++ compiler" FORCE)
+endif()
+
 # [Project name and description]
 project(CoolDiff VERSION 1.0.1.0
                  DESCRIPTION "CoolDiff - A Symbolic/Automatic differentiation C++ tool"
@@ -39,7 +49,7 @@ project(CoolDiff VERSION 1.0.1.0
 
 # [CMake custom flags]
 # Project build type
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -50,11 +60,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 #LTO and IPO
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-# Set CXX flags for maximum performance
-if(${CMAKE_BUILD_TYPE} EQUAL Release)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -ffast-math -funroll-loops -funroll-all-loops -ftree-vectorize -finline-functions -floop-block")
-endif()
 
 # Include CMake scripts
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -294,12 +299,8 @@ set(NAIVE_PRIVATE_INCLUDES # Naive handlers
 
 # Append to the variable list PRIVATE_INCLUDES
 list(APPEND PRIVATE_INCLUDES ${EIGEN_PRIVATE_INCLUDES} 
-                             ${NAIVE_PRIVATE_INCLUDES})
-
-# Include CUDA header files to the variable list PRIVATE_INCLUDES
-if(${ENABLE_CUDA_SUPPORT} AND ${CUDA_FOUND})
-    list(APPEND PRIVATE_INCLUDES ${CUDA_PRIVATE_INCLUDES})
-endif()
+                             ${NAIVE_PRIVATE_INCLUDES}
+                             ${CUDA_PRIVATE_INCLUDES})
 
 # Include public header files to the variable list PUBLIC_INCLUDES
 set(PUBLIC_INCLUDES #General include (CommonHeader.hpp, CoolDiff.hpp)
@@ -323,9 +324,13 @@ set(PUBLIC_INCLUDES #General include (CommonHeader.hpp, CoolDiff.hpp)
 
                     # Memory manager
                     ${CMAKE_SOURCE_DIR}/include/MemoryManager
-                    
-                    # Memory strategy(TODO)
-                    )
+                    ${CMAKE_SOURCE_DIR}/include/MemoryManager/MemoryStrategy
+                    ${CMAKE_SOURCE_DIR}/include/MemoryManager/MemoryStrategy/CPUMemoryStrategy)
+
+if(${ENABLE_CUDA_SUPPORT} AND ${CUDA_FOUND})
+    list(APPEND PUBLIC_INCLUDES ${CMAKE_SOURCE_DIR}/include/MemoryManager/MemoryStrategy/GPUMemoryStrategy)
+endif()
+
 
 ########################################################################################################################
 ########################################################################################################################

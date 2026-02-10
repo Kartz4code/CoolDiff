@@ -27,19 +27,28 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatDetEigenHandler : public T {
     public:
-      void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
-        const size_t nrows{mat->getNumRows()};
-        const size_t ncols{mat->getNumColumns()};
+      /* Matrix determinant computation */
+      void handle(const Matrix<Type>* rhs, Matrix<Type>*& result) {
+        // Dimensions of RHS matrix
+        const size_t nrows{rhs->getNumRows()};
+        const size_t ncols{rhs->getNumColumns()};
+
+        // RHS memory strategy
+        const auto& rhs_strategy = rhs->allocatorType();  
+
         // Assert squareness
         ASSERT((nrows == ncols), "Matrix is not square for determinant computation");
       
+        // Eigen handler
+        EIGEN_BACKEND_HANDLER(T::handle(rhs, result), rhs_strategy);
+
         // Pool matrix
-        MemoryManager::MatrixPool(result, 1, 1);
+        MemoryManager::MatrixPool(result, 1, 1, rhs_strategy);
       
-        Type* mat_ptr = const_cast<Matrix<Type>*>(mat)->getMatrixPtr();
+        Type* rhs_ptr = const_cast<Matrix<Type>*>(rhs)->getMatrixPtr();
       
         // Eigen inverse
-        const Eigen::Map<EigenMatrix> A(mat_ptr, nrows, ncols);
+        const Eigen::Map<EigenMatrix> A(rhs_ptr, nrows, ncols);
         const auto det_A = A.determinant();
       
         // Store result

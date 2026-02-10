@@ -27,20 +27,29 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatInverseEigenHandler : public T {
   public:
-    void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
-      const size_t nrows{mat->getNumRows()};
-      const size_t ncols{mat->getNumColumns()};
+    /* Matrix inverse computation */
+    void handle(const Matrix<Type>* rhs, Matrix<Type>*& result) {
+      // Dimensions of mat matrix
+      const size_t nrows{rhs->getNumRows()};
+      const size_t ncols{rhs->getNumColumns()};
+
+      // Mat memory strategy
+      const auto& rhs_strategy = rhs->allocatorType();
+
       // Assert squareness
       ASSERT((nrows == ncols), "Matrix is not square for inverse computation");
 
+      // Eigen handler
+      EIGEN_BACKEND_HANDLER(T::handle(rhs, result), rhs_strategy);
+
       // Pool matrix
-      MemoryManager::MatrixPool(result, nrows, ncols);
+      MemoryManager::MatrixPool(result, nrows, ncols, rhs_strategy);
     
       Type* res_ptr = result->getMatrixPtr();
-      Type* mat_ptr = const_cast<Matrix<Type>*>(mat)->getMatrixPtr();
+      Type* rhs_ptr = const_cast<Matrix<Type>*>(rhs)->getMatrixPtr();
     
       // Eigen inverse
-      const Eigen::Map<EigenMatrix> A(mat_ptr, nrows, ncols);
+      const Eigen::Map<EigenMatrix> A(rhs_ptr, nrows, ncols);
       const auto inv_A = A.inverse();
     
       // Store result

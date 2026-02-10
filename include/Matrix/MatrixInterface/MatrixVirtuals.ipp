@@ -29,10 +29,10 @@ Matrix<Type>* Matrix<T>::eval() {
     // Cache the mp_result value
     if constexpr (false == std::is_same_v<T, Type>) {
         if (nullptr != getMatrixPtr()) {
-            MemoryManager::MatrixPool(mp_result, m_rows, m_cols);
+            MemoryManager::MatrixPool(mp_result, m_rows, m_cols, allocatorType());
         }
     } else {
-        MemoryManager::MatrixPool(mp_result, m_rows, m_cols);
+        MemoryManager::MatrixPool(mp_result, m_rows, m_cols, allocatorType());
     }
 
     // If value not evaluated, compute it again
@@ -66,10 +66,10 @@ Matrix<Type>* Matrix<T>::devalF(Matrix<Variable>& X) {
     const size_t xrows = X.getNumRows();
     const size_t xcols = X.getNumColumns();
     if constexpr (true == std::is_same_v<T, Type> || true == std::is_same_v<T, Parameter>) {
-        MemoryManager::MatrixPool(mp_dresult, (m_rows * xrows), (m_cols * xcols));
+        MemoryManager::MatrixPool(mp_dresult, (m_rows * xrows), (m_cols * xcols), allocatorType());
     } else {
         if (nullptr != getMatrixPtr()) {
-            MemoryManager::MatrixPool(mp_dresult, (m_rows * xrows), (m_cols * xcols));
+            MemoryManager::MatrixPool(mp_dresult, (m_rows * xrows), (m_cols * xcols), allocatorType());
         }
     }
 

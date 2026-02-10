@@ -27,12 +27,17 @@
  template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
  class MatTransposeNaiveHandler : public T {
     public:
-      void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
-        const size_t nrows{mat->getNumRows()};
-        const size_t ncols{mat->getNumColumns()};
+      /* Matrix transpose operation */  
+      void handle(const Matrix<Type>* rhs, Matrix<Type>*& result) {
+        // Dimensions of mat matrix
+        const size_t nrows{rhs->getNumRows()};
+        const size_t ncols{rhs->getNumColumns()};
+
+        // Mat memory strategy
+        const auto& rhs_strategy = rhs->allocatorType();
 
         // Pool matrix
-        MemoryManager::MatrixPool(result, ncols, nrows);
+        MemoryManager::MatrixPool(result, ncols, nrows, rhs_strategy);
 
         const auto idx = CoolDiff::Common::Range<size_t>(0, nrows * ncols);
         std::for_each(EXECUTION_PAR idx.begin(), idx.end(), [&](const size_t n) {
@@ -40,9 +45,9 @@
           const size_t j = (n % ncols);
           const size_t i = ((n - j) / ncols);
           #if defined(USE_COMPLEX_MATH)
-              (*result)(j, i) = std::conj((*mat)(i, j));
+              (*result)(j, i) = std::conj((*rhs)(i, j));
           #else
-              (*result)(j, i) = (*mat)(i, j);
+              (*result)(j, i) = (*rhs)(i, j);
           #endif
         });
       }

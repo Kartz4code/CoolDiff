@@ -27,14 +27,20 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatTraceNaiveHandler : public T {
     public:
-        void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
-            const size_t nrows{mat->getNumRows()};
-            const size_t ncols{mat->getNumColumns()};
+        /* Matrix trace operation */
+        void handle(const Matrix<Type>* rhs, Matrix<Type>*& result) {
+            // Dimensions of mat matrix
+            const size_t nrows{rhs->getNumRows()};
+            const size_t ncols{rhs->getNumColumns()};
+
+            // Mat memory strategy
+            const auto& rhs_strategy = rhs->allocatorType();
+            
             // Assert squareness
             ASSERT((nrows == ncols), "Matrix is not square for trace computation");
         
             // Pool matrix
-            MemoryManager::MatrixPool(result, 1, 1);
+            MemoryManager::MatrixPool(result, 1, 1, rhs_strategy);
         
             // Indices for outer loop and inner loop
             const auto outer_idx = CoolDiff::Common::Range<size_t>(0, nrows);
@@ -42,7 +48,7 @@ class MatTraceNaiveHandler : public T {
             // Naive matrix-matrix multiplication
             Type tmp{};
             std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(), [&](const size_t n) {
-                    tmp = tmp + (*mat)(n,n);
+                    tmp = tmp + (*rhs)(n,n);
             });
             (*result)[0] = tmp;
         }

@@ -66,12 +66,12 @@ void MNISTPrediction() {
     const size_t N{784}, M{10}, K{4096};
 
     // Train MNIST data (60000 x 784)
-    Matrix<Type>& Xtrain = Matrix<Type>::MatrixFactory::CreateMatrix(60000, N);
-    Matrix<Type>& Ytrain = Matrix<Type>::MatrixFactory::CreateMatrix(60000, M);
+    Matrix<Type>& Xtrain = Matrix<Type>::MatrixFactory::CreateMatrix(60000, N, "GPUPinnedMemoryStrategy");
+    Matrix<Type>& Ytrain = Matrix<Type>::MatrixFactory::CreateMatrix(60000, M, "GPUPinnedMemoryStrategy");
     
     // Test MNIST data (10000 x 784)
-    Matrix<Type>& Xtest = Matrix<Type>::MatrixFactory::CreateMatrix(10000, N);
-    Matrix<Type>& Ytest = Matrix<Type>::MatrixFactory::CreateMatrix(10000, M);
+    Matrix<Type>& Xtest = Matrix<Type>::MatrixFactory::CreateMatrix(10000, N, "GPUPinnedMemoryStrategy");
+    Matrix<Type>& Ytest = Matrix<Type>::MatrixFactory::CreateMatrix(10000, M, "GPUPinnedMemoryStrategy");
 
     // Load MNIST train and test data
     LoadData(MNISTData::g_mnist_train_data_path, Xtrain, Ytrain);
@@ -97,8 +97,9 @@ void MNISTPrediction() {
 }
 
 int main(int argc, char** argv) {
-    // Set handler global parameter - CUDA
-    CoolDiff::GlobalParameters::setHandler(CoolDiff::GlobalParameters::HandlerType::CUDA);
+    // Set backend
+    CoolDiff::GlobalParameters::setCPUHandler(CoolDiff::GlobalParameters::CPUHandlerType::EIGEN);
+    CoolDiff::GlobalParameters::setGPUHandler(CoolDiff::GlobalParameters::GPUHandlerType::CUDA);
 
     #ifndef USE_COMPLEX_MATH
         MNISTPrediction();

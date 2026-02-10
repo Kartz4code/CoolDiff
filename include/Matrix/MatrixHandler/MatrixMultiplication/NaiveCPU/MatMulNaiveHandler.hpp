@@ -27,6 +27,7 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatMulNaiveHandler : public T {
     public:
+        /* Matrix-Matrix numerical multiplication */
         void handle(const Matrix<Type> *lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
             // Dimensions of LHS and RHS matrices
             const size_t lrows{lhs->getNumRows()};
@@ -37,8 +38,13 @@ class MatMulNaiveHandler : public T {
             // Assert dimensions
             ASSERT(lcols == rrows, "Matrix multiplication dimensions mismatch");
 
+            // Assert allocator
+            const auto& lhs_strategy = lhs->allocatorType();
+            const auto& rhs_strategy = rhs->allocatorType();
+            ASSERT((lhs_strategy == rhs_strategy), "LHS and RHS matrices are in different memory spaces");
+
             // Pool matrix
-            MemoryManager::MatrixPool(result, lrows, rcols);
+            MemoryManager::MatrixPool(result, lrows, rcols, rhs_strategy);
             ASSERT(lhs->m_nidx != result->m_nidx, "Matrix multiplication result matrix and lhs matrix are the same");
             ASSERT(rhs->m_nidx != result->m_nidx, "Matrix multiplication result matrix and lhs matrix are the same");
 

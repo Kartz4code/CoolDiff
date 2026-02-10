@@ -29,25 +29,39 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatUnaryCUDAHandler : public T {
     public:
-        void handle(const Matrix<Type>* mat, const FunctionType& func, Matrix<Type>*& result) {
-            const size_t nrows{mat->getNumRows()};
-            const size_t ncols{mat->getNumColumns()};
+        /* Matrix unary operation */
+        void handle(const Matrix<Type>* rhs, const FunctionType& func, Matrix<Type>*& result) {
+            #if !defined(USE_CUDA_BACKEND)
+                // If USE_CUDA_BACKEND is undefined
+                T::handle(rhs, func, result);
+                return;
+            #else 
+                // Dimensions of mat matrix
+                const size_t nrows{rhs->getNumRows()};
+                const size_t ncols{rhs->getNumColumns()};
 
-            // Pool matrix
-            MemoryManager::MatrixPool(result, nrows, ncols);
+                // Mat memory strategy
+                const auto& rhs_strategy = rhs->allocatorType();
 
-            // Get raw pointers to result, left and right matrices
-            Type* mat_ptr = const_cast<Matrix<Type>*>(mat)->getMatrixPtr();
-            Type* result_ptr = result->getMatrixPtr();
+                // CUDA handler
+                CUDA_BACKEND_HANDLER(T::handle(rhs, func, result), rhs_strategy);
 
-            // Kernel launch parameters
-            const dim3 threads(THREAD_SIZE, THREAD_SIZE);
-            const dim3 blocks(  ((ncols + threads.x - 1) / threads.x), 
-                                ((nrows + threads.y - 1) / threads.y)  );
-                                
-            // Launch the kernel
-            CustomUnaryKernel<Type>(blocks, threads, mat_ptr, result_ptr, func, nrows, ncols);
+                // Pool matrix
+                MemoryManager::MatrixPool(result, nrows, ncols, rhs_strategy);
 
-            return;
+                // Get raw pointers to result, left and right matrices
+                Type* rhs_ptr = const_cast<Matrix<Type>*>(rhs)->getMatrixPtr();
+                Type* result_ptr = result->getMatrixPtr();
+
+                // Kernel launch parameters
+                const dim3 threads(THREAD_SIZE, THREAD_SIZE);
+                const dim3 blocks(  ((ncols + threads.x - 1) / threads.x), 
+                                    ((nrows + threads.y - 1) / threads.y)  );
+                                    
+                // Launch the kernel
+                CustomUnaryKernel<Type>(blocks, threads, rhs_ptr, result_ptr, func, nrows, ncols);
+
+                return;
+            #endif
         }
 };

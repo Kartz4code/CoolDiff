@@ -39,7 +39,7 @@ void Matrix<T>::getBlockMat(const Pair<size_t, size_t>& rows, const Pair<size_t,
     ASSERT((row_start <= row_end), "Row start greater than row ending");
     ASSERT((col_start <= col_end), "Column start greater than row ending");
 
-    MemoryManager::MatrixPool(result, row_end - row_start + 1, col_end - col_start + 1);
+    MemoryManager::MatrixPool(result, row_end - row_start + 1, col_end - col_start + 1, allocatorType());
     const auto outer_idx = CoolDiff::Common::Range<size_t>(row_start, row_end + 1);
     const auto inner_idx = CoolDiff::Common::Range<size_t>(col_start, col_end + 1);
     std::for_each(EXECUTION_PAR outer_idx.begin(), outer_idx.end(),
@@ -86,7 +86,7 @@ void Matrix<T>::setBlockMat(const Pair<size_t, size_t>& rows, const Pair<size_t,
 template<typename T>
 void Matrix<T>::pad(const size_t r, const size_t c, Matrix*& result) const {
     // Special matrix embedding
-    MemoryManager::MatrixPool(result, m_rows + 2 * r, m_cols + 2 * c);
+    MemoryManager::MatrixPool(result, m_rows + 2 * r, m_cols + 2 * c, allocatorType());
     result->setBlockMat({r, r + m_rows - 1}, {c, c + m_cols - 1}, this);
 }
 

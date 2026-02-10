@@ -200,7 +200,7 @@ class NeuralNet {
                 m_dropout_pool.erase(it);
                 return (*W)^X;
             } else {
-                Matrix<Type>* W = Matrix<Type>::MatrixFactory::CreateMatrixPtr(xrows, xcols);
+                Matrix<Type>* W = Matrix<Type>::MatrixFactory::CreateMatrixPtr(xrows, xcols, "GPUPinnedMemoryStrategy");
                 m_dropout_mat.push_back({(1-p), W});
                 return (*W)^X;
             }
@@ -262,8 +262,8 @@ class NeuralNet {
             }
 
             m_batch_size = batch_size;
-            X = Matrix<Type>(m_batch_size, m_iodim.first, nullptr);
-            Y = Matrix<Type>(m_batch_size, m_iodim.second, nullptr);
+            X = Matrix<Type>(m_batch_size, m_iodim.first, nullptr, "GPUPinnedMemoryStrategy");
+            Y = Matrix<Type>(m_batch_size, m_iodim.second, nullptr, "GPUPinnedMemoryStrategy");
             return derived().networkLayers(m_batch_size);
         }
 

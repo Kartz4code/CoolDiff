@@ -29,14 +29,18 @@ class MatDervTransposeNaiveHandler : public T {
     public:
       void handle(const size_t nrows_f, const size_t ncols_f, 
                   const size_t nrows_x, const size_t ncols_x, 
-                  const Matrix<Type>* mat, Matrix<Type>*& result) {
+                  const Matrix<Type>* rhs, Matrix<Type>*& result) {
                     
         // Result matrix dimensions
         const size_t nrows{ncols_f * nrows_x};
         const size_t ncols{nrows_f * ncols_x};
       
+        // Mat memory strategy
+        const auto& rhs_strategy = rhs->allocatorType();
+
+        /* Matrix derivative transpose */
         // Pool matrix
-        MemoryManager::MatrixPool(result, nrows, ncols);
+        MemoryManager::MatrixPool(result, nrows, ncols, rhs_strategy);
       
         const auto outer_idx = CoolDiff::Common::Range<size_t>(0, ncols_f * nrows_f);
         const auto inner_idx = CoolDiff::Common::Range<size_t>(0, ncols_x * nrows_x);
@@ -53,9 +57,9 @@ class MatDervTransposeNaiveHandler : public T {
                               const size_t m = (n2 % ncols_x);
                               const size_t l = ((n2 - m) / ncols_x);
                               #if defined(USE_COMPLEX_MATH)
-                                (*result)(l + (j * nrows_x), m + (i * ncols_x)) = std::conj((*mat)(l + (i * nrows_x), m + (j * ncols_x)));
+                                (*result)(l + (j * nrows_x), m + (i * ncols_x)) = std::conj((*rhs)(l + (i * nrows_x), m + (j * ncols_x)));
                               #else
-                                (*result)(l + (j * nrows_x), m + (i * ncols_x)) = (*mat)(l + (i * nrows_x), m + (j * ncols_x));
+                                (*result)(l + (j * nrows_x), m + (i * ncols_x)) = (*rhs)(l + (i * nrows_x), m + (j * ncols_x));
                               #endif
               });
         });

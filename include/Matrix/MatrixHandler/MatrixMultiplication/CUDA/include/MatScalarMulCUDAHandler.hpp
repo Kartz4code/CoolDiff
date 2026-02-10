@@ -30,31 +30,38 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatScalarMulCUDAHandler : public T {
     public:
+        /* Matrix-Scalar numerical multiplication */
         void handle(Type lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
-            /* Matrix-Scalar numerical multiplication */
-            
-            // Dimensions of RHS matrices
-            const size_t nrows{rhs->getNumRows()};
-            const size_t ncols{rhs->getNumColumns()};
+            #if !defined(USE_CUDA_BACKEND)
+                // If USE_CUDA_BACKEND is undefined
+                T::handle(lhs, rhs, result);
+                return;
+            #else 
+                // Dimensions of RHS matrices
+                const size_t nrows{rhs->getNumRows()};
+                const size_t ncols{rhs->getNumColumns()};
 
-            // Pool matrix
-            MemoryManager::MatrixPool(result, nrows, ncols);
+                // RHS memory strategy
+                const auto& rhs_strategy = rhs->allocatorType();
 
-            // Get raw pointers to result, left and right matrices
-            Type* right = const_cast<Matrix<Type>*>(rhs)->getMatrixPtr();
-            Type* result_ptr = result->getMatrixPtr();
+                // CUDA handler
+                CUDA_BACKEND_HANDLER(T::handle(lhs, rhs, result), rhs_strategy);
+                
+                // Pool matrix
+                MemoryManager::MatrixPool(result, nrows, ncols, rhs_strategy);
 
-            // Define the block and grid sizes
-            const dim3 threads(THREAD_SIZE, THREAD_SIZE);
-            const dim3 blocks(  (ncols + threads.x - 1) / threads.x, 
-                                (nrows + threads.y - 1) / threads.y  );
+                // Get raw pointers to result, left and right matrices
+                Type* right = const_cast<Matrix<Type>*>(rhs)->getMatrixPtr();
+                Type* result_ptr = result->getMatrixPtr();
 
-            
-            // RHS matrix data size in bytes
-            const size_t size_bytes = (rhs->getNumElem()*sizeof(Type));
+                // Define the block and grid sizes
+                const dim3 threads(THREAD_SIZE, THREAD_SIZE);
+                const dim3 blocks(  (ncols + threads.x - 1) / threads.x, 
+                                    (nrows + threads.y - 1) / threads.y  );
 
-            // Launch the kernel
-            MulScalarKernel(blocks, threads, right, result_ptr, nrows, ncols, lhs);
-            return;
+                // Launch the kernel
+                MulScalarKernel(blocks, threads, right, result_ptr, nrows, ncols, lhs);
+                return;
+            #endif
         }
 };

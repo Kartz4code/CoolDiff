@@ -28,35 +28,20 @@ namespace CoolDiff {
         namespace MatrixBasics {
             /* Pointer semantics */
             // Numerical Eye matrix
-            const Matrix<Type>* Eye(const size_t);
+            const Matrix<Type>* Eye(std::string_view, const size_t);
+            const Matrix<Type>& EyeRef(std::string_view, const size_t);
 
             // Numerical Zeros matrix
-            const Matrix<Type>* Zeros(const size_t, const size_t);
-
-            // Numerical Zeros square matrix
-            const Matrix<Type>* Zeros(const size_t);
-
-            // Numerical Ones matrix
-            const Matrix<Type>* Ones(const size_t, const size_t);
-
-            // Numerical Ones square matrix
-            const Matrix<Type>* Ones(const size_t);
-
-            // References
-            // Numerical Eye matrix
-            const Matrix<Type>& EyeRef(const size_t);
+            const Matrix<Type>* Zeros(std::string_view, const size_t, const size_t);
+            const Matrix<Type>* Zeros(std::string_view, const size_t);
+            const Matrix<Type>& ZerosRef(std::string_view, const size_t, const size_t);
+            const Matrix<Type>& ZerosRef(std::string_view, const size_t);
 
             // Numerical Ones matrix
-            const Matrix<Type>& OnesRef(const size_t, const size_t);
-
-            // Numerical Ones square matrix
-            const Matrix<Type>& OnesRef(const size_t);
-
-            // Numerical Zero matrix
-            const Matrix<Type>& ZerosRef(const size_t, const size_t);
-
-            // Numerical Zero square matrix
-            const Matrix<Type>& ZerosRef(const size_t);
+            const Matrix<Type>* Ones(std::string_view, const size_t, const size_t);
+            const Matrix<Type>* Ones(std::string_view, const size_t);
+            const Matrix<Type>& OnesRef(std::string_view, const size_t, const size_t);
+            const Matrix<Type>& OnesRef(std::string_view, const size_t);
         }
     }
 }

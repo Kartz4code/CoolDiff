@@ -6,8 +6,8 @@
 class Layer {
     private:
         // Layer weights and bias parameters
-        Matrix<Type> m_W;
-        Matrix<Type> m_b;
+        Matrix<Type>* m_W{nullptr};
+        Matrix<Type>* m_b{nullptr};
 
         // Layer weights and bias copy for batch operations
         Matrix<Type>* m_WBatch{nullptr};
@@ -40,13 +40,13 @@ class Layer {
 
                         Layer result; 
 
-                        result.m_W = Matrix<Type>::MatrixFactory::CreateMatrix(N, M);
-                        result.m_b = Matrix<Type>::MatrixFactory::CreateMatrix(N, 1);
+                        result.m_W = Matrix<Type>::MatrixFactory::CreateMatrixPtr(N, M, "GPUPinnedMemoryStrategy");
+                        result.m_b = Matrix<Type>::MatrixFactory::CreateMatrixPtr(N, 1, "GPUPinnedMemoryStrategy");
 
                         result.m_dim = {N, M};
 
-                        CoolDiff::TensorR2::Details::FillRandomValues<T>(result.m_W, std::forward<Args>(args)...);
-                        CoolDiff::TensorR2::Details::FillRandomValues<T>(result.m_b, std::forward<Args>(args)...);
+                        CoolDiff::TensorR2::Details::FillRandomValues<T>(*(result.m_W), std::forward<Args>(args)...);
+                        CoolDiff::TensorR2::Details::FillRandomValues<T>(*(result.m_b), std::forward<Args>(args)...);
 
                         return result;
                     }

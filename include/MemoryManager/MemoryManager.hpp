@@ -49,17 +49,17 @@ public:
 
   // Matrix pool allocation
   template<typename T, typename... Args>
-  static void MatrixPool(Matrix<T>*& result, const size_t rows, const size_t cols, Args&&... args) {
+  static void MatrixPool(Matrix<T>*& result, const size_t rows, const size_t cols, std::string_view alloc_type, Args&&... args) {
     // Dispatch matrix from pool
     if (nullptr == result) {
-      result = Matrix<T>::MatrixFactory::CreateMatrixPtr(rows, cols, std::forward<Args>(args)...);
+      result = Matrix<T>::MatrixFactory::CreateMatrixPtr(rows, cols, std::forward<Args>(args)..., alloc_type);
       return;
     } else if((rows*cols) == (result->getNumRows()*result->getNumColumns())) {
       // Special case when using vec operator is used, the only task to reshape the result matrix 
       result->reshape(rows, cols);
       return;
     } else if ((rows != result->getNumRows()) || (cols != result->getNumColumns())) {
-      result = Matrix<T>::MatrixFactory::CreateMatrixPtr(rows, cols, std::forward<Args>(args)...);
+      result = Matrix<T>::MatrixFactory::CreateMatrixPtr(rows, cols, std::forward<Args>(args)..., alloc_type);
       return;
     } else {
       // Never reset result to zero. Some operations may take the same input and output

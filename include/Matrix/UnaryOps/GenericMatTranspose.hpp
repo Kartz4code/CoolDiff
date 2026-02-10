@@ -66,6 +66,11 @@ public:
     BINARY_RIGHT_FIND_ME(); 
   }
 
+  // Allocator type
+  constexpr std::string_view allocatorType() const {
+    return mp_right->allocatorType();
+  }
+
    // Clone matrix expression
   constexpr const auto& cloneExp() const {
     return transpose(*mp_right);
@@ -135,7 +140,7 @@ public:
 
       // Get raw pointers to right matrix
       const size_t n = mp_right->getNumRows();
-      const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(n));
+      const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(allocatorType(), n));
 
       /* IMPORTANT: The derivative is computed here */
       // Matrix transpose
@@ -243,6 +248,7 @@ using GenericMatTransposeT = GenericMatTranspose<T>;
 template <typename T> 
 constexpr const auto& transpose(const IMatrix<T>& u) {
   const auto& _u = u.cloneExp();
+  
   auto tmp = Allocate<GenericMatTransposeT<T>>(const_cast<T*>(static_cast<const T*>(&_u)));
   return *tmp;
 }

@@ -22,6 +22,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <string_view>
 
 #if defined(USE_CUDA_BACKEND)
   #include <cuda_runtime.h>
@@ -31,20 +32,33 @@
 namespace CoolDiff {
   class GlobalParameters {
       public:
-          // Backend handlers
-          enum class HandlerType {
-              EIGEN, CUDA
-          };
+        // CPU backend handlers
+        enum class CPUHandlerType {
+            EIGEN, NAIVE
+        };
+
+        // GPU backend handlers
+        enum class GPUHandlerType {
+            CUDA    
+        };
 
       private:
           // Handler 
-          inline static HandlerType m_ht{HandlerType::EIGEN};
+          inline static CPUHandlerType m_ht_cpu{CPUHandlerType::EIGEN};
+          inline static GPUHandlerType m_ht_gpu{GPUHandlerType::CUDA};
 
       public:
           // Getters and setters
-          static void setHandler(HandlerType);
-          static HandlerType getHandler();
-       
+          static void setCPUHandler(CPUHandlerType);
+          static CPUHandlerType getCPUHandler();
+
+          static void setGPUHandler(GPUHandlerType);
+          static GPUHandlerType getGPUHandler();
+
+          // Is the memory strategy in CPU/GPU space
+          static bool isCPUSpace(std::string_view);
+          static bool isGPUSpace(std::string_view);
+        
       #if defined(USE_CUDA_BACKEND)    
         private:     
             // Map of device and properties 

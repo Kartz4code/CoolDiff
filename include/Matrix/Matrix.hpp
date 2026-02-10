@@ -27,6 +27,12 @@
 
 #include "GlobalParameters.hpp"
 
+#include "IMemoryStrategy.hpp"
+#include "CPUMemoryStrategy.hpp"
+#if defined(USE_CUDA_BACKEND)
+  #include "GPUPinnedMemoryStrategy.hpp"
+#endif
+
 // Random Distributions
 template<typename T>
 using UniformDistribution = std::uniform_real_distribution<T>;
@@ -37,10 +43,6 @@ using BernoulliDistribution = std::bernoulli_distribution;
 // Random number generation
 static std::random_device rd;
 static std::mt19937 gen(rd());
-
-
-// Derivative of matrices (Reverse AD)
-Matrix<Type>* DervMatrix(const size_t, const size_t, const size_t, const size_t);
 
 // Matrix class
 template <typename T> 
@@ -71,6 +73,21 @@ public:
     }
   };
 
+  // Memory strategy factory
+  SharedPtr<IMemoryStrategy<T>> MemoryStrategyFactory(std::string_view str) {
+    if("CPUMemoryStrategy" == str) {
+      return std::make_shared<CPUMemoryStrategy<T>>(); 
+    } 
+    #if defined(USE_CUDA_BACKEND)
+      else if("GPUPinnedMemoryStrategy" == str) {
+        return std::make_shared<GPUPinnedMemoryStrategy<T>>();
+      } 
+    #endif
+    else {
+      return nullptr;
+    }
+  }
+
 /*---------------------------------------------------------------------------------------------------------------------------------------------------- 
   ----------------------------------------------------------------------------------------------------------------------------------------------------
                                                   Matrix class members
@@ -97,8 +114,8 @@ private:
   // Should destructor be called? (True by default)
   bool m_dest{true};
 
-  // Matrix raw pointer of underlying type (Expression, Variable, Parameter, Type)
-  T* mp_mat{nullptr};
+  // Memory allocation strategy (By default CPU strategy)
+  SharedPtr<IMemoryStrategy<T>> mp_allocator{nullptr};
 
   // Collection of meta variable expressions
   Vector<MetaMatrix*> m_gh_vec{};
@@ -147,17 +164,17 @@ private:
 */
 
 public:
-  // Default constructor - Zero arguments
-  Matrix();
-  
-  // Constructor with rows and columns
-  Matrix(const size_t, const size_t);
-  
+  // Default constructor
+  Matrix(std::string_view = "CPUMemoryStrategy");
+
   // Constructor with rows and columns with initial values
-  Matrix(const size_t, const size_t, const T&);
+  Matrix(const size_t, const size_t, const T&, std::string_view = "CPUMemoryStrategy");
+
+  // Constructor with rows, columns and allocator
+  Matrix(const size_t, const size_t, std::string_view = "CPUMemoryStrategy");
 
   // Constructor with pointer stealer
-  Matrix(const size_t, const size_t, T*);
+  Matrix(const size_t, const size_t, T*, std::string_view = "CPUMemoryStrategy");
 
   // Matrix clone
   Matrix* clone(Matrix*&) const;
@@ -172,7 +189,7 @@ public:
   template <typename Z>
   Matrix(const IMatrix<Z>& expr) :  m_rows{expr.getNumRows()}, 
                                     m_cols{expr.getNumColumns()},
-                                    mp_mat{nullptr}, 
+                                    mp_allocator{MemoryStrategyFactory(expr.allocatorType())},
                                     mp_result{nullptr},
                                     mp_dresult{nullptr}, 
                                     m_eval{false}, 
@@ -184,7 +201,7 @@ public:
     // Reserve a buffer of Matrix expressions
     m_gh_vec.reserve(g_vec_init);
     // Expression multiplied with eye matrix and emplace it in a generic holder (Dont change it)
-    m_gh_vec.push_back((Matrix<Expression>*)&(expr*(*(CoolDiff::TensorR2::MatrixBasics::Eye(expr.getNumColumns())))));
+    m_gh_vec.push_back((Matrix<Expression>*)&(expr*(*(CoolDiff::TensorR2::MatrixBasics::Eye(allocatorType(), expr.getNumColumns())))));
   }
 
   /* Copy assignment for expression evaluation */
@@ -215,7 +232,7 @@ public:
       m_dest = true;
     }
     // Expression multiplied with eye matrix and emplace it in a generic holder (Dont change it)
-    m_gh_vec.push_back((Matrix<Expression>*)&(expr*(*(CoolDiff::TensorR2::MatrixBasics::Eye(expr.getNumColumns())))));
+    m_gh_vec.push_back((Matrix<Expression>*)&(expr*(*(CoolDiff::TensorR2::MatrixBasics::Eye(allocatorType(), expr.getNumColumns())))));
     return *this;
   }
 
@@ -352,6 +369,16 @@ public:
   // Find me (Expression finder)
   bool findMe(void*) const;
 
+  // Memory strategy type
+  constexpr std::string_view allocatorType() const {
+    if(nullptr != mp_allocator) {
+      return mp_allocator->allocatorType();
+    } else {
+      // Return empty string for expressions
+      return "";
+    }
+  }
+
   // Reset impl (Expression resetter)
   void resetImpl();
 
@@ -363,7 +390,7 @@ public:
 
   // To output stream
   template <typename Z>
-  friend std::ostream &operator<<(std::ostream&, const Matrix<Z>&);
+  friend std::ostream& operator<<(std::ostream&, const Matrix<Z>&);
 };
 
 // Method implementation
@@ -383,9 +410,9 @@ namespace CoolDiff {
         const size_t ncols_x = X.getNumColumns();
 
         if (nullptr == result) {
-          result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(nrows_x, ncols_x);
+          result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(nrows_x, ncols_x, X.allocatorType());
         } else if ((nrows_x != result->getNumRows()) || (ncols_x != result->getNumColumns())) {
-          result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(nrows_x, ncols_x);
+          result = Matrix<Type>::MatrixFactory::CreateMatrixPtr(nrows_x, ncols_x, X.allocatorType());
         }
 
         const size_t n_size = X.getNumElem();

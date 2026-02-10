@@ -27,6 +27,11 @@
 #include "Matrix.hpp"
 #include "MatrixBasics.hpp"
 
+template <typename T>
+static bool IsAllEqual(std::initializer_list<T> values) {
+    return (std::adjacent_find(values.begin(), values.end(), std::not_equal_to<>()) == values.end());
+}
+
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatDervConvNaiveHandler : public T {
   private:
@@ -44,6 +49,13 @@ class MatDervConvNaiveHandler : public T {
       ASSERT(((int)stride_x > 0) && ((int)stride_y > 0), "Stride is not strictly non-negative");
       // Padding must be positive
       ASSERT(((int)pad_x >= 0) && ((int)pad_y >= 0), "Stride is not positive");
+
+      // Assert allocator
+      const auto& lhs_strategy = lhs->allocatorType();
+      const auto& rhs_strategy = rhs->allocatorType();
+      const auto& dlhs_strategy = dlhs->allocatorType();
+      const auto& drhs_strategy = drhs->allocatorType();
+      ASSERT(IsAllEqual({lhs_strategy, rhs_strategy, dlhs_strategy, drhs_strategy}), "LHS, RHS, DLHS, DRHS matrices are in different memory spaces");
 
       // One time initialization
       if (false == m_initialized) {
@@ -68,7 +80,7 @@ class MatDervConvNaiveHandler : public T {
       lhs->pad(pad_x, pad_y, mp_arr[1]);
 
       // Get result matrix from pool
-      MemoryManager::MatrixPool(result, (rows * nrows_x), (cols * ncols_x));
+      MemoryManager::MatrixPool(result, (rows * nrows_x), (cols * ncols_x), rhs_strategy);
 
       for (size_t i{}; i < rows; ++i) {
         for (size_t j{}; j < cols; ++j) {
@@ -89,9 +101,9 @@ class MatDervConvNaiveHandler : public T {
                                   mp_arr[3] );
 
           // L (X) I - Left matrix and identity Kronocker product (Policy design)
-          CoolDiff::TensorR2::MatOperators::MatrixKron(mp_arr[2], CoolDiff::TensorR2::MatrixBasics::Ones(nrows_x, ncols_x), mp_arr[4]);
+          CoolDiff::TensorR2::MatOperators::MatrixKron(mp_arr[2], CoolDiff::TensorR2::MatrixBasics::Ones("CPUMemoryStrategy", nrows_x, ncols_x), mp_arr[4]);
           // R (X) I - Right matrix and identity Kronocker product (Policy design)
-          CoolDiff::TensorR2::MatOperators::MatrixKron(rhs, CoolDiff::TensorR2::MatrixBasics::Ones(nrows_x, ncols_x), mp_arr[5]);
+          CoolDiff::TensorR2::MatOperators::MatrixKron(rhs, CoolDiff::TensorR2::MatrixBasics::Ones("CPUMemoryStrategy", nrows_x, ncols_x), mp_arr[5]);
 
           // Hadamard product with left and right derivatives (Policy design)
           CoolDiff::TensorR2::MatOperators::MatrixHadamard(mp_arr[4], drhs, mp_arr[6]);
@@ -101,12 +113,12 @@ class MatDervConvNaiveHandler : public T {
           CoolDiff::TensorR2::MatOperators::MatrixAdd(mp_arr[6], mp_arr[7], mp_arr[8]);
 
           // Sigma funcion derivative
-          CoolDiff::TensorR2::MatOperators::MatrixKron( CoolDiff::TensorR2::MatrixBasics::Ones(1, crows), 
-                                                        CoolDiff::TensorR2::MatrixBasics::Eye(nrows_x), 
+          CoolDiff::TensorR2::MatOperators::MatrixKron( CoolDiff::TensorR2::MatrixBasics::Ones("CPUMemoryStrategy", 1, crows), 
+                                                        CoolDiff::TensorR2::MatrixBasics::Eye("CPUMemoryStrategy", nrows_x), 
                                                         mp_arr[9] );
 
-          CoolDiff::TensorR2::MatOperators::MatrixKron( CoolDiff::TensorR2::MatrixBasics::Ones(ccols, 1), 
-                                                        CoolDiff::TensorR2::MatrixBasics::Eye(ncols_x), 
+          CoolDiff::TensorR2::MatOperators::MatrixKron( CoolDiff::TensorR2::MatrixBasics::Ones("CPUMemoryStrategy", ccols, 1), 
+                                                        CoolDiff::TensorR2::MatrixBasics::Eye("CPUMemoryStrategy", ncols_x), 
                                                         mp_arr[10]  );
 
           CoolDiff::TensorR2::MatOperators::MatrixMul(mp_arr[9], mp_arr[8], mp_arr[11]);

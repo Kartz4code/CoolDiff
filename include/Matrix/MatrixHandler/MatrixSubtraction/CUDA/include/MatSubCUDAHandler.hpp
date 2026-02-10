@@ -30,34 +30,48 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatSubCUDAHandler : public T {
     public:
+        /* Matrix-Matrix numerical subtraction */
         void handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
-            /* Matrix-Matrix numerical subtraction */
+            #if !defined(USE_CUDA_BACKEND)
+                // If USE_CUDA_BACKEND is undefined
+                T::handle(lhs, rhs, result);
+                return;
+            #else 
+                // Dimensions of LHS and RHS matrices
+                const size_t nrows{lhs->getNumRows()};
+                const size_t ncols{rhs->getNumColumns()};
+                const size_t lcols{lhs->getNumColumns()};
+                const size_t rrows{rhs->getNumRows()};
 
-            // Dimensions of LHS and RHS matrices
-            const size_t nrows{lhs->getNumRows()};
-            const size_t ncols{rhs->getNumColumns()};
-            const size_t lcols{lhs->getNumColumns()};
-            const size_t rrows{rhs->getNumRows()};
+                // LHS/RHS memory strategies
+                const auto& lhs_strategy = lhs->allocatorType();
+                const auto& rhs_strategy = rhs->allocatorType();
 
-            // Assert dimensions
-            ASSERT((nrows == rrows) && (ncols == lcols), "Matrix subtraction dimensions mismatch");
+                // Assert dimensions
+                ASSERT((nrows == rrows) && (ncols == lcols), "Matrix subtraction dimensions mismatch");
+                // Assert allocator
+                ASSERT((lhs_strategy == rhs_strategy), "LHS and RHS matrices are in different memory spaces");
 
-            // Pool matrix
-            MemoryManager::MatrixPool(result, nrows, ncols);
+                // CUDA handler
+                CUDA_BACKEND_HANDLER(T::handle(lhs, rhs, result), rhs_strategy);
 
-            // Get raw GPU pointers to result, left and right matrices
-            const Type* left = const_cast<Matrix<Type>*>(lhs)->getMatrixPtr();
-            const Type* right = const_cast<Matrix<Type>*>(rhs)->getMatrixPtr();
-            Type* result_ptr = result->getMatrixPtr();
+                // Pool matrix
+                MemoryManager::MatrixPool(result, nrows, ncols, rhs_strategy);
 
-            // Define the block and grid sizes
-            const dim3 threads(THREAD_SIZE, THREAD_SIZE);
-            const dim3 blocks(  (ncols + threads.x - 1) / threads.x,
-                                (nrows + threads.y - 1) / threads.y );
+                // Get raw GPU pointers to result, left and right matrices
+                const Type* left = const_cast<Matrix<Type>*>(lhs)->getMatrixPtr();
+                const Type* right = const_cast<Matrix<Type>*>(rhs)->getMatrixPtr();
+                Type* result_ptr = result->getMatrixPtr();
 
-            // Launch the kernel
-            SubKernel(blocks, threads, left, right, result_ptr, nrows, ncols);
-            
-            return;
+                // Define the block and grid sizes
+                const dim3 threads(THREAD_SIZE, THREAD_SIZE);
+                const dim3 blocks(  (ncols + threads.x - 1) / threads.x,
+                                    (nrows + threads.y - 1) / threads.y );
+
+                // Launch the kernel
+                SubKernel(blocks, threads, left, right, result_ptr, nrows, ncols);
+                
+                return;
+            #endif
         }
 };

@@ -171,9 +171,10 @@ void ScalarSolve() {
   std::cout << "Computed values: " << CoolDiff::TensorR1::Eval(x) << "\n";
 }
 
-int main(int argc, char **argv) { 
-  // Set handler global parameter - Eigen
-  CoolDiff::GlobalParameters::setHandler(CoolDiff::GlobalParameters::HandlerType::EIGEN);
+int main(int argc, char** argv) { 
+  // Set backend
+  CoolDiff::GlobalParameters::setCPUHandler(CoolDiff::GlobalParameters::CPUHandlerType::EIGEN);
+  CoolDiff::GlobalParameters::setGPUHandler(CoolDiff::GlobalParameters::GPUHandlerType::CUDA);
   
   GNMatrix();
   NonLinearSolve();

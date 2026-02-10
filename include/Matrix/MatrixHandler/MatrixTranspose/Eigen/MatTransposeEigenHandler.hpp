@@ -27,18 +27,26 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatTransposeEigenHandler : public T {
     public:
-        void handle(const Matrix<Type>* mat, Matrix<Type>*& result) {
-            const size_t nrows{mat->getNumRows()};
-            const size_t ncols{mat->getNumColumns()};
+        /* Matrix transpose operation */
+        void handle(const Matrix<Type>* rhs, Matrix<Type>*& result) {
+            // Dimensions of mat matrix
+            const size_t nrows{rhs->getNumRows()};
+            const size_t ncols{rhs->getNumColumns()};
+
+            // Mat memory strategy
+            const auto& rhs_strategy = rhs->allocatorType();
+
+            // Eigen handler
+            EIGEN_BACKEND_HANDLER(T::handle(rhs, result), rhs_strategy);
 
             // Pool matrix
-            MemoryManager::MatrixPool(result, ncols, nrows);
+            MemoryManager::MatrixPool(result, ncols, nrows, rhs_strategy);
 
             // Get raw pointers to result, left and right matrices
-            Type* mat_get = const_cast<Matrix<Type>*>(mat)->getMatrixPtr();
+            Type* rhs_get = const_cast<Matrix<Type>*>(rhs)->getMatrixPtr();
 
-            const Eigen::Map<EigenMatrix> mat_eigen(mat_get, nrows, ncols);
-            const auto& result_eigen = mat_eigen.transpose(); 
+            const Eigen::Map<EigenMatrix> rhs_eigen(rhs_get, nrows, ncols);
+            const auto& result_eigen = rhs_eigen.transpose(); 
 
             Eigen::Map<EigenMatrix>(result->getMatrixPtr(), 
                                     result_eigen.rows(), 

@@ -27,56 +27,16 @@
 template<typename T>
 void Matrix<T>::allocator() {
   const size_t size = getNumElem();
-
-  switch(CoolDiff::GlobalParameters::getHandler()) {
-    #if defined(USE_CUDA_BACKEND)
-      case CoolDiff::GlobalParameters::HandlerType::CUDA: {
-        if constexpr(true == std::is_same_v<T, Type>) {
-          cudaMallocHost((void**)&mp_mat, (size * sizeof(T)));
-          ASSERT((nullptr != mp_mat), "Local GPU allocation failed");
-        } else {
-          mp_mat = new T[getNumElem()]{};
-          ASSERT((nullptr != mp_mat), "Local CPU allocation failed");
-        }
-        break;
-      }
-    #endif
-      default: {
-        mp_mat = new T[getNumElem()]{};
-        ASSERT((nullptr != mp_mat), "Local CPU allocation failed");
-        break;
-      }
+  if(nullptr != mp_allocator) {
+    mp_allocator->allocate(size);
   }
 }
 
 // Matrix internal deallocator
 template<typename T>
 void Matrix<T>::deallocator() noexcept {
-  switch(CoolDiff::GlobalParameters::getHandler()) {
-    #if defined(USE_CUDA_BACKEND)
-      case CoolDiff::GlobalParameters::HandlerType::CUDA: {
-        if constexpr(true == std::is_same_v<T, Type>) {
-          if (nullptr != mp_mat) {
-              // Deallocate memory on GPU
-              cudaFreeHost(mp_mat);
-              mp_mat = nullptr;
-          }
-        } else {
-          if (nullptr != mp_mat) {
-              delete[] mp_mat;
-              mp_mat = nullptr;
-          }
-        }
-        break;
-      }
-    #endif
-      default: {
-        if (nullptr != mp_mat) {
-            delete[] mp_mat;
-            mp_mat = nullptr;
-        }
-        break;
-      }
+  if(nullptr != mp_allocator) {
+    mp_allocator->deallocate();
   }
 }
 
@@ -90,20 +50,30 @@ void Matrix<T>::deallocator() noexcept {
 // Get matrix pointer immutable
 template<typename T>
 const T* Matrix<T>::getMatrixPtr() const {
-  return mp_mat;
+  if(nullptr != mp_allocator) {
+    return mp_allocator->getPtr();
+  } else {
+    return nullptr;
+  }
 }
 
 // Set matrix pointer 
 template<typename T>
 void Matrix<T>::setMatrixPtr(T* ptr) {
   ASSERT(false == m_dest, "Setting pointer to non destroying matrix");
-  mp_mat = ptr;
+  if(nullptr != mp_allocator) {
+    mp_allocator->setPtr(ptr);
+  }
 }
 
 // Get matrix pointer mutable
 template<typename T>
 T* Matrix<T>::getMatrixPtr() { 
-    return mp_mat;
+  if(nullptr != mp_allocator) {
+    return mp_allocator->getPtr();
+  } else {
+    return nullptr;
+  }
 }
 
 // Get row pointer (Default ordering is row major)

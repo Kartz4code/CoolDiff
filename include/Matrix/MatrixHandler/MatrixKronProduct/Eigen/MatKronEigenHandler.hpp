@@ -27,31 +27,40 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatKronEigenHandler : public T {
   public:
-  void handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
-      /* Matrix-Matrix numerical Kronocker product */
+    /* Matrix-Matrix numerical Kronocker product */
+    void handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
+        // Dimensions of LHS and RHS matrices
+        const size_t lr{lhs->getNumRows()};
+        const size_t lc{lhs->getNumColumns()};
+        const size_t rr{rhs->getNumRows()};
+        const size_t rc{rhs->getNumColumns()};
 
-      // Dimensions of LHS and RHS matrices
-      const size_t lr{lhs->getNumRows()};
-      const size_t lc{lhs->getNumColumns()};
-      const size_t rr{rhs->getNumRows()};
-      const size_t rc{rhs->getNumColumns()};
+        // LHS/RHS memory strategies
+        const auto& lhs_strategy = lhs->allocatorType();
+        const auto& rhs_strategy = rhs->allocatorType();
 
-      // Pool matrix
-      MemoryManager::MatrixPool(result, (lr * rr), (lc * rc));
+        // Assert allocator
+        ASSERT((lhs_strategy == rhs_strategy), "LHS and RHS matrices are in different memory spaces");
 
-      // Get raw pointers to result, left and right matrices
-      Type* left = const_cast<Matrix<Type>*>(lhs)->getMatrixPtr();
-      Type* right = const_cast<Matrix<Type>*>(rhs)->getMatrixPtr();
+        // Eigen handler
+        EIGEN_BACKEND_HANDLER(T::handle(lhs, rhs, result), rhs_strategy);
 
-      const Eigen::Map<EigenMatrix> left_eigen(left, lr, lc);
-      const Eigen::Map<EigenMatrix> right_eigen(right, rr, rc);
+        // Pool matrix
+        MemoryManager::MatrixPool(result, (lr * rr), (lc * rc), rhs_strategy);
 
-      const auto& result_eigen = Eigen::kroneckerProduct(left_eigen, right_eigen);
+        // Get raw pointers to result, left and right matrices
+        Type* left = const_cast<Matrix<Type>*>(lhs)->getMatrixPtr();
+        Type* right = const_cast<Matrix<Type>*>(rhs)->getMatrixPtr();
 
-      Eigen::Map<EigenMatrix>(result->getMatrixPtr(), 
-                              result_eigen.rows(), 
-                              result_eigen.cols()) = result_eigen;
+        const Eigen::Map<EigenMatrix> left_eigen(left, lr, lc);
+        const Eigen::Map<EigenMatrix> right_eigen(right, rr, rc);
 
-      return;
-  }
+        const auto& result_eigen = Eigen::kroneckerProduct(left_eigen, right_eigen);
+
+        Eigen::Map<EigenMatrix>(result->getMatrixPtr(), 
+                                result_eigen.rows(), 
+                                result_eigen.cols()) = result_eigen;
+
+        return;
+    }
 };

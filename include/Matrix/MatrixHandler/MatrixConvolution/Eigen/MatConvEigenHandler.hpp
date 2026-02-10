@@ -57,12 +57,21 @@ class MatConvEigenHandler : public T {
         Matrix<Type>* mp_arr{nullptr};
     
     public:
+        /* Matrix-Matrix numerical convolution */
         void handle(const size_t stride_x, const size_t stride_y, const size_t pad_x, const size_t pad_y,
                     const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
             // Stride must be strictly non-negative
             ASSERT(((int)stride_x > 0) && ((int)stride_y > 0), "Stride is not strictly non-negative");
             // Padding must be positive
             ASSERT(((int)pad_x >= 0) && ((int)pad_y >= 0), "Stride is not positive");
+
+            // Assert allocator
+            const auto& lhs_strategy = lhs->allocatorType();
+            const auto& rhs_strategy = rhs->allocatorType();
+            ASSERT((lhs_strategy == rhs_strategy), "LHS and RHS matrices are in different memory spaces");
+
+            // Eigen handler
+            EIGEN_BACKEND_HANDLER(T::handle(stride_x, stride_y, pad_x, pad_y, lhs, rhs, result), rhs_strategy);
 
             // Reset to zero
             CoolDiff::TensorR2::Details::ResetZero(mp_arr);
@@ -86,7 +95,7 @@ class MatConvEigenHandler : public T {
             const size_t pcols = mp_arr->getNumColumns();
 
             // Get result matrix from pool
-            MemoryManager::MatrixPool(result, rows, cols);
+            MemoryManager::MatrixPool(result, rows, cols, rhs_strategy);
 
             // Get raw pointers to result, left and right matrices
             Type* left = const_cast<Matrix<Type>*>(mp_arr)->getMatrixPtr();

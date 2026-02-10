@@ -27,15 +27,17 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatScalarMulNaiveHandler : public T {
     public:
-        void handle(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
         /* Matrix-Scalar numerical multiplication */
-        
+        void handle(Type lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
         // Dimensions of RHS matrices
         const size_t nrows{rhs->getNumRows()};
         const size_t ncols{rhs->getNumColumns()};
 
+        // RHS memory strategy
+        const auto& rhs_strategy = rhs->allocatorType();
+
         // Pool matrix
-        MemoryManager::MatrixPool(result, nrows, ncols);
+        MemoryManager::MatrixPool(result, nrows, ncols, rhs_strategy);
 
         // Get raw pointers to result, left and right matrices
         Type *res = result->getMatrixPtr();

@@ -21,12 +21,14 @@
 
 #pragma once
 
-#include <cuda.h>
-#include <cuda_runtime.h>
+#if defined(USE_CUDA_BACKEND)
+    #include <cuda.h>
+    #include <cuda_runtime.h>
 
-#define TILE_DIM 32       
-#define BLOCK_ROWS 8 
+    #define TILE_DIM 32       
+    #define BLOCK_ROWS 8 
 
-// CUDA matrix transpose kernel
-template<typename T>
-void TransposeKernel(const dim3, const dim3, const T*, T*, const size_t, const size_t);
+    // CUDA matrix transpose kernel
+    template<typename T>
+    void TransposeKernel(const dim3, const dim3, const T*, T*, const size_t, const size_t);
+#endif

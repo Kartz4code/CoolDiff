@@ -81,9 +81,14 @@ public:
     BINARY_FIND_ME(); 
   }
 
-   // Clone matrix expression
+  // Clone matrix expression
   constexpr const auto& cloneExp() const {
     return (*mp_left) - (*mp_right);
+  }
+
+  // Allocator type
+  constexpr std::string_view allocatorType() const {
+    return mp_right->allocatorType();
   }
 
   // Matrix eval computation
@@ -159,7 +164,7 @@ public:
 
       /* IMPORTANT: The derivative is computed here */
       const size_t n = mp_left->getNumRows();
-      const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(n));
+      const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(allocatorType(), n));
 
       MATRIX_SCALAR_MUL(1, eye_n, mp_arr[2]); 
       MATRIX_SCALAR_MUL(-1, eye_n, mp_arr[3]); 
@@ -322,6 +327,9 @@ template <typename T1, typename T2>
 constexpr const auto& operator-(const IMatrix<T1>& u, const IMatrix<T2>& v) {
   const auto& _u = u.cloneExp();
   const auto& _v = v.cloneExp();
+
+  ASSERT((_u.allocatorType() == _v.allocatorType()), "The allocators of LHS and RHS don't align in the same memory space");
+
   auto tmp = Allocate<GenericMatSubT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&_u)),
                                               const_cast<T2*>(static_cast<const T2*>(&_v)));
   return *tmp;

@@ -39,6 +39,7 @@ class GenericMat##OPS : public IMatrix<GenericMat##OPS<T>> {                    
     V_OVERRIDE(size_t getNumRows() const) { return mp_right->getNumRows(); }                        \
     V_OVERRIDE(size_t getNumColumns() const) { return mp_right->getNumColumns(); }                  \
     bool findMe(void* v) const { BINARY_RIGHT_FIND_ME(); }                                          \
+    constexpr std::string_view allocatorType() const { return mp_right->allocatorType(); }          \
     constexpr const auto& cloneExp() const { return OPS(*mp_right); }                               \
     V_OVERRIDE(Matrix<Type>* eval()) {                                                              \
       const Matrix<Type>* right_mat = mp_right->eval();                                             \
@@ -61,7 +62,7 @@ class GenericMat##OPS : public IMatrix<GenericMat##OPS<T>> {                    
       const size_t nrows_x = X.getNumRows();                                                        \
       const size_t ncols_x = X.getNumColumns();                                                     \
       UNARY_OP_MAT(right_mat, FUNC2, mp_arr[1]);                                                    \
-      MATRIX_KRON(mp_arr[1], CoolDiff::TensorR2::MatrixBasics::Ones(nrows_x, ncols_x), mp_arr[2]);  \
+      MATRIX_KRON(mp_arr[1], CoolDiff::TensorR2::MatrixBasics::Ones(allocatorType(), nrows_x, ncols_x), mp_arr[2]);  \
       MATRIX_HADAMARD(mp_arr[2], dright_mat, mp_arr[3]);                                            \
       return mp_arr[3];                                                                             \
     }                                                                                               \

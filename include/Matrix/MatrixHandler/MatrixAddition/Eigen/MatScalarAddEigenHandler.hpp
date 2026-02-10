@@ -25,15 +25,20 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatScalarAddEigenHandler : public T {
     public:
+        /* Matrix-Scalar numerical addition */
         void handle(Type lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
-            /* Matrix-Scalar numerical addition */
-            
             // Dimensions of RHS matrices
             const size_t nrows{rhs->getNumRows()};
             const size_t ncols{rhs->getNumColumns()};
 
+            // RHS memory strategy
+            const auto& rhs_strategy = rhs->allocatorType();
+
+            // Eigen handler
+            EIGEN_BACKEND_HANDLER(T::handle(lhs, rhs, result), rhs_strategy);
+            
             // Pool matrix
-            MemoryManager::MatrixPool(result, nrows, ncols);
+            MemoryManager::MatrixPool(result, nrows, ncols, rhs_strategy);
 
             // Get raw pointers to result, left and right matrices
             Type* right = const_cast<Matrix<Type>*>(rhs)->getMatrixPtr();

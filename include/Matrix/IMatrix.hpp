@@ -52,6 +52,11 @@ public:
   constexpr const auto& cloneExp() const {
     return derived().cloneExp();
   }
+  
+  // Memory strategy type
+  constexpr std::string_view allocatorType() const {
+    return derived().allocatorType();
+  }
 
   // Protected destructor
   V_DTR(~IMatrix()) = default;

@@ -76,6 +76,11 @@ public:
     BINARY_RIGHT_FIND_ME(); 
   }
 
+  // Allocator type
+  constexpr std::string_view allocatorType() const {
+    return mp_right->allocatorType();
+  }
+
    // Clone matrix expression
   constexpr const auto& cloneExp() const {
     return inv(*mp_right);
@@ -126,8 +131,8 @@ public:
     MATRIX_INVERSE(right_mat, mp_arr[1]);
 
     // R (X) I - Right matrix and identity Kronocke product (Policy design)
-    MATRIX_KRON(mp_arr[1], CoolDiff::TensorR2::MatrixBasics::Eye(nrows_x), mp_arr[2]);
-    MATRIX_KRON(mp_arr[1], CoolDiff::TensorR2::MatrixBasics::Eye(ncols_x), mp_arr[3]);
+    MATRIX_KRON(mp_arr[1], CoolDiff::TensorR2::MatrixBasics::Eye(allocatorType(), nrows_x), mp_arr[2]);
+    MATRIX_KRON(mp_arr[1], CoolDiff::TensorR2::MatrixBasics::Eye(allocatorType(), ncols_x), mp_arr[3]);
 
     MATRIX_MUL(mp_arr[2], dright_mat, mp_arr[4]);
     MATRIX_MUL(mp_arr[4], mp_arr[3], mp_arr[5]);

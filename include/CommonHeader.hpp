@@ -39,6 +39,7 @@
 #include <type_traits>
 #include <vector>
 #include <random>
+#include <map>
 
 /* [Deprecated]
   Matrix transpose based matrix multiplication (Naive implementation) 
@@ -223,6 +224,9 @@ using Pair = std::pair<T, U>;
   template <typename T, typename U> 
   using UnOrderedMap = std::unordered_map<T, U>;
 #endif
+
+template<typename T, typename U>
+using Map = std::map<T,U>;
 
 // A generic vector type
 template <typename T> 

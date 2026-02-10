@@ -89,6 +89,11 @@ public:
     BINARY_FIND_ME(); 
   }
 
+  // Allocator type
+  constexpr std::string_view allocatorType() const {
+    return mp_right->allocatorType();
+  }
+
   // Clone matrix expression
   constexpr const auto& cloneExp() const {
     return conv(*mp_left, *mp_right, m_stride_x, m_stride_y, m_pad_x, m_pad_y);
@@ -363,6 +368,9 @@ constexpr const auto& conv( const IMatrix<T1>& u, const IMatrix<T2>& v,
                             const size_t pad_x = 0, const size_t pad_y = 0  ) {
   const auto& _u = u.cloneExp();
   const auto& _v = v.cloneExp();
+
+  ASSERT((_u.allocatorType() == _v.allocatorType()), "The allocators of LHS and RHS don't align in the same memory space");
+
   auto tmp = Allocate<GenericMatConvT<T1, T2>>( const_cast<T1*>(static_cast<const T1*>(&_u)),
                                                 const_cast<T2*>(static_cast<const T2*>(&_v)), 
                                                 stride_x, stride_y, pad_x, pad_y );

@@ -21,15 +21,43 @@
 
  #include "GlobalParameters.hpp"
  
-// Set handler
 namespace CoolDiff {
-  void GlobalParameters::setHandler(HandlerType ht) {
-    m_ht = ht;
+  // Set CPU handler
+  void GlobalParameters::setCPUHandler(CPUHandlerType ht) {
+    m_ht_cpu = ht;
   }
 
-  // Get handler
-  GlobalParameters::HandlerType GlobalParameters::getHandler() {
-    return m_ht;
+  // Get CPU handler
+  GlobalParameters::CPUHandlerType GlobalParameters::getCPUHandler() {
+    return m_ht_cpu;
+  }
+
+  // Set GPU handler
+  void GlobalParameters::setGPUHandler(GPUHandlerType ht) {
+    m_ht_gpu = ht;
+  }
+
+  // Get GPU handler
+  GlobalParameters::GPUHandlerType GlobalParameters::getGPUHandler() {
+    return m_ht_gpu;
+  }
+
+  // Is the memory strategy in CPU
+  bool GlobalParameters::isCPUSpace(std::string_view strategy) {
+    if("CPUMemoryStrategy" == strategy) {
+        return true;
+    } else {
+        return false;
+    }
+  }
+
+  // Is the memory strategy in GPU space
+  bool GlobalParameters::isGPUSpace(std::string_view strategy) {
+    if("GPUPinnedMemoryStrategy" == strategy) {
+        return true;
+    } else {
+        return false;
+    }
   }
 
   #if defined(USE_CUDA_BACKEND) 

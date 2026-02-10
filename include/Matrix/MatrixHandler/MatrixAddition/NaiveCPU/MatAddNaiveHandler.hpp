@@ -27,20 +27,25 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatAddNaiveHandler : public T {
     public:
+        /* Matrix-Matrix numerical addition */
         void handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
-            /* Matrix-Matrix numerical addition */
-
             // Dimensions of LHS and RHS matrices
             const size_t nrows{lhs->getNumRows()};
             const size_t ncols{rhs->getNumColumns()};
             const size_t lcols{lhs->getNumColumns()};
             const size_t rrows{rhs->getNumRows()};
 
+            // LHS/RHS memory strategies
+            const auto& lhs_strategy = lhs->allocatorType();
+            const auto& rhs_strategy = rhs->allocatorType();
+
             // Assert dimensions
             ASSERT((nrows == rrows) && (ncols == lcols), "Matrix addition dimensions mismatch");
+            // Assert allocator
+            ASSERT((lhs_strategy == rhs_strategy), "LHS and RHS matrices are in different memory spaces");
 
             // Pool matrix
-            MemoryManager::MatrixPool(result, nrows, ncols);
+            MemoryManager::MatrixPool(result, nrows, ncols, rhs_strategy);
 
             // Get raw pointers to result, left and right matrices
             Type* res = result->getMatrixPtr();

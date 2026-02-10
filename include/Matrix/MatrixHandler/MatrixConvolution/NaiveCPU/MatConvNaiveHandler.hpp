@@ -37,13 +37,18 @@ class MatConvNaiveHandler : public T {
     bool m_initialized{false};
     
   public:
-    void handle(const size_t stride_x, const size_t stride_y,
-                const size_t pad_x, const size_t pad_y,
+    /* Matrix-Matrix numerical convolution */
+    void handle(const size_t stride_x, const size_t stride_y, const size_t pad_x, const size_t pad_y,
                 const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
         // Stride must be strictly non-negative
         ASSERT(((int)stride_x > 0) && ((int)stride_y > 0), "Stride is not strictly non-negative");
         // Padding must be positive
         ASSERT(((int)pad_x >= 0) && ((int)pad_y >= 0), "Stride is not positive");
+
+        // Assert allocator
+        const auto& lhs_strategy = lhs->allocatorType();
+        const auto& rhs_strategy = rhs->allocatorType();
+        ASSERT((lhs_strategy == rhs_strategy), "LHS and RHS matrices are in different memory spaces");
 
         // One time initialization
         if (false == m_initialized) {
@@ -66,7 +71,7 @@ class MatConvNaiveHandler : public T {
         lhs->pad(pad_x, pad_y, mp_arr[0]);
 
         // Get result matrix from pool
-        MemoryManager::MatrixPool(result, rows, cols);
+        MemoryManager::MatrixPool(result, rows, cols, rhs_strategy);
 
         // Fill the elements of result matrix
         for (size_t i{}; i < rows; ++i) {
@@ -86,8 +91,8 @@ class MatConvNaiveHandler : public T {
             CoolDiff::TensorR2::MatOperators::MatrixHadamard(mp_arr[1], rhs, mp_arr[2]);
 
             // Sigma function
-            CoolDiff::TensorR2::MatOperators::MatrixMul(CoolDiff::TensorR2::MatrixBasics::Ones(1, crows), mp_arr[2], mp_arr[3]);
-            CoolDiff::TensorR2::MatOperators::MatrixMul(mp_arr[3], CoolDiff::TensorR2::MatrixBasics::Ones(ccols, 1), mp_arr[4]);
+            CoolDiff::TensorR2::MatOperators::MatrixMul(CoolDiff::TensorR2::MatrixBasics::Ones("CPUMemoryStrategy", 1, crows), mp_arr[2], mp_arr[3]);
+            CoolDiff::TensorR2::MatOperators::MatrixMul(mp_arr[3], CoolDiff::TensorR2::MatrixBasics::Ones("CPUMemoryStrategy", ccols, 1), mp_arr[4]);
 
             // Set block matrix
             result->setBlockMat({i, i}, {j, j}, mp_arr[4]);

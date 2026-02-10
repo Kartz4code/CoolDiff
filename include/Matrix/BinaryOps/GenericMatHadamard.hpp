@@ -82,6 +82,11 @@ public:
     BINARY_FIND_ME(); 
   }
 
+  // Allocator type
+  constexpr std::string_view allocatorType() const {
+    return mp_right->allocatorType();
+  }
+
   // Clone matrix expression
   constexpr const auto& cloneExp() const {
     return (*mp_left)^(*mp_right);
@@ -139,9 +144,9 @@ public:
     const size_t ncols_x = X.getNumColumns();
 
     // L (X) I - Left matrix and identity Kronocker product (Policy design)
-    MATRIX_KRON(left_mat, CoolDiff::TensorR2::MatrixBasics::Ones(nrows_x, ncols_x), mp_arr[4]);
+    MATRIX_KRON(left_mat, CoolDiff::TensorR2::MatrixBasics::Ones(allocatorType(), nrows_x, ncols_x), mp_arr[4]);
     // R (X) I - Right matrix and identity Kronocker product (Policy design)
-    MATRIX_KRON(right_mat, CoolDiff::TensorR2::MatrixBasics::Ones(nrows_x, ncols_x), mp_arr[5]);
+    MATRIX_KRON(right_mat, CoolDiff::TensorR2::MatrixBasics::Ones(allocatorType(), nrows_x, ncols_x), mp_arr[5]);
 
     // Hadamard product with left and right derivatives (Policy design)
     MATRIX_HADAMARD(mp_arr[4], dright_mat, mp_arr[2]);
@@ -355,6 +360,9 @@ template <typename T1, typename T2>
 constexpr const auto& operator^(const IMatrix<T1>& u, const IMatrix<T2>& v) {
   const auto& _u = u.cloneExp();
   const auto& _v = v.cloneExp();
+
+  ASSERT((_u.allocatorType() == _v.allocatorType()), "The allocators of LHS and RHS don't align in the same memory space");
+  
   auto tmp = Allocate<GenericMatHadamardT<T1, T2>>( const_cast<T1*>(static_cast<const T1*>(&_u)),
                                                     const_cast<T2*>(static_cast<const T2*>(&_v)) );
   return *tmp;

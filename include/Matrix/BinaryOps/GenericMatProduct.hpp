@@ -79,6 +79,11 @@ public:
     BINARY_FIND_ME(); 
   }
 
+  // Allocator type
+  constexpr std::string_view allocatorType() const {
+    return mp_right->allocatorType();
+  }
+
    // Clone matrix expression
   constexpr const auto& cloneExp() const {
     return ((*mp_left)*(*mp_right));
@@ -138,9 +143,9 @@ public:
     const size_t ncols_x = X.getNumColumns();
 
     // L (X) I - Left matrix and identity Kronocker product (Policy design)
-    MATRIX_KRON(left_mat, CoolDiff::TensorR2::MatrixBasics::Eye(nrows_x), mp_arr[4]);
+    MATRIX_KRON(left_mat, CoolDiff::TensorR2::MatrixBasics::Eye(allocatorType(), nrows_x), mp_arr[4]);
     // R (X) I - Right matrix and identity Kronocke product (Policy design)
-    MATRIX_KRON(right_mat, CoolDiff::TensorR2::MatrixBasics::Eye(ncols_x), mp_arr[5]);
+    MATRIX_KRON(right_mat, CoolDiff::TensorR2::MatrixBasics::Eye(allocatorType(), ncols_x), mp_arr[5]);
 
     // Product with left and right derivatives (Policy design)
     MATRIX_MUL(mp_arr[4], dright_mat, mp_arr[2]);
@@ -388,6 +393,11 @@ public:
     BINARY_RIGHT_FIND_ME(); 
   }
 
+  // Allocator type
+  constexpr std::string_view allocatorType() const {
+    return mp_right->allocatorType();
+  }
+
    // Clone matrix expression
   constexpr const auto& cloneExp() const {
     return m_left*(*mp_right);
@@ -448,7 +458,7 @@ public:
       
       /* IMPORTANT: The derivative is computed here */
       const size_t n = mp_right->getNumRows();
-      const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(n));
+      const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(allocatorType(), n));
 
       MATRIX_SCALAR_MUL(m_left, eye_n, mp_arr[2]);
 
@@ -591,6 +601,11 @@ public:
     BINARY_RIGHT_FIND_ME(); 
   }
 
+  // Allocator type
+  constexpr std::string_view allocatorType() const {
+    return mp_right->allocatorType();
+  }
+
    // Clone matrix expression
   constexpr const auto& cloneExp() const {
     return (*mp_left)*(*mp_right);
@@ -641,8 +656,8 @@ public:
     const size_t ncols_f = getNumColumns();
 
 
-    MATRIX_KRON(CoolDiff::TensorR2::MatrixBasics::Ones(nrows_f, ncols_f), mp_arr[2], mp_arr[5]);
-    MATRIX_KRON(right_mat, CoolDiff::TensorR2::MatrixBasics::Ones(nrows_x, ncols_x), mp_arr[6]);
+    MATRIX_KRON(CoolDiff::TensorR2::MatrixBasics::Ones(allocatorType(), nrows_f, ncols_f), mp_arr[2], mp_arr[5]);
+    MATRIX_KRON(right_mat, CoolDiff::TensorR2::MatrixBasics::Ones(allocatorType(), nrows_x, ncols_x), mp_arr[6]);
 
     // Product with left and right derivatives (Policy design)
     MATRIX_SCALAR_MUL(val, dright_mat, mp_arr[4]);
@@ -673,7 +688,7 @@ public:
       }
       
       const size_t n = mp_right->getNumRows();
-      const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(n));
+      const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(allocatorType(), n));
       const Type left = CoolDiff::TensorR1::Eval((*mp_left));
       const Matrix<Type>* right_mat = mp_right->eval();
 
@@ -704,7 +719,7 @@ public:
 
                       const auto idx = item.first; const auto val = item.second;
                       MatType*& ptr = this->m_cloned[this->incFunc()];
-                      MATRIX_SCALAR_MUL(mp_arr7_val*val, CoolDiff::TensorR2::MatrixBasics::Eye(1), ptr);
+                      MATRIX_SCALAR_MUL(mp_arr7_val*val, CoolDiff::TensorR2::MatrixBasics::Eye(allocatorType(), 1), ptr);
                       if(auto it2 = cache->find(idx); it2 != cache->end()) {
                         MATRIX_ADD((*cache)[idx], ptr, (*cache)[idx]);
                       } else {
@@ -771,7 +786,7 @@ public:
 
                         const auto idx = item.first; const auto val = item.second;
                         MatType*& ptr = this->m_cloned[this->incFunc()];
-                        MATRIX_SCALAR_MUL(mp_arr11_val*val, CoolDiff::TensorR2::MatrixBasics::Eye(1), ptr);
+                        MATRIX_SCALAR_MUL(mp_arr11_val*val, CoolDiff::TensorR2::MatrixBasics::Eye(allocatorType(), 1), ptr);
                         if(auto it2 = cache->find(idx); it2 != cache->end()) {
                           MATRIX_ADD((*cache)[idx], ptr, (*cache)[idx]);
                         } else {
@@ -843,6 +858,9 @@ template <typename T1, typename T2>
 constexpr const auto& operator*(const IMatrix<T1>& u, const IMatrix<T2>& v) {
   const auto& _u = u.cloneExp();
   const auto& _v = v.cloneExp();
+
+  ASSERT((_u.allocatorType() == _v.allocatorType()), "The allocators of LHS and RHS don't align in the same memory space");
+
   auto tmp = Allocate<GenericMatProductT<T1, T2>>(const_cast<T1*>(static_cast<const T1*>(&_u)),
                                                   const_cast<T2*>(static_cast<const T2*>(&_v)));
   return *tmp;
@@ -872,6 +890,9 @@ template <typename T1, typename T2>
 constexpr const auto& operator%(const IMatrix<T1>& u, const IMatrix<T2>& v) {
   const auto& _u = u.cloneExp();
   const auto& _v = v.cloneExp();
+
+  ASSERT((_u.allocatorType() == _v.allocatorType()), "The allocators of LHS and RHS don't align in the same memory space");
+  
   return (_u*inv(_v));
 }
 

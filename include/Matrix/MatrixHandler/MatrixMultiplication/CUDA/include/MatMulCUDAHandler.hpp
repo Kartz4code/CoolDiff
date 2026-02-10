@@ -30,32 +30,48 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatMulCUDAHandler : public T {
     public:
+        /* Matrix-Matrix numerical multiplication */
         void handle(const Matrix<Type>* lhs, const Matrix<Type>* rhs, Matrix<Type>*& result) {
-            // Dimensions of LHS and RHS matrices
-            const size_t lrows{lhs->getNumRows()};
-            const size_t lcols{lhs->getNumColumns()};
-            const size_t rcols{rhs->getNumColumns()};
-            const size_t rrows{rhs->getNumRows()};
+            #if !defined(USE_CUDA_BACKEND)
+                // If USE_CUDA_BACKEND is undefined
+                T::handle(lhs, rhs, result);
+                return;
+            #else 
+                // Dimensions of LHS and RHS matrices
+                const size_t lrows{lhs->getNumRows()};
+                const size_t lcols{lhs->getNumColumns()};
+                const size_t rcols{rhs->getNumColumns()};
+                const size_t rrows{rhs->getNumRows()};
 
-            // Assert dimensions
-            ASSERT(lcols == rrows, "Matrix multiplication dimensions mismatch");
+                // LHS/RHS memory strategies
+                const auto& lhs_strategy = lhs->allocatorType();
+                const auto& rhs_strategy = rhs->allocatorType();
 
-            // Pool matrix
-            MemoryManager::MatrixPool(result, lrows, rcols);
+                // Assert dimensions
+                ASSERT(lcols == rrows, "Matrix multiplication dimensions mismatch");
+                // Assert allocator
+                ASSERT((lhs_strategy == rhs_strategy), "LHS and RHS matrices are in different memory spaces");
 
-            // Get raw pointers to result, left and right matrices
-            Type* left = const_cast<Matrix<Type>*>(lhs)->getMatrixPtr();
-            Type* right = const_cast<Matrix<Type>*>(rhs)->getMatrixPtr();
-            Type* result_ptr = result->getMatrixPtr();
-            
-            // Define the block and grid sizes
-            const dim3 threads(THREAD_SIZE, THREAD_SIZE);
-            const dim3 blocks(  (rcols + threads.x - 1) / threads.x, 
-                                (lrows + threads.y - 1) / threads.y  );
+                // CUDA handler
+                CUDA_BACKEND_HANDLER(T::handle(lhs, rhs, result), rhs_strategy);
 
-            // Launch the kernel
-            MulKernel(blocks, threads, left, right, result_ptr, lrows, lcols, rcols);
+                // Pool matrix
+                MemoryManager::MatrixPool(result, lrows, rcols, rhs_strategy);
 
-            return;
+                // Get raw pointers to result, left and right matrices
+                Type* left = const_cast<Matrix<Type>*>(lhs)->getMatrixPtr();
+                Type* right = const_cast<Matrix<Type>*>(rhs)->getMatrixPtr();
+                Type* result_ptr = result->getMatrixPtr();
+                
+                // Define the block and grid sizes
+                const dim3 threads(THREAD_SIZE, THREAD_SIZE);
+                const dim3 blocks(  (rcols + threads.x - 1) / threads.x, 
+                                    (lrows + threads.y - 1) / threads.y  );
+
+                // Launch the kernel
+                MulKernel(blocks, threads, left, right, result_ptr, lrows, lcols, rcols);
+
+                return;
+            #endif
         }
 };

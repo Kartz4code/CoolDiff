@@ -27,17 +27,21 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatUnaryNaiveHandler : public T {
     public:
-      void handle(const Matrix<Type>* mat, const FunctionType& func, Matrix<Type>*& result) {
+      /* Matrix unary operation */
+      void handle(const Matrix<Type>* rhs, const FunctionType& func, Matrix<Type>*& result) {
+        // Dimensions of mat matrix
+        const size_t nrows{rhs->getNumRows()};
+        const size_t ncols{rhs->getNumColumns()};
 
-        const size_t nrows{mat->getNumRows()};
-        const size_t ncols{mat->getNumColumns()};
+        // Mat memory strategy
+        const auto& rhs_strategy = rhs->allocatorType();
 
         // Pool matrix
-        MemoryManager::MatrixPool(result, nrows, ncols);
+        MemoryManager::MatrixPool(result, nrows, ncols, rhs_strategy);
 
         // Get raw pointers to result and right matrix
         Type* res = result->getMatrixPtr();
-        const Type* right = mat->getMatrixPtr();
+        const Type* right = rhs->getMatrixPtr();
 
         const size_t size{nrows * ncols};
 

@@ -25,19 +25,21 @@
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<MatrixStaticHandler, T>>>
 class MatScalarAddNaiveHandler : public T {
     public:
+        /* Matrix-Scalar numerical addition */
         void handle(Type lhs, const Matrix<Type> *rhs, Matrix<Type> *&result) {
-            /* Matrix-Scalar numerical addition */
-            
             // Dimensions of RHS matrices
             const size_t nrows{rhs->getNumRows()};
             const size_t ncols{rhs->getNumColumns()};
 
+            // RHS memory strategy
+            const auto& rhs_strategy = rhs->allocatorType();
+
             // Pool matrix
-            MemoryManager::MatrixPool(result, nrows, ncols);
+            MemoryManager::MatrixPool(result, nrows, ncols, rhs_strategy);
 
             // Get raw pointers to result, left and right matrices
-            Type *res = result->getMatrixPtr();
-            const Type *right = rhs->getMatrixPtr();
+            Type* res = result->getMatrixPtr();
+            const Type* right = rhs->getMatrixPtr();
 
             const size_t size{nrows * ncols};
             // For each element, perform addition

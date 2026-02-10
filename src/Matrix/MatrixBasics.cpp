@@ -26,9 +26,12 @@ namespace CoolDiff {
     namespace TensorR2 {
         namespace MatrixBasics {
           // Numerical Eye matrix
-          const Matrix<Type>* Eye(const size_t n) {
+          const Matrix<Type>* Eye(std::string_view alloc_type, const size_t n) {
             // Eye matrix registry
-            static UnOrderedMap<size_t, Matrix<Type>*> eye_register;
+            static Map<std::string_view, UnOrderedMap<size_t, Matrix<Type>*>> eye_register_base;
+
+            // Get the registry for the particular allocator type
+            auto& eye_register = eye_register_base[alloc_type];
 
             // Result matrix
             Matrix<Type>* result{nullptr};
@@ -39,7 +42,7 @@ namespace CoolDiff {
             } else {
 
               // Pool matrix
-              MemoryManager::MatrixPool(result, n, n);
+              MemoryManager::MatrixPool(result, n, n, alloc_type);
 
               // Vector of indices
               const auto idx = CoolDiff::Common::Range<size_t>(0, n);
@@ -50,11 +53,17 @@ namespace CoolDiff {
               return result;
             }
           }
+          const Matrix<Type>& EyeRef(std::string_view alloc_type, const size_t n) {
+            return *Eye(alloc_type, n);
+          }
 
           // Numerical Zero matrix
-          const Matrix<Type>* Zeros(const size_t n, const size_t m) {
+          const Matrix<Type>* Zeros(std::string_view alloc_type, const size_t n, const size_t m) {
             // Zeros matrix registry
-            static UnOrderedMap<Pair<size_t, size_t>, Matrix<Type>*> zeros_register;
+            static Map<std::string_view, UnOrderedMap<Pair<size_t, size_t>, Matrix<Type>*>> zeros_register_base;
+
+            // Get the registry for the particular allocator type
+            auto& zeros_register = zeros_register_base[alloc_type];
 
             // Result matrix
             Matrix<Type>* result{nullptr};
@@ -64,22 +73,29 @@ namespace CoolDiff {
               return it->second;
             } else {
               // Pool matrix
-              MemoryManager::MatrixPool(result, n, m);
+              MemoryManager::MatrixPool(result, n, m, alloc_type);
               // Register and return result
               zeros_register[{n, m}] = result;
               return result;
             }
           }
-
-          // Numerical Zeros square matrix
-          const Matrix<Type>* Zeros(const size_t n) { 
-            return Zeros(n, n); 
+          const Matrix<Type>* Zeros(std::string_view alloc_type, const size_t n) { 
+            return Zeros(alloc_type, n, n); 
+          }
+          const Matrix<Type>& ZerosRef(std::string_view alloc_type, const size_t n, const size_t m) {
+            return *Zeros(alloc_type, n,m);
+          }
+          const Matrix<Type>& ZerosRef(std::string_view alloc_type, const size_t n) {
+            return ZerosRef(alloc_type, n, n);
           }
 
           // Numerical Ones matrix
-          const Matrix<Type>* Ones(const size_t n, const size_t m) {
+          const Matrix<Type>* Ones(std::string_view alloc_type, const size_t n, const size_t m) {
             // Zeros matrix registry
-            static UnOrderedMap<Pair<size_t, size_t>, Matrix<Type>*> ones_register;
+            static Map<std::string_view, UnOrderedMap<Pair<size_t, size_t>, Matrix<Type>*>> ones_register_base;
+
+            // Get the registry for the particular allocator type
+            auto& ones_register = ones_register_base[alloc_type];
 
             // Result matrix
             Matrix<Type>* result{nullptr};
@@ -89,42 +105,22 @@ namespace CoolDiff {
               return it->second;
             } else {
               // Pool matrix
-              MemoryManager::MatrixPool(result, n, m, (Type)1);
+              MemoryManager::MatrixPool(result, n, m, alloc_type, (Type)1);
               // Register and return result
               ones_register[{n, m}] = result;
               return result;
             }
           }
-
-          // Numerical Ones square matrix
-          const Matrix<Type>* Ones(const size_t n) { 
-            return Ones(n, n); 
+          const Matrix<Type>* Ones(std::string_view alloc_type, const size_t n) { 
+            return Ones(alloc_type, n, n); 
+          }
+          const Matrix<Type>& OnesRef(std::string_view alloc_type, const size_t n, const size_t m) {
+            return *Ones(alloc_type, n,m);
+          }
+          const Matrix<Type>& OnesRef(std::string_view alloc_type, const size_t n) {
+            return OnesRef(alloc_type, n,n);
           }
 
-          // Numerical Eye matrix
-          const Matrix<Type>& EyeRef(const size_t n) {
-            return *Eye(n);
-          }
-
-          // Numerical Ones matrix
-          const Matrix<Type>& OnesRef(const size_t n, const size_t m) {
-            return *Ones(n,m);
-          }
-
-          // Numerical Ones matrix
-          const Matrix<Type>& OnesRef(const size_t n) {
-            return OnesRef(n,n);
-          }
-
-          // Numerical Zero matrix
-          const Matrix<Type>& ZerosRef(const size_t n, const size_t m) {
-            return *Zeros(n,m);
-          }
-
-          // Numerical Zero matrix
-          const Matrix<Type>& ZerosRef(const size_t n) {
-            return ZerosRef(n, n);
-          }
         }
     }
 }

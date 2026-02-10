@@ -97,7 +97,6 @@ TEST(MatTest, Test16) {
   ASSERT_TRUE(verify_matrix_equality(T2, Eval2_res2));
 }
 
-
 // Matrix derivative order test #4
 TEST(MatTest, Test15) {
   double epi = 0.001;
@@ -280,6 +279,7 @@ TEST(MatTest, Test13) {
 
   verify_deval_function(DXres1);
 }
+
 
 // Matrix derivative order test #1
 TEST(MatTest, Test12) {
@@ -523,6 +523,7 @@ TEST(MatTest, Test8) {
   verify_deval_function(DXres2);
 }
 
+
 // Matrix convolution operation (with variable change)
 TEST(MatTest, Test7p5) {
   // Result set 1
@@ -549,8 +550,10 @@ TEST(MatTest, Test7p5) {
   W2(1, 0) = -5; W2(1, 1) = 6;
 
   Matrix<Expression> Exp1, Exp2;
+
   Exp1 = conv(X, W2, 1, 1, 1, 1);
   Exp2 = conv(Exp1, W1, 1, 1, 1, 1);
+
   Matrix<Expression> E = Sigma(Exp2);
 
   // Verification eval function
@@ -595,7 +598,6 @@ TEST(MatTest, Test7p5) {
   ASSERT_TRUE(verify_deval_function(DW1res2, W1));
   ASSERT_TRUE(verify_deval_function(DW2res2, W2));
 }
-
 
 // Matrix convolution operation (with variable change)
 TEST(MatTest, Test7) {
@@ -676,6 +678,7 @@ TEST(MatTest, Test7) {
   ASSERT_TRUE(verify_deval_function(DW1res2, W1));
   ASSERT_TRUE(verify_deval_function(DW2res2, W2));
 }
+
 
 // Matrix trace operation (with variable change)
 TEST(MatTest, Test6) {
@@ -835,6 +838,7 @@ TEST(MatTest, Test5) {
   ASSERT_TRUE(verify_eval_function(Xres2));
   ASSERT_TRUE(verify_deval_function(DXres2));
 }
+
 
 // Matrix with scalar expressions (With Hadamard operator and parameter change)
 TEST(MatTest, Test4) {
@@ -1007,6 +1011,7 @@ TEST(MatTest, Test3) {
   ASSERT_TRUE(verify_deval_function(DXres2));
 }
 
+
 // Complicated matrix multiplication example (Change of values)
 TEST(MatTest, Test2) {
 
@@ -1170,8 +1175,9 @@ TEST(MatTest, Test1) {
 
 int main(int argc, char **argv) {
   #if defined(USE_COMPLEX_MATH)
-    // Set handler global parameter - Eigen
-    CoolDiff::GlobalParameters::setHandler(CoolDiff::GlobalParameters::HandlerType::EIGEN);
+    // Set backend
+    CoolDiff::GlobalParameters::setCPUHandler(CoolDiff::GlobalParameters::CPUHandlerType::EIGEN);
+    CoolDiff::GlobalParameters::setGPUHandler(CoolDiff::GlobalParameters::GPUHandlerType::CUDA);
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
   #else 

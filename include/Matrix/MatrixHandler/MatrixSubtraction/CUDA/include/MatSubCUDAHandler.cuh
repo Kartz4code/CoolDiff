@@ -21,9 +21,11 @@
 
 #pragma once
 
-#include <cuda.h>
-#include <cuda_runtime.h>
+#if defined(USE_CUDA_BACKEND)
+    #include <cuda.h>
+    #include <cuda_runtime.h>
 
-// CUDA matrix subtraction kernel
-template<typename T>
-void SubKernel(const dim3, const dim3, const T*, const T*, T*, const size_t, const size_t);
+    // CUDA matrix subtraction kernel
+    template<typename T>
+    void SubKernel(const dim3, const dim3, const T*, const T*, T*, const size_t, const size_t);
+#endif

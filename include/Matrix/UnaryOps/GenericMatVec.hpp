@@ -68,7 +68,12 @@ class GenericMatVec : public IMatrix<GenericMatVec<T>> {
             BINARY_RIGHT_FIND_ME(); 
         }
 
-    // Clone matrix expression
+        // Allocator type
+        constexpr std::string_view allocatorType() const {
+            return mp_right->allocatorType();
+        }
+
+        // Clone matrix expression
         constexpr const auto& cloneExp() const {
             return vec(*mp_right);
         }
@@ -121,7 +126,7 @@ class GenericMatVec : public IMatrix<GenericMatVec<T>> {
 
                 // Get raw pointers to right matrix
                 const size_t n = (mp_right->getNumColumns() * mp_right->getNumRows());
-                const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(n));
+                const auto eye_n = const_cast<MatType*>(CoolDiff::TensorR2::MatrixBasics::Eye(allocatorType(), n));
 
                 /* IMPORTANT: The derivative is computed here */
                 MATRIX_TRANSPOSE(eye_n, mp_arr[0]);

@@ -76,6 +76,11 @@ public:
     BINARY_RIGHT_FIND_ME(); 
   }
 
+  // Allocator type
+  constexpr std::string_view allocatorType() const {
+    return mp_right->allocatorType();
+  }
+
    // Clone matrix expression
   constexpr const auto& cloneExp() const {
     return det(*mp_right);
@@ -138,16 +143,16 @@ public:
     MATRIX_SCALAR_MUL((*mp_arr[9])(0,0), mp_arr[2], mp_arr[10]);
   
     // L (X) I - Left matrix and identity Kronocker product (Policy design)
-    MATRIX_KRON(mp_arr[10], CoolDiff::TensorR2::MatrixBasics::Ones(nrows_x, ncols_x), mp_arr[3]);
+    MATRIX_KRON(mp_arr[10], CoolDiff::TensorR2::MatrixBasics::Ones(allocatorType(), nrows_x, ncols_x), mp_arr[3]);
     // Hadamard product with left and right derivatives (Policy design)
     MATRIX_HADAMARD(mp_arr[3], dright_mat, mp_arr[4]);
     
-    MATRIX_KRON(CoolDiff::TensorR2::MatrixBasics::Ones(1, n_size), 
-                CoolDiff::TensorR2::MatrixBasics::Eye(nrows_x), 
+    MATRIX_KRON(CoolDiff::TensorR2::MatrixBasics::Ones(allocatorType(), 1, n_size), 
+                CoolDiff::TensorR2::MatrixBasics::Eye(allocatorType(), nrows_x), 
                 mp_arr[5]);
     
-    MATRIX_KRON(CoolDiff::TensorR2::MatrixBasics::Ones(n_size, 1), 
-                CoolDiff::TensorR2::MatrixBasics::Eye(ncols_x), 
+    MATRIX_KRON(CoolDiff::TensorR2::MatrixBasics::Ones(allocatorType(), n_size, 1), 
+                CoolDiff::TensorR2::MatrixBasics::Eye(allocatorType(), ncols_x), 
                 mp_arr[6]);
                 
     MATRIX_MUL(mp_arr[5], mp_arr[4], mp_arr[7]);
