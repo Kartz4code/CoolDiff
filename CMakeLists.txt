@@ -24,16 +24,6 @@
 # [CMake version]
 cmake_minimum_required(VERSION 3.22)
 
-# [Tested for gcc-12 version]
-if(NOT DEFINED CMAKE_C_COMPILER)
-  set(CMAKE_C_COMPILER gcc-12 CACHE STRING "C compiler" FORCE)
-endif()
-
-# [Tested for g++-12 version]
-if(NOT DEFINED CMAKE_CXX_COMPILER)
-  set(CMAKE_CXX_COMPILER g++-12 CACHE STRING "C++ compiler" FORCE)
-endif()
-
 # [Project name and description]
 project(CoolDiff VERSION 1.0.1.0
                  DESCRIPTION "CoolDiff - A Symbolic/Automatic differentiation C++ tool"
