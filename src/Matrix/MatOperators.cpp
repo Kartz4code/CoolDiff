@@ -71,6 +71,7 @@
 #include "MatScalarMulCUDAHandler.hpp"
 #include "MatKronCUDAHandler.hpp"
 #include "MatTransposeCUDAHandler.hpp"
+#include "MatTraceCUDAHandler.hpp"
 #include "MatUnaryCUDAHandler.hpp"
 
 namespace CoolDiff {
@@ -190,7 +191,7 @@ namespace CoolDiff {
             NULL_CHECK(mat, "Matrix mat is a nullptr");
 
             // TODO - CUDA
-            static HANDLER2(MatTraceEigenHandler, MatTraceNaiveHandler) handler; 
+            static HANDLER3(MatTraceEigenHandler, MatTraceCUDAHandler, MatTraceNaiveHandler) handler; 
             handler.handle(mat, result);
           }
 

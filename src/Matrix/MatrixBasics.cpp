@@ -40,7 +40,6 @@ namespace CoolDiff {
             if (auto it = eye_register.find(n); it != eye_register.end()) {
               return it->second;
             } else {
-
               // Pool matrix
               MemoryManager::MatrixPool(result, n, n, alloc_type);
 
@@ -52,7 +51,7 @@ namespace CoolDiff {
               eye_register[n] = result;
               return result;
             }
-          }
+          }         
           const Matrix<Type>& EyeRef(std::string_view alloc_type, const size_t n) {
             return *Eye(alloc_type, n);
           }
@@ -78,13 +77,13 @@ namespace CoolDiff {
               zeros_register[{n, m}] = result;
               return result;
             }
-          }
+          }          
           const Matrix<Type>* Zeros(std::string_view alloc_type, const size_t n) { 
             return Zeros(alloc_type, n, n); 
-          }
+          }          
           const Matrix<Type>& ZerosRef(std::string_view alloc_type, const size_t n, const size_t m) {
             return *Zeros(alloc_type, n,m);
-          }
+          }         
           const Matrix<Type>& ZerosRef(std::string_view alloc_type, const size_t n) {
             return ZerosRef(alloc_type, n, n);
           }
@@ -110,17 +109,16 @@ namespace CoolDiff {
               ones_register[{n, m}] = result;
               return result;
             }
-          }
+          }        
           const Matrix<Type>* Ones(std::string_view alloc_type, const size_t n) { 
             return Ones(alloc_type, n, n); 
-          }
+          }          
           const Matrix<Type>& OnesRef(std::string_view alloc_type, const size_t n, const size_t m) {
             return *Ones(alloc_type, n,m);
           }
           const Matrix<Type>& OnesRef(std::string_view alloc_type, const size_t n) {
             return OnesRef(alloc_type, n,n);
           }
-
         }
     }
 }

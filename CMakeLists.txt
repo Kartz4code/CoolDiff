@@ -24,6 +24,10 @@
 # [CMake version]
 cmake_minimum_required(VERSION 3.22)
 
+if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+    set(CMAKE_CUDA_ARCHITECTURES 75 86)
+endif()
+
 # [Project name and description]
 project(CoolDiff VERSION 1.0.1.0
                  DESCRIPTION "CoolDiff - A Symbolic/Automatic differentiation C++ tool"
@@ -219,7 +223,8 @@ set(CUDA_SRC # Matrix folder *.cu files
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixAddition/CUDA/src/MatScalarAddCUDAHandler.cu        
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixSubtraction/CUDA/src/MatSubCUDAHandler.cu
              ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixHadamard/CUDA/src/MatHadamardCUDAHandler.cu     
-             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose/CUDA/src/MatTransposeCUDAHandler.cu)
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose/CUDA/src/MatTransposeCUDAHandler.cu
+             ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTrace/CUDA/src/MatTraceCUDAHandler.cu)
 
 # Set all CPP source files to the variable SRC
 set(SRC # Scalar folder *.cpp files
@@ -259,6 +264,7 @@ set(CUDA_PRIVATE_INCLUDES #CUDA handlers
                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixMultiplication/CUDA/include
                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixKronProduct/CUDA/include
                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTranspose/CUDA/include
+                          ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixTrace/CUDA/include
                           ${CMAKE_SOURCE_DIR}/include/Matrix/MatrixHandler/MatrixUnary/CUDA/include)
 
 # Set all Eigen header files to the variable EIGEN_PRIVATE_INCLUDES

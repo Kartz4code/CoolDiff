@@ -58,12 +58,12 @@ class MatrixStaticHandler {
 };
 
 // CUDA backend handler
-#define CUDA_BACKEND_HANDLER(X,Y) if((CoolDiff::GlobalParameters::getGPUHandler() != CoolDiff::GlobalParameters::GPUHandlerType::CUDA) || \
-                                     (CoolDiff::GlobalParameters::isGPUSpace(Y) == false)) { X; return; }                                 \
+#define CUDA_BACKEND_HANDLER(X,Y) if((CoolDiff::GlobalParameters::getGPUHandler() != CoolDiff::GlobalParameters::GPUHandlerType::CUDA) ||   \
+                                     (CoolDiff::GlobalParameters::isGPUSpace(Y) == false)) { X; return; }                                   \
 
 // Eigen backend handler
 #define EIGEN_BACKEND_HANDLER(X,Y) if((CoolDiff::GlobalParameters::getCPUHandler() != CoolDiff::GlobalParameters::CPUHandlerType::EIGEN) || \
-                                      (CoolDiff::GlobalParameters::isCPUSpace(Y) == false)) { X; return; }                                 \
+                                      (CoolDiff::GlobalParameters::isCPUSpace(Y) == false)) { X; return; }                                  \
 
 
 
